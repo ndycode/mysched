@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="alarm_surface">#050B18</color>
+    <color name="alarm_card_surface">#111A2F</color>
+    <color name="alarm_card_border">#1F2B45</color>
+    <color name="alarm_primary">#7DA3FF</color>
+    <color name="alarm_primary_pressed">#5D82F0</color>
+    <color name="alarm_text_primary">#F4F6FF</color>
+    <color name="alarm_text_secondary">#ABB7DA</color>
+    <color name="alarm_chip_background">#182444</color>
+</resources>

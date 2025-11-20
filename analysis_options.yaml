@@ -1,0 +1,18 @@
+# Enable recommended lints
+include: package:flutter_lints/flutter.yaml
+
+linter:
+  rules:
+    # You can toggle or add project-specific ones here
+    prefer_final_locals: true
+    unnecessary_this: false
+    avoid_print: true
+
+analyzer:
+  exclude:
+    - build/**
+    - ios/**
+    - android/**
+    - linux/**
+    - macos/**
+    - windows/**

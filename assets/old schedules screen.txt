@@ -1,0 +1,3480 @@
+// coverage:ignore-file
+// lib/screens/dashboard_screen.dart
+import 'dart:async';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../services/profile_cache.dart';
+import '../services/reminders_api.dart';
+import '../services/schedule_api.dart' as sched;
+import '../ui/kit/class_details_sheet.dart';
+import '../ui/kit/kit.dart';
+import '../ui/theme/tokens.dart';
+import '../ui/theme/card_styles.dart';
+import '../utils/nav.dart';
+import '../widgets/instructor_avatar.dart';
+
+import 'add_class_page.dart';
+import 'add_reminder_page.dart';
+import 'account_overview_page.dart';
+import 'reminders_page.dart';
+import 'schedules_page.dart';
+
+const kMuted = Color(0xFF4B556D);
+const kSummaryMuted = Color(0xFF7F8AA7);
+const _kDashboardScopePref = 'dashboard.scope.selected';
+
+class DashboardScreen extends StatefulWidget {
+  const DashboardScreen({
+    super.key,
+    required this.api,
+    RemindersApi? remindersApi,
+  }) : _remindersOverride = remindersApi;
+
+  final sched.ScheduleApi api;
+  final RemindersApi? _remindersOverride;
+
+  @override
+  State<DashboardScreen> createState() => DashboardScreenState();
+}
+
+class DashboardScreenState extends State<DashboardScreen>
+    with WidgetsBindingObserver, RouteAware {
+  late final RemindersApi _remindersApi;
+
+  late final ValueNotifier<DateTime> _nowTick;
+  Timer? _ticker;
+
+  List<ClassItem> _classes = <ClassItem>[];
+  List<ClassItem> _allClasses = <ClassItem>[];
+  final Map<int, sched.ClassItem> _classSource = <int, sched.ClassItem>{};
+  final Map<int, sched.ClassDetails> _classDetailsCache =
+      <int, sched.ClassDetails>{};
+  List<ReminderEntry> _reminders = const [];
+  final Set<int> _pendingReminderActions = <int>{};
+  DateTime? _lastScheduleFetchAt;
+
+  bool _scheduleLoading = true;
+  bool _remindersLoading = true;
+  String? _remindersError;
+
+  String? _studentName;
+  String? _studentEmail;
+  String? _studentAvatar;
+
+  final TextEditingController _searchController = TextEditingController();
+  late final FocusNode _searchFocusNode = FocusNode();
+  bool _searchActive = false;
+  String _selectedScope = 'Today';
+  DateTime? _lastRefreshedAt;
+  VoidCallback? _profileListener;
+  PageRoute<dynamic>? _routeSubscription;
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _remindersApi = widget._remindersOverride ?? RemindersApi();
+    _nowTick = ValueNotifier<DateTime>(DateTime.now());
+    _dismissKeyboard();
+    _searchFocusNode.addListener(() {
+      if (!_searchFocusNode.hasFocus &&
+          mounted &&
+          _searchController.text.isEmpty &&
+          _searchActive) {
+        setState(() => _searchActive = false);
+      }
+    });
+    _profileListener = () {
+      final profile = ProfileCache.notifier.value;
+      _applyProfile(profile);
+    };
+    ProfileCache.notifier.addListener(_profileListener!);
+    _applyProfile(ProfileCache.notifier.value);
+    _restoreDashboardPrefs();
+    _startTicker();
+    _loadProfile();
+    _loadAll();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    if (_routeSubscription != null) {
+      routeObserver.unsubscribe(this);
+      _routeSubscription = null;
+    }
+    _ticker?.cancel();
+    _nowTick.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    if (_profileListener != null) {
+      ProfileCache.notifier.removeListener(_profileListener!);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is PageRoute && route != _routeSubscription) {
+      if (_routeSubscription != null) {
+        routeObserver.unsubscribe(this);
+      }
+      _routeSubscription = route;
+      routeObserver.subscribe(this, route);
+    }
+  }
+
+  void _dismissKeyboard() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      FocusManager.instance.primaryFocus?.unfocus();
+    });
+  }
+
+  Future<void> _restoreDashboardPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedScope = prefs.getString(_kDashboardScopePref);
+    if (!mounted) return;
+    if (storedScope != null &&
+        (storedScope == 'Today' || storedScope == 'This week')) {
+      setState(() {
+        _selectedScope = storedScope;
+      });
+      _recomputeFilteredClasses();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // ignore: discarded_futures
+      _refreshOnRouteFocus();
+    }
+  }
+
+  Future<void> _refreshOnRouteFocus() async {
+    _dismissKeyboard();
+    await Future.wait([
+      _loadAll(),
+      _loadProfile(refresh: true),
+    ]);
+  }
+
+  Future<void> refreshOnTabVisit() {
+    return _refreshOnRouteFocus();
+  }
+
+  @override
+  void didPopNext() {
+    // ignore: discarded_futures
+    _refreshOnRouteFocus();
+  }
+
+  Future<void> _loadProfile({bool refresh = false}) async {
+    try {
+      final profile = await ProfileCache.load(forceRefresh: refresh);
+      _applyProfile(profile);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {});
+    }
+  }
+
+  void _applyProfile(ProfileSummary? profile) {
+    if (!mounted || profile == null) return;
+    final nextName = profile.name;
+    final nextEmail = profile.email;
+    final nextAvatar = profile.avatarUrl;
+    if (nextName == _studentName &&
+        nextEmail == _studentEmail &&
+        nextAvatar == _studentAvatar) {
+      return;
+    }
+    setState(() {
+      _studentName = nextName;
+      _studentEmail = nextEmail;
+      _studentAvatar = nextAvatar;
+    });
+  }
+
+  Future<void> _loadAll() async {
+    if (mounted) {
+      setState(() {
+        _scheduleLoading = true;
+        _remindersLoading = true;
+        _remindersError = null;
+      });
+    }
+
+    await Future.wait([
+      _loadScheduleFromSupabase(),
+      _loadReminders(),
+    ]);
+  }
+
+  Future<void> _loadScheduleFromSupabase({bool softRefresh = false}) async {
+    try {
+      final now = DateTime.now();
+      final cached = widget.api.getCachedClasses();
+      if (cached != null && cached.isNotEmpty) {
+        await _applySchedule(cached);
+      }
+
+      final shouldSkipRemote = softRefresh &&
+          _lastScheduleFetchAt != null &&
+          now.difference(_lastScheduleFetchAt!) < const Duration(seconds: 3);
+      if (shouldSkipRemote) {
+        return;
+      }
+
+      final fresh = await widget.api.refreshMyClasses();
+      _lastScheduleFetchAt = DateTime.now();
+      await _applySchedule(fresh);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _scheduleLoading = false;
+      });
+    }
+  }
+
+  Future<void> _applySchedule(List<sched.ClassItem> raw) async {
+    final mapped = raw.map(ClassItem.fromApi).toList()
+      ..sort((a, b) {
+        if (a.weekday != b.weekday) return a.weekday.compareTo(b.weekday);
+        if (a.startTime.hour != b.startTime.hour) {
+          return a.startTime.hour.compareTo(b.startTime.hour);
+        }
+        return a.startTime.minute.compareTo(b.startTime.minute);
+      });
+
+    final source = <int, sched.ClassItem>{};
+    for (final item in raw) {
+      source[item.id] = item;
+    }
+
+    if (!mounted) return;
+    final refreshedAt = DateTime.now();
+    setState(() {
+      _allClasses = mapped;
+      _classSource
+        ..clear()
+        ..addAll(source);
+      _classDetailsCache.removeWhere((key, _) => !source.containsKey(key));
+      _scheduleLoading = false;
+      _lastRefreshedAt = refreshedAt;
+    });
+    _lastScheduleFetchAt = refreshedAt;
+    _recomputeFilteredClasses();
+  }
+
+  Future<void> _loadReminders() async {
+    if (!mounted) return;
+    setState(() {
+      _remindersLoading = true;
+      _remindersError = null;
+    });
+    try {
+      final items = await _remindersApi
+          .fetchReminders(includeCompleted: true)
+          .timeout(const Duration(seconds: 8));
+      if (!mounted) return;
+      setState(() {
+        _reminders = List<ReminderEntry>.unmodifiable(items);
+        _remindersLoading = false;
+        _lastRefreshedAt = DateTime.now();
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _reminders = const [];
+        _remindersLoading = false;
+        _remindersError = 'Reminders failed to refresh. Please try again soon.';
+      });
+    }
+  }
+
+  void _recomputeFilteredClasses() {
+    final now = DateTime.now();
+    final weekday = now.weekday;
+    final query = _searchController.text.trim().toLowerCase();
+
+    bool matchesScope(ClassItem item) {
+      switch (_selectedScope) {
+        case 'Today':
+          return item.weekday == weekday;
+        case 'This week':
+          return true;
+        default:
+          return true;
+      }
+    }
+
+    int sortKey(ClassItem item) {
+      final offset = (item.weekday - weekday + 7) % 7;
+      return offset * 24 * 60 +
+          item.startTime.hour * 60 +
+          item.startTime.minute;
+    }
+
+    final filtered = _allClasses.where((item) {
+      if (!item.enabled) return false;
+      if (!matchesScope(item)) return false;
+      if (query.isNotEmpty) {
+        final haystack =
+            '${item.subject} ${item.room} ${item.instructor}'.toLowerCase();
+        if (!haystack.contains(query)) return false;
+      }
+      return true;
+    }).toList()
+      ..sort((a, b) {
+        final keyA = sortKey(a);
+        final keyB = sortKey(b);
+        if (keyA != keyB) return keyA.compareTo(keyB);
+        return a.id.compareTo(b.id);
+      });
+
+    if (!mounted) return;
+    setState(() {
+      _classes = filtered;
+    });
+  }
+
+  void _startTicker() {
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (!mounted) return;
+      _nowTick.value = DateTime.now();
+    });
+  }
+
+  void _applyClassEnabled(int classId, bool enabled) {
+    if (!mounted) return;
+    setState(() {
+      if (_classSource.containsKey(classId)) {
+        _classSource[classId] =
+            _classSource[classId]!.copyWith(enabled: enabled);
+      }
+      _allClasses = _allClasses
+          .map((c) => c.id == classId ? c.copyWith(enabled: enabled) : c)
+          .toList(growable: false);
+    });
+    _recomputeFilteredClasses();
+  }
+
+  Future<void> _handleCustomDeleted(int classId) async {
+    if (!mounted) return;
+    setState(() {
+      _classSource.remove(classId);
+      _classDetailsCache.remove(classId);
+      _allClasses =
+          _allClasses.where((c) => c.id != classId).toList(growable: false);
+    });
+    _recomputeFilteredClasses();
+    await _loadScheduleFromSupabase(softRefresh: true);
+  }
+
+  Future<void> _editCustomClass(sched.ClassItem schedItem) async {
+    final updated = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(
+        builder: (_) => AddClassPage(
+          api: widget.api,
+          initialClass: schedItem,
+        ),
+      ),
+    );
+    if (updated == true) {
+      await _loadScheduleFromSupabase(softRefresh: true);
+    }
+  }
+
+  Future<void> _openClassDetails(ClassItem item) async {
+    final media = MediaQuery.of(context);
+    final base = _classSource[item.id];
+    final sched.ClassItem schedItem = base ??
+        sched.ClassItem(
+          id: item.id,
+          day: item.weekday,
+          start: _timeOfDayToDb(item.startTime),
+          end: _timeOfDayToDb(item.endTime),
+          title: item.subject,
+          code: item.subject,
+          room: item.room.isEmpty ? null : item.room,
+          instructor: item.instructor.isEmpty ? null : item.instructor,
+          instructorAvatar: item.instructorAvatar,
+          enabled: item.enabled,
+          isCustom: base?.isCustom ?? false,
+        );
+    final cached = _classDetailsCache[item.id];
+    await showOverlaySheet<void>(
+      context: context,
+      alignment: Alignment.center,
+      padding: EdgeInsets.fromLTRB(
+        20,
+        media.padding.top + 24,
+        20,
+        media.padding.bottom + 24,
+      ),
+      builder: (_) => ClassDetailsSheet(
+        api: widget.api,
+        item: schedItem,
+        initial: cached,
+        onLoaded: (details) {
+          _classDetailsCache[item.id] = details;
+        },
+        onDetailsChanged: (details) {
+          _classDetailsCache[item.id] = details;
+          _applyClassEnabled(details.id, details.enabled);
+        },
+        onEditCustom: schedItem.isCustom
+            ? (details) async {
+                await _editCustomClass(schedItem);
+              }
+            : null,
+        onDeleteCustom: schedItem.isCustom
+            ? (details) async {
+                await _handleCustomDeleted(details.id);
+              }
+            : null,
+      ),
+    );
+  }
+
+  String _timeOfDayToDb(TimeOfDay time) {
+    final h = time.hour.toString().padLeft(2, '0');
+    final m = time.minute.toString().padLeft(2, '0');
+    return '$h:$m';
+  }
+
+  Future<void> _refreshAll() async {
+    await _loadProfile(refresh: true);
+    await _loadAll();
+  }
+
+  Future<void> _openAddReminder() async {
+    final media = MediaQuery.of(context);
+    final created = await showOverlaySheet<bool>(
+      context: context,
+      alignment: Alignment.center,
+      padding: EdgeInsets.fromLTRB(
+        20,
+        media.padding.top + 24,
+        20,
+        media.padding.bottom + 24,
+      ),
+      builder: (_) => AddReminderSheet(api: _remindersApi),
+    );
+    if (created == true && mounted) {
+      await _loadReminders();
+    }
+  }
+
+  Future<void> _openReminders() async {
+    final changed = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const RemindersPage()),
+    );
+    if (changed == true && mounted) {
+      await _loadReminders();
+    }
+  }
+
+  Future<void> _openSchedules() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => SchedulesPage(api: widget.api)),
+    );
+  }
+
+  Future<void> _openAccount() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const AccountOverviewPage()),
+    );
+    if (!mounted) return;
+    await _loadProfile(refresh: true);
+  }
+
+  Future<void> _handleReminderToggle(
+      ReminderEntry entry, bool completed) async {
+    if (!mounted || _pendingReminderActions.contains(entry.id)) return;
+    setState(() => _pendingReminderActions.add(entry.id));
+    try {
+      await _remindersApi.toggleCompleted(entry, completed);
+      await _loadReminders();
+    } catch (_) {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        'Unable to update reminder. Try again.',
+        type: AppSnackBarType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _pendingReminderActions.remove(entry.id));
+      }
+    }
+  }
+
+  Future<void> _handleReminderSnooze(ReminderEntry entry) async {
+    if (!mounted || _pendingReminderActions.contains(entry.id)) return;
+    setState(() => _pendingReminderActions.add(entry.id));
+    try {
+      await _remindersApi.snoozeReminder(entry.id, const Duration(hours: 1));
+      await _loadReminders();
+    } catch (_) {
+      if (!mounted) return;
+      showAppSnackBar(
+        context,
+        'Could not snooze reminder.',
+        type: AppSnackBarType.error,
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _pendingReminderActions.remove(entry.id));
+      }
+    }
+  }
+
+  String _formatReminderDue(ReminderEntry entry) {
+    final base = entry.snoozeUntil ?? entry.dueAt;
+    final local = base.toLocal();
+    final fmt = DateFormat('MMM d, h:mm a');
+    if (entry.isCompleted) {
+      if (entry.completedAt != null) {
+        return 'Completed ${fmt.format(entry.completedAt!.toLocal())}';
+      }
+      return 'Completed';
+    }
+    if (entry.snoozeUntil != null &&
+        entry.snoozeUntil!.isAfter(DateTime.now())) {
+      return 'Snoozed until ${fmt.format(local)}';
+    }
+    if (base.isBefore(DateTime.now())) {
+      return 'Overdue since ${fmt.format(local)}';
+    }
+    return 'Due ${fmt.format(local)}';
+  }
+
+  DateTime _effectiveReminderMoment(ReminderEntry entry) =>
+      (entry.snoozeUntil ?? entry.dueAt).toLocal();
+
+  _ReminderAlert? _resolveReminderAlert(
+    DateTime now,
+    ColorScheme colors,
+  ) {
+    final pending = _reminders.where((entry) => !entry.isCompleted).toList()
+      ..sort(
+        (a, b) =>
+            _effectiveReminderMoment(a).compareTo(_effectiveReminderMoment(b)),
+      );
+
+    if (pending.isEmpty) return null;
+
+    final overdue = pending
+        .where(
+          (entry) => _effectiveReminderMoment(entry).isBefore(now),
+        )
+        .toList();
+
+    if (overdue.isNotEmpty) {
+      final first = overdue.first;
+      final elapsed = now.difference(_effectiveReminderMoment(first));
+      final approx = _humanizeDelta(elapsed);
+      return _ReminderAlert(
+        icon: Icons.warning_amber_rounded,
+        title: 'Overdue reminder',
+        message: '${first.title} is overdue by $approx.',
+        tint: colors.error,
+        actionLabel: 'Open reminders',
+      );
+    }
+
+    final upcoming = pending.first;
+    final diff = _effectiveReminderMoment(upcoming).difference(now);
+    if (!diff.isNegative && diff.inMinutes <= 60) {
+      final approx = _humanizeDelta(diff);
+      return _ReminderAlert(
+        icon: Icons.alarm_rounded,
+        title: 'Reminder coming up',
+        message: '${upcoming.title} is due in $approx.',
+        tint: colors.primary,
+        actionLabel: 'Review',
+      );
+    }
+
+    return null;
+  }
+
+  String _humanizeDelta(Duration delta) {
+    final totalMinutes = delta.abs().inMinutes;
+    if (totalMinutes < 1) {
+      return 'less than a minute';
+    }
+    if (totalMinutes < 60) {
+      final unit = totalMinutes == 1 ? 'minute' : 'minutes';
+      return '$totalMinutes $unit';
+    }
+    final hours = delta.abs().inHours;
+    final minutes = totalMinutes - hours * 60;
+    final hourUnit = hours == 1 ? 'hour' : 'hours';
+    if (minutes == 0) {
+      return '$hours $hourUnit';
+    }
+    final minuteUnit = minutes == 1 ? 'minute' : 'minutes';
+    return '$hours $hourUnit $minutes $minuteUnit';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final initialLoading = _scheduleLoading &&
+        _classes.isEmpty &&
+        _remindersLoading &&
+        _reminders.isEmpty;
+
+    if (initialLoading) {
+      return const AppScaffold(
+        screenName: 'dashboard',
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    return AppScaffold(
+      screenName: 'dashboard',
+      safeArea: false,
+      body: AppBackground(
+        child: RefreshIndicator(
+          onRefresh: _refreshAll,
+          color: Theme.of(context).colorScheme.primary,
+          backgroundColor: Colors.transparent,
+          child: ValueListenableBuilder<DateTime>(
+            valueListenable: _nowTick,
+            builder: (context, now, _) {
+              final scopedClasses =
+                  _classes.where((c) => c.enabled).toList(growable: false);
+              final allEnabledClasses =
+                  _allClasses.where((c) => c.enabled).toList(growable: false);
+              final snapshot = _TickSnapshot.resolve(now, allEnabledClasses);
+              final scopeOccurrences =
+                  _resolveScheduleOccurrences(scopedClasses, now);
+              final summary = _DashboardSummaryData.resolve(
+                occurrences: scopeOccurrences,
+                now: now,
+                reminders: _reminders,
+                scopeLabel: _selectedScope,
+              );
+              final upcoming =
+                  _resolveUpcoming(snapshot, allEnabledClasses, now);
+
+              final cards = _buildDashboardCards(
+                context: context,
+                summary: summary,
+                upcoming: upcoming,
+                now: now,
+                scheduleOccurrences: scopeOccurrences,
+                searchController: _searchController,
+                selectedScope: _selectedScope,
+                onScopeChanged: _handleScopeChange,
+                onSearchChanged: _handleSearchChanged,
+              );
+
+              final topInset = MediaQuery.of(context).padding.top;
+              final spacing = AppTokens.spacing;
+              return ListView(
+                padding: EdgeInsets.fromLTRB(
+                  20,
+                  topInset + spacing.xxl,
+                  20,
+                  spacing.xl,
+                ),
+                physics: Theme.of(context).platform == TargetPlatform.iOS
+                    ? const BouncingScrollPhysics(
+                        parent: AlwaysScrollableScrollPhysics(),
+                      )
+                    : const AlwaysScrollableScrollPhysics(),
+                children: [
+                  BrandHeader(
+                    name: _studentName,
+                    email: _studentEmail,
+                    avatarUrl: _studentAvatar,
+                    onAccountTap: _openAccount,
+                    height: 48,
+                    avatarRadius: 20,
+                    showChevron: false,
+                    textStyle:
+                        Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontFamily: 'SFProRounded',
+                              fontWeight: FontWeight.w700,
+                              color: Theme.of(context).colorScheme.primary,
+                              fontSize: 20,
+                            ),
+                  ),
+                  SizedBox(height: spacing.xl),
+                  ...cards,
+                  SizedBox(height: spacing.quad),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildDashboardCards({
+    required BuildContext context,
+    required _DashboardSummaryData summary,
+    required _DashboardUpcoming upcoming,
+    required DateTime now,
+    required List<ClassOccurrence> scheduleOccurrences,
+    required TextEditingController searchController,
+    required String selectedScope,
+    required ValueChanged<String> onScopeChanged,
+    required ValueChanged<String> onSearchChanged,
+  }) {
+    final widgets = <Widget>[];
+    final greeting = 'Good day, ${_resolveDisplayName()}! \u{1F44B}';
+    final dateLabel = DateFormat('EEEE, MMM d').format(now);
+    final colors = Theme.of(context).colorScheme;
+    final reminderAlert = _resolveReminderAlert(now, colors);
+    final scopeMessage = _resolveScopeMessage(summary);
+    final refreshLabel = _formatRefreshLabel(now);
+
+    if (_remindersError != null) {
+      widgets
+        ..add(
+          _DashboardMessageCard(
+            icon: Icons.error_outline,
+            title: 'Reminders not refreshed',
+            message: _remindersError!,
+            primaryLabel: 'Retry',
+            onPrimary: _loadReminders,
+          ),
+        )
+        ..add(SizedBox(height: 12));
+    }
+
+    widgets
+      ..add(
+        _DashboardSummaryCard(
+          greeting: greeting,
+          dateLabel: dateLabel,
+          summary: summary,
+          upcoming: upcoming,
+          reminderAlert: reminderAlert,
+          scopeMessage: scopeMessage,
+          refreshLabel: refreshLabel,
+          onReviewReminders: reminderAlert != null ? _openReminders : null,
+        ),
+      )
+      ..add(const SizedBox(height: 24));
+
+    widgets
+      ..add(
+        _DashboardSchedulePeek(
+          occurrences: scheduleOccurrences,
+          now: now,
+          scopeLabel: selectedScope,
+          onScopeChanged: onScopeChanged,
+          colors: colors,
+          theme: Theme.of(context),
+          selectedScope: selectedScope,
+          searchController: searchController,
+          onSearchChanged: onSearchChanged,
+          onOpenSchedules: _openSchedules,
+          refreshing: _scheduleLoading || _remindersLoading,
+          searchFocusNode: _searchFocusNode,
+          searchActive: _searchActive,
+          onSearchTap: _handleSearchTapped,
+          onSearchClear: _handleSearchClear,
+          onRefresh: _loadAll,
+          onViewDetails: _openClassDetails,
+        ),
+      )
+      ..add(const SizedBox(height: 24));
+
+    widgets.add(
+      _DashboardReminderCard(
+        reminders: _reminders,
+        loading: _remindersLoading,
+        pendingActions: _pendingReminderActions,
+        formatDue: _formatReminderDue,
+        onOpenReminders: _openReminders,
+        onAddReminder: _openAddReminder,
+        onToggle: _handleReminderToggle,
+        onSnooze: _handleReminderSnooze,
+      ),
+    );
+
+    return widgets;
+  }
+
+  void _handleScopeChange(String value) {
+    if (_selectedScope == value) return;
+    setState(() => _selectedScope = value);
+    _recomputeFilteredClasses();
+    SharedPreferences.getInstance()
+        .then((prefs) => prefs.setString(_kDashboardScopePref, value));
+  }
+
+  void _handleSearchChanged(String value) {
+    setState(() {
+      if (!_searchActive && _searchFocusNode.hasFocus) {
+        _searchActive = true;
+      }
+    });
+    _recomputeFilteredClasses();
+  }
+
+  void _handleSearchTapped() {
+    if (_searchActive) return;
+    setState(() => _searchActive = true);
+    Future.microtask(() {
+      if (!_searchFocusNode.hasFocus) {
+        _searchFocusNode.requestFocus();
+      }
+    });
+  }
+
+  void _handleSearchClear() {
+    final hadText = _searchController.text.isNotEmpty;
+    if (hadText) {
+      _searchController.clear();
+      _recomputeFilteredClasses();
+    }
+    FocusScope.of(context).unfocus();
+    if (_searchActive || hadText) {
+      setState(() => _searchActive = false);
+    }
+  }
+
+  String _resolveDisplayName() {
+    var firstName = (_studentName ?? '').trim();
+    if (firstName.contains(' ')) {
+      firstName = firstName.split(' ').first;
+    }
+    if (firstName.isEmpty) {
+      final email = (_studentEmail ?? '').trim();
+      firstName = email.contains('@') ? email.split('@').first : 'Student';
+    }
+    return firstName.isEmpty ? 'Student' : firstName;
+  }
+
+  String? _formatRefreshLabel(DateTime now) {
+    final refreshed = _lastRefreshedAt;
+    if (refreshed == null) return null;
+    final diff = now.difference(refreshed);
+    if (diff < const Duration(minutes: 1)) {
+      return 'Just now';
+    }
+    if (diff < const Duration(hours: 1)) {
+      final minutes = diff.inMinutes;
+      return '$minutes min ago';
+    }
+    if (diff < const Duration(days: 1)) {
+      final hours = diff.inHours;
+      return '${hours}h ago';
+    }
+    return DateFormat("MMM d 'at' h:mm a").format(refreshed);
+  }
+
+  String _resolveScopeMessage(_DashboardSummaryData summary) {
+    if (_selectedScope == 'Today') {
+      if (summary.classesRemaining == 0) {
+        return 'Today looks clear.';
+      }
+      if (summary.classesRemaining == 1) {
+        return '1 class left today.';
+      }
+      return '${summary.classesRemaining} classes lined up today.';
+    }
+    if (summary.classesRemaining == 0) {
+      return 'Your week is all set.';
+    }
+    return '${summary.classesRemaining} classes left this week.';
+  }
+
+  _DashboardUpcoming _resolveUpcoming(
+    _TickSnapshot snapshot,
+    List<ClassItem> enabledClasses,
+    DateTime now,
+  ) {
+    final current = snapshot.current;
+    final next = snapshot.next;
+
+    ClassOccurrence? reference;
+    bool isActive = false;
+    DateTime? focusDay;
+
+    if (current != null && current.end.isAfter(now)) {
+      reference = current;
+      isActive = true;
+    } else if (next != null && next.end.isAfter(now)) {
+      reference = next;
+      isActive = false;
+    }
+
+    List<ClassOccurrence> occurrences = [];
+
+    if (reference != null) {
+      focusDay = DateTime(
+          reference.start.year, reference.start.month, reference.start.day);
+      occurrences = _buildDayOccurrences(
+        reference,
+        enabledClasses,
+        reference.start,
+      ).where((occ) => occ.end.isAfter(now)).toList();
+    }
+
+    if (occurrences.isEmpty) {
+      final futureOccurrences = <ClassOccurrence>[];
+      for (final item in enabledClasses) {
+        final start = item.nextStartAfter(now);
+        final occ = item.occurrenceAt(start);
+        if (occ != null && occ.end.isAfter(now)) {
+          futureOccurrences.add(occ);
+        }
+      }
+      if (futureOccurrences.isEmpty) {
+        return _DashboardUpcoming.empty(isActive: false);
+      }
+      futureOccurrences.sort((a, b) => a.start.compareTo(b.start));
+      final primary = futureOccurrences.first;
+      reference = primary;
+      isActive = primary.isOngoingAt(now);
+      focusDay = DateTime(
+        primary.start.year,
+        primary.start.month,
+        primary.start.day,
+      );
+      occurrences = futureOccurrences
+          .where((occ) => _isSameDay(occ.start, primary.start))
+          .toList()
+        ..sort((a, b) => a.start.compareTo(b.start));
+    }
+
+    return _DashboardUpcoming(
+      occurrences: occurrences,
+      isActive: isActive,
+      focusDay: focusDay,
+    );
+  }
+
+  List<ClassOccurrence> _resolveScheduleOccurrences(
+    List<ClassItem> classes,
+    DateTime now,
+  ) {
+    if (classes.isEmpty) return const [];
+    final today = DateTime(now.year, now.month, now.day);
+
+    final occurrences = <ClassOccurrence>[];
+
+    if (_selectedScope == 'Today') {
+      for (final item in classes) {
+        final occ = item.occurrenceOn(today);
+        if (occ != null) occurrences.add(occ);
+      }
+    } else {
+      final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
+      for (var offset = 0; offset < 7; offset++) {
+        final day = startOfWeek.add(Duration(days: offset));
+        for (final item in classes) {
+          final occ = item.occurrenceOn(day);
+          if (occ != null) occurrences.add(occ);
+        }
+      }
+    }
+    occurrences.sort((a, b) => a.start.compareTo(b.start));
+    return occurrences;
+  }
+
+  List<ClassOccurrence> _buildDayOccurrences(
+    ClassOccurrence seed,
+    List<ClassItem> classes,
+    DateTime anchor,
+  ) {
+    final day = DateTime(anchor.year, anchor.month, anchor.day);
+    final matches = <ClassOccurrence>[];
+    for (final item in classes) {
+      final occ = item.occurrenceOn(day);
+      if (occ != null) matches.add(occ);
+    }
+    matches.sort((a, b) => a.start.compareTo(b.start));
+    return matches;
+  }
+
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+}
+
+class _DashboardSummaryData {
+  const _DashboardSummaryData({
+    required this.hoursDone,
+    required this.hoursPlanned,
+    required this.classesPlanned,
+    required this.classesRemaining,
+    required this.openTasks,
+    required this.scopePhrase,
+  });
+
+  factory _DashboardSummaryData.resolve({
+    required List<ClassOccurrence> occurrences,
+    required DateTime now,
+    required List<ReminderEntry> reminders,
+    required String scopeLabel,
+  }) {
+    final pendingCount = reminders.where((entry) => !entry.isCompleted).length;
+    final completed = occurrences
+        .where((occurrence) => occurrence.end.isBefore(now))
+        .toList();
+    final inProgress =
+        occurrences.where((occurrence) => occurrence.isOngoingAt(now)).toList();
+
+    final totalMinutes = occurrences.fold<int>(
+      0,
+      (acc, occ) => acc + occ.item.duration.inMinutes,
+    );
+    final completedMinutes = completed.fold<int>(
+      0,
+      (acc, occ) => acc + occ.item.duration.inMinutes,
+    );
+    final inProgressMinutes = inProgress.fold<double>(
+      0,
+      (acc, occ) {
+        final elapsed = now.difference(occ.start).inMinutes;
+        final clamped = elapsed.clamp(0, occ.item.duration.inMinutes);
+        return acc + clamped;
+      },
+    );
+
+    final hoursPlanned = totalMinutes / 60.0;
+    final hoursDone = (completedMinutes + inProgressMinutes) / 60.0;
+    final remaining = occurrences.where((occ) => occ.end.isAfter(now)).length;
+    final scopePhrase = scopeLabel == 'Today'
+        ? 'today'
+        : scopeLabel == 'This week'
+            ? 'this week'
+            : scopeLabel.toLowerCase();
+
+    return _DashboardSummaryData(
+      hoursDone: hoursDone,
+      hoursPlanned: hoursPlanned,
+      classesPlanned: occurrences.length,
+      classesRemaining: remaining,
+      openTasks: pendingCount,
+      scopePhrase: scopePhrase,
+    );
+  }
+
+  final double hoursDone;
+  final double hoursPlanned;
+  final int classesPlanned;
+  final int classesRemaining;
+  final int openTasks;
+  final String scopePhrase;
+
+  String get hoursDoneLabel => _formatHours(hoursDone);
+
+  String get hoursCaption => hoursPlanned == 0
+      ? 'Free $scopePhrase'
+      : 'of ${_formatHours(hoursPlanned)} planned $scopePhrase';
+
+  String get classesRemainingLabel => classesRemaining.toString();
+
+  String get classesCaption => classesPlanned == 0
+      ? 'No classes $scopePhrase'
+      : '$classesPlanned $scopePhrase';
+
+  String get tasksLabel => openTasks.toString();
+
+  String get tasksCaption => openTasks == 0
+      ? 'All clear'
+      : openTasks == 1
+          ? 'Due soon'
+          : '$openTasks due';
+
+  String _formatHours(double value) {
+    final totalMinutes = (value * 60).round();
+    if (totalMinutes == 0) return '0m';
+    final hours = totalMinutes ~/ 60;
+    final minutes = totalMinutes % 60;
+    final parts = <String>[];
+    if (hours > 0) {
+      parts.add('${hours}h');
+    }
+    if (minutes > 0) {
+      parts.add('${minutes}m');
+    }
+    return parts.join(' ');
+  }
+}
+
+class _DashboardUpcoming {
+  const _DashboardUpcoming({
+    required this.occurrences,
+    required this.isActive,
+    required this.focusDay,
+  });
+
+  const _DashboardUpcoming.empty({required this.isActive})
+      : occurrences = const [],
+        focusDay = null;
+
+  final List<ClassOccurrence> occurrences;
+  final bool isActive;
+  final DateTime? focusDay;
+
+  bool get hasUpcoming => occurrences.isNotEmpty;
+
+  ClassOccurrence? get primary =>
+      occurrences.isEmpty ? null : occurrences.first;
+}
+
+class _ReminderAlert {
+  const _ReminderAlert({
+    required this.icon,
+    required this.title,
+    required this.message,
+    required this.tint,
+    this.actionLabel = 'Review',
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final Color tint;
+  final String actionLabel;
+}
+
+class _DashboardSummaryCard extends StatelessWidget {
+  const _DashboardSummaryCard({
+    required this.greeting,
+    required this.dateLabel,
+    required this.summary,
+    required this.upcoming,
+    this.reminderAlert,
+    required this.scopeMessage,
+    this.refreshLabel,
+    this.onReviewReminders,
+  });
+
+  final String greeting;
+  final String dateLabel;
+  final _DashboardSummaryData summary;
+  final _DashboardUpcoming upcoming;
+  final _ReminderAlert? reminderAlert;
+  final String scopeMessage;
+  final String? refreshLabel;
+  final VoidCallback? onReviewReminders;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final hero = upcoming.primary;
+    final trailing = hero == null
+        ? <ClassOccurrence>[]
+        : upcoming.occurrences
+            .skip(1)
+            .where(
+              (occ) => DateUtils.isSameDay(occ.start, hero.start),
+            )
+            .toList();
+    final trailingHeading = _resolveTrailingHeading(upcoming.focusDay);
+    final summaryBackground = colors.surfaceContainerHigh;
+    final cardBorder = colors.outlineVariant.withValues(alpha: 0.22);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: summaryBackground,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(color: cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            greeting,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            dateLabel,
+            style: theme.textTheme.titleMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontSize: 16,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  scopeMessage,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              if (refreshLabel != null) ...[
+                const SizedBox(width: 12),
+                _RefreshChip(label: refreshLabel!),
+              ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 220),
+            switchInCurve: Curves.easeOutCubic,
+            switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0, 0.05),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            ),
+            child: hero != null
+                ? Column(
+                    key: ValueKey(
+                      'hero-${hero.item.id}-${hero.start.toIso8601String()}',
+                    ),
+                    children: [
+                      const SizedBox(height: 16),
+                      _UpcomingHeroTile(
+                        occurrence: hero,
+                        isLive: upcoming.isActive,
+                      ),
+                    ],
+                  )
+                : const SizedBox(
+                    key: ValueKey('hero-empty'),
+                    height: 16,
+                  ),
+          ),
+          const SizedBox(height: 18),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: _DashboardMetricChip(
+                  icon: Icons.hourglass_bottom_rounded,
+                  tint: colors.primary,
+                  label: 'Hours done',
+                  value: summary.hoursDoneLabel,
+                  caption: summary.hoursCaption,
+                  progress: summary.hoursPlanned > 0
+                      ? (summary.hoursDone / summary.hoursPlanned)
+                          .clamp(0.0, 1.0)
+                      : null,
+                  highlight: summary.hoursDone > 0,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DashboardMetricChip(
+                  icon: Icons.class_rounded,
+                  tint: colors.secondary,
+                  label: 'Classes left',
+                  value: summary.classesRemainingLabel,
+                  caption: summary.classesCaption,
+                  progress: summary.classesPlanned > 0
+                      ? (1 -
+                              (summary.classesRemaining /
+                                  summary.classesPlanned))
+                          .clamp(0.0, 1.0)
+                      : null,
+                  highlight: summary.classesRemaining > 0,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DashboardMetricChip(
+                  icon: Icons.task_alt_rounded,
+                  tint: colors.tertiary,
+                  label: 'Open tasks',
+                  value: summary.tasksLabel,
+                  caption: summary.tasksCaption,
+                  highlight: summary.openTasks > 0,
+                ),
+              ),
+            ],
+          ),
+          if (trailing.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text(
+              trailingHeading,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: [
+                for (var i = 0; i < trailing.length && i < 3; i++)
+                  Padding(
+                    padding: EdgeInsets.only(
+                      bottom: i == math.min(trailing.length - 1, 2) ? 0 : 12,
+                    ),
+                    child: _UpcomingListTile(
+                      occurrence: trailing[i],
+                    ),
+                  ),
+              ],
+            ),
+          ] else if (hero == null) ...[
+            const SizedBox(height: 20),
+            Text(
+              summary.classesPlanned == 0
+                  ? 'No classes scheduled in this scope.'
+                  : 'All classes for this scope are complete.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontSize: 16,
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              summary.classesPlanned == 0
+                  ? 'Use Review schedule to add or enable a class.'
+                  : 'Great job staying ahead. Review schedule to plan more.',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontSize: 16,
+                color: kSummaryMuted,
+              ),
+            ),
+          ],
+          if (reminderAlert != null && onReviewReminders != null) ...[
+            const SizedBox(height: 20),
+            _ReminderAlertBanner(
+              alert: reminderAlert!,
+              onReview: onReviewReminders!,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _resolveTrailingHeading(DateTime? focusDay) {
+    if (focusDay == null) {
+      return 'Later today';
+    }
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final target = DateTime(focusDay.year, focusDay.month, focusDay.day);
+    final difference = target.difference(today).inDays;
+
+    if (difference <= 0) {
+      return 'Later today';
+    }
+    if (difference == 1) {
+      return 'Tomorrow';
+    }
+    if (difference < 7) {
+      return DateFormat('EEEE').format(target);
+    }
+    return DateFormat('EEEE, MMM d').format(target);
+  }
+}
+
+class _RefreshChip extends StatelessWidget {
+  const _RefreshChip({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: isDark ? 0.28 : 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(
+          color: colors.primary.withValues(alpha: isDark ? 0.4 : 0.24),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.refresh_rounded, size: 14, color: colors.primary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: colors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardSchedulePeek extends StatelessWidget {
+  const _DashboardSchedulePeek({
+    required this.occurrences,
+    required this.now,
+    required this.scopeLabel,
+    required this.onScopeChanged,
+    required this.colors,
+    required this.theme,
+    required this.selectedScope,
+    required this.searchController,
+    required this.searchFocusNode,
+    required this.searchActive,
+    required this.onSearchTap,
+    required this.onSearchClear,
+    required this.onSearchChanged,
+    required this.onOpenSchedules,
+    required this.refreshing,
+    required this.onRefresh,
+    required this.onViewDetails,
+  });
+
+  final List<ClassOccurrence> occurrences;
+  final DateTime now;
+  final String scopeLabel;
+  final ValueChanged<String> onScopeChanged;
+  final ColorScheme colors;
+  final ThemeData theme;
+  final String selectedScope;
+  final TextEditingController searchController;
+  final FocusNode searchFocusNode;
+  final bool searchActive;
+  final VoidCallback onSearchTap;
+  final VoidCallback onSearchClear;
+  final ValueChanged<String> onSearchChanged;
+  final VoidCallback onOpenSchedules;
+  final bool refreshing;
+  final Future<void> Function() onRefresh;
+  final ValueChanged<ClassItem> onViewDetails;
+
+  @override
+  Widget build(BuildContext context) {
+    final query = searchController.text.trim();
+    final hasQuery = query.isNotEmpty;
+
+    final upcoming = <ClassOccurrence>[];
+    final completed = <ClassOccurrence>[];
+    for (final occ in occurrences) {
+      if (occ.end.isAfter(now) || occ.isOngoingAt(now)) {
+        upcoming.add(occ);
+      } else {
+        completed.add(occ);
+      }
+    }
+
+    final display = selectedScope == 'This week'
+        ? <ClassOccurrence>[...upcoming, ...completed]
+        : List<ClassOccurrence>.from(occurrences);
+
+    final hasItems = display.isNotEmpty;
+    final highlightIndex = display
+        .indexWhere((occ) => occ.end.isAfter(now) || occ.isOngoingAt(now));
+    final targetIndex =
+        highlightIndex >= 0 ? highlightIndex : (hasItems ? 0 : -1);
+    final totalToShow = hasItems ? math.min(display.length, 5) : 0;
+    final displaySignature = hasItems
+        ? display
+            .take(totalToShow)
+            .map((occ) => '${occ.item.id}-${occ.start.toIso8601String()}')
+            .join('|')
+        : '';
+
+    final cardBackground = elevatedCardBackground(theme);
+    final cardBorder = elevatedCardBorder(theme);
+    final dateLabel = DateFormat('EEEE, MMM d').format(now);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBackground,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(color: cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.table_rows_rounded,
+                  color: colors.primary,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '$scopeLabel overview',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      dateLabel,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              SizedBox(
+                height: 36,
+                width: 36,
+                child: IconButton(
+                  tooltip: 'Refresh schedules',
+                  onPressed: refreshing ? null : onRefresh,
+                  icon: refreshing
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          Icons.refresh_rounded,
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              SizedBox(
+                height: 36,
+                width: 36,
+                child: IconButton(
+                  tooltip: 'Review schedule',
+                  onPressed: onOpenSchedules,
+                  icon: Icon(
+                    Icons.calendar_view_week_rounded,
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text(
+            scopeLabel == 'Today'
+                ? 'Stay on top of today\'s classes and make changes instantly.'
+                : 'Review your weekly plan, add sessions, or rescan as needed.',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+              fontSize: 14,
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: searchController,
+            focusNode: searchFocusNode,
+            readOnly: !searchActive,
+            onTap: onSearchTap,
+            onChanged: onSearchChanged,
+            onEditingComplete: () {
+              searchFocusNode.unfocus();
+            },
+            textInputAction: TextInputAction.search,
+            autocorrect: false,
+            style: theme.textTheme.titleMedium?.copyWith(fontSize: 16),
+            decoration: InputDecoration(
+              hintText: 'Search classes, instructors, reminders',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: searchActive || searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: onSearchClear,
+                    )
+                  : null,
+              filled: true,
+              fillColor: colors.surfaceContainerHigh,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SegmentedButton<String>(
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              padding: WidgetStateProperty.all(
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              ),
+              side: WidgetStateProperty.resolveWith(
+                (states) => BorderSide(
+                  color: states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.outline.withValues(alpha: 0.45),
+                  width: 1.2,
+                ),
+              ),
+              backgroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? colors.primary.withValues(alpha: 0.14)
+                    : colors.surfaceContainerHighest.withValues(alpha: 0.45),
+              ),
+              foregroundColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? colors.primary
+                    : colors.onSurfaceVariant.withValues(alpha: 0.9),
+              ),
+            ),
+            segments: const [
+              ButtonSegment(
+                value: 'Today',
+                label: Text('Today'),
+              ),
+              ButtonSegment(
+                value: 'This week',
+                label: Text('This week'),
+              ),
+            ],
+            selected: <String>{selectedScope},
+            onSelectionChanged: (value) {
+              if (value.isNotEmpty) onScopeChanged(value.first);
+            },
+          ),
+          const SizedBox(height: 12),
+          AnimatedSize(
+            duration: const Duration(milliseconds: 240),
+            curve: Curves.easeOutCubic,
+            alignment: Alignment.topCenter,
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SlideTransition(
+                  position: Tween<Offset>(
+                    begin: const Offset(0, 0.05),
+                    end: Offset.zero,
+                  ).animate(animation),
+                  child: child,
+                ),
+              ),
+              child: hasItems
+                  ? Column(
+                      key: ValueKey(
+                        'list-$selectedScope-$query-$displaySignature',
+                      ),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ..._buildScheduleList(
+                          context: context,
+                          display: display,
+                          totalToShow: totalToShow,
+                          upcomingCount: upcoming.length,
+                          targetIndex: targetIndex,
+                          now: now,
+                          onOccurrenceTap: (occ) => onViewDetails(occ.item),
+                        ),
+                        if (display.length > totalToShow) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            '+${display.length - totalToShow} more class'
+                            '${display.length - totalToShow == 1 ? '' : 'es'} in scope',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontSize: 16,
+                              color: kSummaryMuted,
+                            ),
+                          ),
+                        ],
+                      ],
+                    )
+                  : Column(
+                      key: ValueKey('empty-$selectedScope-$query'),
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          hasQuery
+                              ? 'No classes match your search.'
+                              : selectedScope == 'Today'
+                                  ? 'No classes scheduled today.'
+                                  : 'No classes scheduled for this week.',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          hasQuery
+                              ? 'Try a different name, classroom, or scope.'
+                              : 'Switch filters or add a class from Review schedule.',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            fontSize: 16,
+                            color: kSummaryMuted,
+                          ),
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+          const SizedBox(height: 18),
+          _buildReviewButton(),
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildScheduleList({
+    required BuildContext context,
+    required List<ClassOccurrence> display,
+    required int totalToShow,
+    required int upcomingCount,
+    required int targetIndex,
+    required DateTime now,
+    required ValueChanged<ClassOccurrence> onOccurrenceTap,
+  }) {
+    final widgets = <Widget>[];
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final dividerColor = colors.outlineVariant.withValues(
+      alpha: theme.brightness == Brightness.dark ? 0.24 : 0.12,
+    );
+
+    Widget buildSectionHeader(String label, Color textColor) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 16,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            height: 1,
+            decoration: BoxDecoration(
+              color: dividerColor,
+              borderRadius: BorderRadius.circular(999),
+            ),
+          ),
+          const SizedBox(height: 12),
+        ],
+      );
+    }
+
+    for (var i = 0; i < totalToShow; i++) {
+      if (selectedScope == 'This week') {
+        if (i == 0 && upcomingCount > 0) {
+          widgets.add(buildSectionHeader('Upcoming', colors.primary));
+        }
+        if (i == upcomingCount && upcomingCount < display.length) {
+          widgets.add(
+            buildSectionHeader(
+              'Completed',
+              colors.onSurfaceVariant,
+            ),
+          );
+        }
+      }
+
+      widgets.add(
+        _ScheduleRow(
+          occurrence: display[i],
+          highlight: i == targetIndex,
+          now: now,
+          onTap: () => onOccurrenceTap(display[i]),
+        ),
+      );
+
+      if (i != totalToShow - 1) {
+        widgets.add(const SizedBox(height: 12));
+      }
+    }
+
+    return widgets;
+  }
+
+  Widget _buildReviewButton() {
+    return FilledButton(
+      onPressed: refreshing ? null : onOpenSchedules,
+      style: FilledButton.styleFrom(
+        minimumSize: const Size.fromHeight(50),
+        shape: RoundedRectangleBorder(
+          borderRadius: AppTokens.radius.xl,
+        ),
+        padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.lg,
+          vertical: AppTokens.spacing.sm,
+        ),
+        foregroundColor: colors.onPrimary,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          const Icon(Icons.event_note_rounded, size: 20),
+          const SizedBox(width: 10),
+          Flexible(
+            child: Text(
+              'Review schedule',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+                fontSize: 16,
+                color: colors.onPrimary,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScheduleRow extends StatelessWidget {
+  const _ScheduleRow({
+    required this.occurrence,
+    required this.highlight,
+    required this.now,
+    required this.onTap,
+  });
+
+  final ClassOccurrence occurrence;
+  final bool highlight;
+  final DateTime now;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final subject = occurrence.item.subject;
+    final timeLabel =
+        '${DateFormat('h:mm a').format(occurrence.start)} - ${DateFormat('h:mm a').format(occurrence.end)}
+    final room = occurrence.item.room.trim();
+    final isOngoing = occurrence.isOngoingAt(now);
+    final isPast = occurrence.end.isBefore(now);
+
+    String? statusLabel;
+    IconData? statusIcon;
+    Color statusForeground = colors.onSurfaceVariant;
+    Color statusBackground = colors.surfaceContainerHigh;
+
+    if (isPast) {
+      statusLabel = 'Done';
+      statusIcon = Icons.check_rounded;
+      statusForeground = colors.tertiary;
+      statusBackground = colors.tertiary.withValues(alpha: 0.16);
+    } else if (isOngoing) {
+      statusLabel = 'In progress';
+      statusIcon = Icons.play_arrow_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.16);
+    } else if (highlight) {
+      statusLabel = 'Next';
+      statusIcon = Icons.arrow_forward_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.12);
+    }
+
+    final background = highlight
+        ? colors.primary.withValues(alpha: 0.08)
+        : colors.surfaceContainerHigh;
+    final border = highlight
+        ? colors.primary.withValues(alpha: 0.24)
+        : colors.outline.withValues(alpha: 0.12);
+    final badgeLabel = statusLabel;
+    final badgeIcon = statusIcon ?? Icons.schedule_rounded;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppTokens.radius.lg,
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: AppTokens.radius.lg,
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    DateFormat('EEE').format(occurrence.start).toUpperCase(),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      color: colors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    DateFormat('MMM d').format(occurrence.start),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            subject,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              decoration:
+                                  isPast ? TextDecoration.lineThrough : null,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (badgeLabel != null) ...[
+                          const SizedBox(width: 12),
+                          _StatusChip(
+                            icon: badgeIcon,
+                            label: badgeLabel,
+                            background: statusBackground,
+                            foreground: statusForeground,
+                            compact: true,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      timeLabel,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+                      ),
+                    ),
+                    if (room.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        room,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 14,
+                          color:
+                              colors.onSurfaceVariant.withValues(alpha: 0.68),
+                        ),
+                      ),
+                    ],
+                    if (occurrence.item.instructor.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      _InstructorRow(
+                        name: occurrence.item.instructor,
+                        avatarUrl: occurrence.item.instructorAvatar,
+                        tint: colors.primary,
+                        dense: true,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ReminderAlertBanner extends StatelessWidget {
+  const _ReminderAlertBanner({
+    required this.alert,
+    required this.onReview,
+  });
+
+  final _ReminderAlert alert;
+  final VoidCallback onReview;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final background = alert.tint.withValues(alpha: 0.14);
+    final border = alert.tint.withValues(alpha: 0.22);
+    final iconBackground = alert.tint.withValues(alpha: 0.18);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onReview,
+        borderRadius: AppTokens.radius.lg,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: background,
+            borderRadius: AppTokens.radius.lg,
+            border: Border.all(color: border),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: iconBackground,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(alert.icon, color: alert.tint, size: 20),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      alert.title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      alert.message,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 12),
+              TextButton(
+                onPressed: onReview,
+                style: TextButton.styleFrom(
+                  foregroundColor: alert.tint,
+                  textStyle: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                child: Text(alert.actionLabel),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _UpcomingHeroTile extends StatelessWidget {
+  const _UpcomingHeroTile({
+    required this.occurrence,
+    required this.isLive,
+  });
+
+  final ClassOccurrence occurrence;
+  final bool isLive;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final subject = occurrence.item.subject;
+    final timeLabel =
+        '${DateFormat('h:mm a').format(occurrence.start)} - ${DateFormat('h:mm a').format(occurrence.end)}
+    final dateLabel = DateFormat('EEE, MMM d').format(occurrence.start);
+    final location = occurrence.item.room.trim();
+    final statusLabel = isLive ? 'Happening now' : 'Up next';
+
+    final radius = AppTokens.radius.lg;
+    final baseColor = colors.primary;
+    final gradientColors = [
+      baseColor.withValues(alpha: isDark ? 0.85 : 0.95),
+      baseColor.withValues(alpha: isDark ? 0.65 : 0.7),
+    ];
+    final shadowColor = baseColor.withValues(alpha: isDark ? 0.32 : 0.22);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        borderRadius: radius,
+        boxShadow: [
+          BoxShadow(
+            color: shadowColor,
+            blurRadius: 24,
+            offset: const Offset(0, 16),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _StatusChip(
+                icon: isLive
+                    ? Icons.play_arrow_rounded
+                    : Icons.arrow_forward_rounded,
+                label: statusLabel,
+                background: colors.onPrimary.withValues(alpha: 0.16),
+                foreground: colors.onPrimary.withValues(alpha: 0.9),
+                compact: true,
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: colors.onPrimary.withValues(alpha: 0.16),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.flash_on_rounded,
+                      size: 18,
+                      color: colors.onPrimary.withValues(alpha: 0.8),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      isLive ? 'Live' : 'Next',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.onPrimary.withValues(alpha: 0.85),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Text(
+            subject,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 20,
+              color: colors.onPrimary,
+            ),
+          ),
+          const SizedBox(height: 10),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.schedule_rounded,
+                size: 16,
+                color: colors.onPrimary.withValues(alpha: 0.78),
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  timeLabel,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: colors.onPrimary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Icon(
+                Icons.calendar_today_rounded,
+                size: 14,
+                color: colors.onPrimary.withValues(alpha: 0.75),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                dateLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: colors.onPrimary.withValues(alpha: 0.78),
+                ),
+              ),
+            ],
+          ),
+          if (location.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(
+                  Icons.place_outlined,
+                  size: 16,
+                  color: colors.onPrimary.withValues(alpha: 0.76),
+                ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    location,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: colors.onPrimary.withValues(alpha: 0.82),
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+          if (occurrence.item.instructor.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            _InstructorRow(
+              name: occurrence.item.instructor,
+              avatarUrl: occurrence.item.instructorAvatar,
+              tint: colors.onPrimary,
+              inverse: true,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _UpcomingListTile extends StatelessWidget {
+  const _UpcomingListTile({required this.occurrence});
+
+  final ClassOccurrence occurrence;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final subject = occurrence.item.subject;
+    final dayLabel = DateFormat('EEE').format(occurrence.start).toUpperCase();
+    final dateLabel = DateFormat('MMM d').format(occurrence.start);
+    final timeLabel =
+        '${DateFormat('h:mm a').format(occurrence.start)} - ${DateFormat('h:mm a').format(occurrence.end)}
+    final location = occurrence.item.room.trim();
+    final instructor = occurrence.item.instructor;
+    final now = DateTime.now();
+    final isPast = occurrence.end.isBefore(now);
+    final isLive = occurrence.isOngoingAt(now);
+
+    String statusLabel;
+    IconData statusIcon = Icons.schedule_rounded;
+    Color statusForeground = colors.primary;
+    Color statusBackground = colors.primary.withValues(alpha: 0.12);
+
+    if (isPast) {
+      statusLabel = 'Done';
+      statusIcon = Icons.check_rounded;
+      statusForeground = colors.tertiary;
+      statusBackground = colors.tertiary.withValues(alpha: 0.16);
+    } else if (isLive) {
+      statusLabel = 'Happening now';
+      statusIcon = Icons.play_arrow_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.16);
+    } else {
+      statusLabel = 'Upcoming';
+      statusIcon = Icons.arrow_forward_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.12);
+    }
+
+    final tileBackground = isLive
+        ? colors.primary.withValues(alpha: 0.1)
+        : colors.surfaceContainerHigh;
+    final tileBorder = isLive
+        ? colors.primary.withValues(alpha: 0.22)
+        : colors.outlineVariant.withValues(alpha: 0.3);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: BoxDecoration(
+        color: tileBackground,
+        borderRadius: AppTokens.radius.lg,
+        border: Border.all(color: tileBorder),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                dayLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: colors.primary,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                dateLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.72),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        subject,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 17,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _StatusChip(
+                      icon: statusIcon,
+                      label: statusLabel,
+                      background: statusBackground,
+                      foreground: statusForeground,
+                      compact: true,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  timeLabel,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w600,
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.82),
+                  ),
+                ),
+                if (location.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    location,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 15,
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.68),
+                    ),
+                  ),
+                ],
+                if (instructor.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  _InstructorRow(
+                    name: instructor,
+                    avatarUrl: occurrence.item.instructorAvatar,
+                    tint: colors.primary,
+                    dense: true,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _InstructorRow extends StatelessWidget {
+  const _InstructorRow({
+    required this.name,
+    required this.tint,
+    this.avatarUrl,
+    this.inverse = false,
+    this.dense = false,
+  });
+
+  final String name;
+  final Color tint;
+  final String? avatarUrl;
+  final bool inverse;
+  final bool dense;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor =
+        inverse ? theme.colorScheme.onPrimary : theme.colorScheme.onSurface;
+    final textStyle =
+        (dense ? theme.textTheme.bodyMedium : theme.textTheme.bodyLarge)
+            ?.copyWith(
+      fontWeight: FontWeight.w600,
+      fontSize: dense ? 15 : 16,
+      color: textColor,
+    );
+
+    return Row(
+      children: [
+        InstructorAvatar(
+          name: name,
+          avatarUrl: avatarUrl,
+          tint: tint,
+          inverse: inverse,
+          size: dense ? 26 : 28,
+        ),
+        SizedBox(width: dense ? 6 : 8),
+        Expanded(
+          child: Text(
+            name,
+            style: textStyle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _DashboardMetricChip extends StatelessWidget {
+  const _DashboardMetricChip({
+    required this.icon,
+    required this.tint,
+    required this.label,
+    required this.value,
+    this.caption,
+    this.progress,
+    this.highlight = false,
+  });
+
+  final IconData icon;
+  final Color tint;
+  final String label;
+  final String value;
+  final String? caption;
+  final double? progress;
+  final bool highlight;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final num? rawProgress = progress?.clamp(0.0, 1.0);
+    final double? normalizedProgress =
+        rawProgress != null && rawProgress.isFinite
+            ? rawProgress.toDouble()
+            : null;
+    final bool showProgressRing =
+        normalizedProgress != null && normalizedProgress > 0;
+    final bool isDark = theme.brightness == Brightness.dark;
+    final background = tint.withValues(alpha: isDark ? 0.20 : 0.10);
+    final border = tint.withValues(alpha: isDark ? 0.28 : 0.18);
+    final iconBackground = tint.withValues(
+      alpha: highlight ? (isDark ? 0.35 : 0.24) : (isDark ? 0.22 : 0.16),
+    );
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: AppTokens.radius.lg,
+        border: Border.all(color: border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 36,
+            width: 36,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                if (showProgressRing)
+                  SizedBox(
+                    height: 36,
+                    width: 36,
+                    child: CircularProgressIndicator(
+                      value: normalizedProgress,
+                      strokeWidth: 2.4,
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        tint.withValues(alpha: 0.9),
+                      ),
+                      backgroundColor: tint.withValues(alpha: 0.18),
+                    ),
+                  ),
+                Container(
+                  height: 28,
+                  width: 28,
+                  decoration: BoxDecoration(
+                    color: iconBackground,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: tint.withValues(alpha: 0.95),
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            value,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontFamily: 'SFProRounded',
+              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              color: theme.colorScheme.onSurface,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+              fontSize: 16,
+            ),
+            maxLines: 2,
+            softWrap: true,
+            overflow: TextOverflow.fade,
+          ),
+          if (normalizedProgress != null) ...[
+            const SizedBox(height: 10),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: normalizedProgress,
+                minHeight: 4,
+                backgroundColor: tint.withValues(alpha: 0.18),
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  tint.withValues(alpha: 0.9),
+                ),
+              ),
+            ),
+          ],
+          if (caption != null) ...[
+            const SizedBox(height: 8),
+            Text(
+              caption!,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color:
+                    theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
+                fontSize: 15,
+              ),
+              maxLines: 2,
+              softWrap: true,
+              overflow: TextOverflow.fade,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardReminderCard extends StatelessWidget {
+  const _DashboardReminderCard({
+    required this.reminders,
+    required this.loading,
+    required this.pendingActions,
+    required this.formatDue,
+    required this.onOpenReminders,
+    required this.onAddReminder,
+    required this.onToggle,
+    required this.onSnooze,
+  });
+
+  final List<ReminderEntry> reminders;
+  final bool loading;
+  final Set<int> pendingActions;
+  final String Function(ReminderEntry) formatDue;
+  final VoidCallback onOpenReminders;
+  final VoidCallback onAddReminder;
+  final void Function(ReminderEntry entry, bool completed) onToggle;
+  final void Function(ReminderEntry entry) onSnooze;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final pending = reminders.where((entry) => !entry.isCompleted).toList()
+      ..sort(
+        (a, b) =>
+            (a.snoozeUntil ?? a.dueAt).compareTo(b.snoozeUntil ?? b.dueAt),
+      );
+    final display = pending.take(3).toList();
+    final total = reminders.length;
+    final completedCount = total - pending.length;
+    final completionLabel =
+        total == 0 ? 'No reminders yet' : '$completedCount of $total done';
+    final completionProgress = total == 0 ? 0.0 : completedCount / total;
+    final subtitle = loading
+        ? 'Refreshing reminders...'
+        : total == 0
+            ? 'Tap Add to plan your next task.'
+            : pending.isEmpty
+                ? 'Everything is complete. Nice work!'
+                : 'Keep tasks ahead of schedule.';
+
+    final cardBackground = elevatedCardBackground(theme);
+    final cardBorder = elevatedCardBorder(theme);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: cardBackground,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(color: cardBorder),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 42,
+                width: 42,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(
+                  Icons.check_circle_outline,
+                  size: 22,
+                  color: colors.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Reminders',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          _ReminderProgressPill(
+            label: completionLabel,
+            progress: completionProgress,
+            color: colors.primary,
+          ),
+          const SizedBox(height: 16),
+          if (loading && reminders.isEmpty)
+            const Center(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 12),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            )
+          else if (display.isEmpty)
+            Text(
+              total == 0
+                  ? 'Create a reminder to stay on top of tasks.'
+                  : 'All reminders are complete. Enjoy the calm!',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                fontSize: 16,
+              ),
+            )
+          else ...[
+            ...display.map((entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: _DashboardReminderTile(
+                    entry: entry,
+                    pendingAction: pendingActions.contains(entry.id),
+                    dueLabel: formatDue(entry),
+                    onToggle: onToggle,
+                    onSnooze: onSnooze,
+                  ),
+                )),
+            if (pending.length > display.length)
+              Text(
+                '+${pending.length - display.length} more pending reminder'
+                '${pending.length - display.length == 1 ? '' : 's'}',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: kSummaryMuted,
+                  fontSize: 14,
+                ),
+              ),
+          ],
+          const SizedBox(height: 20),
+          _ReminderActions(
+            onAddReminder: onAddReminder,
+            onOpenReminders: onOpenReminders,
+            colors: colors,
+            theme: theme,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReminderActions extends StatelessWidget {
+  const _ReminderActions({
+    required this.onAddReminder,
+    required this.onOpenReminders,
+    required this.colors,
+    required this.theme,
+  });
+
+  final VoidCallback onAddReminder;
+  final VoidCallback onOpenReminders;
+  final ColorScheme colors;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    Widget buildAddButton() {
+      return FilledButton.icon(
+        onPressed: onAddReminder,
+        icon: const Icon(Icons.add_alarm_rounded, size: 18),
+        label: const Text('Add reminder'),
+        style: FilledButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
+          minimumSize: const Size.fromHeight(48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: AppTokens.radius.xl,
+          ),
+          textStyle: theme.textTheme.titleMedium?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    Widget buildManageButton() {
+      return OutlinedButton.icon(
+        onPressed: onOpenReminders,
+        icon: const Icon(Icons.launch_rounded, size: 18),
+        label: const Text('Manage list'),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(48),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          shape: RoundedRectangleBorder(
+            borderRadius: AppTokens.radius.xl,
+          ),
+          textStyle: theme.textTheme.titleMedium?.copyWith(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      );
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 520;
+        final addButton = buildAddButton();
+        final manageButton = buildManageButton();
+
+        if (isWide) {
+          return Row(
+            children: [
+              Expanded(child: addButton),
+              const SizedBox(width: 12),
+              Expanded(child: manageButton),
+            ],
+          );
+        }
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            addButton,
+            const SizedBox(height: 10),
+            manageButton,
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _StatusChip extends StatelessWidget {
+  const _StatusChip({
+    required this.icon,
+    required this.label,
+    required this.background,
+    required this.foreground,
+    this.compact = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color background;
+  final Color foreground;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: compact ? 10 : 12,
+        vertical: compact ? 5 : 6,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: foreground.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: foreground),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: foreground,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ReminderProgressPill extends StatelessWidget {
+  const _ReminderProgressPill({
+    required this.label,
+    required this.progress,
+    required this.color,
+  });
+
+  final String label;
+  final double progress;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final clamped = progress.clamp(0.0, 1.0);
+    final indicatorColor = color;
+    final isDark = theme.brightness == Brightness.dark;
+    final baseStart =
+        isDark ? color.withValues(alpha: 0.28) : color.withValues(alpha: 0.18);
+    final baseEnd =
+        isDark ? color.withValues(alpha: 0.14) : color.withValues(alpha: 0.08);
+
+    return TweenAnimationBuilder<double>(
+      tween: Tween<double>(begin: 0, end: clamped),
+      duration: const Duration(milliseconds: 360),
+      curve: Curves.easeOutCubic,
+      builder: (context, value, _) {
+        final percent = (value * 100).round();
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [baseStart, baseEnd],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: AppTokens.radius.lg,
+            border: Border.all(color: indicatorColor.withValues(alpha: 0.22)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    height: 28,
+                    width: 28,
+                    decoration: BoxDecoration(
+                      color: indicatorColor.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(
+                      Icons.track_changes_rounded,
+                      size: 16,
+                      color: indicatorColor,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: indicatorColor,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$percent%',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: indicatorColor,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: value,
+                  minHeight: 4,
+                  color: indicatorColor,
+                  backgroundColor: indicatorColor.withValues(alpha: 0.24),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _DashboardReminderTile extends StatelessWidget {
+  const _DashboardReminderTile({
+    required this.entry,
+    required this.pendingAction,
+    required this.dueLabel,
+    required this.onToggle,
+    required this.onSnooze,
+  });
+
+  final ReminderEntry entry;
+  final bool pendingAction;
+  final String dueLabel;
+  final void Function(ReminderEntry entry, bool completed) onToggle;
+  final void Function(ReminderEntry entry) onSnooze;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDone = entry.isCompleted;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        color: colors.surface,
+        borderRadius: AppTokens.radius.lg,
+        border: Border.all(
+          color: colors.outline.withValues(alpha: 0.14),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 44,
+            width: 44,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  height: 44,
+                  width: 44,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: colors.outlineVariant.withValues(alpha: 0.35),
+                    ),
+                  ),
+                ),
+                Transform.scale(
+                  scale: 1.05,
+                  child: Checkbox(
+                    value: isDone,
+                    onChanged: pendingAction
+                        ? null
+                        : (value) {
+                            if (value == null) return;
+                            onToggle(entry, value);
+                          },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  entry.title,
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    decoration: isDone
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (entry.details?.isNotEmpty == true) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    entry.details!,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.72),
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.schedule_rounded,
+                      size: 16,
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        dueLabel,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        onPressed: pendingAction
+                            ? null
+                            : () => onToggle(entry, !isDone),
+                        icon: Icon(
+                          isDone ? Icons.undo_rounded : Icons.done_all_rounded,
+                          size: 18,
+                        ),
+                        label: Text(isDone ? 'Mark pending' : 'Mark done'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppTokens.radius.md,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: pendingAction || isDone
+                            ? null
+                            : () => onSnooze(entry),
+                        icon: const Icon(Icons.snooze_rounded, size: 18),
+                        label: const Text('Snooze 1h'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: AppTokens.radius.md,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (pendingAction) ...[
+            const SizedBox(width: 14),
+            const SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _DashboardMessageCard extends StatelessWidget {
+  const _DashboardMessageCard({
+    required this.icon,
+    required this.title,
+    required this.message,
+    this.primaryLabel,
+    this.onPrimary,
+  });
+
+  final IconData icon;
+  final String title;
+  final String message;
+  final String? primaryLabel;
+  final VoidCallback? onPrimary;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final background = colors.surfaceContainerHigh;
+    final border = colors.outline.withValues(alpha: 0.12);
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(color: border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: colors.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  title,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontFamily: 'SFProRounded',
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            message,
+            style: theme.textTheme.bodyMedium?.copyWith(color: kMuted),
+          ),
+          if (primaryLabel != null && onPrimary != null) ...[
+            const SizedBox(height: 12),
+            PrimaryButton(
+              label: primaryLabel!,
+              onPressed: onPrimary,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TickSnapshot {
+  const _TickSnapshot({
+    required this.now,
+    required this.current,
+    required this.next,
+    required this.todays,
+  });
+
+  final DateTime now;
+  final ClassOccurrence? current;
+  final ClassOccurrence? next;
+  final List<ClassOccurrence> todays;
+
+  static _TickSnapshot resolve(DateTime now, List<ClassItem> classes) {
+    final todays = <ClassOccurrence>[];
+    final day = DateTime(now.year, now.month, now.day);
+
+    for (final item in classes) {
+      final occ = item.occurrenceOn(day);
+      if (occ != null) todays.add(occ);
+    }
+
+    todays.sort((a, b) => a.start.compareTo(b.start));
+
+    ClassOccurrence? current;
+    for (final occ in todays) {
+      if (occ.isOngoingAt(now)) {
+        current = occ;
+        break;
+      }
+    }
+
+    ClassOccurrence? next;
+    for (final occ in todays) {
+      if (occ.start.isAfter(now)) {
+        next = occ;
+        break;
+      }
+    }
+
+    if (next == null) {
+      ClassOccurrence? best;
+      for (final item in classes) {
+        final upcomingStart = item.nextStartAfter(now);
+        final occ = item.occurrenceAt(upcomingStart);
+        if (occ != null && occ.end.isAfter(now)) {
+          if (best == null || occ.start.isBefore(best.start)) {
+            best = occ;
+          }
+        }
+      }
+      next = best;
+    }
+
+    return _TickSnapshot(
+      now: now,
+      current: current,
+      next: next,
+      todays: todays,
+    );
+  }
+}
+
+class ClassOccurrence {
+  const ClassOccurrence({
+    required this.item,
+    required this.start,
+    required this.end,
+  });
+
+  final ClassItem item;
+  final DateTime start;
+  final DateTime end;
+
+  bool isOngoingAt(DateTime now) => !start.isAfter(now) && end.isAfter(now);
+}
+
+class ClassItem {
+  ClassItem({
+    required this.id,
+    required this.subject,
+    required this.room,
+    required this.instructor,
+    required this.instructorAvatar,
+    required this.weekday,
+    required this.enabled,
+    required this.startTime,
+    required this.endTime,
+  }) : duration = _computeDuration(startTime, endTime);
+
+  factory ClassItem.fromApi(sched.ClassItem api) {
+    final subject = (api.title ?? api.code ?? 'Untitled').trim();
+    final room = (api.room ?? '').trim();
+    final instructor = (api.instructor ?? '').trim();
+    final instructorAvatar = (api.instructorAvatar ?? '').trim();
+    final start = _parseTime(api.start);
+    final end = _parseTime(api.end);
+    return ClassItem(
+      id: api.id,
+      subject: subject.isEmpty ? 'Class ${api.id}' : subject,
+      room: room,
+      instructor: instructor,
+      instructorAvatar: instructorAvatar.isEmpty ? null : instructorAvatar,
+      weekday: api.day,
+      enabled: api.enabled,
+      startTime: start,
+      endTime: end,
+    );
+  }
+
+  final int id;
+  final String subject;
+  final String room;
+  final String instructor;
+  final String? instructorAvatar;
+  final int weekday;
+  final bool enabled;
+  final TimeOfDay startTime;
+  final TimeOfDay endTime;
+  final Duration duration;
+
+  ClassItem copyWith({
+    String? subject,
+    String? room,
+    String? instructor,
+    String? instructorAvatar,
+    int? weekday,
+    bool? enabled,
+    TimeOfDay? startTime,
+    TimeOfDay? endTime,
+  }) {
+    final nextStart = startTime ?? this.startTime;
+    final nextEnd = endTime ?? this.endTime;
+    return ClassItem(
+      id: id,
+      subject: subject ?? this.subject,
+      room: room ?? this.room,
+      instructor: instructor ?? this.instructor,
+      instructorAvatar: instructorAvatar ?? this.instructorAvatar,
+      weekday: weekday ?? this.weekday,
+      enabled: enabled ?? this.enabled,
+      startTime: nextStart,
+      endTime: nextEnd,
+    );
+  }
+
+  static Duration _computeDuration(TimeOfDay start, TimeOfDay end) {
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    var diff = endMinutes - startMinutes;
+    if (diff <= 0) diff += 24 * 60;
+    return Duration(minutes: diff);
+  }
+
+  ClassOccurrence? occurrenceOn(DateTime day) {
+    final normalized = DateTime(day.year, day.month, day.day);
+    final weekdayValue = normalized.weekday;
+    if (weekdayValue != weekday) return null;
+    final start = DateTime(
+      normalized.year,
+      normalized.month,
+      normalized.day,
+      startTime.hour,
+      startTime.minute,
+    );
+    final end = endForStart(start);
+    return ClassOccurrence(item: this, start: start, end: end);
+  }
+
+  ClassOccurrence? occurrenceOrNull(DateTime? dayOrNull) {
+    if (dayOrNull == null) return null;
+    return occurrenceOn(dayOrNull);
+  }
+
+  ClassOccurrence? occurrenceAt(DateTime start) {
+    return occurrenceOn(start);
+  }
+
+  DateTime endForStart(DateTime start) => start.add(duration);
+
+  DateTime nextStartAfter(DateTime from) {
+    var day = DateTime(from.year, from.month, from.day);
+    for (var i = 0; i < 14; i++) {
+      final occ = occurrenceOn(day);
+      if (occ != null && occ.end.isAfter(from)) {
+        return occ.start;
+      }
+      day = day.add(const Duration(days: 1));
+    }
+    return occurrenceOn(day)?.start ?? from;
+  }
+}
+
+TimeOfDay _parseTime(String raw) {
+  final minutes = _minutesFromText(raw);
+  final hour = (minutes ~/ 60).clamp(0, 23);
+  final minute = minutes % 60;
+  return TimeOfDay(hour: hour, minute: minute);
+}
+
+int _minutesFromText(String raw) {
+  final value = raw.trim().toLowerCase().replaceAll('.', '');
+  if (value.isEmpty) return 0;
+
+  var text = value;
+  var meridian = '';
+  if (text.endsWith('am') || text.endsWith('pm')) {
+    meridian = text.substring(text.length - 2);
+
+  int hour;
+  int minute;
+
+  if (text.contains(':')) {
+    final parts = text.split(':');
+  } else {
+    hour = int.tryParse(text) ?? 0;
+    minute = 0;
+  }
+
+  if (meridian == 'pm' && hour != 12) hour += 12;
+  minute = minute.clamp(0, 59);
+  return hour * 60 + minute;
+}

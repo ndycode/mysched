@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:mysched/app/routes.dart';
+import 'package:mysched/screens/register_page.dart';
+import 'package:mysched/services/auth_service.dart';
+import 'package:mysched/services/telemetry_service.dart';
+
+void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
+  late _FakeAuthBackend backend;
+
+  setUp(() {
+    backend = _FakeAuthBackend();
+    AuthService.overrideBackend(backend);
+    AuthService.overrideDelay((_) => Future.value());
+    AuthService.overrideProfileLoader(() async => null);
+    SharedPreferences.setMockInitialValues({});
+    TelemetryService.overrideForTests((_, __) {});
+  });
+
+  tearDown(() {
+    TelemetryService.reset();
+    SharedPreferences.setMockInitialValues({});
+    AuthService.overrideProfileLoader(() async => null);
+  });
+
+  testWidgets('displays validation errors for empty fields', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    expect(find.text('Format: YYYY-XXXX-IC'), findsOneWidget);
+    expect(find.text('At least 8 characters.'), findsOneWidget);
+
+    await _tapCreateAccountButton(tester);
+    await tester.pump();
+
+    expect(find.text('Enter your full name'), findsOneWidget);
+    expect(find.text('Enter your student ID'), findsOneWidget);
+    expect(find.text('Enter your email'), findsOneWidget);
+    expect(find.text('Enter a password'), findsOneWidget);
+    expect(backend.ensureStudentIdCallCount, 0);
+    expect(backend.signUpCallCount, 0);
+  });
+
+  testWidgets('toggles password visibility', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    expect(find.byIcon(Icons.visibility_off), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.visibility_off));
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.byIcon(Icons.visibility), findsOneWidget);
+  });
+
+  testWidgets('successful registration navigates to verification screen',
+      (tester) async {
+    await tester.pumpWidget(_wrapWithRouter(
+      homeBuilder: (_) => const RegisterPage(),
+      routes: [
+        GoRoute(
+          path: AppRoutes.verify,
+          builder: (_, __) =>
+              const Scaffold(body: Center(child: Text('Verification Screen'))),
+        ),
+      ],
+    ));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Alex Scholar');
+    await tester.enterText(find.byType(TextFormField).at(1), '2024-1234-IC');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), 'alex@example.com');
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+
+    await _tapCreateAccountButton(tester);
+    await tester.pump(); // start loading spinner
+
+    await tester.pumpAndSettle();
+
+    expect(backend.ensureStudentIdCallCount, 1);
+    expect(backend.signUpCallCount, 1);
+    expect(find.text('Verification Screen'), findsOneWidget);
+  });
+
+  testWidgets('duplicate student ID surfaces inline error', (tester) async {
+    backend.ensureStudentIdError = Exception('Student ID already used');
+
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Jamie Example');
+    await tester.enterText(find.byType(TextFormField).at(1), '2024-1234-IC');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), 'jamie@example.com');
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+
+    await _tapCreateAccountButton(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Student ID already in use'), findsOneWidget);
+    expect(backend.signUpCallCount, 0);
+  });
+
+  testWidgets('duplicate email surfaces inline error', (tester) async {
+    backend.signUpError = Exception('Email already registered');
+
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Morgan Example');
+    await tester.enterText(find.byType(TextFormField).at(1), '2024-1234-IC');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), 'morgan@example.com');
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+
+    await _tapCreateAccountButton(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Email already in use'), findsOneWidget);
+    expect(backend.signUpCallCount, 1);
+  });
+}
+
+Finder _createAccountButton() =>
+    find.widgetWithText(FilledButton, 'Create account');
+
+Future<void> _tapCreateAccountButton(WidgetTester tester) async {
+  final button = _createAccountButton();
+  await tester.ensureVisible(button);
+  await tester.pumpAndSettle();
+  await tester.tap(button);
+}
+
+Widget _wrapWithRouter({
+  required WidgetBuilder homeBuilder,
+  List<GoRoute> routes = const [],
+}) {
+  final router = GoRouter(
+    routes: [
+      GoRoute(
+        path: '/',
+        builder: (context, state) => homeBuilder(context),
+      ),
+      ...routes,
+    ],
+  );
+  return MaterialApp.router(routerConfig: router);
+}
+
+class _FakeAuthBackend implements AuthBackend {
+  int ensureStudentIdCallCount = 0;
+  int signUpCallCount = 0;
+  Exception? ensureStudentIdError;
+  Exception? signUpError;
+
+  @override
+  Future<void> ensureStudentIdAvailable(String studentId) async {
+    ensureStudentIdCallCount += 1;
+    if (ensureStudentIdError != null) throw ensureStudentIdError!;
+  }
+
+  @override
+  Future<void> signUp({
+    required String email,
+    required String password,
+    required String fullName,
+    required String studentId,
+  }) async {
+    signUpCallCount += 1;
+    if (signUpError != null) throw signUpError!;
+  }
+
+  @override
+  Future<AuthResponse> signInWithPassword({
+    required String email,
+    required String password,
+  }) async =>
+      AuthResponse.fromJson(_sessionJson);
+
+  @override
+  Future<void> signOut() async {}
+
+  @override
+  Future<void> resetPassword(String email) async {}
+}
+
+const Map<String, dynamic> _sessionJson = {
+  'access_token': 'token',
+  'token_type': 'bearer',
+  'expires_in': 3600,
+  'refresh_token': 'refresh',
+  'user': {
+    'id': 'user-123',
+    'app_metadata': {},
+    'user_metadata': {},
+    'aud': 'authenticated',
+    'created_at': '2024-01-01T00:00:00Z',
+  },
+};

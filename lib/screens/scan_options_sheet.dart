@@ -112,7 +112,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                       ),
                       SizedBox(height: spacing.xl + 4),
                       Container(
-                        height: 280,
+                        height: AppTokens.componentSize.previewLg,
                         decoration: BoxDecoration(
                           color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
                           borderRadius: AppTokens.radius.lg,

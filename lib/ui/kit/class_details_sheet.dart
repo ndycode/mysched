@@ -455,7 +455,7 @@ class _HeaderRow extends StatelessWidget {
         PressableScale(
           onTap: onClose,
           child: Container(
-            padding: const EdgeInsets.all(8),
+            padding: EdgeInsets.all(AppTokens.spacing.sm),
             decoration: BoxDecoration(
               color: colors.onSurface.withValues(alpha: 0.05),
               borderRadius: AppTokens.radius.md,
@@ -558,7 +558,7 @@ class _ClassDetailsContent extends StatelessWidget {
 
                 // Main Details Container
                 Container(
-                  padding: const EdgeInsets.all(20),
+                  padding: EdgeInsets.all(AppTokens.spacing.xl),
                   decoration: BoxDecoration(
                     color: isDark 
                         ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
@@ -702,7 +702,7 @@ class _InstructorDetail extends StatelessWidget {
     final name = details.instructorName ?? '';
     
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(AppTokens.spacing.lg),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : colors.surface,
         borderRadius: AppTokens.radius.lg,
@@ -828,7 +828,7 @@ class _DetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(AppTokens.spacing.sm),
           decoration: BoxDecoration(
             color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: AppTokens.radius.sm,

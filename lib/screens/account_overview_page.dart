@@ -284,8 +284,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     onPressed: _busy ? null : _pickAndUpload,
                     icon: _busy
                         ? SizedBox(
-                            width: 18,
-                            height: 18,
+                width: AppTokens.componentSize.badgeMd + 2,
+                height: AppTokens.componentSize.badgeMd + 2,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               color: colors.primary,
@@ -438,8 +438,8 @@ class _SettingsTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 42,
-              height: 42,
+              width: AppTokens.componentSize.avatarLg,
+              height: AppTokens.componentSize.avatarLg,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
                 borderRadius: AppTokens.radius.sm,

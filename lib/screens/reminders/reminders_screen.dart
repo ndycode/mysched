@@ -299,13 +299,13 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         ),
         PopupMenuItem<_ReminderSummaryMenu>(
           enabled: false,
-          height: 1,
+          height: AppTokens.componentSize.divider,
           padding: spacing.edgeInsetsSymmetric(
             horizontal: spacing.lg,
             vertical: spacing.sm,
           ),
           child: Container(
-            height: 1,
+            height: AppTokens.componentSize.divider,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [

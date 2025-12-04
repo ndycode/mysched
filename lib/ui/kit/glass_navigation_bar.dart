@@ -271,7 +271,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
             AnimatedContainer(
               duration: AppMotionSystem.quick,
               curve: AppMotionSystem.easeOut,
-              padding: const EdgeInsets.all(12),
+              padding: EdgeInsets.all(AppTokens.spacing.md),
               decoration: BoxDecoration(
                 color: widget.selected
                     ? highlightColor

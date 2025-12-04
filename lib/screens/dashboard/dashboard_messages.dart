@@ -50,8 +50,8 @@ class _DashboardMessageCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                height: 48,
-                width: 48,
+                height: AppTokens.componentSize.listItemSm,
+                width: AppTokens.componentSize.listItemSm,
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: 0.12),
                   borderRadius: AppTokens.radius.lg,

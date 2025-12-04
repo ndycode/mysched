@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/screens/settings/settings_screen.dart';
+import 'package:mysched/services/user_scope.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'test_helpers/supabase_stub.dart';
+
 void main() {
+  setUpAll(() async {
+    await SupabaseTestBootstrap.ensureInitialized();
+    UserScope.overrideForTests(() => 'test-user');
+  });
+
+  tearDownAll(() {
+    UserScope.overrideForTests(null);
+  });
+
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    // Initialize singletons/services if needed
-    // ThemeController is a singleton, might need mocking or initialization
-    // ProfileCache, AdminService etc.
   });
 
   testWidgets('SettingsPage renders without crashing', (WidgetTester tester) async {

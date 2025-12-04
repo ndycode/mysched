@@ -340,10 +340,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
         ),
         PopupMenuItem<ScheduleAction>(
           enabled: false,
-          height: 1,
+          height: AppTokens.componentSize.divider,
           padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
           child: Container(
-            height: 1,
+            height: AppTokens.componentSize.divider,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
@@ -650,7 +650,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                           shape: BoxShape.circle,
                           border: Border.all(
                             color: colors.primary.withValues(alpha: 0.20),
-                            width: 2,
+                            width: AppTokens.componentSize.dividerThick,
                           ),
                         ),
                         child: Icon(

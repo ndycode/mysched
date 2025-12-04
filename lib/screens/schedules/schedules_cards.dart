@@ -135,8 +135,8 @@ class ScheduleClassListCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 52,
-                width: 52,
+                height: AppTokens.componentSize.avatarXl,
+                width: AppTokens.componentSize.avatarXl,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -184,14 +184,14 @@ class ScheduleClassListCard extends StatelessWidget {
               ),
               if (onRefresh != null) ...[ 
                 SizedBox(
-                  height: 36,
-                  width: 36,
+                  height: AppTokens.componentSize.avatarMd,
+                  width: AppTokens.componentSize.avatarMd,
                   child: IconButton(
                     onPressed: refreshing ? null : onRefresh,
                     icon: refreshing
                         ? SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: AppTokens.componentSize.badgeMd,
+                            height: AppTokens.componentSize.badgeMd,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(colors.primary),
@@ -226,7 +226,7 @@ class ScheduleClassListCard extends StatelessWidget {
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
-                  width: 1,
+                  width: AppTokens.componentSize.divider,
                 ),
               ),
               child: Column(
@@ -281,7 +281,7 @@ class ScheduleClassListCard extends StatelessWidget {
                     borderRadius: AppTokens.radius.md,
                     border: Border.all(
                       color: colors.primary.withValues(alpha: 0.20),
-                      width: 1,
+                      width: AppTokens.componentSize.divider,
                     ),
                   ),
                   child: Row(
@@ -407,7 +407,7 @@ class ScheduleGroupSliver extends StatelessWidget
         sliver: SliverPersistentHeader(
           pinned: false,
           delegate: _PinnedHeaderDelegate(
-            height: 56,
+            height: AppTokens.componentSize.listItemMd,
             maxWidth: maxWidth,
             backgroundColor: surface,
             child: header,
@@ -721,8 +721,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                   children: [
                     if (isLive)
                       Container(
-                        width: 8,
-                        height: 8,
+                        width: AppTokens.componentSize.badgeSm,
+                        height: AppTokens.componentSize.badgeSm,
                         margin: EdgeInsets.only(right: spacing.sm),
                         decoration: BoxDecoration(
                           color: foreground,
@@ -958,8 +958,8 @@ class _ScheduleMetricChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 32,
-            width: 32,
+            height: AppTokens.componentSize.avatarSm,
+            width: AppTokens.componentSize.avatarSm,
             decoration: BoxDecoration(
               color: tint.withValues(alpha: isDark ? 0.20 : 0.12),
               borderRadius: AppTokens.radius.sm,
@@ -1032,7 +1032,7 @@ class _CompactMetricChip extends StatelessWidget {
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Column(
@@ -1242,8 +1242,8 @@ class ScheduleRow extends StatelessWidget {
                   children: [
                     if (instructorAvatar.isNotEmpty)
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: AppTokens.componentSize.badgeLg,
+                        height: AppTokens.componentSize.badgeLg,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
@@ -1254,8 +1254,8 @@ class ScheduleRow extends StatelessWidget {
                       )
                     else
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: AppTokens.componentSize.badgeLg,
+                        height: AppTokens.componentSize.badgeLg,
                         decoration: BoxDecoration(
                           color: colors.primary.withValues(alpha: 0.15),
                           shape: BoxShape.circle,

@@ -96,7 +96,7 @@ class AboutSheet extends StatelessWidget {
                       PressableScale(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(AppTokens.spacing.sm),
                           decoration: BoxDecoration(
                             color: colors.primary.withValues(alpha: 0.08),
                             borderRadius: AppTokens.radius.xl,

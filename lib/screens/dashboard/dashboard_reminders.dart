@@ -72,8 +72,8 @@ class _DashboardReminderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 52,
-                width: 52,
+                height: AppTokens.componentSize.avatarXl,
+                width: AppTokens.componentSize.avatarXl,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -378,7 +378,7 @@ class _ReminderProgressPill extends StatelessWidget {
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: headerColor.withValues(alpha: 0.20),
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Row(
@@ -477,8 +477,8 @@ class _DashboardReminderTile extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 24,
-            width: 24,
+            height: AppTokens.componentSize.badgeLg,
+            width: AppTokens.componentSize.badgeLg,
             child: Transform.scale(
               scale: 1.1,
               child: Checkbox(
@@ -559,9 +559,9 @@ class _DashboardReminderTile extends StatelessWidget {
           ),
           if (pendingAction) ...[
             SizedBox(width: spacing.md),
-            const SizedBox(
-              width: 16,
-              height: 16,
+            SizedBox(
+              width: AppTokens.componentSize.badgeMd,
+              height: AppTokens.componentSize.badgeMd,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ],

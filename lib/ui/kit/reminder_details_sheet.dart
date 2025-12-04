@@ -173,7 +173,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                       PressableScale(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: EdgeInsets.all(AppTokens.spacing.sm),
                           decoration: BoxDecoration(
                             color: colors.onSurface.withValues(alpha: 0.05),
                             borderRadius: AppTokens.radius.md,
@@ -227,7 +227,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
 
                           // Main Details Container
                           Container(
-                            padding: const EdgeInsets.all(20),
+                            padding: EdgeInsets.all(AppTokens.spacing.xl),
                             decoration: BoxDecoration(
                               color: isDark 
                                   ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
@@ -495,7 +495,7 @@ class _DetailRow extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: EdgeInsets.all(AppTokens.spacing.sm),
           decoration: BoxDecoration(
             color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: AppTokens.radius.sm,

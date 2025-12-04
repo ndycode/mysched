@@ -181,7 +181,7 @@ class ReminderSummaryCard extends StatelessWidget {
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
-                  width: 1,
+                  width: AppTokens.componentSize.divider,
                 ),
               ),
               child: Column(
@@ -537,7 +537,7 @@ class ReminderMetricChip extends StatelessWidget {
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Column(
@@ -1127,8 +1127,8 @@ class ReminderListCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 52,
-                width: 52,
+                height: AppTokens.componentSize.avatarXl,
+                width: AppTokens.componentSize.avatarXl,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,

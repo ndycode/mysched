@@ -198,7 +198,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           onAccountTap: _openAccount,
           showChevron: false,
           loading: !_profileHydrated,
-          height: 48,
+          height: AppTokens.componentSize.listItemSm,
           avatarRadius: 20,
           textStyle: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'SFProRounded',
@@ -224,7 +224,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           subtitle: _isEditing
               ? 'Update the session details for this custom class.'
               : 'Enter the session details. You can edit or remove custom classes from the schedules tab later.',
-          trailing: SizedBox(height: 36, child: menuButton),
+          trailing: SizedBox(height: AppTokens.componentSize.buttonSm, child: menuButton),
           child: AddClassForm(
             key: _formKey,
             api: widget.api,
@@ -457,7 +457,7 @@ class _RemindersStyleShell extends StatelessWidget {
               ),
               if (trailing != null) ...[
                 SizedBox(width: AppTokens.spacing.xs),
-                SizedBox(height: 36, child: trailing!),
+                SizedBox(height: AppTokens.componentSize.buttonSm, child: trailing!),
               ],
             ],
           ),
@@ -849,8 +849,8 @@ class _AddClassFormState extends State<AddClassForm> {
           child: Row(
             children: [
               SizedBox(
-                width: 18,
-                height: 18,
+                width: AppTokens.componentSize.badgeMd + 2,
+                height: AppTokens.componentSize.badgeMd + 2,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
                   valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
@@ -1453,8 +1453,8 @@ class _TimeField extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: AppTokens.componentSize.avatarSm,
+              height: AppTokens.componentSize.avatarSm,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
                 color: colors.primary.withValues(alpha: 0.16),

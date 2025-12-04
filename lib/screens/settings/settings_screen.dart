@@ -357,8 +357,8 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  height: 52,
-                  width: 52,
+                  height: AppTokens.componentSize.avatarXl,
+                  width: AppTokens.componentSize.avatarXl,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -959,8 +959,8 @@ class _SettingsPageState extends State<SettingsPage> {
             child: SecondaryButton(
               leading: _controller.readinessLoading
                   ? SizedBox(
-                      width: 16,
-                      height: 16,
+                      width: AppTokens.componentSize.badgeMd,
+                      height: AppTokens.componentSize.badgeMd,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
@@ -1244,8 +1244,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildIconBadge(ThemeData theme, IconData icon, Color accent) {
 
     return Container(
-      height: 42,
-      width: 42,
+      height: AppTokens.componentSize.avatarLg,
+      width: AppTokens.componentSize.avatarLg,
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.15),
         borderRadius: AppTokens.radius.sm,
@@ -1414,8 +1414,8 @@ class _SyncRow extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            height: 42,
-            width: 42,
+            height: AppTokens.componentSize.avatarLg,
+            width: AppTokens.componentSize.avatarLg,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.15),
               borderRadius: AppTokens.radius.md,
@@ -1479,7 +1479,7 @@ class _ThemeOption extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 64,
+            height: AppTokens.componentSize.avatarXxl,
             decoration: BoxDecoration(
               color: isOutline ? Colors.transparent : color,
               borderRadius: AppTokens.radius.lg,

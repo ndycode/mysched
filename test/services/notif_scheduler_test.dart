@@ -363,7 +363,7 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       await NotifScheduler.ensurePreferenceMigration(prefs: prefs);
 
-      expect(prefs.getInt('notifLeadMinutes'), 10);
+      expect(prefs.getInt('notifLeadMinutes'), 5);
       expect(prefs.getInt('snoozeMinutes'), 5);
       expect(prefs.getBool('quiet_week_enabled'), isFalse);
       expect(prefs.getBool('alarm_verbose_logging'), isFalse);

@@ -299,8 +299,8 @@ class _SuccessView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Container(
-          width: 120,
-          height: 120,
+          width: AppTokens.componentSize.previewSm,
+          height: AppTokens.componentSize.previewSm,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(

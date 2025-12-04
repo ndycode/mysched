@@ -284,8 +284,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 48,
-            width: 48,
+            height: AppTokens.componentSize.listItemSm,
+            width: AppTokens.componentSize.listItemSm,
             decoration: BoxDecoration(
               color: colors.primary.withValues(alpha: isDark ? 0.32 : 0.18),
               borderRadius: AppTokens.radius.lg,

@@ -17,3 +17,9 @@ export 'screen_shell.dart';
 export 'skeletons.dart';
 export 'battery_optimization_sheet.dart';
 export 'status_chip.dart';
+
+// Shared UI components for consistency across screens
+export 'entity_tile.dart';
+export 'status_badge.dart';
+export 'metric_chip.dart';
+export 'section_header_card.dart';

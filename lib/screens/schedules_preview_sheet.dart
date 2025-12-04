@@ -5,7 +5,6 @@ import '../services/scan_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
-import '../widgets/instructor_avatar.dart';
 
 class ScheduleImportOutcome {
   const ScheduleImportOutcome({this.imported = false, this.retake = false});
@@ -193,41 +192,27 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                               secondaryActionLabel: 'Retake',
                               onSecondaryAction: _saving
                                   ? null
-                                  : () => Navigator.of(context)
-                                      .pop(const ScheduleImportOutcome.retake()),
+                                  : () => Navigator.of(context).pop(
+                                      const ScheduleImportOutcome.retake()),
                               compact: true,
                             ),
                           ],
-                          SizedBox(height: spacing.lg),
-                          Container(
-                            padding: spacing.edgeInsetsAll(spacing.xl),
-                            decoration: BoxDecoration(
-                              color: theme.brightness == Brightness.dark
-                                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
-                              borderRadius: AppTokens.radius.xl,
-                              border: Border.all(
-                                color: colors.outlineVariant.withValues(alpha: 0.2),
-                              ),
+                          SizedBox(height: spacing.xl),
+                          // Class list - no extra container, matches schedules page
+                          for (var i = 0; i < dayKeys.length; i++) ...[
+                            _DayToggleCard(
+                              dayLabel: _dayName(dayKeys[i]),
+                              entries: importGroups[dayKeys[i]] ?? const [],
+                              enabledMap: _enabled,
+                              saving: _saving,
+                              highlightClassId: highlightClassId,
+                              onToggle: (classId, value) {
+                                setState(() => _enabled[classId] = value);
+                              },
                             ),
-                            child: Column(
-                              children: [
-                                for (var i = 0; i < dayKeys.length; i++) ...[
-                                  _DayToggleCard(
-                                    dayLabel: _dayName(dayKeys[i]),
-                                    entries: importGroups[dayKeys[i]] ?? const [],
-                                    enabledMap: _enabled,
-                                    saving: _saving,
-                                    highlightClassId: highlightClassId,
-                                    onToggle: (classId, value) {
-                                      setState(() => _enabled[classId] = value);
-                                    },
-                                  ),
-                                  if (i != dayKeys.length - 1) SizedBox(height: spacing.quad),
-                                ],
-                              ],
-                            ),
-                          ),
+                            if (i != dayKeys.length - 1)
+                              SizedBox(height: spacing.xl),
+                          ],
                         ],
                       ),
                     ),
@@ -249,7 +234,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                       border: Border(
                         top: BorderSide(
                           color: borderColor.withValues(alpha: 0.5),
-                          width: 1,
+                          width: AppTokens.componentSize.divider,
                         ),
                       ),
                     ),
@@ -261,8 +246,8 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                             label: _saving ? 'Saving...' : 'Import schedule',
                             leading: _saving
                                 ? SizedBox(
-                                    width: 16,
-                                    height: 16,
+                                    width: AppTokens.componentSize.badgeMd,
+                                    height: AppTokens.componentSize.badgeMd,
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -422,8 +407,8 @@ class _SectionCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: AppTokens.componentSize.avatarXxl,
+            height: AppTokens.componentSize.avatarXxl,
             decoration: BoxDecoration(
               color: colors.primary.withValues(alpha: 0.15),
               borderRadius: AppTokens.radius.lg,
@@ -481,47 +466,6 @@ class _ImportClass {
   final String? instructorAvatar;
 }
 
-
-class _ImportInstructorRow extends StatelessWidget {
-  const _ImportInstructorRow({
-    required this.name,
-    required this.tint,
-    this.avatarUrl,
-  });
-
-  final String name;
-  final Color tint;
-  final String? avatarUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        InstructorAvatar(
-          name: name,
-          tint: tint,
-          avatarUrl: avatarUrl,
-          size: AppTokens.iconSize.xl,
-          borderWidth: 1,
-        ),
-        SizedBox(width: AppTokens.spacing.sm),
-        Expanded(
-          child: Text(
-            name,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 int? _findNextHighlightedImport(
   Iterable<_ImportClass> entries,
   Map<int, bool> enabledMap,
@@ -562,12 +506,6 @@ DateTime? _nextDateForDay(int day, DateTime now) {
   var diff = day - today.weekday;
   if (diff < 0) diff += 7;
   return today.add(Duration(days: diff));
-}
-
-String _weekdayAbbrev(int day) {
-  const names = ['', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
-  if (day >= 1 && day <= 7) return names[day];
-  return 'DAY';
 }
 
 String? _formatRange(String start, String end) {
@@ -649,39 +587,79 @@ class _DayToggleCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Section header matching schedules page
-        Text(
-          dayLabel,
-          style: AppTokens.typography.subtitle.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colors.primary,
-          ),
-        ),
-        SizedBox(height: spacing.xs + 2),
+        // Day Header - Premium redesign matching schedules page
         Container(
-          height: 1,
+          padding: spacing.edgeInsetsAll(spacing.md),
           decoration: BoxDecoration(
-            color: colors.outlineVariant.withValues(
-              alpha: theme.brightness == Brightness.dark ? 0.24 : 0.12,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                colors.primary.withValues(alpha: 0.10),
+                colors.primary.withValues(alpha: 0.06),
+              ],
             ),
-            borderRadius: AppTokens.radius.pill,
+            borderRadius: AppTokens.radius.md,
+            border: Border.all(
+              color: colors.primary.withValues(alpha: 0.20),
+              width: AppTokens.componentSize.divider,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: spacing.edgeInsetsAll(spacing.sm),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.15),
+                  borderRadius: AppTokens.radius.sm,
+                ),
+                child: Icon(
+                  Icons.calendar_today_rounded,
+                  size: AppTokens.iconSize.sm,
+                  color: colors.primary,
+                ),
+              ),
+              SizedBox(width: spacing.md),
+              Expanded(
+                child: Text(
+                  dayLabel,
+                  style: AppTokens.typography.subtitle.copyWith(
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.3,
+                    color: colors.onSurface,
+                  ),
+                ),
+              ),
+              Container(
+                padding: spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.sm + 2, vertical: spacing.xs + 1),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.12),
+                  borderRadius: AppTokens.radius.sm,
+                ),
+                child: Text(
+                  '${entries.length} ${entries.length == 1 ? 'class' : 'classes'}',
+                  style: AppTokens.typography.caption.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colors.primary,
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         SizedBox(height: spacing.md),
         // Class tiles
-        for (final entry in entries)
-          Padding(
-            padding: EdgeInsets.only(
-              bottom: entry == entries.last ? 0 : spacing.md,
-            ),
-            child: _ImportClassTile(
-              entry: entry,
-              enabled: enabledMap[entry.id] ?? true,
-              saving: saving,
-              highlight: highlightClassId == entry.id,
-              onToggle: (value) => onToggle(entry.id, value),
-            ),
+        for (var i = 0; i < entries.length; i++) ...[
+          _ImportClassTile(
+            entry: entries[i],
+            enabled: enabledMap[entries[i].id] ?? true,
+            saving: saving,
+            highlight: highlightClassId == entries[i].id,
+            onToggle: (value) => onToggle(entries[i].id, value),
           ),
+          if (i != entries.length - 1) SizedBox(height: spacing.sm + 2),
+        ],
       ],
     );
   }
@@ -706,184 +684,177 @@ class _ImportClassTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
-    final now = DateTime.now();
     final disabled = !enabled;
     final bool isNext = highlight && !disabled;
-    final nextDate = _nextDateForDay(entry.day, now);
-    
-    final dayLabel = nextDate == null
-        ? _weekdayAbbrev(entry.day)
-        : DateFormat('EEE').format(nextDate).toUpperCase();
-    final dateLabel =
-        nextDate == null ? '--' : DateFormat('MMM d').format(nextDate);
-        
+
     final timeLabel = _formatRange(entry.startLabel, entry.endLabel);
     final location = entry.room.trim();
     final instructor = entry.instructor.trim();
     final instructorAvatar = entry.instructorAvatar?.trim() ?? '';
+    final subject = entry.title.isEmpty ? 'Untitled class' : entry.title;
 
-    // Match schedules page design
-    final tileBackground = isNext
-        ? colors.primary.withValues(alpha: 0.08)
-        : colors.surfaceContainerHigh;
-    final tileBorder = isNext
-        ? colors.primary.withValues(alpha: 0.24)
-        : colors.outline.withValues(alpha: 0.12);
-    final radius = AppTokens.radius.lg;
-
+    // Match ScheduleRow design exactly
     return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.lg + 2,
-        vertical: spacing.lg,
-      ),
+      padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
-        color: tileBackground,
-        borderRadius: radius,
-        border: Border.all(color: tileBorder),
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.md,
+        border: Border.all(
+          color: isNext
+              ? colors.primary.withValues(alpha: 0.30)
+              : colors.outline.withValues(alpha: isDark ? 0.12 : 0.5),
+          width: isNext ? 1.5 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: isNext ? 0.08 : 0.04),
+                  blurRadius: isNext ? 12 : 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Day/date column - matches schedules page
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          // Top row: Title and Toggle
+          Row(
             children: [
-              Text(
-                dayLabel,
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: disabled ? colors.error : colors.primary,
+              Expanded(
+                child: Text(
+                  subject,
+                  style: AppTokens.typography.subtitle.copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                    color:
+                        disabled ? colors.onSurfaceVariant : colors.onSurface,
+                    decoration: disabled ? TextDecoration.lineThrough : null,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(height: AppTokens.spacing.xs),
-              Text(
-                dateLabel,
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+              SizedBox(width: spacing.md),
+              // Status badge or toggle
+              if (isNext)
+                Container(
+                  padding: spacing.edgeInsetsSymmetric(
+                      horizontal: spacing.sm + 2, vertical: spacing.xs),
+                  decoration: BoxDecoration(
+                    color: colors.primary.withValues(alpha: 0.08),
+                    borderRadius: AppTokens.radius.sm,
+                  ),
+                  child: Text(
+                    'Next',
+                    style: AppTokens.typography.caption.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: colors.primary,
+                    ),
+                  ),
+                )
+              else
+                Transform.scale(
+                  scale: 0.85,
+                  child: Switch(
+                    value: !disabled,
+                    onChanged: saving ? null : onToggle,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ),
                 ),
-              ),
             ],
           ),
-          SizedBox(width: AppTokens.spacing.xl),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title row with next badge and toggle
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        entry.title.isEmpty ? 'Untitled class' : entry.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTokens.typography.subtitle.copyWith(
-                          fontWeight: FontWeight.w700,
-                          decoration: disabled ? TextDecoration.lineThrough : null,
-                          color: disabled ? colors.onSurface.withValues(alpha: 0.5) : null,
-                        ),
-                      ),
-                    ),
-                    if (isNext) ...[
-                      SizedBox(width: spacing.xs),
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: spacing.sm,
-                          vertical: spacing.xs - 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.12),
-                          borderRadius: AppTokens.radius.pill,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.arrow_forward_rounded,
-                              size: AppTokens.iconSize.xs,
-                              color: colors.primary,
-                            ),
-                            SizedBox(width: spacing.xs - 2),
-                            Text(
-                              'Next',
-                              style: AppTokens.typography.caption.copyWith(
-                                fontWeight: FontWeight.w700,
-                                color: colors.primary,
-                                height: 1.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                    SizedBox(width: spacing.sm),
-                    Transform.scale(
-                      scale: 0.82,
-                      alignment: Alignment.centerRight,
-                      child: Switch.adaptive(
-                        value: !disabled,
-                        onChanged: saving ? null : onToggle,
-                        activeTrackColor: colors.primary,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                  ],
+          SizedBox(height: spacing.md),
+          // Bottom row: Time, Location
+          Row(
+            children: [
+              // Time
+              Icon(
+                Icons.access_time_rounded,
+                size: AppTokens.iconSize.sm,
+                color: colors.onSurfaceVariant,
+              ),
+              SizedBox(width: spacing.xs + 2),
+              Text(
+                timeLabel ?? '--',
+                style: AppTokens.typography.bodySecondary.copyWith(
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceVariant,
                 ),
-                if (timeLabel != null) ...[
-                  SizedBox(height: spacing.xs),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.schedule_rounded,
-                        size: AppTokens.iconSize.xs,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.82),
+              ),
+              if (location.isNotEmpty) ...[
+                SizedBox(width: spacing.lg),
+                Icon(
+                  Icons.location_on_outlined,
+                  size: AppTokens.iconSize.sm,
+                  color: colors.onSurfaceVariant,
+                ),
+                SizedBox(width: spacing.xs + 2),
+                Expanded(
+                  child: Text(
+                    location,
+                    style: AppTokens.typography.bodySecondary.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          if (instructor.isNotEmpty) ...[
+            SizedBox(height: spacing.sm + 2),
+            Row(
+              children: [
+                if (instructorAvatar.isNotEmpty)
+                  Container(
+                    width: AppTokens.componentSize.badgeLg,
+                    height: AppTokens.componentSize.badgeLg,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        image: NetworkImage(instructorAvatar),
+                        fit: BoxFit.cover,
                       ),
-                      SizedBox(width: spacing.xs),
-                      Text(
-                        timeLabel,
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.92),
+                    ),
+                  )
+                else
+                  Container(
+                    width: AppTokens.componentSize.badgeLg,
+                    height: AppTokens.componentSize.badgeLg,
+                    decoration: BoxDecoration(
+                      color: colors.primary.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Center(
+                      child: Text(
+                        instructor[0].toUpperCase(),
+                        style: AppTokens.typography.caption.copyWith(
+                          fontWeight: FontWeight.w600,
+                          color: colors.primary,
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ],
-                if (location.isNotEmpty) ...[
-                  SizedBox(height: spacing.xs),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.place_outlined,
-                        size: AppTokens.iconSize.xs,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.82),
-                      ),
-                      SizedBox(width: spacing.xs),
-                      Expanded(
-                        child: Text(
-                          location,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTokens.typography.bodySecondary.copyWith(
-                            color: colors.onSurfaceVariant.withValues(alpha: 0.92),
-                          ),
-                        ),
-                      ),
-                    ],
+                SizedBox(width: spacing.sm),
+                Expanded(
+                  child: Text(
+                    instructor,
+                    style: AppTokens.typography.caption.copyWith(
+                      fontWeight: FontWeight.w500,
+                      color: colors.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-                if (instructor.isNotEmpty) ...[
-                  SizedBox(height: spacing.sm),
-                  _ImportInstructorRow(
-                    name: instructor,
-                    tint: colors.primary,
-                    avatarUrl: instructorAvatar.isEmpty ? null : instructorAvatar,
-                  ),
-                ],
+                ),
               ],
             ),
-          ),
+          ],
         ],
       ),
     );

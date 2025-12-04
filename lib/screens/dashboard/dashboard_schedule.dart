@@ -84,8 +84,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 52,
-                width: 52,
+                height: AppTokens.componentSize.avatarXl,
+                width: AppTokens.componentSize.avatarXl,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -133,14 +133,14 @@ class _DashboardSchedulePeek extends StatelessWidget {
               ),
               if (onRefresh != null) ...[
                 SizedBox(
-                  height: 36,
-                  width: 36,
+                  height: AppTokens.componentSize.avatarMd,
+                  width: AppTokens.componentSize.avatarMd,
                   child: IconButton(
                     onPressed: refreshing ? null : onRefresh,
                     icon: refreshing
                         ? SizedBox(
-                            width: 16,
-                            height: 16,
+                            width: AppTokens.componentSize.badgeMd,
+                            height: AppTokens.componentSize.badgeMd,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor: AlwaysStoppedAnimation(colors.primary),
@@ -304,7 +304,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                         borderRadius: AppTokens.radius.lg,
                         border: Border.all(
                           color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
-                          width: 1,
+                          width: AppTokens.componentSize.divider,
                         ),
                       ),
                       child: Column(
@@ -393,7 +393,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
             borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: color.withValues(alpha: 0.20),
-              width: 1,
+              width: AppTokens.componentSize.divider,
             ),
           ),
           child: Row(
@@ -653,8 +653,8 @@ class _ScheduleRow extends StatelessWidget {
                   children: [
                     if (instructorAvatar.isNotEmpty)
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: AppTokens.componentSize.badgeLg,
+                        height: AppTokens.componentSize.badgeLg,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           image: DecorationImage(
@@ -665,8 +665,8 @@ class _ScheduleRow extends StatelessWidget {
                       )
                     else
                       Container(
-                        width: 24,
-                        height: 24,
+                        width: AppTokens.componentSize.badgeLg,
+                        height: AppTokens.componentSize.badgeLg,
                         decoration: BoxDecoration(
                           color: colors.primary.withValues(alpha: 0.15),
                           shape: BoxShape.circle,

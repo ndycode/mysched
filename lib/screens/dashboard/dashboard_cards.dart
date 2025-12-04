@@ -196,7 +196,7 @@ class _CompactMetricChip extends StatelessWidget {
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Column(
@@ -408,8 +408,8 @@ class _UpcomingHeroTile extends StatelessWidget {
                       children: [
                         if (isLive)
                           Container(
-                            width: 8,
-                            height: 8,
+                            width: AppTokens.componentSize.badgeSm,
+                            height: AppTokens.componentSize.badgeSm,
                             margin: spacing.edgeInsetsOnly(right: spacing.sm),
                             decoration: BoxDecoration(
                               color: foreground,
@@ -770,7 +770,7 @@ class _UpcomingListTile extends StatelessWidget {
                   ],
                   if (location.isEmpty) const Spacer(),
                   SizedBox(
-                    height: 24,
+                    height: AppTokens.componentSize.badgeLg,
                     child: Transform.scale(
                       scale: 0.8,
                       alignment: Alignment.centerRight,
@@ -937,8 +937,8 @@ class _DashboardMetricChip extends StatelessWidget {
               const Spacer(),
               if (progress != null)
                 SizedBox(
-                  width: 24,
-                  height: 24,
+                  width: AppTokens.componentSize.badgeLg,
+                  height: AppTokens.componentSize.badgeLg,
                   child: CircularProgressIndicator(
                     value: progress,
                     strokeWidth: 3,

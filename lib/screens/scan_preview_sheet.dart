@@ -286,7 +286,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                               children: [
                                 if (!_imageReady)
                                   SizedBox(
-                                    height: 200,
+                                    height: AppTokens.componentSize.previewMd,
                                     child: Center(
                                       child: CircularProgressIndicator(
                                         valueColor:
@@ -365,8 +365,8 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                               : Icons.qr_code_scanner_rounded,
                           leading: _processing
                               ? SizedBox(
-                                  width: 16,
-                                  height: 16,
+                                  width: AppTokens.componentSize.badgeMd,
+                                  height: AppTokens.componentSize.badgeMd,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
                                     valueColor: AlwaysStoppedAnimation<Color>(

@@ -311,7 +311,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('No schedules yet'), findsWidgets);
-    expect(find.text('Scan student card'), findsWidgets);
+    expect(find.textContaining('scanning your student card'), findsWidgets);
   });
 
   test('buildSchedulePlainText formats grouped schedule', () {

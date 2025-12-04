@@ -739,8 +739,8 @@ class _FieldTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 32,
-              height: 32,
+              width: AppTokens.componentSize.avatarSm,
+              height: AppTokens.componentSize.avatarSm,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
                 color: colors.primary.withValues(alpha: 0.16),

@@ -82,6 +82,7 @@ class AppTokens {
   static const AppMotion motion = AppMotion();
   static const AppDurations durations = AppDurations();
   static const AppIconSize iconSize = AppIconSize();
+  static const AppComponentSize componentSize = AppComponentSize();
 }
 
 class ColorPalette {
@@ -332,4 +333,45 @@ class AppIconSize {
 
   /// Display icons (large illustrations, scan options)
   final double display = 64;
+}
+
+/// Centralized component size tokens for avatars, badges, and containers.
+class AppComponentSize {
+  const AppComponentSize();
+
+  // Avatar sizes
+  final double avatarXs = 24;
+  final double avatarSm = 32;
+  final double avatarMd = 36;
+  final double avatarLg = 42;
+  final double avatarXl = 52;
+  final double avatarXxl = 64;
+
+  // Badge sizes
+  final double badgeSm = 8;
+  final double badgeMd = 16;
+  final double badgeLg = 24;
+
+  // List item heights
+  final double listItemSm = 48;
+  final double listItemMd = 56;
+  final double listItemLg = 64;
+
+  // Divider thickness
+  final double divider = 1;
+  final double dividerThick = 2;
+
+  // Button heights
+  final double buttonSm = 36;
+  final double buttonMd = 48;
+  final double buttonLg = 56;
+
+  // Card preview heights
+  final double previewSm = 120;
+  final double previewMd = 200;
+  final double previewLg = 280;
+
+  // Progress indicator
+  final double progressHeight = 4;
+  final double progressWidth = 40;
 }

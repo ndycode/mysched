@@ -81,6 +81,7 @@ class AppTokens {
   static const AppTypography typography = AppTypography._();
   static const AppMotion motion = AppMotion();
   static const AppDurations durations = AppDurations();
+  static const AppIconSize iconSize = AppIconSize();
 }
 
 class ColorPalette {
@@ -305,4 +306,30 @@ class AppDurations {
 
   /// Delay before form submission feedback.
   final Duration submitDelay = const Duration(milliseconds: 500);
+}
+
+/// Centralized icon size tokens for consistent icon sizing.
+class AppIconSize {
+  const AppIconSize();
+
+  /// Extra small icons (chips, badges, inline indicators)
+  final double xs = 14;
+
+  /// Small icons (buttons, list items)
+  final double sm = 16;
+
+  /// Medium icons (standard UI icons)
+  final double md = 20;
+
+  /// Large icons (prominent actions, headers)
+  final double lg = 24;
+
+  /// Extra large icons (section headers, cards)
+  final double xl = 28;
+
+  /// Hero icons (empty states, featured content)
+  final double xxl = 40;
+
+  /// Display icons (large illustrations, scan options)
+  final double display = 64;
 }

@@ -544,8 +544,8 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
     final isDark = theme.brightness == Brightness.dark;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: isDark ? colors.surface : const Color(0xFFF5F7FA),
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+      backgroundColor: isDark ? colors.surface : colors.surfaceContainerLowest,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
@@ -558,7 +558,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             'Enable reliable alarms',
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
-              fontSize: 20,
+              fontSize: AppTokens.typography.title.fontSize,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -567,7 +567,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             'Turn on these settings so class reminders fire on time.',
             style: AppTokens.typography.bodySecondary.copyWith(
               color: colors.onSurfaceVariant,
-              fontSize: 14,
+              fontSize: AppTokens.typography.bodySecondary.fontSize,
             ),
           ),
           SizedBox(height: spacing.xxl),
@@ -612,7 +612,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                   'Checking status...',
                   style: AppTokens.typography.bodySecondary.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontSize: 13,
+                    fontSize: AppTokens.typography.caption.fontSize,
                   ),
                 ),
               ],
@@ -622,7 +622,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               'Status updates automatically after you return.',
               style: AppTokens.typography.bodySecondary.copyWith(
                 color: colors.onSurfaceVariant,
-                fontSize: 13,
+                fontSize: AppTokens.typography.caption.fontSize,
               ),
             ),
           SizedBox(height: spacing.xxl),
@@ -720,13 +720,13 @@ class _StatusRow extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.lg,
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: colors.shadow.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -740,7 +740,7 @@ class _StatusRow extends StatelessWidget {
             width: 40,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: isDark ? 0.22 : 0.12),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.sm,
             ),
             child: Icon(icon, color: accent, size: 22),
           ),
@@ -756,7 +756,7 @@ class _StatusRow extends StatelessWidget {
                         label,
                         style: AppTokens.typography.subtitle.copyWith(
                           color: colors.onSurface,
-                          fontSize: 15,
+                          fontSize: AppTokens.typography.body.fontSize,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -769,7 +769,7 @@ class _StatusRow extends StatelessWidget {
                   description,
                   style: theme.textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontSize: 13,
+                    fontSize: AppTokens.typography.caption.fontSize,
                   ),
                 ),
               ],
@@ -806,29 +806,29 @@ class _StatusPill extends StatelessWidget {
     Color fg;
     
     if (isUnknown) {
-      bg = isDark ? colors.surfaceContainerHighest : const Color(0xFFE8EBF0);
+      bg = isDark ? colors.surfaceContainerHighest : colors.surfaceContainerHigh;
       fg = colors.onSurfaceVariant;
     } else if (isOk) {
       bg = colors.primary.withValues(alpha: isDark ? 0.20 : 0.12);
       fg = colors.primary;
     } else {
       bg = optional 
-          ? (isDark ? const Color(0xFFFF9500).withValues(alpha: 0.20) : const Color(0xFFFF9500).withValues(alpha: 0.12))
+          ? (isDark ? AppTokens.lightColors.warning.withValues(alpha: 0.20) : AppTokens.lightColors.warning.withValues(alpha: 0.12))
           : colors.errorContainer;
-      fg = optional ? const Color(0xFFFF9500) : colors.error;
+      fg = optional ? AppTokens.lightColors.warning : colors.error;
     }
     
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: bg,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: AppTokens.radius.sm,
       ),
       child: Text(
         label,
         style: theme.textTheme.labelSmall?.copyWith(
           color: fg,
-          fontSize: 12,
+          fontSize: AppTokens.typography.caption.fontSize,
           fontWeight: FontWeight.w600,
         ),
       ),

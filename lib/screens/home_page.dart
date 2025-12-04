@@ -30,25 +30,25 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
+    return ScreenShell(
       screenName: 'home_loading',
-      safeArea: false,
-      body: AppBackground(
-        child: Padding(
-          padding: EdgeInsets.fromLTRB(
-            AppTokens.spacing.xl,
-            MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
-            AppTokens.spacing.xl,
-            AppTokens.spacing.xl,
-          ),
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 640),
-              child: const SkeletonDashboardCard(),
-            ),
-          ),
-        ),
+      hero: const ScreenHeroCard(
+        title: 'Loading MySched',
+        subtitle: 'Preparing your dashboard...',
       ),
+      sections: const [
+        ScreenSection(
+          decorated: false,
+          child: SkeletonDashboardCard(),
+        ),
+      ],
+      padding: EdgeInsets.fromLTRB(
+        AppTokens.spacing.xl,
+        MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
+        AppTokens.spacing.xl,
+        AppTokens.spacing.xl,
+      ),
+      safeArea: false,
     );
   }
 }

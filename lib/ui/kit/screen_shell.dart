@@ -217,18 +217,24 @@ class ScreenHeroCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: theme.textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                  Text(
+                    title,
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 21,
+                      letterSpacing: -0.5,
+                      color: theme.brightness == Brightness.dark
+                          ? theme.colorScheme.onSurface
+                          : const Color(0xFF1A1A1A),
+                    ),
                   ),
-                ),
                 if (subtitle != null) ...[
                   SizedBox(height: spacing.xs),
                   Text(
                     subtitle!,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
@@ -309,7 +315,12 @@ class ScreenSection extends StatelessWidget {
                       Text(
                         title!,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 17,
+                          letterSpacing: -0.3,
+                          color: theme.brightness == Brightness.dark
+                              ? theme.colorScheme.onSurface
+                              : const Color(0xFF1A1A1A),
                         ),
                       ),
                     if (subtitle != null) ...[
@@ -318,6 +329,7 @@ class ScreenSection extends StatelessWidget {
                         subtitle!,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],

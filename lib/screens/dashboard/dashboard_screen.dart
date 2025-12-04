@@ -710,114 +710,92 @@ class DashboardScreenState extends State<DashboardScreen>
         _reminders.isEmpty;
 
     if (initialLoading) {
-      return AppScaffold(
+      return ScreenShell(
         screenName: 'dashboard',
-        safeArea: false,
-        body: AppBackground(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              AppTokens.spacing.xl,
-              MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
-              AppTokens.spacing.xl,
-              AppTokens.spacing.xl,
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 640),
-                child: const SkeletonDashboardCard(),
-              ),
-            ),
-          ),
+        hero: const ScreenHeroCard(
+          title: 'Dashboard',
+          subtitle: 'Loading your schedule and reminders...',
         ),
+        sections: const [
+          ScreenSection(
+            decorated: false,
+            child: SkeletonDashboardCard(),
+          ),
+        ],
+        padding: EdgeInsets.fromLTRB(
+          AppTokens.spacing.xl,
+          MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
+          AppTokens.spacing.xl,
+          AppTokens.spacing.xl,
+        ),
+        safeArea: false,
       );
     }
 
-    return AppScaffold(
-      screenName: 'dashboard',
-      safeArea: false,
-      body: AppBackground(
-        child: RefreshIndicator(
-          onRefresh: _refreshAll,
-          color: Theme.of(context).colorScheme.primary,
-          backgroundColor: Colors.transparent,
-          child: ValueListenableBuilder<DateTime>(
-            valueListenable: _nowTick,
-            builder: (context, now, _) {
-              final scopedClasses =
-                  _classes.where((c) => c.enabled).toList(growable: false);
-              final allEnabledClasses =
-                  _allClasses.where((c) => c.enabled).toList(growable: false);
-              final snapshot = _TickSnapshot.resolve(now, allEnabledClasses);
-              final scopeOccurrences =
-                  _resolveScheduleOccurrences(scopedClasses, now);
-              final summary = _DashboardSummaryData.resolve(
-                occurrences: scopeOccurrences,
-                now: now,
-                reminders: _reminders,
-                scopeLabel: _selectedScope,
-              );
-              final upcoming =
-                  _resolveUpcoming(snapshot, allEnabledClasses, now);
+    final spacing = AppTokens.spacing;
+    final topInset = MediaQuery.of(context).padding.top;
 
-              final sectionBuilders = _buildDashboardSections(
-                context: context,
-                summary: summary,
-                upcoming: upcoming,
-                now: now,
-                scheduleOccurrences: scopeOccurrences,
-                searchController: _searchController,
-                selectedScope: _selectedScope,
-                onScopeChanged: _handleScopeChange,
-                onSearchChanged: _handleSearchChanged,
-              );
+    return ValueListenableBuilder<DateTime>(
+      valueListenable: _nowTick,
+      builder: (context, now, _) {
+        final enabledClasses =
+            _classes.where((c) => c.enabled).toList(growable: false);
+        final allEnabledClasses =
+            _allClasses.where((c) => c.enabled).toList(growable: false);
+        final occurrences = _resolveScheduleOccurrences(enabledClasses, now);
+        final summary = _DashboardSummaryData.resolve(
+          occurrences: occurrences,
+          now: now,
+          reminders: _reminders,
+          scopeLabel: _selectedScope,
+        );
+        final upcoming = _resolveUpcoming(
+          _TickSnapshot.resolve(now, allEnabledClasses),
+          allEnabledClasses,
+          now,
+        );
 
-              final topInset = MediaQuery.of(context).padding.top;
-              final spacing = AppTokens.spacing;
-              final physics = Theme.of(context).platform == TargetPlatform.iOS
-                  ? const BouncingScrollPhysics(
-                      parent: AlwaysScrollableScrollPhysics(),
-                    )
-                  : const AlwaysScrollableScrollPhysics();
-              final viewportWidth = MediaQuery.of(context).size.width;
-              final maxWidth = viewportWidth >= 840 ? 720.0 : 640.0;
-              Widget wrapContent(Widget child) {
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: maxWidth),
-                    child: child,
-                  ),
-                );
-              }
+        final sections = _buildDashboardSections(
+          context: context,
+          summary: summary,
+          upcoming: upcoming,
+          now: now,
+          scheduleOccurrences: occurrences,
+          searchController: _searchController,
+          selectedScope: _selectedScope,
+          onScopeChanged: _handleScopeChange,
+          onSearchChanged: _handleSearchChanged,
+        )
+            .map(
+              (builder) => ScreenSection(
+                decorated: false,
+                child: builder(context),
+              ),
+            )
+            .toList();
 
-              final sliverItems = <Widget>[
-                wrapContent(
-                  ScreenBrandHeader(
-                    name: _studentName,
-                    email: _studentEmail,
-                    avatarUrl: _studentAvatar,
-                    onAccountTap: _openAccount,
-                    showChevron: false,
-                    loading: !_profileHydrated,
-                  ),
-                ),
-                wrapContent(SizedBox(height: spacing.xl)),
-                for (final builder in sectionBuilders) wrapContent(builder(context)),
-              ];
-
-              return ListView(
-                physics: physics,
-                padding: EdgeInsets.fromLTRB(
-                  spacing.xl,
-                  topInset + spacing.xxxl,
-                  spacing.xl,
-                  spacing.xl,
-                ),
-                children: sliverItems,
-              );
-            },
+        return ScreenShell(
+          screenName: 'dashboard',
+          hero: ScreenBrandHeader(
+            name: _studentName,
+            email: _studentEmail,
+            avatarUrl: _studentAvatar,
+            onAccountTap: _openAccount,
+            showChevron: false,
+            loading: !_profileHydrated,
           ),
-        ),
-      ),
+          sections: sections,
+          padding: EdgeInsets.fromLTRB(
+            spacing.xl,
+            topInset + spacing.xxxl,
+            spacing.xl,
+            spacing.xl,
+          ),
+          safeArea: false,
+          onRefresh: _refreshAll,
+          refreshColor: Theme.of(context).colorScheme.primary,
+        );
+      },
     );
   }
 

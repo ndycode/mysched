@@ -224,10 +224,10 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           decorated: false,
           child: SizedBox(
             width: double.infinity,
-            child: FilledButton.tonalIcon(
+            child: PrimaryButton(
               onPressed: _busy ? null : () => _confirmSignOut(context),
-              icon: const Icon(Icons.logout_rounded),
-              label: const Text('Sign out'),
+              label: 'Sign out',
+              icon: Icons.logout_rounded,
             ),
           ),
         ),
@@ -250,7 +250,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
@@ -261,8 +261,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -356,47 +356,14 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   }
 
   Widget _buildSecurityCard(ThemeData theme, ColorScheme colors) {
-    final tiles = [
-      _SettingsTile(
-        icon: Icons.mail_outline,
-        title: 'Change email',
-        color: colors.primary,
-        onTap: () async {
-          await context.push<bool>(
-            AppRoutes.changeEmail,
-            extra: ChangeEmailPageArgs(currentEmail: _email),
-          );
-          await _load();
-        },
-      ),
-      _SettingsTile(
-        icon: Icons.lock_outline,
-        title: 'Change password',
-        color: colors.primary,
-        onTap: () async {
-          await context.push<bool>(AppRoutes.changePassword);
-          await _load();
-        },
-      ),
-      _SettingsTile(
-        icon: Icons.delete_forever_outlined,
-        title: 'Delete account',
-        color: colors.error,
-        onTap: () async {
-          await context.push<bool>(AppRoutes.deleteAccount);
-          if (mounted) {
-            await _load();
-          }
-        },
-      ),
-    ];
+
     return Container(
-      padding: EdgeInsets.zero,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
@@ -407,18 +374,48 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
               ],
       ),
       child: Column(
         children: [
-          for (var i = 0; i < tiles.length; i++) ...[
-            tiles[i],
-            if (i != tiles.length - 1) const Divider(height: 1),
-          ],
+          _SettingsTile(
+            icon: Icons.mail_outline,
+            title: 'Change email',
+            color: colors.primary,
+            onTap: () async {
+              await context.push<bool>(
+                AppRoutes.changeEmail,
+                extra: ChangeEmailPageArgs(currentEmail: _email),
+              );
+              await _load();
+            },
+          ),
+          SizedBox(height: AppTokens.spacing.lg),
+          _SettingsTile(
+            icon: Icons.lock_outline,
+            title: 'Change password',
+            color: colors.primary,
+            onTap: () async {
+              await context.push<bool>(AppRoutes.changePassword);
+              await _load();
+            },
+          ),
+          SizedBox(height: AppTokens.spacing.lg),
+          _SettingsTile(
+            icon: Icons.delete_forever_outlined,
+            title: 'Delete account',
+            color: colors.error,
+            onTap: () async {
+              await context.push<bool>(AppRoutes.deleteAccount);
+              if (mounted) {
+                await _load();
+              }
+            },
+          ),
         ],
       ),
     );
@@ -469,41 +466,38 @@ class _SettingsTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
-    final radius = AppTokens.radius;
+    final colors = theme.colorScheme;
 
-    return InkWell(
+    return GestureDetector(
       onTap: onTap,
-      borderRadius: radius.lg,
+      behavior: HitTestBehavior.opaque,
       child: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: spacing.md,
-          vertical: spacing.sm,
-        ),
+        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
         child: Row(
           children: [
             Container(
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.16),
-                borderRadius: radius.md,
+                color: color.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: color, size: 20),
+              child: Icon(icon, color: color, size: 22),
             ),
             SizedBox(width: spacing.md),
             Expanded(
               child: Text(
                 title,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: AppTokens.typography.subtitle.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: color,
+                  color: colors.onSurface,
                 ),
               ),
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.6),
+              color: colors.onSurfaceVariant,
             ),
           ],
         ),

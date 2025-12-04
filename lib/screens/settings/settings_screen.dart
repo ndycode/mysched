@@ -168,30 +168,30 @@ class _SettingsPageState extends State<SettingsPage> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+                  : theme.colorScheme.surface,
+              borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                    : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),
               ],
             ),
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(20),
+              borderRadius: AppTokens.radius.xxl,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                    padding: spacing.edgeInsetsAll(spacing.xl),
                     child: Text(
                       title,
                       style: theme.textTheme.titleLarge?.copyWith(
@@ -255,17 +255,11 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        TextButton(
-                          style: TextButton.styleFrom(
-                            minimumSize: const Size(0, 40),
-                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                          ),
+                        SecondaryButton(
+                          label: 'Cancel',
                           onPressed: () => Navigator.of(context).pop(),
-                          child: const Text('Cancel'),
+                          minHeight: 40,
+                          expanded: false,
                         ),
                       ],
                     ),
@@ -374,7 +368,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         colors.primary.withValues(alpha: 0.10),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppTokens.radius.md,
                     border: Border.all(
                       color: colors.primary.withValues(alpha: 0.25),
                       width: 1.5,
@@ -386,27 +380,25 @@ class _SettingsPageState extends State<SettingsPage> {
                     size: 26,
                   ),
                 ),
-                const SizedBox(width: 16),
+                SizedBox(width: spacing.lg),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         'Settings',
-                        style: theme.textTheme.headlineSmall?.copyWith(
+                        style: AppTokens.typography.headline.copyWith(
                           fontWeight: FontWeight.w700,
-                          fontSize: 24,
                           letterSpacing: -0.5,
-                          color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                          color: colors.onSurface,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: spacing.xs),
                       Text(
                         'Control alarms, notifications, and app styling.',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontSize: 15,
+                        style: AppTokens.typography.body.copyWith(
                           height: 1.4,
-                          color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+                          color: colors.onSurfaceVariant,
                         ),
                       ),
                     ],
@@ -421,17 +413,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -446,17 +438,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -471,17 +463,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -496,17 +488,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(20),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -525,17 +517,17 @@ class _SettingsPageState extends State<SettingsPage> {
               decorated: false,
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                  borderRadius: AppTokens.radius.xl,
                   border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                    color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                     width: isDark ? 1 : 0.5,
                   ),
                   boxShadow: isDark
                       ? null
                       : [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: colors.shadow.withValues(alpha: 0.05),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -555,17 +547,17 @@ class _SettingsPageState extends State<SettingsPage> {
               decorated: false,
               child: Container(
                 decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                  borderRadius: BorderRadius.circular(20),
+                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                  borderRadius: AppTokens.radius.xl,
                   border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                    color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                     width: isDark ? 1 : 0.5,
                   ),
                   boxShadow: isDark
                       ? null
                       : [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
+                            color: colors.shadow.withValues(alpha: 0.05),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -598,17 +590,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.lg,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -626,17 +618,17 @@ class _SettingsPageState extends State<SettingsPage> {
             decorated: false,
             child: Container(
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : Colors.white,
-                borderRadius: BorderRadius.circular(16),
+                color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.lg,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
                     ? null
                     : [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.06),
+                          color: colors.shadow.withValues(alpha: 0.06),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -673,7 +665,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -707,10 +699,10 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(height: spacing.md),
             Container(
               decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+              color: colors.primary.withValues(alpha: 0.12),
+                borderRadius: AppTokens.radius.md,
               ),
-              padding: const EdgeInsets.all(12),
+              padding: spacing.edgeInsetsAll(spacing.md),
               child: Text(
                 'Quiet week is on. Alarm reminders are paused until you turn it off.',
                 style: theme.textTheme.bodySmall?.copyWith(
@@ -729,7 +721,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -758,7 +750,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -842,7 +834,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -913,7 +905,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -964,8 +956,8 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(height: spacing.md),
           Align(
             alignment: Alignment.centerLeft,
-            child: TextButton.icon(
-              icon: _controller.readinessLoading
+            child: SecondaryButton(
+              leading: _controller.readinessLoading
                   ? SizedBox(
                       width: 16,
                       height: 16,
@@ -975,11 +967,12 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     )
                   : const Icon(Icons.refresh_rounded),
-              label: Text(
-                  _controller.readinessLoading ? 'Checking…' : 'Refresh status'),
+              label: _controller.readinessLoading ? 'Checking…' : 'Refresh status',
               onPressed: _controller.readinessLoading
                   ? null
                   : _controller.refreshAlarmReadiness,
+              expanded: false,
+              minHeight: 44,
             ),
           ),
         ],
@@ -992,7 +985,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1043,7 +1036,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1166,7 +1159,7 @@ class _SettingsPageState extends State<SettingsPage> {
             ? colors.primary
             : colors.error;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: AppTokens.radius.pill,
@@ -1255,7 +1248,7 @@ class _SettingsPageState extends State<SettingsPage> {
       width: 42,
       decoration: BoxDecoration(
         color: accent.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: AppTokens.radius.sm,
       ),
       alignment: Alignment.center,
       child: Icon(icon, color: accent, size: 22),
@@ -1277,7 +1270,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1314,7 +1307,7 @@ class _SettingsPageState extends State<SettingsPage> {
               return Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
                     decoration: BoxDecoration(
                       color: colors.surfaceContainerHighest,
                       borderRadius: AppTokens.radius.pill,
@@ -1326,7 +1319,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           size: 18,
                           color: pending > 0 ? colors.secondary : colors.primary,
                         ),
-                        const SizedBox(width: 8),
+                        SizedBox(width: spacing.sm),
                         Text(
                           pending > 0
                               ? '$pending change${pending == 1 ? '' : 's'} queued'
@@ -1337,9 +1330,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           ),
                         ),
                         if (pending >= 100) ...[
-                          const SizedBox(width: 8),
+                          SizedBox(width: spacing.sm),
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: spacing.sm, vertical: spacing.xs),
                             decoration: BoxDecoration(
                               color: colors.error.withValues(alpha: 0.12),
                               borderRadius: AppTokens.radius.pill,
@@ -1356,30 +1349,26 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing.md),
                   Flexible(
                     child: SecondaryButton(
                       label: 'Process queue',
                       onPressed: () => OfflineQueue.instance.processQueue(),
                       minHeight: 40,
                       expanded: true,
-                    ),
                   ),
-                  const SizedBox(width: 8),
-                  TextButton(
-                    onPressed:
-                        pending > 0 ? () => OfflineQueue.instance.clear() : null,
-                    style: TextButton.styleFrom(
-                      minimumSize: const Size(0, 40),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                    child: const Text('Clear'),
-                  ),
-                ],
-              );
-            },
-          ),
+                ),
+                const SizedBox(width: 8),
+                SecondaryButton(
+                  label: 'Clear',
+                  onPressed: pending > 0 ? () => OfflineQueue.instance.clear() : null,
+                  minHeight: 40,
+                  expanded: false,
+                ),
+              ],
+            );
+          },
+        ),
           SizedBox(height: spacing.md),
           Row(
             children: [
@@ -1429,7 +1418,7 @@ class _SyncRow extends StatelessWidget {
             width: 42,
             decoration: BoxDecoration(
               color: accent.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.md,
             ),
             alignment: Alignment.center,
             child: Icon(icon, color: accent, size: 22),
@@ -1519,7 +1508,7 @@ class _ThemeOption extends StatelessWidget {
                     top: 4,
                     right: 4,
                     child: Container(
-                      padding: const EdgeInsets.all(2),
+                      padding: EdgeInsets.all(spacing.xs / 2),
                       decoration: BoxDecoration(
                         color: colors.primary,
                         shape: BoxShape.circle,
@@ -1528,10 +1517,10 @@ class _ThemeOption extends StatelessWidget {
                           width: 1.5,
                         ),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.check,
                         size: 10,
-                        color: Colors.white,
+                        color: colors.onPrimary,
                       ),
                     ),
                   ),

@@ -144,9 +144,9 @@ class ReminderSummaryCard extends StatelessWidget {
 
     final card = CardX(
       padding: spacing.edgeInsetsAll(spacing.xl),
-      backgroundColor: isDark ? colors.surfaceContainerHigh : Colors.white,
+      backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
       borderColor:
-          isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
       borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -161,7 +161,7 @@ class ReminderSummaryCard extends StatelessWidget {
                     fontWeight: FontWeight.w700,
                     fontSize: 20,
                     letterSpacing: -0.3,
-                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                    color: isDark ? colors.onSurface : colors.onSurface,
                   ),
                 ),
               ),
@@ -325,7 +325,7 @@ class ReminderHighlightHero extends StatelessWidget {
       baseColor.withValues(alpha: 0.85),
     ];
     final shadowColor = baseColor.withValues(alpha: 0.3);
-    final foreground = Colors.white;
+    final foreground = colors.onPrimary;
     final scheduleWindow = DateFormat("EEE, MMM d 'at' h:mm a")
         .format(target)
         .replaceAll('\u202f', ' ');
@@ -770,10 +770,10 @@ class ReminderRow extends StatelessWidget {
 
     final tileBackground = theme.brightness == Brightness.dark 
         ? colors.surfaceContainerHigh 
-        : Colors.white;
+        : colors.surface;
     final tileBorder = theme.brightness == Brightness.dark 
         ? colors.outline.withValues(alpha: 0.12) 
-        : const Color(0xFFE5E5E5);
+        : colors.outline;
 
     final pillAccent = !isActive
         ? colors.outline
@@ -802,7 +802,7 @@ class ReminderRow extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: isActive ? 0.08 : 0.04),
+                    color: colors.shadow.withValues(alpha: isActive ? 0.08 : 0.04),
                     blurRadius: isActive ? 12 : 6,
                     offset: const Offset(0, 2),
                   ),
@@ -929,7 +929,7 @@ class ReminderRow extends StatelessWidget {
     );
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: AppTokens.radius.circular(14),
       child: Slidable(
         key: ValueKey('dismiss-reminder-${entry.id}'),
         endActionPane: ActionPane(
@@ -938,7 +938,7 @@ class ReminderRow extends StatelessWidget {
           children: [
             CustomSlidableAction(
               onPressed: (context) => _handleDelete(context),
-              backgroundColor: Colors.transparent,
+              backgroundColor: colors.shadow.withValues(alpha: 0),
               foregroundColor: colors.onError,
               child: Container(
                 margin: EdgeInsets.only(left: AppTokens.spacing.sm),
@@ -1129,9 +1129,9 @@ class ReminderListCard extends StatelessWidget {
 
     return CardX(
       padding: spacing.edgeInsetsAll(spacing.xl),
-      backgroundColor: isDark ? colors.surfaceContainerHigh : Colors.white,
+      backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
       borderColor:
-          isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
       borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1152,7 +1152,7 @@ class ReminderListCard extends StatelessWidget {
                       colors.primary.withValues(alpha: 0.10),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppTokens.radius.circular(14),
                   border: Border.all(
                     color: colors.primary.withValues(alpha: 0.25),
                     width: 1.5,

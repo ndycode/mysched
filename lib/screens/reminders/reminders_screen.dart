@@ -127,13 +127,17 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           'This reminder will be removed and any scheduled notifications will be cancelled.',
         ),
         actions: [
-          TextButton(
+          SecondaryButton(
+            label: 'Cancel',
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            minHeight: 44,
+            expanded: false,
           ),
-          FilledButton(
+          PrimaryButton(
+            label: 'Delete',
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            minHeight: 44,
+            expanded: false,
           ),
         ],
       ),
@@ -204,7 +208,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         }
       },
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
       ),
       elevation: isDark ? 8 : 12,
       color: isDark ? colors.surfaceContainerHigh : Colors.white,

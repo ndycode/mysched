@@ -42,13 +42,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           'This permanently removes your schedule data. This action cannot be undone.',
         ),
         actions: [
-          TextButton(
+          SecondaryButton(
+            label: 'Cancel',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            minHeight: 44,
+            expanded: false,
           ),
-          FilledButton(
+          PrimaryButton(
+            label: 'Delete',
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
+            minHeight: 44,
+            expanded: false,
           ),
         ],
       ),
@@ -203,7 +207,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
                   : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? colors.outline.withValues(alpha: 0.12)
@@ -247,7 +251,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
                   : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? colors.outline.withValues(alpha: 0.12)
@@ -314,13 +318,13 @@ class _SuccessView extends StatelessWidget {
             color: theme.colorScheme.primary,
           ),
         ),
-        const SizedBox(height: 20),
+        SizedBox(height: AppTokens.spacing.xl),
         Text(
           'Account deleted',
           style:
               theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppTokens.spacing.sm),
         Text(
           'Your account and schedule data have been removed.',
           textAlign: TextAlign.center,
@@ -328,7 +332,7 @@ class _SuccessView extends StatelessWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const SizedBox(height: 24),
+        SizedBox(height: AppTokens.spacing.xxl),
         PrimaryButton(
           label: 'Back to sign in',
           onPressed: onBack,

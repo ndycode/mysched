@@ -306,17 +306,17 @@ class _AddClassSheetState extends State<AddClassSheet> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+                  : theme.colorScheme.surface,
+              borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                    : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),
@@ -363,7 +363,10 @@ class _AddClassSheetState extends State<AddClassSheet> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: FilledButton(
+                            child: PrimaryButton(
+                              label: _submitting
+                                  ? (isEditing ? 'Updating...' : 'Saving...')
+                                  : (isEditing ? 'Update class' : 'Save class'),
                               onPressed: _submitting
                                   ? null
                                   : () {
@@ -376,32 +379,15 @@ class _AddClassSheetState extends State<AddClassSheet> {
                                         }
                                       });
                                     },
-                              style: FilledButton.styleFrom(
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: AppTokens.radius.xl,
-                                ),
-                              ),
-                              child: Text(
-                                _submitting
-                                    ? (isEditing ? 'Updating...' : 'Saving...')
-                                    : (isEditing
-                                        ? 'Update class'
-                                        : 'Save class'),
-                              ),
+                              minHeight: 48,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: spacing.md),
                           Expanded(
-                            child: OutlinedButton(
+                            child: SecondaryButton(
+                              label: 'Cancel',
                               onPressed: () => Navigator.of(context).maybePop(),
-                              style: OutlinedButton.styleFrom(
-                                minimumSize: const Size.fromHeight(48),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: AppTokens.radius.xl,
-                                ),
-                              ),
-                              child: const Text('Cancel'),
+                              minHeight: 48,
                             ),
                           ),
                         ],
@@ -458,7 +444,7 @@ class _RemindersStyleShell extends StatelessWidget {
                         fontSize: 20,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: AppTokens.spacing.xs),
                     Text(
                       DateFormat('EEEE, MMM d').format(DateTime.now()),
                       style: theme.textTheme.titleMedium?.copyWith(
@@ -470,14 +456,14 @@ class _RemindersStyleShell extends StatelessWidget {
                 ),
               ),
               if (trailing != null) ...[
-                const SizedBox(width: 4),
+                SizedBox(width: AppTokens.spacing.xs),
                 SizedBox(height: 36, child: trailing!),
               ],
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppTokens.spacing.lg),
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
             decoration: BoxDecoration(
               color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
               borderRadius: AppTokens.radius.lg,
@@ -486,7 +472,7 @@ class _RemindersStyleShell extends StatelessWidget {
               children: [
                 Icon(Icons.class_outlined,
                     color: colors.onSurfaceVariant.withValues(alpha: 0.8)),
-                const SizedBox(width: 12),
+                SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: Text(
                     subtitle,
@@ -847,6 +833,7 @@ class _AddClassFormState extends State<AddClassForm> {
         decorationBuilder,
   }) {
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     final helperStyle = theme.textTheme.bodySmall?.copyWith(
       color: colors.onSurfaceVariant.withValues(alpha: 0.78),
     );
@@ -854,7 +841,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final banner = () {
       if (_loadingInstructors) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg + 2),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.lg,
             color: colors.surfaceContainerHigh,
@@ -869,7 +856,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: Text(
                   'Loading instructors...',
@@ -887,7 +874,7 @@ class _AddClassFormState extends State<AddClassForm> {
           borderRadius: AppTokens.radius.lg,
           onTap: _loadInstructors,
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: spacing.edgeInsetsAll(spacing.lg),
             decoration: BoxDecoration(
               borderRadius: AppTokens.radius.lg,
               color: colors.error.withValues(alpha: 0.08),
@@ -895,7 +882,7 @@ class _AddClassFormState extends State<AddClassForm> {
             child: Row(
               children: [
                 Icon(Icons.refresh_rounded, color: colors.error),
-                const SizedBox(width: 12),
+                SizedBox(width: spacing.md),
                 Expanded(
                   child: Text(
                     _instructorError!,
@@ -1049,6 +1036,7 @@ class _AddClassFormState extends State<AddClassForm> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     final isEditing = _isEditing;
     final titleText = isEditing ? 'Edit custom class' : 'Add custom class';
     final helperText = isEditing
@@ -1066,7 +1054,7 @@ class _AddClassFormState extends State<AddClassForm> {
           filled: true,
           fillColor: fillColor,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg),
           border: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
             borderSide: BorderSide(color: borderColor),
@@ -1090,23 +1078,23 @@ class _AddClassFormState extends State<AddClassForm> {
 
     formSections.addAll([
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: spacing.edgeInsetsAll(spacing.xl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
-              : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+              : colors.surface,
+          borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: 0.12)
-                : const Color(0xFFE5E5E5),
+                : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: 0.05),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1150,23 +1138,23 @@ class _AddClassFormState extends State<AddClassForm> {
       ),
       const SizedBox(height: 16),
       Container(
-        padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
+        padding: spacing.edgeInsetsAll(spacing.xl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
-              : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+              : colors.surface,
+          borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: 0.12)
-                : const Color(0xFFE5E5E5),
+                : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: 0.05),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1184,7 +1172,7 @@ class _AddClassFormState extends State<AddClassForm> {
               onTap: _submitting ? null : _pickDay,
               borderRadius: AppTokens.radius.lg,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + 2),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHigh,
                   borderRadius: AppTokens.radius.lg,
@@ -1255,23 +1243,23 @@ class _AddClassFormState extends State<AddClassForm> {
       ),
       const SizedBox(height: 16),
       Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: spacing.edgeInsetsAll(spacing.xl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
-              : Colors.white,
-          borderRadius: BorderRadius.circular(20),
+              : colors.surface,
+          borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: 0.12)
-                : const Color(0xFFE5E5E5),
+                : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: 0.05),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -1338,13 +1326,14 @@ class _AddClassFormState extends State<AddClassForm> {
   }
   Future<void> _pickDay() async {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
     final picked = await showDialog<int>(
       context: context,
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
+          backgroundColor: colors.shadow.withValues(alpha: 0),
           insetPadding: spacing.edgeInsetsAll(spacing.lg),
           child: CardX(
             padding: EdgeInsets.zero,
@@ -1450,7 +1439,10 @@ class _TimeField extends StatelessWidget {
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+        padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.md,
+          vertical: AppTokens.spacing.md,
+        ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
           borderRadius: AppTokens.radius.lg,
@@ -1554,8 +1546,12 @@ class _ScopeChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.md + spacing.xs / 2,
+        vertical: spacing.sm + spacing.xs / 2,
+      ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: AppTokens.radius.lg,

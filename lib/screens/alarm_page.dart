@@ -43,7 +43,7 @@ class AlarmPage extends StatelessWidget {
         barrierColor: Colors.black.withValues(alpha: 0.7),
         builder: (_) => Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.all(spacing.lg),
+          insetPadding: spacing.edgeInsetsAll(spacing.lg),
           child: const AlarmPreviewMock(expanded: true),
         ),
       );
@@ -66,18 +66,18 @@ class AlarmPage extends StatelessWidget {
               SizedBox(height: spacing.lg),
               Text(
                 'Live preview',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: colors.onSurfaceVariant,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: colors.onSurfaceVariant,
+                ),
               ),
-            ),
-            SizedBox(height: spacing.sm),
-            const AlarmPreviewMock(),
-            SizedBox(height: spacing.sm),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: showPreviewOverlay,
+              SizedBox(height: spacing.sm),
+              const AlarmPreviewMock(),
+              SizedBox(height: spacing.sm),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton(
+                  onPressed: showPreviewOverlay,
                   child: const Text('Open fullscreen mock'),
                 ),
               ),
@@ -88,27 +88,8 @@ class AlarmPage extends StatelessWidget {
           title: 'How reminders work',
           subtitle: 'Alarm scheduling overview',
           decorated: false,
-          child: Container(
+          child: CardX(
             padding: spacing.edgeInsetsAll(spacing.xl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
             child: Text(
               'MySched syncs your timetable to Android\'s exact alarm API. '
               'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
@@ -122,27 +103,8 @@ class AlarmPage extends StatelessWidget {
           title: 'Heads-up tips',
           subtitle: 'Keep your alarms reliable.',
           decorated: false,
-          child: Container(
+          child: CardX(
             padding: spacing.edgeInsetsAll(spacing.xl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
@@ -157,27 +119,8 @@ class AlarmPage extends StatelessWidget {
           title: 'Need to change something?',
           subtitle: 'Open notifications settings to adjust preferences.',
           decorated: false,
-          child: Container(
+          child: CardX(
             padding: spacing.edgeInsetsAll(spacing.xl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

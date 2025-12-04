@@ -140,17 +140,17 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+                  : theme.colorScheme.surface,
+              borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                    : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),
@@ -357,7 +357,7 @@ class _ImportHeader extends StatelessWidget {
             PressableScale(
               onTap: onClose,
               child: Container(
-                padding: const EdgeInsets.all(8),
+                padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: 0.08),
                   borderRadius: AppTokens.radius.xl,
@@ -412,7 +412,10 @@ class _SectionCard extends StatelessWidget {
     final spacing = AppTokens.spacing;
 
     return CardX(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.xl,
+        vertical: spacing.lg + spacing.xs / 2,
+      ),
       backgroundColor: colors.surfaceContainerHighest.withValues(
         alpha: theme.brightness == Brightness.dark ? 0.3 : 0.5,
       ),

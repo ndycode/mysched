@@ -111,17 +111,17 @@ class ScheduleClassListCard extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
           width: isDark ? 1 : 0.5,
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
+                  color: colors.shadow.withValues(alpha: 0.06),
                   blurRadius: 16,
                   offset: const Offset(0, 4),
                 ),
@@ -165,19 +165,17 @@ class ScheduleClassListCard extends StatelessWidget {
                   children: [
                     Text(
                       'Weekly Schedule',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      style: AppTokens.typography.title.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 21,
                         letterSpacing: -0.5,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
                     Text(
                       dateLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
-                        fontSize: 14,
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        color: colors.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -201,7 +199,7 @@ class ScheduleClassListCard extends StatelessWidget {
                           )
                         : Icon(
                             Icons.refresh_rounded,
-                            color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.9) : const Color(0xFF757575),
+                            color: colors.onSurfaceVariant,
                             size: 20,
                           ),
                     padding: EdgeInsets.zero,
@@ -213,9 +211,8 @@ class ScheduleClassListCard extends StatelessWidget {
           SizedBox(height: spacing.sm),
           Text(
             'Tap a class to view details, enable alarms, or edit reminders.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.70) : const Color(0xFF9E9E9E),
-              fontSize: 13,
+            style: AppTokens.typography.caption.copyWith(
+              color: colors.onSurfaceVariant,
             ),
           ),
           SizedBox(height: spacing.xl),
@@ -307,11 +304,10 @@ class ScheduleClassListCard extends StatelessWidget {
                       Expanded(
                         child: Text(
                           groups[g].label,
-                          style: theme.textTheme.titleMedium?.copyWith(
+                          style: AppTokens.typography.subtitle.copyWith(
                             fontWeight: FontWeight.w800,
-                            fontSize: 17,
                             letterSpacing: -0.3,
-                            color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                            color: colors.onSurface,
                           ),
                         ),
                       ),
@@ -323,8 +319,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         ),
                         child: Text(
                           '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            fontSize: 13,
+                          style: AppTokens.typography.caption.copyWith(
                             fontWeight: FontWeight.w700,
                             color: colors.primary,
                           ),
@@ -550,17 +545,17 @@ class ScheduleSummaryCard extends StatelessWidget {
     final card = Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
           width: isDark ? 1 : 0.5,
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: colors.shadow.withValues(alpha: 0.05),
                   blurRadius: 12,
                   offset: const Offset(0, 4),
                 ),
@@ -575,11 +570,10 @@ class ScheduleSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Schedules overview',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: AppTokens.typography.title.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 20,
                     letterSpacing: -0.3,
-                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -678,7 +672,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
         '${DateFormat('h:mm a').format(highlight.start)} - ${DateFormat('h:mm a').format(highlight.end)}';
     final dateLabel = DateFormat('EEEE, MMMM d').format(highlight.start);
     final isDark = theme.brightness == Brightness.dark;
-    final foreground = Colors.white;
+    final foreground = colors.onPrimary;
 
     // Calculate time until class
     final now = DateTime.now();
@@ -753,9 +747,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     if (!isLive) SizedBox(width: spacing.xs + 2),
                     Text(
                       statusLabel,
-                      style: theme.textTheme.labelLarge?.copyWith(
+                      style: AppTokens.typography.caption.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontSize: 13,
                         color: foreground,
                         letterSpacing: 0.3,
                       ),
@@ -767,9 +760,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                 SizedBox(width: spacing.sm + 2),
                 Text(
                   timeUntilText,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppTokens.typography.caption.copyWith(
                     color: foreground.withValues(alpha: 0.85),
-                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -783,9 +775,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
             subject,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.headlineSmall?.copyWith(
+            style: AppTokens.typography.headline.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 22,
               height: 1.3,
               color: foreground,
               letterSpacing: -0.5,
@@ -815,18 +806,16 @@ class _ScheduleHighlightHero extends StatelessWidget {
                   children: [
                     Text(
                       timeLabel,
-                      style: theme.textTheme.bodyLarge?.copyWith(
+                      style: AppTokens.typography.subtitle.copyWith(
                         color: foreground,
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
                       ),
                     ),
                     SizedBox(height: 2),
                     Text(
                       dateLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(
+                      style: AppTokens.typography.caption.copyWith(
                         color: foreground.withValues(alpha: 0.80),
-                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -857,9 +846,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     location,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyLarge?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: foreground.withValues(alpha: 0.90),
-                      fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -924,8 +912,7 @@ class _ScheduleHeroChip extends StatelessWidget {
           SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w600,
               color: foreground,
             ),
@@ -961,10 +948,10 @@ class _ScheduleMetricChip extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md + 2),
       decoration: BoxDecoration(
-        color: isDark ? tint.withValues(alpha: 0.12) : const Color(0xFFF5F7FA),
+        color: isDark ? tint.withValues(alpha: 0.12) : colors.surfaceContainerHighest,
         borderRadius: AppTokens.radius.md,
         border: Border.all(
-          color: isDark ? tint.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
+          color: isDark ? tint.withValues(alpha: 0.20) : colors.outline,
           width: isDark ? 1 : 0.5,
         ),
       ),
@@ -989,19 +976,17 @@ class _ScheduleMetricChip extends StatelessWidget {
           SizedBox(height: spacing.sm + 2),
           Text(
             '$value',
-            style: theme.textTheme.titleLarge?.copyWith(
+            style: AppTokens.typography.headline.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 24,
-              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              color: colors.onSurface,
             ),
           ),
           SizedBox(height: 2),
           Text(
             label,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w500,
-              fontSize: 13,
-              color: isDark ? colors.onSurfaceVariant : const Color(0xFF616161),
+              color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1009,9 +994,9 @@ class _ScheduleMetricChip extends StatelessWidget {
           SizedBox(height: 2),
           Text(
             caption,
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               fontSize: 11,
-              color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.70) : const Color(0xFF9E9E9E),
+              color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1071,20 +1056,19 @@ class _CompactMetricChip extends StatelessWidget {
           SizedBox(height: spacing.md),
           Text(
             '$value',
-            style: theme.textTheme.headlineMedium?.copyWith(
+            style: AppTokens.typography.display.copyWith(
               fontWeight: FontWeight.w800,
               fontSize: 28,
               height: 1.0,
-              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              color: colors.onSurface,
             ),
           ),
           SizedBox(height: spacing.xs),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w600,
-              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+              color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -1147,19 +1131,19 @@ class ScheduleRow extends StatelessWidget {
         child: Container(
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : Colors.white,
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: isLive 
                   ? colors.primary.withValues(alpha: 0.30)
-                  : isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  : colors.outline.withValues(alpha: isDark ? 0.12 : 0.5),
               width: isLive ? 1.5 : 0.5,
             ),
             boxShadow: isDark
                 ? null
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: isLive ? 0.08 : 0.04),
+                      color: colors.shadow.withValues(alpha: isLive ? 0.08 : 0.04),
                       blurRadius: isLive ? 12 : 6,
                       offset: const Offset(0, 2),
                     ),
@@ -1174,13 +1158,12 @@ class ScheduleRow extends StatelessWidget {
                   Expanded(
                     child: Text(
                       subject,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: AppTokens.typography.subtitle.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
                         letterSpacing: -0.2,
                         color: isHidden
-                            ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
-                            : (isDark ? colors.onSurface : const Color(0xFF1A1A1A)),
+                            ? colors.onSurfaceVariant
+                            : colors.onSurface,
                         decoration: isHidden ? TextDecoration.lineThrough : null,
                       ),
                       maxLines: 1,
@@ -1200,8 +1183,7 @@ class ScheduleRow extends StatelessWidget {
                       ),
                       child: Text(
                         isLive ? 'Live' : 'Next',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+                        style: AppTokens.typography.caption.copyWith(
                           fontWeight: FontWeight.w700,
                           color: colors.primary,
                         ),
@@ -1226,15 +1208,14 @@ class ScheduleRow extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: 16,
-                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                    color: colors.onSurfaceVariant,
                   ),
                   SizedBox(width: spacing.xs + 2),
                   Text(
                     timeRange,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
+                    style: AppTokens.typography.bodySecondary.copyWith(
                       fontWeight: FontWeight.w500,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                      color: colors.onSurfaceVariant,
                     ),
                   ),
                   if (location.isNotEmpty) ...[
@@ -1242,16 +1223,15 @@ class ScheduleRow extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: 16,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                      color: colors.onSurfaceVariant,
                     ),
                     SizedBox(width: spacing.xs + 2),
                     Expanded(
                       child: Text(
                         location,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 14,
+                        style: AppTokens.typography.bodySecondary.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                          color: colors.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1287,8 +1267,7 @@ class ScheduleRow extends StatelessWidget {
                         child: Center(
                           child: Text(
                             instructor[0].toUpperCase(),
-                            style: TextStyle(
-                              fontSize: 12,
+                            style: AppTokens.typography.caption.copyWith(
                               fontWeight: FontWeight.w600,
                               color: colors.primary,
                             ),
@@ -1299,10 +1278,9 @@ class ScheduleRow extends StatelessWidget {
                     Expanded(
                       child: Text(
                         instructor,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 13,
+                        style: AppTokens.typography.caption.copyWith(
                           fontWeight: FontWeight.w500,
-                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                          color: colors.onSurfaceVariant,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -1411,14 +1389,14 @@ class _ScheduleInstructorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final textStyle =
-        (dense ? theme.textTheme.bodyMedium : theme.textTheme.bodyLarge)
-            ?.copyWith(
+        (dense ? AppTokens.typography.body : AppTokens.typography.subtitle)
+            .copyWith(
       fontWeight: FontWeight.w600,
-      fontSize: dense ? 15 : 16,
       color: inverse
-          ? Colors.white.withValues(alpha: 0.95)
-          : theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.85),
+          ? colors.onPrimary.withValues(alpha: 0.95)
+          : colors.onSurfaceVariant,
     );
     return Row(
       children: [

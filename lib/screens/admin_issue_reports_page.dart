@@ -265,16 +265,16 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
-              : const Color(0xFFE5E5E5),
+              : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colors.shadow.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -314,7 +314,10 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           ),
           SizedBox(height: spacing.lg),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.sm + spacing.xs / 2,
+              vertical: spacing.xs + spacing.xs / 2,
+            ),
             decoration: BoxDecoration(
               color: colors.onSurface.withValues(alpha: isDark ? 0.18 : 0.08),
               borderRadius: AppTokens.radius.md,
@@ -363,11 +366,11 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
-              : const Color(0xFFE5E5E5),
+              : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
       ),
@@ -418,17 +421,17 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
-            : Colors.white,
-        borderRadius: BorderRadius.circular(24),
+            : colors.surface,
+        borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
-              : const Color(0xFFE5E5E5),
+              : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: colors.shadow.withValues(alpha: 0.05),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -461,9 +464,9 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
                           color: statusColor.withValues(alpha: 0.4),
                         ),
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 6,
+                      padding: AppTokens.spacing.edgeInsetsSymmetric(
+                        horizontal: AppTokens.spacing.sm + AppTokens.spacing.xs / 2,
+                        vertical: AppTokens.spacing.xs + AppTokens.spacing.xs / 2,
                       ),
                       child: Text(
                         statusLabel,
@@ -560,8 +563,12 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
 
   Widget _infoChip(ThemeData theme, IconData icon, String label) {
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.sm + spacing.xs / 2,
+        vertical: spacing.xs + spacing.xs / 2,
+      ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: AppTokens.radius.md,

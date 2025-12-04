@@ -86,17 +86,17 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
-                  : Colors.white,
-              borderRadius: BorderRadius.circular(24),
+                  : theme.colorScheme.surface,
+              borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                    : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
                   blurRadius: 40,
                   offset: const Offset(0, 10),
                 ),
@@ -304,6 +304,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
         ? colors.surfaceContainerHighest.withValues(alpha: 0.85)
         : colors.surfaceContainerHigh;
     final fieldBorder = colors.outlineVariant.withValues(alpha: 0.32);
+    final spacing = AppTokens.spacing;
 
     InputDecoration decorationFor(String label, {String? hint}) =>
         InputDecoration(
@@ -312,7 +313,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
           filled: true,
           fillColor: fieldFill,
           contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              spacing.edgeInsetsAll(spacing.lg),
           border: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
             borderSide: BorderSide(color: fieldBorder),
@@ -336,7 +337,10 @@ class _AddReminderFormState extends State<AddReminderForm> {
           _buildHeader(theme, title, helper),
           const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg + spacing.xs / 2,
+              vertical: spacing.lg + spacing.xs / 2,
+            ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
@@ -387,7 +391,10 @@ class _AddReminderFormState extends State<AddReminderForm> {
           ),
           const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg + spacing.xs / 2,
+              vertical: spacing.lg + spacing.xs / 2,
+            ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
@@ -502,7 +509,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
         : PressableScale(
             onTap: widget.onCancel,
             child: Container(
-              padding: const EdgeInsets.all(8),
+              padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: 0.08),
                 borderRadius: AppTokens.radius.xl,
@@ -718,7 +725,10 @@ class _FieldTile extends StatelessWidget {
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.lg,
+          vertical: AppTokens.spacing.md + AppTokens.spacing.xs / 2,
+        ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
           borderRadius: AppTokens.radius.lg,
@@ -788,9 +798,13 @@ class _SummaryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.md + spacing.xs / 2,
+        vertical: spacing.sm + spacing.xs / 2,
+      ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: AppTokens.radius.lg,

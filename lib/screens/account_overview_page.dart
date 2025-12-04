@@ -244,29 +244,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
 
   Widget _buildProfileCard(ThemeData theme, ColorScheme colors) {
     final spacing = AppTokens.spacing;
-    return Container(
+    return CardX(
       padding: spacing.edgeInsetsAll(spacing.xl),
-      decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
-              : const Color(0xFFE5E5E5),
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
-        ),
-        boxShadow: theme.brightness == Brightness.dark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -329,7 +308,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             textAlign: TextAlign.center,
           ),
           if (_sid.isNotEmpty || _email.isNotEmpty) ...[
-            const SizedBox(height: 6),
+            SizedBox(height: spacing.xs + 2),
             Column(
               children: [
                 if (_sid.isNotEmpty)
@@ -356,30 +335,9 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   }
 
   Widget _buildSecurityCard(ThemeData theme, ColorScheme colors) {
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
-              : const Color(0xFFE5E5E5),
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
-        ),
-        boxShadow: theme.brightness == Brightness.dark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+    final spacing = AppTokens.spacing;
+    return CardX(
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         children: [
           _SettingsTile(
@@ -428,13 +386,17 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         title: const Text('Sign out?'),
         content: const Text('You\'ll return to the login screen.'),
         actions: [
-          TextButton(
+          SecondaryButton(
+            label: 'Cancel',
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            minHeight: 44,
+            expanded: false,
           ),
-          FilledButton(
+          PrimaryButton(
+            label: 'Sign out',
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sign out'),
+            minHeight: 44,
+            expanded: false,
           ),
         ],
       ),
@@ -480,7 +442,7 @@ class _SettingsTile extends StatelessWidget {
               height: 42,
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: AppTokens.radius.sm,
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: color, size: 22),
@@ -545,7 +507,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: AppTokens.spacing.md),
           Text(
             'Pinch to zoom and position yourself inside the square frame.',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -555,29 +517,37 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
           ),
         ],
       ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: _saving
-              ? null
-              : () {
-                  setState(() {
-                    _saving = true;
-                  });
-                  _controller.crop();
-                },
-          child: _saving
+        actions: [
+          SecondaryButton(
+            label: 'Cancel',
+            onPressed: _saving ? null : () => Navigator.of(context).pop(),
+            minHeight: 44,
+            expanded: false,
+          ),
+          _saving
               ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
+                  width: 80,
+                  height: 44,
+                  child: Center(
+                    child: SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  ),
                 )
-              : const Text('Save'),
-        ),
-      ],
+              : PrimaryButton(
+                  label: 'Save',
+                  onPressed: () {
+                    setState(() {
+                      _saving = true;
+                    });
+                    _controller.crop();
+                  },
+                  minHeight: 44,
+                  expanded: false,
+                ),
+        ],
     );
   }
 }

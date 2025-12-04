@@ -51,27 +51,16 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
+            child: CardX(
+              padding: EdgeInsets.zero,
+              backgroundColor: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
                   : Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  blurRadius: 40,
-                  offset: const Offset(0, 10),
-                ),
-              ],
-            ),
-            child: Material(
-              type: MaterialType.transparency,
+              borderColor: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                  : const Color(0xFFE5E5E5),
+              borderRadius: AppTokens.radius.xl,
+              elevation: 12,
               child: ClipRRect(
                 borderRadius: AppTokens.radius.xl,
                 child: SingleChildScrollView(
@@ -90,7 +79,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                           PressableScale(
                             onTap: () => Navigator.of(context).pop(),
                             child: Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: spacing.edgeInsetsAll(spacing.sm),
                               decoration: BoxDecoration(
                                 color: colors.primary.withValues(alpha: 0.08),
                                 borderRadius: AppTokens.radius.xl,
@@ -127,7 +116,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                         height: 280,
                         decoration: BoxDecoration(
                           color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
-                          borderRadius: BorderRadius.circular(20),
+                          borderRadius: AppTokens.radius.lg,
                           border: Border.all(
                             color: colors.outlineVariant.withValues(alpha: 0.2),
                           ),

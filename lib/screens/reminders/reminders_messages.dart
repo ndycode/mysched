@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../services/reminders_api.dart';
+import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 
 class ReminderMessageCard extends StatelessWidget {
@@ -28,7 +29,7 @@ class ReminderMessageCard extends StatelessWidget {
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
@@ -71,15 +72,11 @@ class ReminderMessageCard extends StatelessWidget {
           ),
           if (primaryLabel != null) ...[
             SizedBox(height: AppTokens.spacing.lg),
-            FilledButton(
+            PrimaryButton(
+              label: primaryLabel!,
               onPressed: onPrimary,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size(0, 48),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-              child: Text(primaryLabel!),
+              minHeight: 48,
+              expanded: true,
             ),
           ],
         ],
@@ -111,12 +108,13 @@ class ReminderSnoozeSheet extends StatelessWidget {
       const Duration(days: 1): 'Tomorrow',
     };
 
+    final spacing = AppTokens.spacing;
     return Container(
       padding: EdgeInsets.only(
-        left: 24,
-        right: 24,
-        top: 24,
-        bottom: MediaQuery.of(context).viewPadding.bottom + 16,
+        left: spacing.xxl,
+        right: spacing.xxl,
+        top: spacing.xxl,
+        bottom: MediaQuery.of(context).viewPadding.bottom + spacing.lg,
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
@@ -136,7 +134,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           Text(
             'Snooze reminder',
             style: theme.textTheme.titleMedium?.copyWith(
@@ -144,7 +142,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing.sm),
           Text(entry.title, style: theme.textTheme.bodyMedium),
           const SizedBox(height: 8),
           Text(
@@ -153,7 +151,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.lg),
           ...options.entries.map(
             (option) => ListTile(
               leading: const Icon(Icons.snooze_outlined),

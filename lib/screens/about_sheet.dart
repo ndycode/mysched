@@ -65,7 +65,7 @@ class AboutSheet extends StatelessWidget {
             color: theme.brightness == Brightness.dark
                 ? theme.colorScheme.surfaceContainerHigh
                 : Colors.white,
-            borderRadius: BorderRadius.circular(24),
+          borderRadius: AppTokens.radius.xl,
             border: Border.all(
               color: theme.brightness == Brightness.dark
                   ? theme.colorScheme.outline.withValues(alpha: 0.12)
@@ -81,7 +81,7 @@ class AboutSheet extends StatelessWidget {
             ],
           ),
           child: ClipRRect(
-            borderRadius: AppTokens.radius.xl,
+          borderRadius: AppTokens.radius.xl,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,

@@ -1,55 +1,118 @@
 # MySched Program Plan
 
-Context: core screens, offline cache (`OfflineCacheService`), retryable Supabase access (`ScheduleApi`), state widgets (`ui/kit/states.dart`), and analytics/telemetry scaffolding exist. The plan below turns the remaining gaps into concrete work items and sequencing so we can execute “all” streams without stepping on each other.
+> Updated: December 2024
 
-## Phase 0: Hardening + Test Backbone (start here)
-- Reliability: Add schedule logic tests for DST/time-zone edges, overlap detection, and retry exhaustion in `test/services/schedule_api_test.dart`; mirror for reminders in `test/services/reminders_api_test.dart` (add file). Add widget smoke tests for `lib/screens/schedules/schedules_screen.dart` and `lib/screens/reminders/reminders_screen.dart` to pin loading/error/empty states.
-- Observability: Ensure every GoRouter route has `TelemetryNavigatorObserver` tags (already registered) and add event names for failures/timeouts in `services/*_api.dart` paths. Verify `TelemetryService.ensureRecorder` is invoked once in `main.dart`.
-- Performance guardrails: Add micro-benchmarks for debounce/search flows (create `test/utils/pagination_test.dart` for paging/debounce helpers).
+Context: Core screens, offline cache (`OfflineCacheService`), retryable Supabase access (`ScheduleApi`), state widgets (`ui/kit/states.dart`), design system (`ui/theme/tokens.dart`), and analytics/telemetry scaffolding are in place. This roadmap tracks remaining work items and sequencing.
 
-## Phase 1: UX Resilience (loading/error/empty)
-- Standard states: Replace ad-hoc placeholders with `StateDisplay`/`MessageCard` in reminders, schedules, dashboard list cards, and admin reports (`lib/screens/..._messages.dart`). Provide retry closures tied to data sources (ScheduleApi.fetchClasses, RemindersApi.fetchReminders).
-- Loading strategy: Prefer skeletons (`ui/kit/skeletons.dart`) for list views; only use global spinners for blocking modals.
-- Accessibility: Confirm semantics/tap targets ≥48px on primary buttons and list items; wire `Semantics` labels for FABs and nav actions.
+---
 
-## Phase 2: Data, Offline, and Sync
-- Local cache: Wire `OfflineCacheService` save/read in schedule/reminder fetch paths; persist per-user snapshots and hydrate UI before network. Add TTL + “last refreshed” banner using `DataSync.lastScheduleSync`.
-- Offline queue: Register concrete mutation handlers for reminder CRUD and custom class edits in `OfflineQueue` and invoke `enqueue` on network failures. Surface pending count in settings with “Sync now” action.
-- Connection awareness: `ConnectionMonitor` should broadcast status to a shared banner component (reuse `InfoBanner`); pause pull-to-refresh when offline.
+## Completed ✅
 
-## Phase 3: Notifications & Permissions
-- Local notifications: Audit `NotifScheduler` coverage—add per-reminder lead-time settings, channel IDs, and deduping. Add permission explainer sheet before system prompt and retry path for denied → settings.
-- Background refresh: Schedule a periodic job to resync reminders/classes when online; no-op if user disabled notifications.
-- Alarms: Ensure alarm screen respects Do Not Disturb hints and has a dismissal/undo flow; add tests for scheduling windows (night vs day).
+### Design System (v2.3–2.4)
+- [x] Centralized tokens: spacing, radii, typography, motion in `tokens.dart`
+- [x] UI Kit components: `CardX`, `PrimaryButton`, `SecondaryButton`, `StateDisplay`, `Skeleton*`
+- [x] 97% AppTokens adoption across screens
+- [x] 100% colorScheme usage (no hardcoded colors)
+- [x] Typography system with 8 text styles
+- [x] Motion system with durations and curves
+- [x] Design system documentation (`docs/design_system.md`)
 
-## Phase 4: Forms, Validation, and UX polish
-- Validation kit: Centralize validators (required, max length, time ordering, overlap) in `lib/utils/` and reuse in add/edit class/reminder forms. Inline errors + summary banner on submit failure.
-- Search/debounce: Add debounce to instructor/search inputs; cap Supabase page sizes and enable keyset pagination where supported.
-- Design system: Finalize tokens in `ui/theme/tokens.dart` (spacing, radii, elevations) and apply to buttons/forms/navigation for consistency. Extract shared form field styles.
+### UX Resilience
+- [x] `StateDisplay` for empty/error/success states
+- [x] `MessageCard`, `InfoBanner` for inline states
+- [x] Skeleton loaders for list views
+- [x] Haptic feedback on buttons and interactions
+- [x] Semantic labels on scaffolds and navigation
 
-## Phase 5: Config, Security, and CI
-- Secrets hygiene: Keep `SUPABASE_URL`/`SUPABASE_ANON_KEY` in `.env`/`--dart-define`; add a CI preflight that fails on accidental key patterns in git diff. Document in README.
-- Env ergonomics: Add `Env.init` error UI (already present) to all entry points; emit analytics breadcrumbs for config load success/failure.
-- CI: Ensure `flutter analyze`, `dart format .`, and `flutter test` run in CI; add coverage target on scheduling/reminders modules. Optional: `flutter test --coverage` gate for release branches.
+### Core Features
+- [x] Dashboard with schedule hero, reminders preview, metrics
+- [x] Schedules module with CRUD, filtering, search
+- [x] Reminders module with CRUD, snooze, completion
+- [x] Settings with theme, notifications, account management
+- [x] Auth flows: login, register, email verification, password reset
 
-## Phase 6: Internationalization & Accessibility
-- i18n: Externalize user-facing strings to `intl`, add locale switcher in settings, and verify RTL layout for key screens. Cover date/time formatting per locale.
-- Accessibility deep-dive: Test dynamic text scaling, contrast on light/dark themes, and focus order for dialog/sheet components. Add semantics for progress/success/error banners.
+---
 
-## Phase 7: Platform Parity
-- Android/iOS: Re-check notification/storage permissions and background task policies; document required plist/manifest strings. Ensure photo/camera flows handle denial gracefully.
-- Desktop/Web: Validate layouts with `responsive_framework` breakpoints; guard features not supported on web (local notifications, file system) with feature flags and UX messaging.
+## In Progress 🚧
 
-## Milestones & Ownership
-- Week 1: Phase 0 + Phase 1 (tests + state UX), ready for merge behind feature flags where risky.
-- Week 2: Phase 2 + Phase 3 (offline/queue + notifications), plus smoke tests.
-- Week 3: Phase 4 + Phase 5 (forms/validation + CI/security), start i18n scaffolding.
-- Week 4: Phase 6 + Phase 7 (a11y/i18n + platform parity), regression sweep.
+### Phase 0: Hardening + Test Backbone
+- [ ] Schedule logic tests for DST/time-zone edges
+- [ ] Reminder API retry/exhaustion tests
+- [ ] Widget smoke tests for loading/error/empty states
+- [ ] Performance micro-benchmarks for debounce/search
+
+### Design System Cleanup
+- [ ] Migrate 6 files with legacy `BorderRadius.circular` → `AppTokens.radius`
+- [ ] Migrate 5 files with hardcoded `EdgeInsets` → `AppTokens.spacing`
+- [ ] Increase `AppTokens.motion` adoption from 77% → 95%
+
+---
+
+## Upcoming Phases
+
+### Phase 1: Data, Offline, and Sync
+- [ ] Wire `OfflineCacheService` in schedule/reminder fetch paths
+- [ ] Add TTL + "last refreshed" banner
+- [ ] Offline queue with mutation handlers for CRUD
+- [ ] Surface pending count in settings with "Sync now"
+- [ ] `ConnectionMonitor` banner integration
+
+### Phase 2: Notifications & Permissions
+- [ ] Per-reminder lead-time settings
+- [ ] Permission explainer sheet before system prompt
+- [ ] Background refresh job for resync
+- [ ] Alarm DND hints and dismissal flow
+
+### Phase 3: Forms & Validation Polish
+- [ ] Centralize validators in `lib/utils/`
+- [ ] Inline errors + summary banner on submit
+- [ ] Debounce on search inputs
+- [ ] Keyset pagination for large datasets
+
+### Phase 4: Config, Security, CI
+- [ ] CI preflight for accidental key patterns
+- [ ] Coverage gate on scheduling/reminders modules
+- [ ] `flutter analyze`, `dart format`, `flutter test` in CI
+
+### Phase 5: i18n & Accessibility
+- [ ] Externalize strings to `intl`
+- [ ] Locale switcher in settings
+- [ ] RTL layout verification
+- [ ] Dynamic text scaling tests
+- [ ] Contrast verification on light/dark
+
+### Phase 6: Platform Parity
+- [ ] Android/iOS permission/background task audit
+- [ ] Desktop/Web responsive layouts
+- [ ] Feature flags for unsupported features
+
+---
+
+## Milestones
+
+| Phase | Target | Status |
+|-------|--------|--------|
+| Design System | v2.4 | ✅ Complete |
+| UX Resilience | v2.4 | ✅ Complete |
+| Test Backbone | v2.5 | 🚧 In Progress |
+| Design Cleanup | v2.5 | 🚧 In Progress |
+| Offline/Sync | v2.6 | Planned |
+| Notifications | v2.6 | Planned |
+| Forms/Validation | v2.7 | Planned |
+| CI/Security | v2.7 | Planned |
+| i18n/a11y | v2.8 | Planned |
+| Platform Parity | v2.8 | Planned |
+
+---
 
 ## Exit Criteria by Stream
-- Reliability: Schedule/reminder APIs covered for retries, DST/time zones, and overlap; no flaky tests in CI.
-- UX: All list/detail screens use standardized empty/error/loading patterns with retries.
-- Offline/Sync: Cached schedules/reminders load instantly; offline mutations sync automatically when back online; users can see pending count and force sync.
-- Notifications: Reminder lead times configurable; prompts are explained; alarms behave across platforms.
-- Config/Security: Secrets never committed; `.env` documented; CI enforces lint/test/format.
-- i18n/a11y: Strings externalized; RTL verified; text scaling and contrast pass manual checks.
+
+| Stream | Criteria | Status |
+|--------|----------|--------|
+| Design System | 95%+ token adoption, documented | ✅ |
+| UX Resilience | Standardized states, skeletons, haptics | ✅ |
+| Reliability | API tests, DST/TZ coverage, no flaky CI | 🚧 |
+| Offline/Sync | Instant cache load, auto-sync, pending count | Planned |
+| Notifications | Configurable lead times, permission flow | Planned |
+| Config/Security | Secrets safe, CI enforced | Planned |
+| i18n/a11y | Strings externalized, RTL/scaling verified | Planned |

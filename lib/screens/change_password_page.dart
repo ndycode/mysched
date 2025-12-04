@@ -182,7 +182,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
                   : Colors.white,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
                     ? colors.outline.withValues(alpha: 0.12)

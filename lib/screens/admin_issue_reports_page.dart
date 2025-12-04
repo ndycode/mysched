@@ -81,7 +81,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   }
 
   Future<String?> _promptResolutionNote(ClassIssueReport report) {
-    return showDialog<String>(
+    return showSmoothDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (context) => _ResolutionNoteDialog(

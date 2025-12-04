@@ -357,7 +357,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: _SectionHeader(
+                      child: SectionHeader(
                         title: 'Reminder details',
                         subtitle: 'Shown across the app',
                       ),
@@ -407,7 +407,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _SectionHeader(
+                const SectionHeader(
                   title: 'Reminder time',
                   subtitle: 'We will notify you at this time',
                 ),
@@ -447,14 +447,14 @@ class _AddReminderFormState extends State<AddReminderForm> {
                 Row(
                   children: [
                     Expanded(
-                      child: _SummaryChip(
+                      child: InfoChip(
                         icon: Icons.today_outlined,
                         label: _friendlyDateSummary(),
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md),
                     Expanded(
-                      child: _SummaryChip(
+                      child: InfoChip(
                         icon: Icons.access_time_filled_rounded,
                         label: _friendlyTimeSummary(),
                       ),
@@ -667,40 +667,6 @@ class _AddReminderFormState extends State<AddReminderForm> {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.subtitle});
-
-  final String title;
-  final String? subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
-          ),
-        ),
-        if (subtitle != null) ...[
-          SizedBox(height: AppTokens.spacing.xs),
-          Text(
-            subtitle!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
 class _FieldTile extends StatelessWidget {
   const _FieldTile({
     required this.label,
@@ -783,51 +749,6 @@ class _FieldTile extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SummaryChip extends StatelessWidget {
-  const _SummaryChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md + spacing.xs / 2,
-        vertical: spacing.sm + spacing.xs / 2,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: colors.primary),
-          SizedBox(width: spacing.sm),
-          Flexible(
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -113,7 +113,7 @@ class _BootstrapGateState extends State<BootstrapGate> {
       return;
     }
     if (!mounted) return;
-    await showDialog<void>(
+    await showSmoothDialog<void>(
       context: context,
       barrierDismissible: false,
       builder: (_) => _AlarmPromptDialog(
@@ -141,7 +141,7 @@ class _BootstrapGateState extends State<BootstrapGate> {
     }
 
     if (!mounted) return;
-    final allow = await showDialog<bool>(
+    final allow = await showSmoothDialog<bool>(
           context: context,
           barrierDismissible: false,
           builder: (context) => _PermissionDialog(
@@ -166,7 +166,7 @@ class _BootstrapGateState extends State<BootstrapGate> {
     }
 
     if (status.isPermanentlyDenied && mounted) {
-      await showDialog<void>(
+      await showSmoothDialog<void>(
         context: context,
         barrierDismissible: false,
         builder: (context) => _PermissionSettingsDialog(title: title),

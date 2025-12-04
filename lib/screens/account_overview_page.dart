@@ -119,7 +119,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       final originalBytes = await picked.readAsBytes();
       if (!mounted) return;
 
-      final croppedBytes = await showDialog<Uint8List>(
+      final croppedBytes = await showSmoothDialog<Uint8List>(
         context: context,
         barrierDismissible: false,
         builder: (context) => _AvatarCropDialog(imageBytes: originalBytes),
@@ -340,10 +340,12 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         children: [
-          _SettingsTile(
+          InfoTile(
             icon: Icons.mail_outline,
             title: 'Change email',
-            color: colors.primary,
+            tint: colors.primary,
+            iconInContainer: true,
+            showChevron: true,
             onTap: () async {
               await context.push<bool>(
                 AppRoutes.changeEmail,
@@ -353,20 +355,24 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             },
           ),
           SizedBox(height: AppTokens.spacing.lg),
-          _SettingsTile(
+          InfoTile(
             icon: Icons.lock_outline,
             title: 'Change password',
-            color: colors.primary,
+            tint: colors.primary,
+            iconInContainer: true,
+            showChevron: true,
             onTap: () async {
               await context.push<bool>(AppRoutes.changePassword);
               await _load();
             },
           ),
           SizedBox(height: AppTokens.spacing.lg),
-          _SettingsTile(
+          InfoTile(
             icon: Icons.delete_forever_outlined,
             title: 'Delete account',
-            color: colors.error,
+            tint: colors.error,
+            iconInContainer: true,
+            showChevron: true,
             onTap: () async {
               await context.push<bool>(AppRoutes.deleteAccount);
               if (mounted) {
@@ -393,63 +399,6 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       if (!mounted) return;
       context.go(AppRoutes.login);
     }
-  }
-}
-
-class _SettingsTile extends StatelessWidget {
-  const _SettingsTile({
-    required this.icon,
-    required this.title,
-    required this.color,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String title;
-  final Color color;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    final colors = theme.colorScheme;
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-        child: Row(
-          children: [
-            Container(
-              width: AppTokens.componentSize.avatarLg,
-              height: AppTokens.componentSize.avatarLg,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.15),
-                borderRadius: AppTokens.radius.sm,
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: color, size: AppTokens.iconSize.lg),
-            ),
-            SizedBox(width: spacing.md),
-            Expanded(
-              child: Text(
-                title,
-                style: AppTokens.typography.subtitle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurface,
-                ),
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: colors.onSurfaceVariant,
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }
 

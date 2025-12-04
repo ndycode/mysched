@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'app_log.dart';
 import '../services/user_scope.dart';
 import '../ui/kit/battery_optimization_sheet.dart';
+import '../ui/kit/modals.dart';
 import 'nav.dart';
 
 /// Android-only wrapper around `flutter_local_notifications`.
@@ -439,7 +440,7 @@ class LocalNotifs {
   }
 
   static Future<void> openBatteryOptimizationDialog(BuildContext context) async {
-    await showDialog(
+    await showSmoothDialog(
       context: context,
       builder: (context) => const BatteryOptimizationDialog(),
     );

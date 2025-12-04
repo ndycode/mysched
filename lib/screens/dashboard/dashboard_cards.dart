@@ -54,7 +54,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                   ),
                 ),
               ),
-              if (refreshLabel != null) _RefreshChip(label: refreshLabel!),
+              if (refreshLabel != null) RefreshChip(label: refreshLabel!),
             ],
           ),
           SizedBox(height: spacing.lg),
@@ -128,48 +128,6 @@ class _DashboardSummaryCard extends StatelessWidget {
     return RepaintBoundary(child: card);
   }
 
-}
-
-class _RefreshChip extends StatelessWidget {
-  const _RefreshChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    final isDark = theme.brightness == Brightness.dark;
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.sm + 2,
-        vertical: spacing.xs + 2,
-      ),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.28 : 0.12),
-        borderRadius: AppTokens.radius.pill,
-        border: Border.all(
-          color: colors.primary.withValues(alpha: isDark ? 0.4 : 0.24),
-        ),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.refresh_rounded, size: AppTokens.iconSize.xs, color: colors.primary),
-          SizedBox(width: spacing.xs + 2),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: AppTokens.typography.caption.fontSize,
-              fontWeight: FontWeight.w600,
-              color: colors.primary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 class _UpcomingHeroTile extends StatelessWidget {

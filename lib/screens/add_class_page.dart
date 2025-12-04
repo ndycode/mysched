@@ -1111,7 +1111,7 @@ class _AddClassFormState extends State<AddClassForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
-                  child: _SectionHeader(
+                  child: SectionHeader(
                     title: 'Class details',
                     subtitle: 'Displayed across your schedules',
                   ),
@@ -1167,7 +1167,7 @@ class _AddClassFormState extends State<AddClassForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _SectionHeader(
+            SectionHeader(
               title: 'Schedule',
               subtitle: 'Tell us when this class usually happens',
             ),
@@ -1228,14 +1228,14 @@ class _AddClassFormState extends State<AddClassForm> {
             Row(
               children: [
                 Expanded(
-                  child: _ScopeChip(
+                  child: InfoChip(
                     icon: Icons.calendar_month_rounded,
                     label: _scopeLabel(_day),
                   ),
                 ),
                 SizedBox(width: AppTokens.spacing.md),
                 Expanded(
-                  child: _ScopeChip(
+                  child: InfoChip(
                     icon: Icons.schedule_rounded,
                     label: '${_format(_start)} - ${_format(_end)}',
                   ),
@@ -1272,7 +1272,7 @@ class _AddClassFormState extends State<AddClassForm> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            _SectionHeader(
+            SectionHeader(
               title: 'Instructor',
               subtitle: 'Optional details to complete your schedule',
             ),
@@ -1333,7 +1333,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    final picked = await showDialog<int>(
+    final picked = await showSmoothDialog<int>(
       context: context,
       builder: (context) {
         return Dialog(
@@ -1501,84 +1501,6 @@ class _TimeField extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.subtitle});
-
-  final String title;
-  final String? subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
-          ),
-        ),
-        if (subtitle != null) ...[
-          SizedBox(height: AppTokens.spacing.xs),
-          Text(
-            subtitle!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-      ],
-    );
-  }
-}
-
-class _ScopeChip extends StatelessWidget {
-  const _ScopeChip({required this.icon, required this.label});
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md + spacing.xs / 2,
-        vertical: spacing.sm + spacing.xs / 2,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: colors.primary),
-          SizedBox(width: spacing.sm),
-          Flexible(
-            child: Text(
-              label,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-              ),
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
       ),
     );
   }

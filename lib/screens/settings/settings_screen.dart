@@ -155,7 +155,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required int selected,
     required String suffix,
   }) {
-    return showDialog<int>(
+    return showSmoothDialog<int>(
       context: context,
       builder: (context) {
         final theme = Theme.of(context);

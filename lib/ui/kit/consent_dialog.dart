@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'modals.dart';
 import '../theme/tokens.dart';
 
 class ScanConsent {
@@ -26,7 +27,7 @@ Future<bool> ensureScanConsent(BuildContext context) async {
   final colors = theme.colorScheme;
   final spacing = AppTokens.spacing;
 
-  final agreed = await showDialog<bool>(
+  final agreed = await showSmoothDialog<bool>(
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) {

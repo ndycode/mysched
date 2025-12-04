@@ -38,7 +38,7 @@ class AlarmPage extends StatelessWidget {
     );
 
     void showPreviewOverlay() {
-      showDialog<void>(
+      showSmoothDialog<void>(
         context: context,
         barrierColor: Colors.black.withValues(alpha: 0.7),
         builder: (_) => Dialog(

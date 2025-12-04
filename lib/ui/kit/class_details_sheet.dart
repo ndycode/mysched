@@ -160,7 +160,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     if (_reportBusy) return;
 
     final controller = TextEditingController();
-    final submittedNote = await showDialog<String>(
+    final submittedNote = await showSmoothDialog<String>(
       context: context,
       barrierDismissible: false,
       builder: (context) {

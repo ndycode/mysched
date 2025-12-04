@@ -155,15 +155,15 @@ class PrivacySheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'Schedules, reminders, and class reports live in your authenticated Supabase project.',
                             ),
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'We keep lightweight analytics (crash logs, feature usage) to improve stability—no personal data is stored there.',
                             ),
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'You can request data export or removal anytime through Settings → Support.',
                             ),
@@ -190,24 +190,24 @@ class PrivacySheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const _PrivacyTile(
+                            const InfoTile(
                               icon: Icons.camera_alt_outlined,
                               title: 'Camera',
-                              description:
+                              subtitle:
                                   'Capture your student card for OCR scanning. Images stay on device—only extracted schedule data is saved.',
                             ),
                             SizedBox(height: AppTokens.spacing.lg),
-                            const _PrivacyTile(
+                            const InfoTile(
                               icon: Icons.photo_library_outlined,
                               title: 'Photos (read only)',
-                              description:
+                              subtitle:
                                   'Let you pick an existing card image instead of rescanning. Required only on older Android versions.',
                             ),
                             SizedBox(height: AppTokens.spacing.lg),
-                            const _PrivacyTile(
+                            const InfoTile(
                               icon: Icons.notifications_active_outlined,
                               title: 'Notifications',
-                              description:
+                              subtitle:
                                   'Deliver reminders, snoozes, and heads-up alerts. You can toggle reminders—or their lead time—anytime.',
                             ),
                           ],
@@ -233,15 +233,15 @@ class PrivacySheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'Delete schedules or reminders individually, or sign out to clear local cache.',
                             ),
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'Need a copy or removal? Contact support through Settings → Help & feedback.',
                             ),
-                            _SimpleBullet(
+                            SimpleBullet(
                               text:
                                   'Alarm permissions can be revoked in system settings—MySched will surface a prompt if reminders stop working.',
                             ),
@@ -311,73 +311,6 @@ class PrivacySheet extends StatelessWidget {
       title: 'Full privacy policy',
       message: 'A downloadable PDF is coming soon. For now, the full policy is mirrored in Settings → Updates.',
       icon: Icons.picture_as_pdf_outlined,
-    );
-  }
-}
-
-class _PrivacyTile extends StatelessWidget {
-  const _PrivacyTile({
-    required this.icon,
-    required this.title,
-    required this.description,
-  });
-
-  final IconData icon;
-  final String title;
-  final String description;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: theme.colorScheme.primary),
-        SizedBox(width: spacing.sm),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: spacing.xs),
-              Text(
-                description,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SimpleBullet extends StatelessWidget {
-  const _SimpleBullet({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Padding(
-      padding: EdgeInsets.only(bottom: spacing.xs),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: AppTokens.spacing.xs),
-          Icon(Icons.circle, size: AppTokens.iconSize.sm - 8, color: theme.colorScheme.primary),
-          SizedBox(width: spacing.sm),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
-        ],
-      ),
     );
   }
 }

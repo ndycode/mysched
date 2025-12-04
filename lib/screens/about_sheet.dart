@@ -177,25 +177,31 @@ class AboutSheet extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const _FeatureTile(
+                                  const InfoTile(
                                     icon: Icons.document_scanner_outlined,
                                     title: 'Scan & build in seconds',
                                     subtitle:
                                         'Fast OCR import of student cards with easy review before saving.',
+                                    iconInContainer: true,
+                                    compactContainer: true,
                                   ),
                                   SizedBox(height: spacing.md),
-                                  const _FeatureTile(
+                                  const InfoTile(
                                     icon: Icons.view_week_outlined,
                                     title: 'Clear daily overview',
                                     subtitle:
                                         'Colour-coded timetable grouped by day and class status.',
+                                    iconInContainer: true,
+                                    compactContainer: true,
                                   ),
                                   SizedBox(height: spacing.md),
-                                  const _FeatureTile(
+                                  const InfoTile(
                                     icon: Icons.notifications_active_outlined,
                                     title: 'Helpful reminders',
                                     subtitle:
                                         'Heads-up alerts with snooze, follow-ups, and simple admin reporting.',
+                                    iconInContainer: true,
+                                    compactContainer: true,
                                   ),
                                 ],
                               ),
@@ -231,15 +237,15 @@ class AboutSheet extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
-                                  const _SimpleBullet(
+                                  const SimpleBullet(
                                     text:
                                         'Supabase keeps schedules, reminders, and reports in sync across devices.',
                                   ),
-                                  const _SimpleBullet(
+                                  const SimpleBullet(
                                     text:
                                         'Google ML Kit Text Recognition reads student cards to build classes.',
                                   ),
-                                  const _SimpleBullet(
+                                  const SimpleBullet(
                                     text:
                                         'Native alarm services trigger reminders even when the app is closed.',
                                   ),
@@ -277,21 +283,21 @@ class AboutSheet extends StatelessWidget {
                                     ),
                                   ),
                                   SizedBox(height: spacing.md),
-                                  const _BulletTile(
+                                  const InfoTile(
                                     icon: Icons.camera_alt_outlined,
                                     title: 'Camera',
                                     subtitle:
                                         'Capture your student card for OCR scanning.',
                                   ),
                                   SizedBox(height: spacing.md),
-                                  const _BulletTile(
+                                  const InfoTile(
                                     icon: Icons.photo_library_outlined,
                                     title: 'Photos (read only)',
                                     subtitle:
                                         'Pick an existing card image instead of rescanning.',
                                   ),
                                   SizedBox(height: spacing.md),
-                                  const _BulletTile(
+                                  const InfoTile(
                                     icon: Icons.notifications_active_outlined,
                                     title: 'Notifications',
                                     subtitle:
@@ -399,122 +405,6 @@ class AboutSheet extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class _BulletTile extends StatelessWidget {
-  const _BulletTile({
-    required this.title,
-    this.subtitle,
-    required this.icon,
-  });
-
-  final String title;
-  final String? subtitle;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, color: theme.colorScheme.primary),
-        SizedBox(width: spacing.sm),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (subtitle != null) ...[
-                SizedBox(height: spacing.xs),
-                Text(subtitle!, style: theme.textTheme.bodyMedium),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SimpleBullet extends StatelessWidget {
-  const _SimpleBullet({required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Padding(
-      padding: EdgeInsets.only(bottom: spacing.xs),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: spacing.xs),
-          Icon(Icons.circle, size: AppTokens.iconSize.sm - 8, color: theme.colorScheme.primary),
-          SizedBox(width: spacing.sm),
-          Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
-        ],
-      ),
-    );
-  }
-}
-
-class _FeatureTile extends StatelessWidget {
-  const _FeatureTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-            borderRadius: AppTokens.radius.sm,
-          ),
-          padding: spacing.edgeInsetsAll(spacing.md),
-          child: Icon(icon, color: theme.colorScheme.primary, size: AppTokens.iconSize.md),
-        ),
-        SizedBox(width: spacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: spacing.xs),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium,
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

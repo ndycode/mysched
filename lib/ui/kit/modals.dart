@@ -1,6 +1,93 @@
 import 'package:flutter/material.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+
+/// Custom dialog route with smooth fade/scale transition.
+class _SmoothDialogRoute<T> extends PopupRoute<T> {
+  _SmoothDialogRoute({
+    required this.builder,
+    required this.barrierDismissible,
+    this.barrierLabel,
+    Color? barrierColor,
+    Duration? transitionDuration,
+  })  : _barrierColor = barrierColor ?? Colors.black54,
+        _transitionDuration = transitionDuration ?? AppMotionSystem.medium;
+
+  final WidgetBuilder builder;
+  @override
+  final bool barrierDismissible;
+  @override
+  final String? barrierLabel;
+  final Color _barrierColor;
+  final Duration _transitionDuration;
+
+  @override
+  Color get barrierColor => _barrierColor;
+
+  @override
+  Duration get transitionDuration => _transitionDuration;
+
+  @override
+  Duration get reverseTransitionDuration => AppMotionSystem.quick;
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    return builder(context);
+  }
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final fadeAnimation = CurvedAnimation(
+      parent: animation,
+      curve: const Interval(0.0, 0.5, curve: AppMotionSystem.easeOut),
+      reverseCurve: const Interval(0.5, 1.0, curve: AppMotionSystem.easeIn),
+    );
+
+    final scaleAnimation = CurvedAnimation(
+      parent: animation,
+      curve: AppMotionSystem.overshoot,
+      reverseCurve: AppMotionSystem.easeIn,
+    );
+
+    return FadeTransition(
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.92, end: 1.0).animate(scaleAnimation),
+        child: child,
+      ),
+    );
+  }
+}
+
+/// Shows a smooth dialog with fade/scale transition using AppMotionSystem.
+Future<T?> showSmoothDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool barrierDismissible = true,
+  String? barrierLabel = 'Dismiss',
+  Color? barrierColor,
+  Duration? transitionDuration,
+}) {
+  return Navigator.of(context, rootNavigator: true).push<T>(
+    _SmoothDialogRoute<T>(
+      builder: builder,
+      barrierDismissible: barrierDismissible,
+      barrierLabel: barrierLabel,
+      barrierColor: barrierColor,
+      transitionDuration: transitionDuration,
+    ),
+  );
+}
 
 /// Global modal configuration for consistent dialogs across the app.
 class AppModal {
@@ -19,7 +106,7 @@ class AppModal {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return showDialog<bool>(
+    return showSmoothDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,
@@ -106,7 +193,7 @@ class AppModal {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return showDialog<void>(
+    return showSmoothDialog<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,
@@ -176,7 +263,7 @@ class AppModal {
     final spacing = AppTokens.spacing;
     final controller = TextEditingController(text: initialValue);
 
-    final result = await showDialog<String>(
+    final result = await showSmoothDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,

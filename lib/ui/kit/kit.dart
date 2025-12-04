@@ -25,4 +25,8 @@ export 'status_badge.dart';
 export 'metric_chip.dart';
 export 'section_header_card.dart';
 export 'instructor_row.dart';
-
+export 'section_header.dart';
+export 'info_chip.dart';
+export 'info_tile.dart';
+export 'refresh_chip.dart';
+export 'simple_bullet.dart';

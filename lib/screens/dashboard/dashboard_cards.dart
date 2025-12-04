@@ -69,29 +69,32 @@ class _DashboardSummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.hourglass_bottom_rounded,
                   value: summary.hoursDoneLabel,
                   label: 'Hours done',
                   tint: colors.primary,
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.class_rounded,
                   value: summary.classesRemainingLabel,
                   label: 'Classes left',
                   tint: colors.secondary,
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.task_alt_rounded,
                   value: summary.tasksLabel,
                   label: 'Open tasks',
                   tint: colors.tertiary,
+                  displayStyle: true,
                 ),
               ),
             ],
@@ -164,161 +167,6 @@ class _RefreshChip extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _CompactMetricChip extends StatelessWidget {
-  const _CompactMetricChip({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.tint,
-  });
-
-  final IconData icon;
-  final String value;
-  final String label;
-  final Color tint;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(
-          color: tint.withValues(alpha: 0.20),
-          width: AppTokens.componentSize.divider,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: spacing.edgeInsetsAll(spacing.sm),
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: 0.15),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            child: Icon(
-              icon,
-              size: AppTokens.iconSize.lg,
-              color: tint,
-            ),
-          ),
-          SizedBox(height: spacing.md),
-          Text(
-            value,
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: AppTokens.typography.headline.fontSize,
-              height: 1.0,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: AppTokens.typography.caption.fontSize,
-              fontWeight: FontWeight.w600,
-              color: colors.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ReminderAlertBanner extends StatelessWidget {
-  const _ReminderAlertBanner({
-    required this.alert,
-    required this.onReview,
-  });
-
-  final _ReminderAlert alert;
-  final VoidCallback onReview;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    final background = alert.tint.withValues(alpha: 0.14);
-    final border = alert.tint.withValues(alpha: 0.22);
-    final iconBackground = alert.tint.withValues(alpha: 0.18);
-
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onReview,
-        borderRadius: AppTokens.radius.lg,
-        child: Container(
-          padding: spacing.edgeInsetsAll(spacing.md + 2),
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: AppTokens.radius.lg,
-            border: Border.all(color: border),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: spacing.edgeInsetsAll(spacing.sm + 2),
-                decoration: BoxDecoration(
-                  color: iconBackground,
-                  borderRadius: AppTokens.radius.md,
-                ),
-                child: Icon(alert.icon, color: alert.tint, size: AppTokens.iconSize.md),
-              ),
-              SizedBox(width: spacing.md),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      alert.title,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: AppTokens.typography.title.fontSize,
-                      ),
-                    ),
-                    SizedBox(height: spacing.xs),
-                    Text(
-                      alert.message,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: AppTokens.typography.body.fontSize,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(width: spacing.md),
-              TextButton(
-                onPressed: onReview,
-                style: TextButton.styleFrom(
-                  foregroundColor: alert.tint,
-                  textStyle: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: AppTokens.typography.body.fontSize,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                child: Text(alert.actionLabel),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }
@@ -864,122 +712,4 @@ class _InstructorRow extends StatelessWidget {
   }
 }
 
-class _DashboardMetricChip extends StatelessWidget {
-  const _DashboardMetricChip({
-    required this.icon,
-    required this.tint,
-    required this.label,
-    required this.value,
-    required this.caption,
-    this.progress,
-    this.highlight = false,
-  });
 
-  final IconData icon;
-  final Color tint;
-  final String label;
-  final String value;
-  final String caption;
-  final double? progress;
-  final bool highlight;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: highlight
-              ? tint.withValues(alpha: 0.3)
-              : colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
-          width: highlight ? 1.5 : 0.5,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: highlight
-                ? tint.withValues(alpha: 0.08)
-                : colors.shadow.withValues(alpha: isDark ? 0 : 0.03),
-            blurRadius: AppTokens.shadow.md,
-            offset: const Offset(0, 4),
-          ),
-        ],
-        gradient: highlight
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  tint.withValues(alpha: isDark ? 0.15 : 0.05),
-                  tint.withValues(alpha: isDark ? 0.05 : 0.01),
-                ],
-              )
-            : null,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: spacing.edgeInsetsAll(spacing.sm),
-                decoration: BoxDecoration(
-                  color: tint.withValues(alpha: 0.1),
-                  borderRadius: AppTokens.radius.md,
-                ),
-                child: Icon(icon, size: AppTokens.iconSize.md, color: tint),
-              ),
-              const Spacer(),
-              if (progress != null)
-                SizedBox(
-                  width: AppTokens.componentSize.badgeLg,
-                  height: AppTokens.componentSize.badgeLg,
-                  child: CircularProgressIndicator(
-                    value: progress,
-                    strokeWidth: 3,
-                    backgroundColor: tint.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation(tint),
-                  ),
-                ),
-            ],
-          ),
-          SizedBox(height: spacing.lg),
-          Text(
-            value,
-            style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: AppTokens.typography.headline.fontSize,
-              color: colors.onSurface,
-              height: 1.0,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
-              fontSize: AppTokens.typography.caption.fontSize,
-            ),
-          ),
-          if (caption.isNotEmpty) ...[
-            SizedBox(height: spacing.sm),
-            Text(
-              caption,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: tint,
-                fontSize: AppTokens.typography.caption.fontSize,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-}

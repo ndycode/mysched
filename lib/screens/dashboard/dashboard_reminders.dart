@@ -297,52 +297,6 @@ class _ReminderActions extends StatelessWidget {
   }
 }
 
-class _StatusChip extends StatelessWidget {
-  const _StatusChip({
-    required this.icon,
-    required this.label,
-    required this.background,
-    required this.foreground,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md,
-        vertical: spacing.xs + 2,
-      ),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.pill,
-        border: Border.all(color: foreground.withValues(alpha: 0.25)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
-          SizedBox(width: spacing.xs + 2),
-          Text(
-            label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: AppTokens.typography.caption.fontSize,
-              fontWeight: FontWeight.w600,
-              color: foreground,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class _ReminderProgressPill extends StatelessWidget {
   const _ReminderProgressPill({
     required this.label,

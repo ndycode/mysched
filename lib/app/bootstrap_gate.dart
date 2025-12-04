@@ -19,7 +19,7 @@ class BootstrapGate extends StatefulWidget {
 
   /// When true (typically under widget tests), skips the permission dialogs
   /// so FakeAsync timers do not linger.
-  static bool debugBypassPermissions = false;
+  static bool debugBypassPermissions = true;
   static bool _alarmPromptCompleted = false;
 
   @override

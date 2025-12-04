@@ -9,19 +9,13 @@ class Env {
   static bool _initialized = false;
   static bool get isInitialized => _initialized;
 
-  // Fallbacks used during dev to avoid splash hang when env is missing.
-  static const _fallbackSupabaseUrl =
-      'https://bukkyqntgathvejriayz.supabase.co';
-  static const _fallbackSupabaseAnonKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1a2t5cW50Z2F0aHZlanJpYXl6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzMjI4ODcsImV4cCI6MjA3NDg5ODg4N30.w4gUA8rHmaiB8hRGi3ecuqJJgrOhlyFCrPLnqB2IhyY';
-
   static const supabaseUrlFromDefine = String.fromEnvironment(
     'SUPABASE_URL',
-    defaultValue: _fallbackSupabaseUrl,
+    defaultValue: '',
   );
   static const supabaseAnonKeyFromDefine = String.fromEnvironment(
     'SUPABASE_ANON_KEY',
-    defaultValue: _fallbackSupabaseAnonKey,
+    defaultValue: '',
   );
   static Future<void> init() async {
     if (_initialized) {

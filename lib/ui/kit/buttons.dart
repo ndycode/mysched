@@ -13,53 +13,87 @@ class PrimaryButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.leading,
+    this.icon,
     this.expanded = true,
     this.minHeight,
     this.padding,
     this.textStyle,
+    this.loading = false,
+    this.loadingLabel,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final Widget? leading;
+  final IconData? icon;
   final bool expanded;
   final double? minHeight;
   final EdgeInsetsGeometry? padding;
   final TextStyle? textStyle;
+  final bool loading;
+  final String? loadingLabel;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final baseTextStyle = textStyle ?? AppTokens.typography.label;
+
+    final isDisabled = onPressed == null || loading;
+    final displayLabel = loading ? (loadingLabel ?? label) : label;
+
+    Widget? leadingWidget;
+    if (loading) {
+      leadingWidget = SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.5,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.onPrimary.withValues(alpha: 0.85),
+          ),
+        ),
+      );
+    } else if (leading != null) {
+      leadingWidget = leading;
+    } else if (icon != null) {
+      leadingWidget = Icon(icon);
+    }
+
     final child = _ButtonContent(
-      label: label,
-      leading: leading,
+      label: displayLabel,
+      leading: leadingWidget,
       textColor: colors.onPrimary,
       textStyle: baseTextStyle,
     );
 
-    final button = FilledButton(
-      onPressed: onPressed == null
-          ? null
-          : () {
-              _emitHaptic(source: 'primary_button');
-              AnalyticsService.instance.logEvent(
-                'ui_tap_primary_button',
-                params: {'label': label},
-              );
-              onPressed?.call();
-            },
-      style: FilledButton.styleFrom(
-        minimumSize: Size.fromHeight(minHeight ?? 52),
-        padding: padding ??
-            AppTokens.spacing.edgeInsetsSymmetric(
-              horizontal: AppTokens.spacing.xl,
-              vertical: AppTokens.spacing.md,
-            ),
-        textStyle: baseTextStyle,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+    final button = AnimatedOpacity(
+      duration: AppTokens.motion.fast,
+      opacity: isDisabled ? 0.65 : 1.0,
+      child: FilledButton(
+        onPressed: isDisabled
+            ? null
+            : () {
+                _emitHaptic(source: 'primary_button');
+                AnalyticsService.instance.logEvent(
+                  'ui_tap_primary_button',
+                  params: {'label': label},
+                );
+                onPressed?.call();
+              },
+        style: FilledButton.styleFrom(
+          minimumSize: Size.fromHeight(minHeight ?? 52),
+          padding: padding ??
+              AppTokens.spacing.edgeInsetsSymmetric(
+                horizontal: AppTokens.spacing.xl,
+                vertical: AppTokens.spacing.md,
+              ),
+          textStyle: baseTextStyle,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          disabledBackgroundColor: colors.primary.withValues(alpha: 0.75),
+          disabledForegroundColor: colors.onPrimary.withValues(alpha: 0.85),
+        ),
+        child: child,
       ),
-      child: child,
     );
 
     if (!expanded) return button;
@@ -73,51 +107,183 @@ class SecondaryButton extends StatelessWidget {
     required this.label,
     this.onPressed,
     this.leading,
+    this.icon,
     this.expanded = true,
     this.minHeight,
     this.textStyle,
+    this.loading = false,
+    this.loadingLabel,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final Widget? leading;
+  final IconData? icon;
   final bool expanded;
   final double? minHeight;
   final TextStyle? textStyle;
+  final bool loading;
+  final String? loadingLabel;
 
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final baseTextStyle = textStyle ?? AppTokens.typography.label;
+
+    final isDisabled = onPressed == null || loading;
+    final displayLabel = loading ? (loadingLabel ?? label) : label;
+
+    Widget? leadingWidget;
+    if (loading) {
+      leadingWidget = SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.5,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.primary.withValues(alpha: 0.7),
+          ),
+        ),
+      );
+    } else if (leading != null) {
+      leadingWidget = leading;
+    } else if (icon != null) {
+      leadingWidget = Icon(icon);
+    }
+
     final child = _ButtonContent(
-      label: label,
-      leading: leading,
+      label: displayLabel,
+      leading: leadingWidget,
       textColor: colors.primary,
       textStyle: baseTextStyle,
     );
 
-    final button = OutlinedButton(
-      onPressed: onPressed == null
-          ? null
-          : () {
-              _emitHaptic(source: 'secondary_button');
-              AnalyticsService.instance.logEvent(
-                'ui_tap_secondary_button',
-                params: {'label': label},
-              );
-              onPressed?.call();
-            },
-      style: OutlinedButton.styleFrom(
-        minimumSize: Size(0, minHeight ?? 52),
-        side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
-        padding: AppTokens.spacing.edgeInsetsSymmetric(
-          horizontal: AppTokens.spacing.xl,
-          vertical: AppTokens.spacing.md,
+    final button = AnimatedOpacity(
+      duration: AppTokens.motion.fast,
+      opacity: isDisabled ? 0.6 : 1.0,
+      child: OutlinedButton(
+        onPressed: isDisabled
+            ? null
+            : () {
+                _emitHaptic(source: 'secondary_button');
+                AnalyticsService.instance.logEvent(
+                  'ui_tap_secondary_button',
+                  params: {'label': label},
+                );
+                onPressed?.call();
+              },
+        style: OutlinedButton.styleFrom(
+          minimumSize: Size(0, minHeight ?? 52),
+          side: BorderSide(
+            color: isDisabled
+                ? colors.primary.withValues(alpha: 0.25)
+                : colors.primary.withValues(alpha: 0.4),
+          ),
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+            horizontal: AppTokens.spacing.xl,
+            vertical: AppTokens.spacing.md,
+          ),
+          textStyle: baseTextStyle,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          disabledForegroundColor: colors.primary.withValues(alpha: 0.6),
         ),
-        textStyle: baseTextStyle,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+        child: child,
       ),
-      child: child,
+    );
+
+    if (!expanded) return button;
+    return SizedBox(width: double.infinity, child: button);
+  }
+}
+
+/// Destructive action button for dangerous operations.
+class DestructiveButton extends StatelessWidget {
+  const DestructiveButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+    this.expanded = true,
+    this.minHeight,
+    this.loading = false,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+  final double? minHeight;
+  final bool loading;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseTextStyle = AppTokens.typography.label;
+
+    final isDisabled = onPressed == null || loading;
+
+    Widget? leadingWidget;
+    if (loading) {
+      leadingWidget = SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2.5,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.onError.withValues(alpha: 0.85),
+          ),
+        ),
+      );
+    } else if (icon != null) {
+      leadingWidget = Icon(icon);
+    }
+
+    final child = _ButtonContent(
+      label: label,
+      leading: leadingWidget,
+      textColor: colors.onError,
+      textStyle: baseTextStyle,
+    );
+
+    final button = AnimatedOpacity(
+      duration: AppTokens.motion.fast,
+      opacity: isDisabled ? 0.65 : 1.0,
+      child: FilledButton(
+        onPressed: isDisabled
+            ? null
+            : () {
+                _emitHaptic(source: 'destructive_button');
+                AnalyticsService.instance.logEvent(
+                  'ui_tap_destructive_button',
+                  params: {'label': label},
+                );
+                onPressed?.call();
+              },
+        style: FilledButton.styleFrom(
+          minimumSize: Size.fromHeight(minHeight ?? 52),
+          backgroundColor: colors.error,
+          foregroundColor: colors.onError,
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+            horizontal: AppTokens.spacing.xl,
+            vertical: AppTokens.spacing.md,
+          ),
+          textStyle: baseTextStyle,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          disabledBackgroundColor: colors.error.withValues(alpha: 0.65),
+          disabledForegroundColor: colors.onError.withValues(alpha: 0.85),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return isDark
+                  ? Colors.white.withValues(alpha: 0.12)
+                  : Colors.black.withValues(alpha: 0.08);
+            }
+            return null;
+          }),
+        ),
+        child: child,
+      ),
     );
 
     if (!expanded) return button;

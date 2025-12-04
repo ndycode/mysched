@@ -1,3 +1,5 @@
+import 'dart:math';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -46,7 +48,7 @@ class AddReminderPage extends StatelessWidget {
   }
 }
 
-class AddReminderSheet extends StatelessWidget {
+class AddReminderSheet extends StatefulWidget {
   const AddReminderSheet({
     super.key,
     required this.api,
@@ -57,35 +59,46 @@ class AddReminderSheet extends StatelessWidget {
   final ReminderEntry? editing;
 
   @override
+  State<AddReminderSheet> createState() => _AddReminderSheetState();
+}
+
+class _AddReminderSheetState extends State<AddReminderSheet> {
+  final _formKey = GlobalKey<_AddReminderFormState>();
+  bool _submitting = false;
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final maxHeight = media.size.height -
-        (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
+    final isEditing = widget.editing != null;
 
     return SafeArea(
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 560,
-            maxHeight: maxHeight.clamp(520.0, double.infinity),
+            maxWidth: 520,
+            maxHeight: media.size.height * 0.85,
           ),
           child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
+            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             decoration: BoxDecoration(
-              color: cardBackground,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(color: borderColor),
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.shadowColor.withValues(
-                    alpha: theme.brightness == Brightness.dark ? 0.35 : 0.18,
-                  ),
-                  blurRadius: 28,
-                  offset: const Offset(0, 20),
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
@@ -94,68 +107,69 @@ class AddReminderSheet extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: AppTokens.radius.xl,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: Stack(
+                    Flexible(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(spacing.xl),
+                        child: AddReminderForm(
+                          key: _formKey,
+                          api: widget.api,
+                          editing: widget.editing,
+                          isSheet: true,
+                          includeButtons: false,
+                          onCancel: () => Navigator.of(context).maybePop(),
+                          onSaved: (changed) =>
+                              Navigator.of(context).pop(changed),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(
+                        spacing.xl,
+                        spacing.md,
+                        spacing.xl,
+                        spacing.xl + media.viewInsets.bottom,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cardBackground,
+                        border: Border(
+                          top: BorderSide(
+                            color: theme.colorScheme.outlineVariant
+                                .withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ),
+                      child: Row(
                         children: [
-                          SingleChildScrollView(
-                            padding: EdgeInsets.fromLTRB(
-                              spacing.xl,
-                              spacing.xl,
-                              spacing.xl,
-                              media.viewInsets.bottom +
-                                  media.padding.bottom +
-                                  spacing.xl,
-                            ),
-                            child: AddReminderForm(
-                              api: api,
-                              editing: editing,
-                              isSheet: true,
-                              onCancel: () => Navigator.of(context).pop(false),
-                              onSaved: (changed) =>
-                                  Navigator.of(context).pop(changed),
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: IgnorePointer(
-                              child: Container(
-                                height: spacing.lg,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      cardBackground,
-                                      cardBackground.withValues(alpha: 0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                          Expanded(
+                            child: PrimaryButton(
+                              label: _submitting
+                                  ? (isEditing ? 'Updating...' : 'Saving...')
+                                  : (isEditing
+                                      ? 'Update reminder'
+                                      : 'Save reminder'),
+                              onPressed: _submitting
+                                  ? null
+                                  : () {
+                                      setState(() => _submitting = true);
+                                      _formKey.currentState
+                                          ?.triggerSave()
+                                          .whenComplete(() {
+                                        if (mounted) {
+                                          setState(() => _submitting = false);
+                                        }
+                                      });
+                                    },
+                              minHeight: 48,
                             ),
                           ),
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: IgnorePointer(
-                              child: Container(
-                                height: spacing.lg,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      cardBackground,
-                                      cardBackground.withValues(alpha: 0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: SecondaryButton(
+                              label: 'Cancel',
+                              onPressed: () => Navigator.of(context).maybePop(),
+                              minHeight: 48,
                             ),
                           ),
                         ],
@@ -176,17 +190,19 @@ class AddReminderForm extends StatefulWidget {
   const AddReminderForm({
     super.key,
     required this.api,
+    this.editing,
+    required this.isSheet,
     required this.onCancel,
     required this.onSaved,
-    required this.isSheet,
-    this.editing,
+    this.includeButtons = true,
   });
 
   final RemindersApi api;
+  final ReminderEntry? editing;
+  final bool isSheet;
   final VoidCallback onCancel;
   final ValueChanged<bool> onSaved;
-  final bool isSheet;
-  final ReminderEntry? editing;
+  final bool includeButtons;
 
   @override
   State<AddReminderForm> createState() => _AddReminderFormState();
@@ -197,29 +213,28 @@ class _AddReminderFormState extends State<AddReminderForm> {
   final _titleController = TextEditingController();
   final _notesController = TextEditingController();
 
-  final DateFormat _dateFormat = DateFormat('EEE, MMM d, yyyy');
-  final DateFormat _timeFormat = DateFormat('h:mm a');
-
-  DateTime _selectedDate = _roundToNearestDate(DateTime.now());
-  TimeOfDay _selectedTime =
-      TimeOfDay.fromDateTime(DateTime.now().add(const Duration(minutes: 30)));
-  bool _submitting = false;
+  late DateTime _selectedDate;
+  late TimeOfDay _selectedTime;
   String? _whenError;
+  bool _submitting = false;
+
+  final _dateFormat = DateFormat('EEE, MMM d');
+  final _timeFormat = DateFormat('h:mm a');
 
   @override
   void initState() {
     super.initState();
     final editing = widget.editing;
     if (editing != null) {
-      final dueLocal = editing.dueAt.toLocal();
-      _selectedDate = DateTime(dueLocal.year, dueLocal.month, dueLocal.day);
-      _selectedTime = TimeOfDay.fromDateTime(dueLocal);
       _titleController.text = editing.title;
       _notesController.text = editing.details ?? '';
+      _selectedDate = editing.dueAt;
+      _selectedTime = TimeOfDay.fromDateTime(editing.dueAt);
     } else {
-      final now = DateTime.now().add(const Duration(minutes: 45));
-      _selectedDate = DateTime(now.year, now.month, now.day);
-      _selectedTime = TimeOfDay.fromDateTime(now);
+      final now = DateTime.now();
+      final nextHour = now.add(const Duration(hours: 1));
+      _selectedDate = _roundToNearestDate(nextHour);
+      _selectedTime = TimeOfDay.fromDateTime(nextHour);
     }
   }
 
@@ -234,6 +249,47 @@ class _AddReminderFormState extends State<AddReminderForm> {
     return DateTime(value.year, value.month, value.day);
   }
 
+  Future<void> triggerSave() => _submit();
+  void triggerAutofill() => _fillWithTestData();
+
+  void _fillWithTestData() {
+    final titles = [
+      'Submit assignment',
+      'Buy groceries',
+      'Call mom',
+      'Meeting with team',
+      'Doctor appointment',
+      'Pay bills',
+      'Clean room',
+      'Study for exam',
+    ];
+    final notes = [
+      'Don\'t forget to bring the documents.',
+      'Milk, eggs, bread, and cheese.',
+      'Ask about the weekend plans.',
+      'Discuss the new project requirements.',
+      'Checkup at 3 PM.',
+      'Electricity and internet bills.',
+      'Vacuum and dust.',
+      'Chapters 4-6.',
+    ];
+    final random = Random();
+    final index = random.nextInt(titles.length);
+
+    setState(() {
+      _titleController.text = titles[index];
+      _notesController.text = notes[index];
+      
+      final now = DateTime.now();
+      final randomDay = now.add(Duration(days: random.nextInt(7)));
+      final randomHour = random.nextInt(24);
+      final randomMinute = random.nextInt(60);
+      
+      _selectedDate = _roundToNearestDate(randomDay);
+      _selectedTime = TimeOfDay(hour: randomHour, minute: randomMinute);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -244,18 +300,10 @@ class _AddReminderFormState extends State<AddReminderForm> {
     final helper = editing == null
         ? 'Create a reminder and we will notify you before it is due.'
         : 'Update the reminder details. We will refresh upcoming alerts.';
-
-    final sectionBackground = Color.alphaBlend(
-      colors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
-      colors.surface,
-    ).withValues(alpha: isDark ? 0.9 : 1.0);
-    final sectionBorder =
-        colors.primary.withValues(alpha: isDark ? 0.28 : 0.16);
     final fieldFill = isDark
-        ? colors.surfaceContainerHighest.withValues(alpha: 0.82)
-        : colors.surface;
-    final fieldBorder =
-        colors.outlineVariant.withValues(alpha: isDark ? 0.45 : 0.24);
+        ? colors.surfaceContainerHighest.withValues(alpha: 0.85)
+        : colors.surfaceContainerHigh;
+    final fieldBorder = colors.outlineVariant.withValues(alpha: 0.32);
 
     InputDecoration decorationFor(String label, {String? hint}) =>
         InputDecoration(
@@ -287,16 +335,35 @@ class _AddReminderFormState extends State<AddReminderForm> {
         children: [
           _buildHeader(theme, title, helper),
           const SizedBox(height: 16),
-          CardX(
-            backgroundColor: sectionBackground,
-            borderColor: sectionBorder,
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: AppTokens.radius.lg,
+              border: Border.all(
+                color: colors.outlineVariant.withValues(alpha: 0.2),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const _SectionHeader(
-                  title: 'Reminder details',
-                  subtitle: 'Shown across the app',
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: _SectionHeader(
+                        title: 'Reminder details',
+                        subtitle: 'Shown across the app',
+                      ),
+                    ),
+                    if (kDebugMode && editing == null)
+                      IconButton(
+                        icon: const Icon(Icons.auto_fix_high_rounded),
+                        onPressed: _submitting ? null : _fillWithTestData,
+                      ),
+                  ],
                 ),
                 const SizedBox(height: 10),
                 TextFormField(
@@ -319,10 +386,17 @@ class _AddReminderFormState extends State<AddReminderForm> {
             ),
           ),
           const SizedBox(height: 16),
-          CardX(
-            backgroundColor: sectionBackground,
-            borderColor: sectionBorder,
+          Container(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+              borderRadius: AppTokens.radius.lg,
+              border: Border.all(
+                color: colors.outlineVariant.withValues(alpha: 0.2),
+              ),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -339,6 +413,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                         value: _dateFormat.format(_selectedDate),
                         icon: Icons.calendar_month_rounded,
                         onTap: _submitting ? null : _pickDate,
+                        fontSize: 16,
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -362,57 +437,52 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   ),
                 ],
                 const SizedBox(height: 14),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
+                Row(
                   children: [
-                    _SummaryChip(
-                      icon: Icons.today_outlined,
-                      label: _friendlyDateSummary(),
+                    Expanded(
+                      child: _SummaryChip(
+                        icon: Icons.today_outlined,
+                        label: _friendlyDateSummary(),
+                      ),
                     ),
-                    _SummaryChip(
-                      icon: Icons.access_time_filled_rounded,
-                      label: _friendlyTimeSummary(),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _SummaryChip(
+                        icon: Icons.access_time_filled_rounded,
+                        label: _friendlyTimeSummary(),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: _submitting ? null : _submit,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
-                    ),
+          if (widget.includeButtons) ...[
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                Expanded(
+                  child: SecondaryButton(
+                    label: 'Cancel',
+                    onPressed: _submitting ? null : widget.onCancel,
+                    minHeight: 48,
                   ),
-                  child: Text(_submitting
-                      ? (editing == null ? 'Saving...' : 'Updating...')
-                      : (editing == null
-                          ? 'Save reminder'
-                          : 'Update reminder')),
                 ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: _submitting ? null : widget.onCancel,
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
-                    ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: PrimaryButton(
+                    label: _submitting
+                        ? (editing == null ? 'Saving...' : 'Updating...')
+                        : (editing == null
+                            ? 'Save reminder'
+                            : 'Update reminder'),
+                    onPressed: _submitting ? null : _submit,
+                    minHeight: 48,
                   ),
-                  child: const Text('Cancel'),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );
@@ -435,7 +505,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: AppTokens.radius.xl,
               ),
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -630,44 +700,31 @@ class _FieldTile extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.onTap,
+    this.fontSize = 18,
   });
 
   final String label;
   final String value;
   final IconData icon;
   final VoidCallback? onTap;
+  final double fontSize;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final background = Color.alphaBlend(
-      colors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
-      colors.surface,
-    );
-    final border = colors.primary.withValues(alpha: isDark ? 0.28 : 0.16);
-    final iconBackground =
-        colors.primary.withValues(alpha: isDark ? 0.28 : 0.18);
-    final labelStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: colors.onSurfaceVariant,
-      fontSize: 14,
-    );
-    final valueStyle = theme.textTheme.titleMedium?.copyWith(
-      fontFamily: 'SFProRounded',
-      fontWeight: FontWeight.w700,
-      color: colors.onSurface,
-    );
-
+    
     return InkWell(
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: background,
+          color: colors.surfaceContainerHigh,
           borderRadius: AppTokens.radius.lg,
-          border: Border.all(color: border),
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: 0.3),
+          ),
         ),
         child: Row(
           children: [
@@ -675,8 +732,8 @@ class _FieldTile extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                color: iconBackground,
+                borderRadius: AppTokens.radius.md,
+                color: colors.primary.withValues(alpha: 0.16),
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: colors.primary, size: 18),
@@ -688,20 +745,30 @@ class _FieldTile extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: labelStyle,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    value,
-                    style: valueStyle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: fontSize,
+                      ),
+                      maxLines: 1,
+                    ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             Icon(
               Icons.chevron_right_rounded,
+              size: 20,
               color: colors.onSurfaceVariant.withValues(alpha: 0.6),
             ),
           ],
@@ -721,34 +788,29 @@ class _SummaryChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final background = Color.alphaBlend(
-      colors.primary.withValues(alpha: isDark ? 0.12 : 0.08),
-      colors.surface,
-    );
-    final border = colors.primary.withValues(alpha: isDark ? 0.26 : 0.16);
-    final iconTint = colors.primary;
-    final textStyle = theme.textTheme.bodyMedium?.copyWith(
-      fontWeight: FontWeight.w600,
-      color: colors.onSurface,
-    );
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: background,
+        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
         borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: border),
+        border: Border.all(
+          color: colors.outlineVariant.withValues(alpha: 0.35),
+        ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: iconTint),
+          Icon(icon, size: 18, color: colors.primary),
           const SizedBox(width: 8),
           Flexible(
             child: Text(
               label,
-              style: textStyle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

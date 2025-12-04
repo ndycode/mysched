@@ -12,5 +12,5 @@
 -dontwarn kotlin.**
 
 # Keep R8 from removing the FullscreenAlarmActivity entry points
--keep class com.example.mysched.FullscreenAlarmActivity { *; }
--keep class com.example.mysched.MainActivity { *; }
+-keep class com.ici.mysched.FullscreenAlarmActivity { *; }
+-keep class com.ici.mysched.MainActivity { *; }

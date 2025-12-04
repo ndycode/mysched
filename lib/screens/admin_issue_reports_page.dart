@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../services/admin_service.dart';
-import '../services/telemetry_service.dart';
 import '../ui/kit/kit.dart';
+
 import '../ui/theme/tokens.dart';
+import 'admin_reports_controller.dart';
 
 class ClassIssueReportsPage extends StatefulWidget {
   const ClassIssueReportsPage({super.key});
@@ -14,7 +15,8 @@ class ClassIssueReportsPage extends StatefulWidget {
 }
 
 class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
-  final AdminService _adminService = AdminService.instance;
+  late final AdminReportsController _controller;
+  static const double _kBottomNavSafePadding = 120;
 
   static const List<String> _filters = <String>[
     'all',
@@ -31,149 +33,46 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
 
   final DateFormat _timestampFormat = DateFormat('MMM d, yyyy at h:mm a');
 
-  bool _loading = true;
-  String? _error;
-  String _filter = 'all';
-  List<ClassIssueReport> _reports = const <ClassIssueReport>[];
-
-  void _toast(
-    String message, {
-    AppSnackBarType type = AppSnackBarType.info,
-  }) {
-    if (!mounted) return;
-    showAppSnackBar(context, message, type: type);
-  }
-
   @override
   void initState() {
     super.initState();
-    _bootstrap();
+    _controller = AdminReportsController();
+    _controller.bootstrap();
   }
 
-  Future<void> _bootstrap() async {
-    try {
-      await _adminService.refreshRole();
-      if (!mounted) return;
-      if (_adminService.role.value != AdminRoleState.admin) {
-        setState(() {
-          _loading = false;
-          _error = 'Admin access is required to view these reports.';
-        });
-        return;
-      }
-      await _loadReports();
-    } catch (error, stack) {
-      TelemetryService.instance.logError(
-        'admin_reports_bootstrap_failed',
-        error: error,
-        stack: stack,
-      );
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-        _error = 'Unable to verify admin access right now.';
-      });
-    }
+  void _toast(
+    String message,
+    {
+    AppSnackBarType type = AppSnackBarType.info,
   }
-
-  Future<void> _loadReports() async {
+  ) {
     if (!mounted) return;
-    setState(() {
-      _loading = true;
-      _error = null;
-    });
-    try {
-      final data = await _adminService.fetchReports(status: _filter);
-      if (!mounted) return;
-      setState(() {
-        _reports = data;
-      });
-      await _adminService.refreshNewReportCount();
-    } catch (error, stack) {
-      TelemetryService.instance.logError(
-        'admin_reports_fetch_failed',
-        error: error,
-        stack: stack,
-        data: {'filter': _filter},
-      );
-      if (!mounted) return;
-      setState(() {
-        _error = 'Unable to load reports. Pull to refresh or try again later.';
-      });
-    } finally {
-      if (mounted) {
-        setState(() {
-          _loading = false;
-        });
-      }
-    }
+    showAppSnackBar(context, message, type: type);
   }
 
   Future<void> _changeStatus(ClassIssueReport report, String status) async {
     if (status == report.status) return;
 
     String? resolutionNote = report.resolutionNote;
-    bool clearResolutionNote = false;
 
     if (status == 'resolved') {
       final note = await _promptResolutionNote(report);
-      if (note == null) return;
-      resolutionNote = note.trim();
-    } else if (report.resolutionNote != null &&
-        report.resolutionNote!.trim().isNotEmpty) {
-      clearResolutionNote = true;
-      resolutionNote = null;
+      if (note == null) return; // User cancelled
+      resolutionNote = note;
     }
 
-    final previousStatus = report.status;
-    final previousNote = report.resolutionNote;
+    final success = await _controller.changeStatus(
+      report,
+      status,
+      resolutionNote: resolutionNote,
+    );
 
-    setState(() {
-      _reports = _reports.map((entry) {
-        if (entry.id != report.id) return entry;
-        return entry.copyWith(
-          status: status,
-          resolutionNote: status == 'resolved'
-              ? resolutionNote
-              : (clearResolutionNote ? null : entry.resolutionNote),
-        );
-      }).toList();
-    });
-
-    try {
-      await _adminService.updateReportStatus(
-        report: report,
-        status: status,
-        resolutionNote: status == 'resolved' ? resolutionNote : null,
-        clearResolutionNote: clearResolutionNote,
-      );
-      if (!mounted) return;
-      if (_filter != 'all' && status != _filter) {
-        setState(() {
-          _reports = _reports.where((entry) => entry.id != report.id).toList();
-        });
-      }
+    if (success) {
       _toast(
         'Marked as ${_statusLabels[status] ?? status}.',
         type: AppSnackBarType.success,
       );
-    } catch (error, stack) {
-      TelemetryService.instance.logError(
-        'admin_report_status_failed',
-        error: error,
-        stack: stack,
-        data: {'report_id': report.id, 'status': status},
-      );
-      if (!mounted) return;
-      setState(() {
-        _reports = _reports.map((entry) {
-          if (entry.id != report.id) return entry;
-          return entry.copyWith(
-            status: previousStatus,
-            resolutionNote: previousNote,
-          );
-        }).toList();
-      });
+    } else {
       _toast(
         'Failed to update status. Please try again.',
         type: AppSnackBarType.error,
@@ -193,79 +92,158 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final topInset = MediaQuery.of(context).padding.top;
+    final media = MediaQuery.of(context);
 
-    final headerStyle = Theme.of(context).textTheme.titleMedium?.copyWith(
-          fontFamily: 'SFProRounded',
-          fontWeight: FontWeight.w700,
-          color: Theme.of(context).colorScheme.primary,
-          fontSize: 20,
-        );
-
-    final listChildren = <Widget>[
-      BrandHeader(
-        title: 'MySched',
-        showChevron: false,
-        height: 48,
-        avatarRadius: 20,
-        textStyle: headerStyle,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          color: Theme.of(context).colorScheme.primary,
-          onPressed: () => Navigator.of(context).maybePop(),
-        ),
-      ),
-      SizedBox(height: spacing.lg),
-      ..._buildPageContent(context),
-    ];
-
-    return AppScaffold(
-      screenName: 'admin_issue_reports',
-      safeArea: false,
-      body: AppBackground(
-        child: RefreshIndicator(
-          onRefresh: _loadReports,
-          child: ListView(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              topInset + spacing.xxl,
-              20,
-              spacing.xxl,
-            ),
-            physics: const AlwaysScrollableScrollPhysics(),
-            children: listChildren,
-          ),
+    final backButton = IconButton(
+      splashRadius: 22,
+      onPressed: () => Navigator.of(context).maybePop(),
+      icon: CircleAvatar(
+        radius: 16,
+        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        child: Icon(
+          Icons.arrow_back_rounded,
+          color: colors.primary,
+          size: 18,
         ),
       ),
     );
-  }
 
-  List<Widget> _buildPageContent(BuildContext context) {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
+    final hero = ScreenBrandHeader(
+      leading: backButton,
+      showChevron: false,
+    );
 
-    return [
-      ValueListenableBuilder<int>(
-        valueListenable: _adminService.newReportCount,
-        builder: (context, count, _) => _buildHeroCard(theme, count),
-      ),
-      Section(
-        title: 'Status filters',
-        subtitle: 'Narrow the list to reports that need your attention.',
-        children: [
-          _buildFilterChips(theme),
-        ],
-      ),
-      Section(
-        title: 'Reports',
-        subtitle: _reports.isEmpty
-            ? 'Keep students in sync by reviewing flagged classes here.'
-            : 'Use the overflow menu to update status or add resolution notes.',
-        spacing: spacing.lg,
-        children: _buildReportSection(theme),
-      ),
-    ];
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        if (_controller.loading &&
+            _controller.reports.isEmpty &&
+            _controller.error == null) {
+          return ScreenShell(
+            screenName: 'admin_issue_reports',
+            hero: hero,
+            sections: [
+              ScreenSection(
+                decorated: false,
+                child: Column(
+                  children: [
+                    const SkeletonCard(showAvatar: false, lineCount: 3),
+                    SizedBox(height: spacing.lg),
+                    const SkeletonList(itemCount: 3, showHeader: true),
+                  ],
+                ),
+              ),
+            ],
+            padding: EdgeInsets.fromLTRB(
+              spacing.xl,
+              media.padding.top + spacing.xxxl,
+              spacing.xl,
+              spacing.quad + _kBottomNavSafePadding,
+            ),
+            onRefresh: _controller.loadReports,
+            refreshColor: colors.primary,
+            safeArea: false,
+          );
+        }
+
+        final sections = <Widget>[];
+
+        // Hero card
+        sections.add(
+          ScreenSection(
+            decorated: false,
+            child: ValueListenableBuilder<int>(
+              valueListenable: _controller.newReportCount,
+              builder: (context, count, _) => _buildHeroCard(theme, count),
+            ),
+          ),
+        );
+
+        // Error state
+        if (_controller.error != null) {
+          sections.add(
+            ScreenSection(
+              decorated: false,
+              child: StateDisplay(
+                variant: StateVariant.error,
+                title: 'Something went wrong',
+                message: _controller.error!,
+                primaryActionLabel: 'Retry',
+                onPrimaryAction: _controller.loadReports,
+                compact: true,
+              ),
+            ),
+          );
+        }
+
+        // Filter chips
+        sections.add(
+          ScreenSection(
+            title: 'Status filters',
+            subtitle: 'Narrow the list to reports that need your attention.',
+            decorated: false,
+            child: _buildFilterChips(theme),
+          ),
+        );
+
+        // Reports section
+        if (_controller.error == null) {
+          if (_controller.reports.isEmpty) {
+            sections.add(
+              ScreenSection(
+                title: 'Reports',
+                subtitle: 'Keep students in sync by reviewing flagged classes here.',
+                decorated: false,
+                child: StateDisplay(
+                  variant: StateVariant.empty,
+                  icon: Icons.flag_outlined,
+                  title: 'No reports yet',
+                  message:
+                      'Students haven\'t flagged any synced classes. Check back later.',
+                  primaryActionLabel: 'Retry',
+                  onPrimaryAction: _controller.loadReports,
+                  compact: true,
+                ),
+              ),
+            );
+          } else {
+            sections.add(
+              ScreenSection(
+                title: 'Reports',
+                subtitle: 'Use the overflow menu to update status or add resolution notes.',
+                decorated: false,
+                child: Column(
+                  children: _controller.reports
+                      .map((report) => Padding(
+                            padding: EdgeInsets.only(bottom: spacing.lg),
+                            child: _buildReportCard(theme, report),
+                          ))
+                      .toList(),
+                ),
+              ),
+            );
+          }
+        }
+
+        return ScreenShell(
+          screenName: 'admin_issue_reports',
+          hero: hero,
+          sections: sections,
+          padding: EdgeInsets.fromLTRB(
+            spacing.xl,
+            media.padding.top + spacing.xxxl,
+            spacing.xl,
+            spacing.quad + _kBottomNavSafePadding,
+          ),
+          onRefresh: _controller.loadReports,
+          refreshColor: colors.primary,
+          safeArea: false,
+        );
+      },
+    );
   }
 
   Widget _buildHeroCard(ThemeData theme, int newCount) {
@@ -283,10 +261,25 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         ? 'All caught up'
         : '$newCount new report${newCount == 1 ? '' : 's'}';
 
-    return CardX(
-      backgroundColor: background,
-      borderColor: Colors.transparent,
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -339,60 +332,20 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     );
   }
 
-  List<Widget> _buildReportSection(ThemeData theme) {
-    final spacing = AppTokens.spacing;
-
-    if (_loading && _reports.isEmpty && _error == null) {
-      return [
-        CardX(
-          borderColor: Colors.transparent,
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: spacing.lg),
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-        ),
-      ];
-    }
-
-    if (_error != null) {
-      return [
-        ErrorState(
-          title: 'Something went wrong',
-          message: _error!,
-          onRetry: _loadReports,
-        ),
-      ];
-    }
-
-    if (_reports.isEmpty) {
-      return [
-        EmptyState(
-          icon: Icons.flag_outlined,
-          title: 'No reports yet',
-          message:
-              'Students haven\'t flagged any synced classes. Check back later.',
-        ),
-      ];
-    }
-
-    return _reports.map((report) => _buildReportCard(theme, report)).toList();
-  }
-
   Widget _buildFilterChips(ThemeData theme) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final chips = <Widget>[];
 
     for (final value in _filters) {
-      final bool selected = _filter == value;
+      final bool selected = _controller.filter == value;
       chips.add(
         ChoiceChip(
           label: Text(_filterLabel(value)),
           selected: selected,
           onSelected: (bool active) {
-            if (!active || value == _filter) return;
-            setState(() => _filter = value);
-            _loadReports();
+            if (!active || value == _controller.filter) return;
+            _controller.setFilter(value);
           },
           selectedColor: colors.primary.withValues(alpha: 0.16),
           backgroundColor: colors.surface,
@@ -404,12 +357,20 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       );
     }
 
-    return CardX(
-      borderColor: Colors.transparent,
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.md),
-      backgroundColor: theme.brightness == Brightness.dark
-          ? colors.surfaceContainerHigh
-          : colors.surfaceContainerHighest,
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : colors.surfaceContainerHighest,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+      ),
       child: Wrap(
         spacing: spacing.sm,
         runSpacing: spacing.sm,
@@ -452,8 +413,27 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       );
     }
 
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -562,6 +542,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               report.resolutionNote!.trim(),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

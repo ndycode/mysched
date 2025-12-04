@@ -8,10 +8,12 @@ import '../app/routes.dart';
 import '../services/notif_scheduler.dart';
 import '../services/schedule_api.dart';
 import '../services/profile_cache.dart';
+import '../services/telemetry_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
 import '../ui/theme/card_styles.dart';
 import '../utils/nav.dart';
+import '../utils/schedule_overlap.dart';
 
 bool isValidClassTimeRange(TimeOfDay start, TimeOfDay end) {
   final startMinutes = start.hour * 60 + start.minute;
@@ -29,165 +31,21 @@ class AddClassPage extends StatefulWidget {
   State<AddClassPage> createState() => _AddClassPageState();
 }
 
-class AddClassSheet extends StatelessWidget {
-  const AddClassSheet({
-    super.key,
-    required this.api,
-    this.initialClass,
-  });
-
-  final ScheduleApi api;
-  final ClassItem? initialClass;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final maxHeight = media.size.height -
-        (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
-
-    return SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 560,
-            maxHeight: maxHeight.clamp(520.0, double.infinity),
-          ),
-          child: Container(
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: cardBackground,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(color: borderColor),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.shadowColor.withValues(
-                    alpha: theme.brightness == Brightness.dark ? 0.35 : 0.18,
-                  ),
-                  blurRadius: 28,
-                  offset: const Offset(0, 20),
-                ),
-              ],
-            ),
-            child: Material(
-              type: MaterialType.transparency,
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: Stack(
-                        children: [
-                          SingleChildScrollView(
-                            padding: EdgeInsets.fromLTRB(
-                              spacing.xl,
-                              spacing.xl,
-                              spacing.xl,
-                              media.viewInsets.bottom +
-                                  media.padding.bottom +
-                                  spacing.xl,
-                            ),
-                            child: AddClassForm(
-                              api: api,
-                              initialClass: initialClass,
-                              isSheet: true,
-                              onCancel: () => Navigator.of(context).pop(false),
-                              onSaved: (created) =>
-                                  Navigator.of(context).pop(created),
-                            ),
-                          ),
-                          Positioned(
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            child: IgnorePointer(
-                              child: Container(
-                                height: spacing.lg,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topCenter,
-                                    end: Alignment.bottomCenter,
-                                    colors: [
-                                      cardBackground,
-                                      cardBackground.withValues(alpha: 0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: IgnorePointer(
-                              child: Container(
-                                height: spacing.lg,
-                                decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                    begin: Alignment.bottomCenter,
-                                    end: Alignment.topCenter,
-                                    colors: [
-                                      cardBackground,
-                                      cardBackground.withValues(alpha: 0.0),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _AddClassPageState extends State<AddClassPage> with RouteAware {
-  final _formKey = GlobalKey<_AddClassFormState>();
-
-  String? _studentName;
-  String? _studentEmail;
+  String _studentName = 'Student';
+  String _studentEmail = '';
   String? _avatarUrl;
   bool _profileHydrated = false;
-  VoidCallback? _profileListener;
-  PageRoute<dynamic>? _routeSubscription;
+  Route<dynamic>? _routeSubscription;
 
   bool get _isEditing => widget.initialClass != null;
+
+  final _formKey = GlobalKey<_AddClassFormState>();
 
   @override
   void initState() {
     super.initState();
     _loadProfile();
-    _profileListener = () {
-      final profile = ProfileCache.notifier.value;
-      _applyProfile(profile);
-    };
-    ProfileCache.notifier.addListener(_profileListener!);
-    _applyProfile(ProfileCache.notifier.value);
-  }
-
-  @override
-  void dispose() {
-    if (_profileListener != null) {
-      ProfileCache.notifier.removeListener(_profileListener!);
-    }
-    if (_routeSubscription != null) {
-      routeObserver.unsubscribe(this);
-      _routeSubscription = null;
-    }
-    super.dispose();
   }
 
   @override
@@ -203,11 +61,26 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
     }
   }
 
+  @override
+  void dispose() {
+    if (_routeSubscription != null) {
+      routeObserver.unsubscribe(this);
+    }
+    super.dispose();
+  }
+
+  @override
+  void didPopNext() {
+    // Refresh profile when returning from account page
+    _loadProfile(refresh: true);
+  }
+
   Future<void> _loadProfile({bool refresh = false}) async {
     try {
       final profile = await ProfileCache.load(forceRefresh: refresh);
       _applyProfile(profile);
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('add_class_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -223,8 +96,8 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
       }
       return;
     }
-    final name = profile.name;
-    final email = profile.email;
+    final name = profile.name ?? 'Student';
+    final email = profile.email ?? '';
     final avatar = profile.avatarUrl;
     final changed = name != _studentName ||
         email != _studentEmail ||
@@ -248,7 +121,6 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
   // ===== Reminders-style Menu (nav bar actions) =====
   Widget _buildMenuButton({Color? iconColor}) {
     return PopupMenuButton<_ClassMenuAction>(
-      tooltip: 'Class options',
       position: PopupMenuPosition.under,
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.md,
@@ -396,6 +268,156 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
   }
 }
 
+class AddClassSheet extends StatefulWidget {
+  const AddClassSheet({
+    super.key,
+    required this.api,
+    this.initialClass,
+  });
+
+  final ScheduleApi api;
+  final ClassItem? initialClass;
+
+  @override
+  State<AddClassSheet> createState() => _AddClassSheetState();
+}
+
+class _AddClassSheetState extends State<AddClassSheet> {
+  final _formKey = GlobalKey<_AddClassFormState>();
+  bool _submitting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
+    final cardBackground = elevatedCardBackground(theme, solid: true);
+    final isEditing = widget.initialClass != null;
+
+    return SafeArea(
+      child: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 520,
+            maxHeight: media.size.height * 0.85,
+          ),
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ClipRRect(
+                borderRadius: AppTokens.radius.xl,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: EdgeInsets.all(spacing.xl),
+                        child: AddClassForm(
+                          key: _formKey,
+                          api: widget.api,
+                          initialClass: widget.initialClass,
+                          isSheet: true,
+                          includeButtons: false,
+                          onCancel: () => Navigator.of(context).maybePop(),
+                          onSaved: (created) =>
+                              Navigator.of(context).pop(created),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      padding: EdgeInsets.fromLTRB(
+                        spacing.xl,
+                        spacing.md,
+                        spacing.xl,
+                        spacing.xl + media.viewInsets.bottom,
+                      ),
+                      decoration: BoxDecoration(
+                        color: cardBackground,
+                        border: Border(
+                          top: BorderSide(
+                            color: theme.colorScheme.outlineVariant
+                                .withValues(alpha: 0.3),
+                          ),
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: _submitting
+                                  ? null
+                                  : () {
+                                      setState(() => _submitting = true);
+                                      _formKey.currentState
+                                          ?.triggerSave()
+                                          .whenComplete(() {
+                                        if (mounted) {
+                                          setState(() => _submitting = false);
+                                        }
+                                      });
+                                    },
+                              style: FilledButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppTokens.radius.xl,
+                                ),
+                              ),
+                              child: Text(
+                                _submitting
+                                    ? (isEditing ? 'Updating...' : 'Saving...')
+                                    : (isEditing
+                                        ? 'Update class'
+                                        : 'Save class'),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).maybePop(),
+                              style: OutlinedButton.styleFrom(
+                                minimumSize: const Size.fromHeight(48),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: AppTokens.radius.xl,
+                                ),
+                              ),
+                              child: const Text('Cancel'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _RemindersStyleShell extends StatelessWidget {
   const _RemindersStyleShell({
     required this.title,
@@ -417,7 +439,7 @@ class _RemindersStyleShell extends StatelessWidget {
     final borderColor = elevatedCardBorder(theme);
 
     return CardX(
-      padding: const EdgeInsets.all(20),
+      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
       backgroundColor: cardBackground,
       borderColor: borderColor,
       child: Column(
@@ -484,7 +506,6 @@ class _RemindersStyleShell extends StatelessWidget {
   }
 }
 
-// ===== FORM (unchanged logic; added triggerSave/triggerAutofill for menu) =====
 class AddClassForm extends StatefulWidget {
   const AddClassForm({
     super.key,
@@ -493,6 +514,7 @@ class AddClassForm extends StatefulWidget {
     required this.onCancel,
     required this.onSaved,
     required this.isSheet,
+    this.includeButtons = true,
   });
 
   final ScheduleApi api;
@@ -500,6 +522,7 @@ class AddClassForm extends StatefulWidget {
   final VoidCallback onCancel;
   final ValueChanged<bool> onSaved;
   final bool isSheet;
+  final bool includeButtons;
 
   bool get isEditing => initialClass != null;
 
@@ -517,6 +540,7 @@ class _AddClassFormState extends State<AddClassForm> {
   bool _loadingInstructors = true;
   String? _instructorError;
   String? _selectedInstructorId;
+  String? _selectedInstructorAvatar;
   String? _initialInstructorName;
   bool _instructorManuallyEdited = false;
 
@@ -684,16 +708,26 @@ class _AddClassFormState extends State<AddClassForm> {
     }
   }
 
-  void _fillWithTestData() {
+  Future<void> _fillWithTestData() async {
     final now = DateTime.now();
     final startDate = now.add(const Duration(minutes: 6));
     final endDate = startDate.add(const Duration(hours: 1));
     final startTime = TimeOfDay(hour: startDate.hour, minute: startDate.minute);
     final endTime = TimeOfDay(hour: endDate.hour, minute: endDate.minute);
 
+    // Fetch random class from DB
+    final randomClass = await widget.api.fetchRandomClass();
+    
+    if (!mounted) return;
+
     setState(() {
-      _title.text = 'Test class';
-      _room.text = 'Room 203';
+      if (randomClass != null) {
+        _title.text = randomClass.title ?? randomClass.code ?? 'Test class';
+        _room.text = randomClass.room ?? 'Room 203';
+      } else {
+        _title.text = 'Test class';
+        _room.text = 'Room 203';
+      }
       _day = startDate.weekday;
       _start = startTime;
       _end = endTime;
@@ -718,18 +752,48 @@ class _AddClassFormState extends State<AddClassForm> {
       return;
     }
 
+    final instructorName = _instructorText.text.trim();
+    final trimmedTitle = _title.text.trim();
+    final trimmedRoom = _room.text.trim();
+    final sanitizedInstructor =
+        instructorName.isEmpty ? null : instructorName;
+    final day = _day;
+    final start = _format(_start);
+    final end = _format(_end);
+    final room = trimmedRoom.isEmpty ? null : trimmedRoom;
+
+    final cached = widget.api.getCachedClasses() ?? const <ClassItem>[];
+    final proposed = ClassItem(
+      id: widget.initialClass?.id ?? -1,
+      day: day,
+      start: start,
+      end: end,
+      title: trimmedTitle,
+      code: widget.initialClass?.code,
+      room: room,
+      instructor: sanitizedInstructor,
+      enabled: true,
+      isCustom: true,
+    );
+    for (final existing in cached) {
+      if (!existing.enabled) continue;
+      if (widget.initialClass != null && existing.id == widget.initialClass!.id) {
+        continue;
+      }
+      if (existing.day != day) continue;
+      if (classesOverlap(proposed, existing)) {
+        final conflictLabel = existing.title ?? existing.code ?? 'another class';
+        showAppSnackBar(
+          context,
+          'This class overlaps with $conflictLabel. Adjust the time or day.',
+          type: AppSnackBarType.error,
+        );
+        return;
+      }
+    }
+
     setState(() => _submitting = true);
     try {
-      final instructorName = _instructorText.text.trim();
-      final trimmedTitle = _title.text.trim();
-      final trimmedRoom = _room.text.trim();
-      final sanitizedInstructor =
-          instructorName.isEmpty ? null : instructorName;
-      final day = _day;
-      final start = _format(_start);
-      final end = _format(_end);
-      final room = trimmedRoom.isEmpty ? null : trimmedRoom;
-
       if (_isEditing) {
         final existing = widget.initialClass;
         if (existing == null) {
@@ -743,6 +807,7 @@ class _AddClassFormState extends State<AddClassForm> {
           title: trimmedTitle,
           room: room,
           instructor: sanitizedInstructor,
+          instructorAvatar: _selectedInstructorAvatar,
         );
       } else {
         await widget.api.addCustomClass(
@@ -752,9 +817,16 @@ class _AddClassFormState extends State<AddClassForm> {
           title: trimmedTitle,
           room: room,
           instructor: sanitizedInstructor,
+          instructorAvatar: _selectedInstructorAvatar,
         );
       }
-      await NotifScheduler.resync();
+      
+      // Ensure the new class is visible to the scheduler
+      await widget.api.refreshMyClasses();
+      // Short delay to allow DB propagation if needed
+      await Future.delayed(const Duration(milliseconds: 500));
+      
+      await NotifScheduler.resync(api: widget.api);
       if (!mounted) return;
       widget.onSaved(true);
     } catch (e) {
@@ -874,9 +946,11 @@ class _AddClassFormState extends State<AddClassForm> {
                     if (selected != null) {
                       _instructorManuallyEdited = false;
                       _instructorText.text = selected.name;
+                      _selectedInstructorAvatar = selected.avatarUrl;
                     } else {
                       _instructorText.clear();
                       _instructorManuallyEdited = false;
+                      _selectedInstructorAvatar = null;
                     }
                   });
                 },
@@ -900,6 +974,7 @@ class _AddClassFormState extends State<AddClassForm> {
               if (trimmed.isEmpty) {
                 _instructorManuallyEdited = false;
                 _selectedInstructorId = null;
+                _selectedInstructorAvatar = null;
                 return;
               }
               _instructorManuallyEdited = true;
@@ -907,6 +982,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 final selected = _findInstructorById(_selectedInstructorId);
                 if (selected == null || selected.name.trim() != trimmed) {
                   _selectedInstructorId = null;
+                  _selectedInstructorAvatar = null;
                 }
               }
             });
@@ -1013,9 +1089,29 @@ class _AddClassFormState extends State<AddClassForm> {
     }
 
     formSections.addAll([
-      CardX(
-        backgroundColor: colors.surfaceContainerHigh,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        decoration: BoxDecoration(
+          color: theme.brightness == Brightness.dark
+              ? colors.surfaceContainerHigh
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: theme.brightness == Brightness.dark
+                ? colors.outline.withValues(alpha: 0.12)
+                : const Color(0xFFE5E5E5),
+            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          ),
+          boxShadow: theme.brightness == Brightness.dark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1031,7 +1127,6 @@ class _AddClassFormState extends State<AddClassForm> {
                 if (kDebugMode && !isEditing)
                   IconButton(
                     icon: const Icon(Icons.auto_fix_high_rounded),
-                    tooltip: 'Auto-fill sample data',
                     onPressed: _submitting ? null : _fillWithTestData,
                   ),
               ],
@@ -1054,9 +1149,29 @@ class _AddClassFormState extends State<AddClassForm> {
         ),
       ),
       const SizedBox(height: 16),
-      CardX(
-        backgroundColor: colors.surfaceContainerHigh,
+      Container(
         padding: const EdgeInsets.fromLTRB(22, 20, 22, 20),
+        decoration: BoxDecoration(
+          color: theme.brightness == Brightness.dark
+              ? colors.surfaceContainerHigh
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: theme.brightness == Brightness.dark
+                ? colors.outline.withValues(alpha: 0.12)
+                : const Color(0xFFE5E5E5),
+            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          ),
+          boxShadow: theme.brightness == Brightness.dark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1065,21 +1180,35 @@ class _AddClassFormState extends State<AddClassForm> {
               subtitle: 'Tell us when this class usually happens',
             ),
             const SizedBox(height: 10),
-            DropdownButtonFormField<int>(
-              initialValue: _day,
-              decoration: decorationFor('Day of the week'),
-              items: const [
-                DropdownMenuItem<int>(value: 1, child: Text('Monday')),
-                DropdownMenuItem<int>(value: 2, child: Text('Tuesday')),
-                DropdownMenuItem<int>(value: 3, child: Text('Wednesday')),
-                DropdownMenuItem<int>(value: 4, child: Text('Thursday')),
-                DropdownMenuItem<int>(value: 5, child: Text('Friday')),
-                DropdownMenuItem<int>(value: 6, child: Text('Saturday')),
-                DropdownMenuItem<int>(value: 7, child: Text('Sunday')),
-              ],
-              onChanged: (value) {
-                if (value != null) setState(() => _day = value);
-              },
+            InkWell(
+              onTap: _submitting ? null : _pickDay,
+              borderRadius: AppTokens.radius.lg,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHigh,
+                  borderRadius: AppTokens.radius.lg,
+                  border: Border.all(
+                    color: colors.outlineVariant.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _scopeLabel(_day),
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                    Icon(
+                      Icons.arrow_drop_down_rounded,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ],
+                ),
+              ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -1104,17 +1233,20 @@ class _AddClassFormState extends State<AddClassForm> {
               ],
             ),
             const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
+            Row(
               children: [
-                _ScopeChip(
-                  icon: Icons.calendar_month_rounded,
-                  label: _scopeLabel(_day),
+                Expanded(
+                  child: _ScopeChip(
+                    icon: Icons.calendar_month_rounded,
+                    label: _scopeLabel(_day),
+                  ),
                 ),
-                _ScopeChip(
-                  icon: Icons.schedule_rounded,
-                  label: '${_format(_start)} - ${_format(_end)}',
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _ScopeChip(
+                    icon: Icons.schedule_rounded,
+                    label: '${_format(_start)} - ${_format(_end)}',
+                  ),
                 ),
               ],
             ),
@@ -1122,9 +1254,29 @@ class _AddClassFormState extends State<AddClassForm> {
         ),
       ),
       const SizedBox(height: 16),
-      CardX(
-        backgroundColor: colors.surfaceContainerHigh,
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        decoration: BoxDecoration(
+          color: theme.brightness == Brightness.dark
+              ? colors.surfaceContainerHigh
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: theme.brightness == Brightness.dark
+                ? colors.outline.withValues(alpha: 0.12)
+                : const Color(0xFFE5E5E5),
+            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          ),
+          boxShadow: theme.brightness == Brightness.dark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1137,40 +1289,42 @@ class _AddClassFormState extends State<AddClassForm> {
           ],
         ),
       ),
-      const SizedBox(height: 20),
-      Row(
-        children: [
-          Expanded(
-            child: FilledButton(
-              onPressed: _submitting ? null : _save,
-              style: FilledButton.styleFrom(
-                minimumSize: const Size.fromHeight(46),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
+      if (widget.includeButtons) ...[
+        const SizedBox(height: 20),
+        Row(
+          children: [
+            Expanded(
+              child: FilledButton(
+                onPressed: _submitting ? null : _save,
+                style: FilledButton.styleFrom(
+                  minimumSize: const Size.fromHeight(46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppTokens.radius.xl,
+                  ),
+                ),
+                child: Text(
+                  _submitting
+                      ? (isEditing ? 'Updating...' : 'Saving...')
+                      : (isEditing ? 'Update class' : 'Save class'),
                 ),
               ),
-              child: Text(
-                _submitting
-                    ? (isEditing ? 'Updating...' : 'Saving...')
-                    : (isEditing ? 'Update class' : 'Save class'),
-              ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: OutlinedButton(
-              onPressed: _submitting ? null : widget.onCancel,
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size.fromHeight(46),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: _submitting ? null : widget.onCancel,
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(46),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppTokens.radius.xl,
+                  ),
                 ),
+                child: const Text('Cancel'),
               ),
-              child: const Text('Cancel'),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
+      ],
     ]);
 
     return Form(
@@ -1181,6 +1335,97 @@ class _AddClassFormState extends State<AddClassForm> {
         children: formSections,
       ),
     );
+  }
+  Future<void> _pickDay() async {
+    final theme = Theme.of(context);
+    final spacing = AppTokens.spacing;
+
+    final picked = await showDialog<int>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: spacing.edgeInsetsAll(spacing.lg),
+          child: CardX(
+            padding: EdgeInsets.zero,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  child: Text(
+                    'Select day',
+                    style: theme.textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(7, (index) {
+                        final dayValue = index + 1;
+                        final isSelected = dayValue == _day;
+                        return InkWell(
+                          onTap: () => Navigator.of(context).pop(dayValue),
+                          child: Padding(
+                            padding: spacing.edgeInsetsSymmetric(
+                              horizontal: spacing.xl,
+                              vertical: spacing.md,
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _scopeLabel(dayValue),
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      fontWeight: isSelected
+                                          ? FontWeight.w600
+                                          : FontWeight.w400,
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ),
+                                if (isSelected)
+                                  Icon(
+                                    Icons.check_rounded,
+                                    color: theme.colorScheme.primary,
+                                    size: 20,
+                                  ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: spacing.edgeInsetsAll(spacing.md),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: const Text('Cancel'),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() => _day = picked);
+    }
   }
 }
 
@@ -1205,7 +1450,7 @@ class _TimeField extends StatelessWidget {
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
           borderRadius: AppTokens.radius.lg,
@@ -1216,14 +1461,14 @@ class _TimeField extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 32,
+              height: 32,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppTokens.radius.md,
                 color: colors.primary.withValues(alpha: 0.16),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: colors.primary, size: 20),
+              child: Icon(icon, color: colors.primary, size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1232,22 +1477,30 @@ class _TimeField extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: theme.textTheme.bodySmall?.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    value,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                  const SizedBox(height: 2),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                      maxLines: 1,
                     ),
                   ),
                 ],
               ),
             ),
+            const SizedBox(width: 8),
             Icon(
               Icons.chevron_right_rounded,
+              size: 20,
               color: colors.onSurfaceVariant.withValues(alpha: 0.6),
             ),
           ],
@@ -1311,6 +1564,7 @@ class _ScopeChip extends StatelessWidget {
         ),
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: colors.primary),
@@ -1321,6 +1575,7 @@ class _ScopeChip extends StatelessWidget {
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

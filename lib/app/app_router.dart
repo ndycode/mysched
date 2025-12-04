@@ -9,8 +9,9 @@ import '../screens/login_page.dart';
 import '../screens/register_page.dart';
 import '../screens/verify_email_page.dart';
 import '../screens/reminders_page.dart';
-import '../ui/theme/motion.dart';
+import '../screens/style_guide_page.dart';
 import '../utils/nav.dart';
+import '../utils/telemetry_navigator_observer.dart';
 import 'bootstrap_gate.dart';
 import 'root_nav.dart';
 import 'routes.dart';
@@ -114,6 +115,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: AppRoutes.deleteAccount,
       builder: (context, state) => const DeleteAccountPage(),
+    ),
+    GoRoute(
+      path: AppRoutes.styleGuide,
+      builder: (context, state) => const StyleGuidePage(),
     ),
   ],
 );

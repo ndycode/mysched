@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/tokens.dart';
+
 /// Rounded avatar used in the dashboard and top-level screens.
 class HeroAvatar extends StatelessWidget {
   const HeroAvatar({
@@ -20,16 +22,19 @@ class HeroAvatar extends StatelessWidget {
     final theme = Theme.of(context);
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
     final diameter = radius * 2;
+    final colors = theme.brightness == Brightness.dark
+        ? AppTokens.darkColors
+        : AppTokens.lightColors;
     final decoration = BoxDecoration(
       shape: BoxShape.circle,
       gradient: hasImage
           ? null
-          : const LinearGradient(
+          : LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                Color(0xFF95BAFF),
-                Color(0xFF6FB7FF),
+                colors.avatarGradientStart,
+                colors.avatarGradientEnd,
               ],
             ),
       color:

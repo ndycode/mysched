@@ -88,9 +88,9 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
-    final viewInsets = MediaQuery.viewInsetsOf(context);
     final code = (widget.section['code'] ?? '').toString();
 
     final grouped = _groupByDay(widget.classes);
@@ -133,99 +133,162 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: 520,
-            maxHeight: media.size.height * 0.86,
+            maxHeight: media.size.height * 0.78,
           ),
           child: Container(
-            margin: EdgeInsets.fromLTRB(
-              spacing.xl,
-              media.padding.top + spacing.xl,
-              spacing.xl,
-              media.padding.bottom + viewInsets.bottom + spacing.xl,
-            ),
+            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             decoration: BoxDecoration(
-              color: cardBackground,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(color: borderColor),
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.shadowColor.withValues(
-                    alpha: theme.brightness == Brightness.dark ? 0.35 : 0.18,
-                  ),
-                  blurRadius: 28,
-                  offset: const Offset(0, 20),
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
                 ),
               ],
             ),
             child: Material(
               type: MaterialType.transparency,
-              child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(
-                  spacing.xl,
-                  spacing.xl,
-                  spacing.xl,
-                  spacing.xl,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    _ImportHeader(
-                      helper:
-                          'Toggle classes you want to keep before adding them to MySched.',
-                      onClose: () => Navigator.of(context).pop(),
-                    ),
-                    SizedBox(height: spacing.lg),
-                    _SectionCard(
-                      title: 'Section $code',
-                      subtitle: _sectionDetails(),
-                      icon: Icons.event_note_rounded,
-                    ),
-                    if (_error != null) ...[
-                      SizedBox(height: spacing.lg),
-                      ErrorState(
-                        title: 'Import failed',
-                        message: _error!,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(
+                        spacing.xl,
+                        spacing.xl,
+                        spacing.xl,
+                        spacing.lg,
                       ),
-                    ],
-                    SizedBox(height: spacing.lg),
-                    for (final day in dayKeys) ...[
-                      _DayToggleCard(
-                        dayLabel: _dayName(day),
-                        entries: importGroups[day] ?? const [],
-                        enabledMap: _enabled,
-                        saving: _saving,
-                        highlightClassId: highlightClassId,
-                        onToggle: (classId, value) {
-                          setState(() => _enabled[classId] = value);
-                        },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _ImportHeader(
+                            helper:
+                                'Toggle classes you want to keep before adding them to MySched.',
+                            onClose: () => Navigator.of(context).pop(),
+                          ),
+                          SizedBox(height: spacing.lg),
+                          _SectionCard(
+                            title: 'Section $code',
+                            subtitle: _sectionDetails(),
+                            icon: Icons.event_note_rounded,
+                          ),
+                          if (_error != null) ...[
+                            SizedBox(height: spacing.lg),
+                            StateDisplay(
+                              variant: StateVariant.error,
+                              title: 'Import failed',
+                              message: _error!,
+                              primaryActionLabel: 'Retry import',
+                              onPrimaryAction: _saving ? null : _proceed,
+                              secondaryActionLabel: 'Retake',
+                              onSecondaryAction: _saving
+                                  ? null
+                                  : () => Navigator.of(context)
+                                      .pop(const ScheduleImportOutcome.retake()),
+                              compact: true,
+                            ),
+                          ],
+                          SizedBox(height: spacing.lg),
+                          Container(
+                            padding: spacing.edgeInsetsAll(spacing.xl),
+                            decoration: BoxDecoration(
+                              color: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                              borderRadius: AppTokens.radius.xl,
+                              border: Border.all(
+                                color: colors.outlineVariant.withValues(alpha: 0.2),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                for (var i = 0; i < dayKeys.length; i++) ...[
+                                  _DayToggleCard(
+                                    dayLabel: _dayName(dayKeys[i]),
+                                    entries: importGroups[dayKeys[i]] ?? const [],
+                                    enabledMap: _enabled,
+                                    saving: _saving,
+                                    highlightClassId: highlightClassId,
+                                    onToggle: (classId, value) {
+                                      setState(() => _enabled[classId] = value);
+                                    },
+                                  ),
+                                  if (i != dayKeys.length - 1) SizedBox(height: spacing.quad),
+                                ],
+                              ],
+                            ),
+                          ),
+                        ],
                       ),
-                      SizedBox(height: spacing.lg),
-                    ],
-                    FilledButton(
-                      onPressed: _saving ? null : _proceed,
-                      style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppTokens.radius.xl,
+                    ),
+                  ),
+                  // Sticky buttons at bottom
+                  Container(
+                    padding: EdgeInsets.fromLTRB(
+                      spacing.xl,
+                      spacing.md,
+                      spacing.xl,
+                      spacing.xl,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cardBackground,
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: AppTokens.radius.xl.bottomLeft,
+                        bottomRight: AppTokens.radius.xl.bottomRight,
+                      ),
+                      border: Border(
+                        top: BorderSide(
+                          color: borderColor.withValues(alpha: 0.5),
+                          width: 1,
                         ),
                       ),
-                      child: Text(_saving ? 'Saving...' : 'Import schedule'),
                     ),
-                    SizedBox(height: spacing.md),
-                    OutlinedButton(
-                      onPressed: _saving
-                          ? null
-                          : () => Navigator.of(context)
-                              .pop(const ScheduleImportOutcome.retake()),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppTokens.radius.xl,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: PrimaryButton(
+                            onPressed: _saving ? null : _proceed,
+                            label: _saving ? 'Saving...' : 'Import schedule',
+                            leading: _saving
+                                ? SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        colors.onPrimary,
+                                      ),
+                                    ),
+                                  )
+                                : null,
+                            minHeight: 48,
+                          ),
                         ),
-                      ),
-                      child: const Text('Retake'),
+                        SizedBox(width: spacing.md),
+                        Expanded(
+                          child: SecondaryButton(
+                            onPressed: _saving
+                                ? null
+                                : () => Navigator.of(context)
+                                    .pop(const ScheduleImportOutcome.retake()),
+                            label: 'Retake',
+                            minHeight: 48,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -291,16 +354,27 @@ class _ImportHeader extends StatelessWidget {
       children: [
         Row(
           children: [
-            IconButton(
-              icon: const Icon(Icons.close_rounded),
-              onPressed: onClose,
+            PressableScale(
+              onTap: onClose,
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: 0.08),
+                  borderRadius: AppTokens.radius.xl,
+                ),
+                child: Icon(
+                  Icons.close_rounded,
+                  size: 18,
+                  color: colors.primary,
+                ),
+              ),
             ),
             Expanded(
               child: Text(
                 'Import schedule',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+                style: AppTokens.typography.title.copyWith(
+                  color: colors.onSurface,
                 ),
               ),
             ),
@@ -340,7 +414,7 @@ class _SectionCard extends StatelessWidget {
     return CardX(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
       backgroundColor: colors.surfaceContainerHighest.withValues(
-        alpha: theme.brightness == Brightness.dark ? 0.6 : 0.95,
+        alpha: theme.brightness == Brightness.dark ? 0.3 : 0.5,
       ),
       child: Row(
         children: [
@@ -404,87 +478,6 @@ class _ImportClass {
   final String? instructorAvatar;
 }
 
-class _ImportDatePill extends StatelessWidget {
-  const _ImportDatePill({
-    required this.dayLabel,
-    required this.dateLabel,
-    required this.accent,
-    this.labelColor,
-  });
-
-  final String? dayLabel;
-  final String? dateLabel;
-  final Color accent;
-  final Color? labelColor;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final background = accent.withValues(alpha: 0.2);
-    final dayTextColor =
-        labelColor ?? Theme.of(context).colorScheme.onSurfaceVariant;
-    return Container(
-      width: 64,
-      padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            (dayLabel ?? '').isEmpty ? 'DAY' : dayLabel!,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: dayTextColor,
-              letterSpacing: 0.8,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            (dateLabel ?? '').isEmpty ? '--' : dateLabel!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
-              fontSize: 12,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ImportLeadBadge extends StatelessWidget {
-  const _ImportLeadBadge({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final background = color.withValues(alpha: isDark ? 0.28 : 0.16);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
-          color: color,
-        ),
-      ),
-    );
-  }
-}
 
 class _ImportInstructorRow extends StatelessWidget {
   const _ImportInstructorRow({
@@ -650,34 +643,44 @@ class _DayToggleCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return CardX(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-      backgroundColor: colors.surfaceContainerHigh,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            dayLabel,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Section header matching schedules page
+        Text(
+          dayLabel,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            fontSize: 16,
+            color: colors.primary,
+          ),
+        ),
+        SizedBox(height: spacing.xs + 2),
+        Container(
+          height: 1,
+          decoration: BoxDecoration(
+            color: colors.outlineVariant.withValues(
+              alpha: theme.brightness == Brightness.dark ? 0.24 : 0.12,
+            ),
+            borderRadius: AppTokens.radius.pill,
+          ),
+        ),
+        SizedBox(height: spacing.md),
+        // Class tiles
+        for (final entry in entries)
+          Padding(
+            padding: EdgeInsets.only(
+              bottom: entry == entries.last ? 0 : spacing.md,
+            ),
+            child: _ImportClassTile(
+              entry: entry,
+              enabled: enabledMap[entry.id] ?? true,
+              saving: saving,
+              highlight: highlightClassId == entry.id,
+              onToggle: (value) => onToggle(entry.id, value),
             ),
           ),
-          SizedBox(height: spacing.md),
-          for (final entry in entries)
-            Padding(
-              padding: EdgeInsets.only(
-                bottom: entry == entries.last ? 0 : spacing.sm,
-              ),
-              child: _ImportClassTile(
-                entry: entry,
-                enabled: enabledMap[entry.id] ?? true,
-                saving: saving,
-                highlight: highlightClassId == entry.id,
-                onToggle: (value) => onToggle(entry.id, value),
-              ),
-            ),
-        ],
-      ),
+      ],
     );
   }
 }
@@ -701,114 +704,189 @@ class _ImportClassTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     final now = DateTime.now();
     final disabled = !enabled;
-    final bool isHighlighted = highlight && !disabled;
+    final bool isNext = highlight && !disabled;
     final nextDate = _nextDateForDay(entry.day, now);
+    
     final dayLabel = nextDate == null
         ? _weekdayAbbrev(entry.day)
         : DateFormat('EEE').format(nextDate).toUpperCase();
     final dateLabel =
-        nextDate == null ? null : DateFormat('MMM d').format(nextDate);
+        nextDate == null ? '--' : DateFormat('MMM d').format(nextDate);
+        
     final timeLabel = _formatRange(entry.startLabel, entry.endLabel);
     final location = entry.room.trim();
     final instructor = entry.instructor.trim();
+    final instructorAvatar = entry.instructorAvatar?.trim() ?? '';
 
-    final containerColor = disabled
-        ? colors.error.withValues(alpha: 0.08)
-        : isHighlighted
-            ? colors.primary.withValues(alpha: 0.08)
-            : colors.surfaceContainerHigh;
-    final borderColor = disabled
-        ? colors.error.withValues(alpha: 0.3)
-        : isHighlighted
-            ? colors.primary.withValues(alpha: 0.24)
-            : colors.outline.withValues(alpha: 0.12);
-    final titleColor = disabled
-        ? colors.onSurfaceVariant.withValues(alpha: 0.7)
-        : colors.onSurface;
-    final capsuleColor = disabled
-        ? colors.error.withValues(alpha: 0.12)
-        : colors.primary.withValues(alpha: 0.14);
-    final capsuleTextColor = disabled ? colors.error : colors.primary;
+    // Match schedules page design
+    final tileBackground = isNext
+        ? colors.primary.withValues(alpha: 0.08)
+        : colors.surfaceContainerHigh;
+    final tileBorder = isNext
+        ? colors.primary.withValues(alpha: 0.24)
+        : colors.outline.withValues(alpha: 0.12);
+    final radius = AppTokens.radius.lg;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.lg + 2,
+        vertical: spacing.lg,
+      ),
       decoration: BoxDecoration(
-        color: containerColor,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: borderColor),
+        color: tileBackground,
+        borderRadius: radius,
+        border: Border.all(color: tileBorder),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Day/date column - matches schedules page
           Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (isHighlighted) ...[
-                _ImportLeadBadge(
-                  label: 'Next',
-                  color: colors.primary,
+              Text(
+                dayLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  color: disabled ? colors.error : colors.primary,
                 ),
-                const SizedBox(height: 6),
-              ],
-              _ImportDatePill(
-                dayLabel: dayLabel,
-                dateLabel: dateLabel,
-                accent: capsuleColor,
-                labelColor: capsuleTextColor,
+              ),
+              const SizedBox(height: 2),
+              Text(
+                dateLabel,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontSize: 14,
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                ),
               ),
             ],
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: 20),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  entry.title.isEmpty ? 'Untitled class' : entry.title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: titleColor,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                // Title row with next badge and toggle
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        entry.title.isEmpty ? 'Untitled class' : entry.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          decoration: disabled ? TextDecoration.lineThrough : null,
+                          color: disabled ? colors.onSurface.withValues(alpha: 0.5) : null,
+                        ),
+                      ),
+                    ),
+                    if (isNext) ...[
+                      SizedBox(width: spacing.xs),
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spacing.sm,
+                          vertical: spacing.xs - 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.12),
+                          borderRadius: AppTokens.radius.pill,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 13,
+                              color: colors.primary,
+                            ),
+                            SizedBox(width: spacing.xs - 2),
+                            Text(
+                              'Next',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                                color: colors.primary,
+                                height: 1.3,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    SizedBox(width: spacing.sm),
+                    Transform.scale(
+                      scale: 0.82,
+                      alignment: Alignment.centerRight,
+                      child: Switch.adaptive(
+                        value: !disabled,
+                        onChanged: saving ? null : onToggle,
+                        activeTrackColor: colors.primary,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
                 ),
                 if (timeLabel != null) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    timeLabel,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: titleColor,
-                    ),
+                  SizedBox(height: spacing.xs),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 15,
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.82),
+                      ),
+                      SizedBox(width: spacing.xs),
+                      Text(
+                        timeLabel,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          fontSize: 14,
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.92),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 if (location.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    location,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
+                  SizedBox(height: spacing.xs),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.place_outlined,
+                        size: 15,
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.82),
+                      ),
+                      SizedBox(width: spacing.xs),
+                      Expanded(
+                        child: Text(
+                          location,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            color: colors.onSurfaceVariant.withValues(alpha: 0.92),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
                 if (instructor.isNotEmpty) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: spacing.sm),
                   _ImportInstructorRow(
                     name: instructor,
                     tint: colors.primary,
-                    avatarUrl: entry.instructorAvatar,
+                    avatarUrl: instructorAvatar.isEmpty ? null : instructorAvatar,
                   ),
                 ],
               ],
             ),
-          ),
-          const SizedBox(width: 12),
-          Switch.adaptive(
-            value: enabled,
-            onChanged: saving ? null : onToggle,
           ),
         ],
       ),

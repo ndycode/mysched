@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/constants.dart';
 import '../theme/tokens.dart';
 import 'hero_avatar.dart';
 import 'pressable_scale.dart';
@@ -9,7 +10,7 @@ import 'skeletons.dart';
 class BrandHeader extends StatelessWidget {
   const BrandHeader({
     super.key,
-    this.title = 'MySched',
+    this.title = AppConstants.appName,
     this.name,
     this.email,
     this.avatarUrl,

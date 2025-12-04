@@ -1,9 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../utils/app_exceptions.dart';
 import '../utils/instructor_utils.dart';
+import 'connection_monitor.dart';
+import 'data_sync.dart';
+import 'offline_queue.dart';
 import 'telemetry_service.dart';
 import 'user_scope.dart';
+
+const _maxRetries = 3;
+const _initialRetryDelay = Duration(milliseconds: 300);
 
 class ClassItem {
   final int id;
@@ -521,9 +528,159 @@ class ScheduleApi {
 
   final SupabaseClient? _overrideClient;
 
-  ScheduleApi({SupabaseClient? client}) : _overrideClient = client;
+  ScheduleApi({SupabaseClient? client})
+      : _overrideClient = client {
+    _registerQueueHandlers();
+  }
+
+  static bool _queueHandlersRegistered = false;
+
+  void _registerQueueHandlers() {
+    if (_queueHandlersRegistered) return;
+    OfflineQueue.registerHandler(
+      'schedule_add_custom',
+      (payload) async {
+        final api = ScheduleApi();
+        await api.addCustomClass(
+          day: payload['day'] as int,
+          startTime: payload['start_time'] as String,
+          endTime: payload['end_time'] as String,
+          title: payload['title'] as String,
+          room: payload['room'] as String?,
+          instructor: payload['instructor'] as String?,
+        );
+      },
+    );
+    OfflineQueue.registerHandler(
+      'schedule_update_custom',
+      (payload) async {
+        final api = ScheduleApi();
+        await api.updateCustomClass(
+          id: payload['id'] as int,
+          day: payload['day'] as int,
+          startTime: payload['start_time'] as String,
+          endTime: payload['end_time'] as String,
+          title: payload['title'] as String,
+          room: payload['room'] as String?,
+          instructor: payload['instructor'] as String?,
+        );
+      },
+    );
+    OfflineQueue.registerHandler(
+      'schedule_delete_custom',
+      (payload) async {
+        final api = ScheduleApi();
+        await api.deleteCustomClass(payload['id'] as int);
+      },
+    );
+    OfflineQueue.registerHandler(
+      'schedule_set_enabled',
+      (payload) async {
+        final api = ScheduleApi();
+        final item = ClassItem(
+          id: payload['class_id'] as int,
+          day: 1,
+          start: '00:00',
+          end: '00:01',
+        );
+        await api.setClassEnabled(item, payload['enabled'] as bool);
+      },
+    );
+    OfflineQueue.registerHandler(
+      'schedule_set_custom_enabled',
+      (payload) async {
+        final api = ScheduleApi();
+        await api.setCustomClassEnabled(
+          payload['id'] as int,
+          payload['enabled'] as bool,
+        );
+      },
+    );
+    _queueHandlersRegistered = true;
+  }
 
   SupabaseClient get _s => _overrideClient ?? Supabase.instance.client;
+
+  /// Retry wrapper with exponential backoff for transient failures.
+  Future<T> _withRetry<T>(
+    Future<T> Function() operation, {
+    String? operationName,
+    bool Function(Object error)? shouldRetry,
+  }) async {
+    var attempt = 0;
+    var delay = _initialRetryDelay;
+
+    while (true) {
+      attempt++;
+      try {
+        final result = await operation();
+        if (attempt > 1 && operationName != null) {
+          TelemetryService.instance.recordEvent(
+            'schedule_api_retry_success',
+            data: {'operation': operationName, 'attempt': attempt},
+          );
+        }
+        return result;
+      } catch (e) {
+        final canRetry = shouldRetry?.call(e) ?? _isRetryableError(e);
+        if (!canRetry || attempt >= _maxRetries) {
+          if (attempt > 1 && operationName != null) {
+            TelemetryService.instance.recordEvent(
+              'schedule_api_retry_failed',
+              data: {
+                'operation': operationName,
+                'attempt': attempt,
+                'error': e.toString(),
+              },
+            );
+          }
+          rethrow;
+        }
+        await Future.delayed(delay);
+        delay *= 2;
+      }
+    }
+  }
+
+  bool _isRetryableError(Object error) {
+    // Don't retry auth or validation errors
+    if (error is AuthException) return false;
+    if (error is NotAuthenticatedException) return false;
+    if (error is ValidationException) return false;
+
+    final msg = error.toString().toLowerCase();
+    // Don't retry permission or conflict errors
+    if (msg.contains('permission denied') ||
+        msg.contains('already exists') ||
+        msg.contains('duplicate') ||
+        msg.contains('not authenticated')) {
+      return false;
+    }
+    // Retry network/timeout errors
+    return msg.contains('timeout') ||
+        msg.contains('network') ||
+        msg.contains('socket') ||
+        msg.contains('connection') ||
+        msg.contains('failed host lookup');
+  }
+
+  /// Expose retry logic to tests.
+  @visibleForTesting
+  Future<T> debugRetry<T>(
+    Future<T> Function() operation, {
+    String? operationName,
+    bool Function(Object error)? shouldRetry,
+  }) {
+    return _withRetry(
+      operation,
+      operationName: operationName,
+      shouldRetry: shouldRetry,
+    );
+  }
+
+  /// Expose retryable classification to tests.
+  @visibleForTesting
+  bool debugIsRetryable(Object error) => _isRetryableError(error);
 
   Future<int?> getCurrentSectionId() async {
     final uid = UserScope.currentUserId();
@@ -579,6 +736,36 @@ class ScheduleApi {
         .toList();
   }
 
+  Future<ClassItem?> fetchRandomClass() async {
+    try {
+      // Fetch a batch of classes to pick from
+      final res = await _s
+          .from('classes')
+          .select('id, code, title, room, units')
+          .limit(50);
+      
+      final list = (res as List).cast<Map<String, dynamic>>();
+      if (list.isEmpty) return null;
+      
+      final random = list[DateTime.now().microsecond % list.length];
+      
+      // Map to ClassItem with dummy time/day values since we only need the details
+      return ClassItem(
+        id: (random['id'] as num).toInt(),
+        day: 1,
+        start: '00:00',
+        end: '00:00',
+        code: random['code'] as String?,
+        title: random['title'] as String?,
+        room: random['room'] as String?,
+        units: random['units'] != null ? (random['units'] as num).toInt() : null,
+      );
+    } catch (e) {
+      debugPrint('Error fetching random class: $e');
+      return null;
+    }
+  }
+
   List<ClassItem>? getCachedClasses() {
     final uid = UserScope.currentUserId();
     final cacheKey = _cacheKeyFor(uid);
@@ -592,64 +779,70 @@ class ScheduleApi {
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
 
-    final sectionId = await getCurrentSectionId();
-    final baseList = <ClassItem>[];
-    if (sectionId != null) {
-      final baseRes = await _s
-          .from('user_classes_v')
-          .select()
-          .eq('section_id', sectionId)
-          .order('day', ascending: true)
-          .order('start', ascending: true);
+    return _withRetry(
+      operationName: 'fetchClasses',
+      () async {
+        final sectionId = await getCurrentSectionId();
+        final baseList = <ClassItem>[];
+        if (sectionId != null) {
+          final baseRes = await _s
+              .from('user_classes_v')
+              .select()
+              .eq('section_id', sectionId)
+              .order('day', ascending: true)
+              .order('start', ascending: true);
 
-      baseList.addAll(
-        (baseRes as List)
-            .cast<Map<String, dynamic>>()
-            .map((m) => ClassItem.fromMap(m, isCustom: false)),
-      );
+          baseList.addAll(
+            (baseRes as List)
+                .cast<Map<String, dynamic>>()
+                .map((m) => ClassItem.fromMap(m, isCustom: false)),
+          );
 
-      if (baseList.isNotEmpty) {
-        final overrideRes = await _s
-            .from('user_class_overrides')
-            .select('class_id, enabled')
-            .eq('user_id', uid);
+          if (baseList.isNotEmpty) {
+            final overrideRes = await _s
+                .from('user_class_overrides')
+                .select('class_id, enabled')
+                .eq('user_id', uid);
 
-        final overrides = Map<int, bool>.fromEntries(
-          (overrideRes as List).cast<Map<String, dynamic>>().map(
-                (o) => MapEntry(
-                  (o['class_id'] as num).toInt(),
-                  (o['enabled'] as bool),
-                ),
-              ),
-        );
+            final overrides = Map<int, bool>.fromEntries(
+              (overrideRes as List).cast<Map<String, dynamic>>().map(
+                    (o) => MapEntry(
+                      (o['class_id'] as num).toInt(),
+                      (o['enabled'] as bool),
+                    ),
+                  ),
+            );
 
-        for (var i = 0; i < baseList.length; i++) {
-          final item = baseList[i];
-          if (overrides.containsKey(item.id)) {
-            baseList[i] = item.copyWith(enabled: overrides[item.id]);
+            for (var i = 0; i < baseList.length; i++) {
+              final item = baseList[i];
+              if (overrides.containsKey(item.id)) {
+                baseList[i] = item.copyWith(enabled: overrides[item.id]);
+              }
+            }
           }
         }
-      }
-    }
 
-    final custRes = await _s
-        .from('user_custom_classes')
-        .select()
-        .eq('user_id', uid)
-        .order('day', ascending: true)
-        .order('start_time', ascending: true);
+        final custRes = await _s
+            .from('user_custom_classes')
+            .select()
+            .eq('user_id', uid)
+            .order('day', ascending: true)
+            .order('start_time', ascending: true);
 
-    final customList = (custRes as List)
-        .cast<Map<String, dynamic>>()
-        .map((m) => ClassItem.fromMap(m, isCustom: true))
-        .toList();
+        final customList = (custRes as List)
+            .cast<Map<String, dynamic>>()
+            .map((m) => ClassItem.fromMap(m, isCustom: true))
+            .toList();
 
-    final all = <ClassItem>[...baseList, ...customList];
-    all.sort(
-      (a, b) =>
-          a.day != b.day ? a.day.compareTo(b.day) : a.start.compareTo(b.start),
+        final all = <ClassItem>[...baseList, ...customList];
+        all.sort(
+          (a, b) => a.day != b.day
+              ? a.day.compareTo(b.day)
+              : a.start.compareTo(b.start),
+        );
+        return all;
+      },
     );
-    return all;
   }
 
   Future<ClassDetails> fetchClassDetails(ClassItem item) async {
@@ -749,26 +942,63 @@ instructors (id, full_name, email, avatar_url, title, department)
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
 
-    await _s.from('user_class_overrides').upsert(
-      {
+    await _runOrQueueMutation(
+      type: 'schedule_set_enabled',
+      payload: {
         'user_id': uid,
         'class_id': c.id,
         'enabled': enable,
       },
-      onConflict: 'user_id,class_id',
+      action: () async {
+        await _withRetry(
+          operationName: 'setClassEnabled',
+          () async {
+            await _s.from('user_class_overrides').upsert(
+              {
+                'user_id': uid,
+                'class_id': c.id,
+                'enabled': enable,
+              },
+              onConflict: 'user_id,class_id',
+            );
+          },
+        );
+      },
+      changeType: enable
+          ? ScheduleChangeType.classEnabled
+          : ScheduleChangeType.classDisabled,
+      classId: c.id,
     );
-    _invalidateCurrentUserCache();
   }
 
   Future<void> setCustomClassEnabled(int id, bool enable) async {
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
-    await _s
-        .from('user_custom_classes')
-        .update({'enabled': enable})
-        .eq('id', id)
-        .eq('user_id', uid);
-    _invalidateCurrentUserCache();
+
+    await _runOrQueueMutation(
+      type: 'schedule_set_custom_enabled',
+      payload: {
+        'id': id,
+        'user_id': uid,
+        'enabled': enable,
+      },
+      action: () async {
+        await _withRetry(
+          operationName: 'setCustomClassEnabled',
+          () async {
+            await _s
+                .from('user_custom_classes')
+                .update({'enabled': enable})
+                .eq('id', id)
+                .eq('user_id', uid);
+          },
+        );
+      },
+      changeType: enable
+          ? ScheduleChangeType.classEnabled
+          : ScheduleChangeType.classDisabled,
+      classId: id,
+    );
   }
 
   Future<void> reportClassIssue(
@@ -789,7 +1019,12 @@ instructors (id, full_name, email, avatar_url, title, department)
         'note': sanitizedNote,
     };
 
-    await _s.from('class_issue_reports').insert(payload);
+    await _withRetry(
+      operationName: 'reportClassIssue',
+      () async {
+        await _s.from('class_issue_reports').insert(payload);
+      },
+    );
   }
 
   Future<void> addCustomClass({
@@ -799,21 +1034,43 @@ instructors (id, full_name, email, avatar_url, title, department)
     required String title,
     String? room,
     String? instructor,
+    String? instructorAvatar,
   }) async {
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
 
-    await _s.from('user_custom_classes').insert({
-      'user_id': uid,
-      'day': dayIntToDbString(day),
-      'start_time': startTime,
-      'end_time': endTime,
-      'title': title,
-      'room': room,
-      'instructor': instructor,
-      'enabled': true,
-    });
-    _invalidateCurrentUserCache();
+    await _runOrQueueMutation(
+      type: 'schedule_add_custom',
+      payload: {
+        'user_id': uid,
+        'day': day,
+        'start_time': startTime,
+        'end_time': endTime,
+        'title': title,
+        'room': room,
+        'instructor': instructor,
+        'instructor_avatar': instructorAvatar,
+      },
+      action: () async {
+        await _withRetry(
+          operationName: 'addCustomClass',
+          () async {
+            await _s.from('user_custom_classes').insert({
+              'user_id': uid,
+              'day': dayIntToDbString(day),
+              'start_time': startTime,
+              'end_time': endTime,
+              'title': title,
+              'room': room,
+              'instructor': instructor,
+              'instructor_avatar': instructorAvatar,
+              'enabled': true,
+            });
+          },
+        );
+      },
+      changeType: ScheduleChangeType.classAdded,
+    );
   }
 
   Future<void> updateCustomClass({
@@ -824,34 +1081,74 @@ instructors (id, full_name, email, avatar_url, title, department)
     required String title,
     String? room,
     String? instructor,
+    String? instructorAvatar,
   }) async {
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
 
-    await _s
-        .from('user_custom_classes')
-        .update({
-          'day': dayIntToDbString(day),
-          'start_time': startTime,
-          'end_time': endTime,
-          'title': title,
-          'room': room,
-          'instructor': instructor,
-        })
-        .eq('id', id)
-        .eq('user_id', uid);
-    _invalidateCurrentUserCache();
+    await _runOrQueueMutation(
+      type: 'schedule_update_custom',
+      payload: {
+        'id': id,
+        'user_id': uid,
+        'day': day,
+        'start_time': startTime,
+        'end_time': endTime,
+        'title': title,
+        'room': room,
+        'instructor': instructor,
+        'instructor_avatar': instructorAvatar,
+      },
+      action: () async {
+        await _withRetry(
+          operationName: 'updateCustomClass',
+          () async {
+            await _s
+                .from('user_custom_classes')
+                .update({
+                  'day': dayIntToDbString(day),
+                  'start_time': startTime,
+                  'end_time': endTime,
+                  'title': title,
+                  'room': room,
+                  'instructor': instructor,
+                'instructor_avatar': instructorAvatar,
+                })
+                .eq('id', id)
+                .eq('user_id', uid);
+          },
+        );
+      },
+      changeType: ScheduleChangeType.classUpdated,
+      classId: id,
+    );
   }
 
   Future<void> deleteCustomClass(int id) async {
     final uid = UserScope.currentUserId();
     if (uid == null) throw const AuthException('Not authenticated');
-    await _s
-        .from('user_custom_classes')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', uid);
-    _invalidateCurrentUserCache();
+
+    await _runOrQueueMutation(
+      type: 'schedule_delete_custom',
+      payload: {
+        'id': id,
+        'user_id': uid,
+      },
+      action: () async {
+        await _withRetry(
+          operationName: 'deleteCustomClass',
+          () async {
+            await _s
+                .from('user_custom_classes')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', uid);
+          },
+        );
+      },
+      changeType: ScheduleChangeType.classDeleted,
+      classId: id,
+    );
   }
 
   Future<void> resetAllForCurrentUser() async {
@@ -917,9 +1214,17 @@ instructors (id, full_name, email, avatar_url, title, department)
     }
   }
 
-  void _invalidateCurrentUserCache() {
-    final key = _cacheKeyFor(UserScope.currentUserId());
+  void _invalidateCurrentUserCache({ScheduleChangeType? changeType, int? classId}) {
+    final userId = UserScope.currentUserId();
+    final key = _cacheKeyFor(userId);
     _cache.remove(key);
+
+    // Broadcast the change
+    DataSync.instance.notifyScheduleChanged(
+      type: changeType ?? ScheduleChangeType.cacheInvalidated,
+      classId: classId,
+      userId: userId,
+    );
   }
 
   @visibleForTesting
@@ -929,6 +1234,31 @@ instructors (id, full_name, email, avatar_url, title, department)
       return dayNames[day - 1];
     }
     return 'Mon';
+  }
+
+  Future<void> _runOrQueueMutation({
+    required String type,
+    required Map<String, dynamic> payload,
+    required Future<void> Function() action,
+    ScheduleChangeType? changeType,
+    int? classId,
+  }) async {
+    if (ConnectionMonitor.instance.isOnline) {
+      await action();
+      _invalidateCurrentUserCache(
+        changeType: changeType,
+        classId: classId,
+      );
+      return;
+    }
+
+    await OfflineQueue.instance.enqueue(
+      QueuedMutation.create(type: type, payload: payload),
+    );
+    _invalidateCurrentUserCache(
+      changeType: changeType ?? ScheduleChangeType.cacheInvalidated,
+      classId: classId,
+    );
   }
 }
 

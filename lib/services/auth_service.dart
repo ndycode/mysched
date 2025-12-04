@@ -58,18 +58,47 @@ class _SupabaseAuthBackend implements AuthBackend {
         },
       );
       if (res.user == null) throw Exception('Signup: failed');
-      await _client().auth.signInWithOtp(
-            email: email.trim(),
-            shouldCreateUser: false,
-          );
-    } catch (e) {
-      final m = e.toString().toLowerCase();
-      if (m.contains('already registered') || m.contains('email')) {
+      // Note: Supabase signUp already sends a confirmation email
+      // User remains in unconfirmed state until email is verified
+    } on AuthException catch (e) {
+      // Log the actual error for debugging
+      TelemetryService.instance.recordEvent(
+        'signup_auth_exception',
+        data: {
+          'message': e.message,
+          'statusCode': e.statusCode ?? 'null',
+        },
+      );
+      
+      final m = e.message.toLowerCase();
+      // Check for duplicate email errors
+      if (m.contains('user already registered') || 
+          m.contains('already registered') ||
+          m.contains('duplicate') ||
+          m.contains('unique constraint') ||
+          m.contains('already exists') ||
+          (m.contains('email') && m.contains('taken'))) {
         throw Exception('EmailOrId: email_in_use');
       }
       rethrow;
-    } finally {
-      await _client().auth.signOut();
+    } catch (e) {
+      // Log the actual error for debugging
+      TelemetryService.instance.recordEvent(
+        'signup_error_debug',
+        data: {'error': e.toString(), 'type': e.runtimeType.toString()},
+      );
+      
+      final m = e.toString().toLowerCase();
+      // Check for duplicate email errors in generic exceptions
+      if (m.contains('user already registered') || 
+          m.contains('already registered') ||
+          m.contains('duplicate') ||
+          m.contains('unique constraint') ||
+          m.contains('already exists') ||
+          (m.contains('email') && m.contains('taken'))) {
+        throw Exception('EmailOrId: email_in_use');
+      }
+      rethrow;
     }
   }
 

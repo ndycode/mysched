@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/widget_background">
+
+    <!-- Header: App Icon + Title -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="12dp">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:src="@mipmap/ic_launcher"
+            android:contentDescription="MySched Icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="MySched"
+            android:textSize="14sp"
+            android:textColor="#FFFFFF"
+            android:layout_marginStart="8dp"
+            android:fontFamily="@font/sf_pro_rounded" />
+    </LinearLayout>
+
+    <!-- Class Title -->
+    <TextView
+        android:id="@+id/widget_class_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="No upcoming classes"
+        android:textSize="18sp"
+        android:textColor="#FFFFFF"
+        android:fontFamily="@font/sf_pro_rounded"
+        android:maxLines="2"
+        android:ellipsize="end"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Time Info -->
+    <TextView
+        android:id="@+id/widget_time_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enjoy your free time!"
+        android:textSize="14sp"
+        android:textColor="#B3FFFFFF"
+        android:layout_marginBottom="12dp"
+        android:fontFamily="@font/sf_pro_rounded" />
+
+    <!-- Room & Instructor (only shown when has_class=true) -->
+    <LinearLayout
+        android:id="@+id/widget_details_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <!-- Room -->
+        <LinearLayout
+            android:id="@+id/widget_room_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@android:drawable/ic_menu_myplaces"
+                android:contentDescription="Room icon" />
+
+            <TextView
+                android:id="@+id/widget_room"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="13sp"
+                android:textColor="#B3FFFFFF"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/sf_pro_rounded" />
+        </LinearLayout>
+
+        <!-- Instructor -->
+        <LinearLayout
+            android:id="@+id/widget_instructor_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                android:contentDescription="Instructor icon" />
+
+            <TextView
+                android:id="@+id/widget_instructor"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=""
+                android:textSize="13sp"
+                android:textColor="#B3FFFFFF"
+                android:layout_marginStart="6dp"
+                android:fontFamily="@font/sf_pro_rounded" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

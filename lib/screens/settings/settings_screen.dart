@@ -3,19 +3,22 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/routes.dart';
 import '../../services/admin_service.dart';
-import '../../services/notif_scheduler.dart';
-import '../../services/profile_cache.dart';
-import '../../services/theme_controller.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/local_notifs.dart';
 import '../about_sheet.dart';
 import '../admin_issue_reports_page.dart';
 import '../privacy_sheet.dart';
+import 'settings_controller.dart';
+import '../../services/theme_controller.dart';
+import '../../services/data_sync.dart';
+import '../../services/offline_queue.dart';
+import '../../services/connection_monitor.dart';
+
+import 'package:intl/intl.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,121 +28,50 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final ThemeController _themeController = ThemeController.instance;
+  late final SettingsController _controller;
   static const double _kBottomNavSafePadding = 120;
-
-  bool _loading = true;
-  bool _saving = false;
-  bool _classAlarms = true;
-  bool _appNotifs = true;
-  bool _quietWeek = false;
-  bool _verboseLogging = false;
-  int _leadMinutes = 10;
-  int _snoozeMinutes = 5;
-  String? _studentName;
-  String? _studentEmail;
-  String? _avatarUrl;
-  bool _profileHydrated = false;
-  bool _adminLoaded = false;
-  bool _isAdmin = false;
-  String? _adminError;
   bool _adminSnackShown = false;
-  ThemeMode _themeMode = ThemeMode.system;
-
-  VoidCallback? _profileListener;
-  VoidCallback? _adminRoleListener;
-  VoidCallback? _adminCountListener;
-  void Function(int classId, int minutes)? _snoozeListener;
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
 
+
   @override
   void initState() {
     super.initState();
-    _themeMode = _themeController.currentMode;
-    _themeController.mode.addListener(_handleThemeChanged);
-    _restorePreferences();
-    _listenToProfile();
-    _bootstrapAdminState();
-    _installSnoozeListener();
+    _controller = SettingsController();
+    _bindControllerEvents();
+    ConnectionMonitor.instance.startMonitoring();
+    OfflineQueue.instance.init();
+
   }
 
   @override
   void dispose() {
-    _themeController.mode.removeListener(_handleThemeChanged);
-    if (_profileListener != null) {
-      ProfileCache.notifier.removeListener(_profileListener!);
-    }
-    if (_adminRoleListener != null) {
-      AdminService.instance.role.removeListener(_adminRoleListener!);
-    }
-    if (_adminCountListener != null) {
-      AdminService.instance.newReportCount.removeListener(_adminCountListener!);
-    }
-    _removeSnoozeListener();
+    ConnectionMonitor.instance.stopMonitoring();
+    _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _restorePreferences() async {
-    final sp = await SharedPreferences.getInstance();
-    await NotifScheduler.ensurePreferenceMigration(prefs: sp);
-    setState(() {
-      _classAlarms = sp.getBool('class_alarms') ?? true;
-      _appNotifs = sp.getBool('app_notifs') ?? true;
-      _quietWeek = sp.getBool('quiet_week_enabled') ?? false;
-      _verboseLogging = sp.getBool('alarm_verbose_logging') ?? false;
-      _leadMinutes = sp.getInt('notifLeadMinutes') ?? 10;
-      _snoozeMinutes = sp.getInt('snoozeMinutes') ?? 5;
-    });
-    setState(() => _loading = false);
-  }
-
-  void _listenToProfile() {
-    _profileListener = () {
-      final summary = ProfileCache.notifier.value;
-      _applyProfile(summary);
-    };
-    ProfileCache.notifier.addListener(_profileListener!);
-    _applyProfile(ProfileCache.notifier.value);
-    ProfileCache.load();
-  }
-
-  void _applyProfile(ProfileSummary? profile) {
-    if (!mounted) return;
-    if (profile == null) {
-      if (_profileHydrated) return;
-      setState(() => _profileHydrated = true);
-      return;
-    }
-    setState(() {
-      _studentName = profile.name;
-      _studentEmail = profile.email;
-      _avatarUrl = profile.avatarUrl;
-      _profileHydrated = true;
-    });
-  }
-
-  void _bootstrapAdminState() {
-    _adminRoleListener = () {
+  void _bindControllerEvents() {
+    _controller.onSnack = (message) {
       if (!mounted) return;
-      final state = AdminService.instance.role.value;
-      setState(() {
-        _adminLoaded = state != AdminRoleState.unknown;
-        _isAdmin = state == AdminRoleState.admin;
-        _adminError = state == AdminRoleState.error
-            ? 'Unable to verify admin access.'
-            : null;
-      });
-      if (state == AdminRoleState.admin) {
-        AdminService.instance.refreshNewReportCount();
-      }
+      showAppSnackBar(context, message);
     };
-    AdminService.instance.role.addListener(_adminRoleListener!);
 
-    _adminCountListener = () {
+    _controller.onSupportError = (message, onRetry) {
       if (!mounted) return;
-      final count = AdminService.instance.newReportCount.value;
+      showAppSnackBar(
+        context,
+        message,
+        type: AppSnackBarType.error,
+        actionLabel: onRetry == null ? null : 'Retry',
+        onAction: onRetry,
+      );
+    };
+
+    _controller.onNewAdminReports = (count) {
+      if (!mounted) return;
       if (count > 0 && !_adminSnackShown) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted || _adminSnackShown) return;
@@ -158,13 +90,6 @@ class _SettingsPageState extends State<SettingsPage> {
         _adminSnackShown = false;
       }
     };
-    AdminService.instance.newReportCount.addListener(_adminCountListener!);
-    AdminService.instance.refreshRole().ignore();
-  }
-
-  void _handleThemeChanged() {
-    if (!mounted) return;
-    setState(() => _themeMode = _themeController.currentMode);
   }
 
   Future<void> _openClassIssueReports() async {
@@ -175,119 +100,53 @@ class _SettingsPageState extends State<SettingsPage> {
     AdminService.instance.refreshNewReportCount();
   }
 
-  void _installSnoozeListener() {
-    _snoozeListener = (classId, minutes) {
-      if (!mounted) return;
-      _showSnack('Reminder snoozed for $minutes minutes.');
-    };
-    NotifScheduler.onSnoozed = _snoozeListener;
-  }
-
-  void _removeSnoozeListener() {
-    if (NotifScheduler.onSnoozed == _snoozeListener) {
-      NotifScheduler.onSnoozed = null;
-    }
-    _snoozeListener = null;
-  }
-
-  Future<void> _sendTestNotification() async {
-    if (!Platform.isAndroid) {
-      _showSnack('Heads-up notifications are Android only.');
-      return;
-    }
-    final success = await LocalNotifs.showHeadsUp(
-      id: DateTime.now().millisecondsSinceEpoch & 0x7fffffff,
-      title: 'Heads-up test',
-      body: 'This is how reminder alerts will look.',
-    );
-    if (success) {
-      _showSnack('Heads-up sent.');
-    } else {
-      _showSupportError(
-        'Unable to show notification. Check alarm permissions.',
-        onRetry: _sendTestNotification,
-      );
-    }
-  }
-
-  Future<void> _triggerAlarmTest() async {
-    if (!Platform.isAndroid) {
-      _showSnack('Full-screen alarm preview is Android only.');
-      return;
-    }
-    final ok = await LocalNotifs.scheduleTestAlarm(
-      seconds: 1,
-      title: 'Alarm preview',
-      body: 'Swipe to snooze or stop.',
-    );
-    if (ok) {
-      _showSnack('Launching alarm preview…');
-    } else {
-      _showSupportError(
-        'Unable to start the alarm preview. Check alarm permissions.',
-        onRetry: _triggerAlarmTest,
-      );
-    }
-  }
-
-  Future<void> _toggleClassAlarms(bool value) async {
-    setState(() => _classAlarms = value);
-    final sp = await SharedPreferences.getInstance();
-    await sp.setBool('class_alarms', value);
-    await NotifScheduler.resync();
-  }
-
-  Future<void> _toggleAppNotifs(bool value) async {
-    setState(() => _appNotifs = value);
-    final sp = await SharedPreferences.getInstance();
-    await sp.setBool('app_notifs', value);
-    await NotifScheduler.resync();
-  }
-
-  Future<void> _toggleQuietWeek(bool value) async {
-    setState(() => _quietWeek = value);
-    final sp = await SharedPreferences.getInstance();
-    await sp.setBool('quiet_week_enabled', value);
-    await NotifScheduler.resync();
-    _showSnack(
-      value
-          ? 'Quiet week enabled. Alarms paused.'
-          : 'Quiet week disabled. Alarms resuming.',
-    );
-  }
-
-  Future<void> _toggleVerboseLogging(bool value) async {
-    setState(() => _verboseLogging = value);
-    final sp = await SharedPreferences.getInstance();
-    await sp.setBool('alarm_verbose_logging', value);
-    LocalNotifs.debugLogExactAlarms = value;
-  }
-
   Future<void> _pickLeadMinutes() async {
     final value = await _pickOption(
       title: 'Heads-up before class',
       options: _leadOptions,
-      selected: _leadMinutes,
+      selected: _controller.leadMinutes,
       suffix: 'minutes',
     );
     if (value == null) return;
-    final sp = await SharedPreferences.getInstance();
-    await sp.setInt('notifLeadMinutes', value);
-    setState(() => _leadMinutes = value);
-    await NotifScheduler.resync();
+    _controller.setLeadMinutes(value);
   }
 
   Future<void> _pickSnoozeMinutes() async {
     final value = await _pickOption(
       title: 'Snooze length',
       options: _snoozeOptions,
-      selected: _snoozeMinutes,
+      selected: _controller.snoozeMinutes,
       suffix: 'minutes',
     );
     if (value == null) return;
-    final sp = await SharedPreferences.getInstance();
-    await sp.setInt('snoozeMinutes', value);
-    setState(() => _snoozeMinutes = value);
+    _controller.setSnoozeMinutes(value);
+  }
+
+  final List<Map<String, String>> _availableRingtones = const [
+    {'uri': 'default', 'title': 'Default System Ringtone'},
+    {'uri': 'content://settings/system/alarm_alert', 'title': 'Classic Alarm'},
+    {'uri': 'content://media/internal/audio/media/123', 'title': 'Digital Beep'},
+  ];
+
+  String _getRingtoneLabel(String uri) {
+    final found = _availableRingtones.firstWhere(
+      (e) => e['uri'] == uri,
+      orElse: () => {'title': 'Default'},
+    );
+    return found['title'] ?? 'Default';
+  }
+
+  Future<void> _pickRingtone() async {
+    final selected = await _pickOption(
+      title: 'Select Ringtone',
+      options: List.generate(_availableRingtones.length, (i) => i),
+      selected: _availableRingtones.indexWhere((e) => e['uri'] == _controller.alarmRingtone),
+      suffix: '',
+    );
+    
+    if (selected != null && selected >= 0 && selected < _availableRingtones.length) {
+      _controller.setAlarmRingtone(_availableRingtones[selected]['uri']!);
+    }
   }
 
   Future<int?> _pickOption({
@@ -296,47 +155,121 @@ class _SettingsPageState extends State<SettingsPage> {
     required int selected,
     required String suffix,
   }) {
-    return showModalBottomSheet<int>(
+    return showDialog<int>(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
       builder: (context) {
         final theme = Theme.of(context);
-        final media = MediaQuery.of(context);
-        return SafeArea(
-          child: Padding(
-            padding: EdgeInsets.only(
-              left: 16,
-              right: 16,
-              top: 16,
-              bottom: media.viewInsets.bottom + media.padding.bottom + 16,
-            ),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.xl,
+        final spacing = AppTokens.spacing;
+        
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: spacing.edgeInsetsAll(spacing.lg),
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
-              child: ListView(
-                shrinkWrap: true,
-                padding: EdgeInsets.zero,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+                    padding: const EdgeInsets.all(20),
                     child: Text(
                       title,
-                      style: theme.textTheme.titleMedium,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  ...options.map(
-                    (value) => ListTile(
-                      title: Text('$value $suffix'),
-                      trailing: value == selected
-                          ? Icon(Icons.check_rounded,
-                              color: theme.colorScheme.primary)
-                          : null,
-                      onTap: () => Navigator.of(context).pop(value),
+                  Flexible(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: options.map((value) {
+                          // Handle both int options (minutes) and index options (ringtones)
+                          final isRingtone = suffix.isEmpty;
+                          
+                          final displayLabel = isRingtone 
+                              ? _availableRingtones[value]['title']!
+                              : '$value $suffix';
+                          
+                          final isSelected = isRingtone 
+                              ? _availableRingtones[value]['uri'] == _controller.alarmRingtone
+                              : value == selected;
+
+                          return InkWell(
+                            onTap: () => Navigator.of(context).pop(value),
+                            child: Padding(
+                              padding: spacing.edgeInsetsSymmetric(
+                                horizontal: spacing.xl,
+                                vertical: spacing.md,
+                              ),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      displayLabel,
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                        color: isSelected 
+                                            ? theme.colorScheme.primary 
+                                            : theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  if (isSelected)
+                                    Icon(
+                                      Icons.check_rounded,
+                                      color: theme.colorScheme.primary,
+                                      size: 20,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: spacing.md),
+                  Padding(
+                    padding: spacing.edgeInsetsAll(spacing.md),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 40),
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -346,31 +279,9 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  void _showSnack(String message) {
-    if (!mounted) return;
-    showAppSnackBar(context, message);
-  }
-
-  void _showSupportError(
-    String message, {
-    VoidCallback? onRetry,
-  }) {
-    if (!mounted) return;
-    setState(() {
-      _saving = false;
-    });
-    showAppSnackBar(
-      context,
-      message,
-      type: AppSnackBarType.error,
-      actionLabel: onRetry == null ? null : 'Retry',
-      onAction: onRetry,
-    );
-  }
-
   Future<void> _openAccount() async {
     await context.push(AppRoutes.account);
-    await ProfileCache.load(forceRefresh: true);
+    await _controller.refreshProfile();
   }
 
   Future<void> _openPrivacy() async {
@@ -387,125 +298,373 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Future<void> _openExactAlarmSettings() async {
     await LocalNotifs.openExactAlarmSettings();
+    await _controller.refreshAlarmReadiness();
   }
+
+  Future<void> _openNotificationSettings() async {
+    await LocalNotifs.openNotificationSettings();
+    await _controller.refreshAlarmReadiness();
+  }
+
+  Future<void> _openBatteryOptimizationSettings() async {
+    await LocalNotifs.openBatteryOptimizationDialog(context);
+    await _controller.refreshAlarmReadiness();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
 
-    if (_loading) {
-      return ScreenShell(
-        screenName: 'settings',
-        hero: const ScreenHeroCard(
-          title: 'Settings',
-          subtitle: 'Loading your preferences…',
-        ),
-        sections: const [
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        if (_controller.loading) {
+          return ScreenShell(
+            screenName: 'settings',
+            hero: const ScreenHeroCard(
+              title: 'Settings',
+              subtitle: 'Loading your preferences…',
+            ),
+            sections: [
+              ScreenSection(
+                decorated: false,
+                child: Column(
+                  children: [
+                    const SkeletonCard(showAvatar: false, lineCount: 4),
+                    SizedBox(height: spacing.lg),
+                    const SkeletonCard(showAvatar: false, lineCount: 3),
+                  ],
+                ),
+              ),
+            ],
+          );
+        }
+
+        final hero = ScreenBrandHeader(
+          name: _controller.studentName,
+          email: _controller.studentEmail,
+          avatarUrl: _controller.avatarUrl,
+          onAccountTap: _openAccount,
+          showChevron: false,
+          loading: !_controller.profileHydrated,
+        );
+
+        final sections = <Widget>[
+          // Premium Header
           ScreenSection(
             decorated: false,
-            child: Center(child: CircularProgressIndicator()),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: 52,
+                  width: 52,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        colors.primary.withValues(alpha: 0.15),
+                        colors.primary.withValues(alpha: 0.10),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.25),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.settings_rounded,
+                    color: colors.primary,
+                    size: 26,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Settings',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          letterSpacing: -0.5,
+                          color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Control alarms, notifications, and app styling.',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontSize: 15,
+                          height: 1.4,
+                          color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ],
-      );
-    }
-
-    final hero = ScreenBrandHeader(
-      name: _studentName,
-      email: _studentEmail,
-      avatarUrl: _avatarUrl,
-      onAccountTap: _openAccount,
-      showChevron: false,
-      loading: !_profileHydrated,
-    );
-
-    final sections = <Widget>[
-      const ScreenSection(
-        decorated: false,
-        child: ScreenHeroCard(
-          title: 'Settings',
-          subtitle: 'Control alarms, notifications, and app styling in one place.',
-        ),
-      ),
-      ScreenSection(
-        title: 'Notifications',
-        subtitle: 'Control alarms, quiet weeks, and push alerts.',
-        decorated: false,
-        child: _buildNotificationCard(theme),
-      ),
-      ScreenSection(
-        title: 'Schedule preferences',
-        subtitle: 'Heads-up timing and snooze length.',
-        decorated: false,
-        child: _buildScheduleCard(theme),
-      ),
-      ScreenSection(
-        title: 'Appearance',
-        subtitle: 'Choose light, dark, or match system.',
-        decorated: false,
-        child: _buildAppearanceCard(theme),
-      ),
-    ];
-
-    if (Platform.isAndroid) {
-      sections.add(
-        ScreenSection(
-          title: 'Android tools',
-          subtitle: 'Exact alarms and diagnostics.',
-          decorated: false,
-          child: _buildAndroidToolsCard(theme),
-        ),
-      );
-    }
-
-    if (_adminLoaded && _isAdmin) {
-      sections.add(
-        ScreenSection(
-          title: 'Admin tools',
-          subtitle: 'Manage reports and send tests.',
-          decorated: false,
-          child: _buildAdminCard(theme),
-        ),
-      );
-    } else if (_adminError != null) {
-      sections.add(
-        ScreenSection(
-          decorated: false,
-          child: ErrorState(
-            title: 'Admin tools unavailable',
-            message: _adminError!,
-            onRetry: () => AdminService.instance.refreshRole(force: true),
+          ScreenSection(
+            title: 'Notifications',
+            subtitle: 'Control alarms, quiet weeks, and push alerts.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildNotificationCard(theme),
+            ),
           ),
-        ),
-      );
-    }
+          ScreenSection(
+            title: 'Schedule preferences',
+            subtitle: 'Heads-up timing and snooze length.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildScheduleCard(theme),
+            ),
+          ),
+          ScreenSection(
+            title: 'Alarm settings',
+            subtitle: 'Volume, vibration, and ringtone.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildAlarmSettingsCard(theme),
+            ),
+          ),
+          ScreenSection(
+            title: 'Appearance',
+            subtitle: 'Choose light, dark, or match system.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildAppearanceCard(theme),
+            ),
+          ),
+        ];
 
-    sections.add(
-      ScreenSection(
-        title: 'Support',
-        subtitle: 'Resync alarms or review policies.',
-        decorated: false,
-        child: _buildSupportCard(theme),
-      ),
-    );
+        if (Platform.isAndroid) {
+          sections.add(
+            ScreenSection(
+              title: 'Android tools',
+              subtitle: 'Exact alarms and diagnostics.',
+              decorated: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                    width: isDark ? 1 : 0.5,
+                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                ),
+                child: _buildAndroidToolsCard(theme),
+              ),
+            ),
+          );
+        }
 
-    final shell = ScreenShell(
-      screenName: 'settings',
-      hero: hero,
-      sections: sections,
-      padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + spacing.xxxl,
-        20,
-        spacing.quad + _kBottomNavSafePadding,
-      ),
-      safeArea: false,
-    );
+        if (_controller.adminLoaded && _controller.isAdmin) {
+          sections.add(
+            ScreenSection(
+              title: 'Admin tools',
+              subtitle: 'Manage reports and send tests.',
+              decorated: false,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                    width: isDark ? 1 : 0.5,
+                  ),
+                  boxShadow: isDark
+                      ? null
+                      : [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                ),
+                child: _buildAdminCard(theme),
+              ),
+            ),
+          );
+        } else if (_controller.adminError != null) {
+          sections.add(
+            ScreenSection(
+              decorated: false,
+              child: StateDisplay(
+                variant: StateVariant.error,
+                title: 'Admin tools unavailable',
+                message: _controller.adminError!,
+                primaryActionLabel: 'Retry',
+                onPrimaryAction: () => AdminService.instance.refreshRole(force: true),
+                compact: true,
+              ),
+            ),
+          );
+        }
 
-    return AbsorbPointer(
-      absorbing: _saving,
-      child: shell,
+        sections.add(
+          ScreenSection(
+            title: 'Sync & offline',
+            subtitle: 'View cached data status and retry queued changes.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildSyncCard(theme),
+            ),
+          ),
+        );
+
+        sections.add(
+          ScreenSection(
+            title: 'Support',
+            subtitle: 'Resync alarms or review policies.',
+            decorated: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  width: isDark ? 1 : 0.5,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+              ),
+              child: _buildSupportCard(theme),
+            ),
+          ),
+        );
+
+        final shell = ScreenShell(
+          screenName: 'settings',
+          hero: hero,
+          sections: sections,
+          padding: EdgeInsets.fromLTRB(
+            spacing.xl,
+            media.padding.top + spacing.xxxl,
+            spacing.xl,
+            spacing.quad + _kBottomNavSafePadding,
+          ),
+          safeArea: false,
+        );
+
+        return AbsorbPointer(
+          absorbing: _controller.saving,
+          child: shell,
+        );
+      },
     );
   }
 
@@ -513,8 +672,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -523,8 +682,8 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.alarm_rounded,
             title: 'Class reminders',
             description: 'Alarm-style alerts before classes begin.',
-            value: _classAlarms,
-            onChanged: _toggleClassAlarms,
+            value: _controller.classAlarms,
+            onChanged: _controller.toggleClassAlarms,
           ),
           SizedBox(height: spacing.lg),
           _buildToggleRow(
@@ -532,8 +691,8 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.notifications_active_outlined,
             title: 'App notifications',
             description: 'Allow MySched to send notifications.',
-            value: _appNotifs,
-            onChanged: _toggleAppNotifs,
+            value: _controller.appNotifs,
+            onChanged: _controller.toggleAppNotifs,
           ),
           SizedBox(height: spacing.lg),
           _buildToggleRow(
@@ -541,15 +700,15 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.nightlight_rounded,
             title: 'Quiet week',
             description: 'Pause alarm scheduling for one week.',
-            value: _quietWeek,
-            onChanged: _toggleQuietWeek,
+            value: _controller.quietWeek,
+            onChanged: _controller.toggleQuietWeek,
           ),
-          if (_quietWeek) ...[
+          if (_controller.quietWeek) ...[
             SizedBox(height: spacing.md),
             Container(
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: 0.12),
-                borderRadius: AppTokens.radius.lg,
+                borderRadius: BorderRadius.circular(12),
               ),
               padding: const EdgeInsets.all(12),
               child: Text(
@@ -569,8 +728,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildScheduleCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -578,7 +737,7 @@ class _SettingsPageState extends State<SettingsPage> {
             theme: theme,
             icon: Icons.snooze_outlined,
             title: 'Heads-up before class',
-            description: '$_leadMinutes minutes before class',
+            description: '${_controller.leadMinutes} minutes before class',
             onTap: _pickLeadMinutes,
           ),
           SizedBox(height: spacing.lg),
@@ -586,8 +745,93 @@ class _SettingsPageState extends State<SettingsPage> {
             theme: theme,
             icon: Icons.schedule_rounded,
             title: 'Snooze length',
-            description: '$_snoozeMinutes minutes',
+            description: '${_controller.snoozeMinutes} minutes',
             onTap: _pickSnoozeMinutes,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlarmSettingsCard(ThemeData theme) {
+    final spacing = AppTokens.spacing;
+    final colors = theme.colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Volume slider
+          Row(
+            children: [
+              _buildIconBadge(theme, Icons.volume_up_rounded, colors.primary),
+              SizedBox(width: spacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          'Alarm volume',
+                          style: AppTokens.typography.subtitle.copyWith(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        Text(
+                          '${_controller.alarmVolume}%',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: colors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: spacing.xs),
+                    SliderTheme(
+                      data: SliderThemeData(
+                        trackHeight: 4,
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                      ),
+                      child: Slider(
+                        value: _controller.alarmVolume.toDouble(),
+                        min: 0,
+                        max: 100,
+                        divisions: 20,
+                        activeColor: colors.primary,
+                        inactiveColor: colors.surfaceContainerHighest,
+                        onChanged: (value) {
+                          _controller.setAlarmVolume(value.round());
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: spacing.lg),
+          // Vibration toggle
+          _buildToggleRow(
+            theme: theme,
+            icon: Icons.vibration_rounded,
+            title: 'Use vibration',
+            description: 'Vibrate when alarm rings.',
+            value: _controller.alarmVibration,
+            onChanged: _controller.toggleAlarmVibration,
+          ),
+          SizedBox(height: spacing.lg),
+          // Ringtone selection
+          _buildNavigationRow(
+            theme: theme,
+            icon: Icons.music_note_rounded,
+            title: 'Ringtone',
+            description: _getRingtoneLabel(_controller.alarmRingtone),
+            onTap: _pickRingtone,
           ),
         ],
       ),
@@ -597,46 +841,64 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildAppearanceCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Appearance',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          SizedBox(height: spacing.md),
-          SegmentedButton<ThemeMode>(
-            segments: const [
-              ButtonSegment(
-                value: ThemeMode.light,
-                icon: Icon(Icons.wb_sunny_outlined),
-                label: Text('Light'),
+          Row(
+            children: [
+              Expanded(
+                child: _ThemeOption(
+                  selected: _controller.themeMode == AppThemeMode.light,
+                  onTap: () => _controller.setMode(AppThemeMode.light),
+                  label: 'Light',
+                  icon: Icons.wb_sunny_rounded,
+                  color: Colors.white,
+                  onColor: Colors.black,
+                  showBorder: true,
+                ),
               ),
-              ButtonSegment(
-                value: ThemeMode.dark,
-                icon: Icon(Icons.nightlight_round),
-                label: Text('Dark'),
+              SizedBox(width: spacing.sm),
+              Expanded(
+                child: _ThemeOption(
+                  selected: _controller.themeMode == AppThemeMode.dark,
+                  onTap: () => _controller.setMode(AppThemeMode.dark),
+                  label: 'Dark',
+                  icon: Icons.nightlight_round,
+                  color: const Color(0xFF303030),
+                  onColor: Colors.white,
+                ),
               ),
-              ButtonSegment(
-                value: ThemeMode.system,
-                icon: Icon(Icons.auto_mode_rounded),
-                label: Text('System'),
+              SizedBox(width: spacing.sm),
+              Expanded(
+                child: _ThemeOption(
+                  selected: _controller.themeMode == AppThemeMode.voidMode,
+                  onTap: () => _controller.setMode(AppThemeMode.voidMode),
+                  label: 'Void',
+                  icon: Icons.brightness_2_rounded,
+                  color: const Color(0xFF000000),
+                  onColor: Colors.white,
+                  borderColor: const Color(0xFF333333),
+                ),
+              ),
+              SizedBox(width: spacing.sm),
+              Expanded(
+                child: _ThemeOption(
+                  selected: _controller.themeMode == AppThemeMode.system,
+                  onTap: () => _controller.setMode(AppThemeMode.system),
+                  label: 'Auto',
+                  icon: Icons.brightness_auto_rounded,
+                  color: Colors.transparent,
+                  onColor: theme.colorScheme.onSurface,
+                  isOutline: true,
+                ),
               ),
             ],
-            selected: <ThemeMode>{_themeMode},
-            onSelectionChanged: (value) {
-              final next = value.single;
-              setState(() => _themeMode = next);
-              _themeController.setThemeMode(next);
-            },
           ),
           SizedBox(height: spacing.md),
           Text(
-            'Switch between light, dark, or follow your device settings. Changes animate instantly.',
+            'Switch between light, dark, or void mode (ultra dark). Changes animate instantly.',
             style: theme.textTheme.bodySmall?.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -650,16 +912,77 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
-      child: _buildNavigationRow(
-        theme: theme,
-        icon: Icons.alarm_on_rounded,
-        title: 'Open exact alarm settings',
-        description: 'Manage Android exact alarm permission.',
-        accentColor: colors.primary,
-        trailing: Icon(Icons.open_in_new_rounded, color: colors.primary),
-        onTap: _openExactAlarmSettings,
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildNavigationRow(
+            theme: theme,
+            icon: Icons.alarm_on_rounded,
+            title: 'Exact alarms',
+            description: 'Required for on-time class reminders.',
+            accentColor: colors.primary,
+            trailing: _buildStatusPill(
+              theme: theme,
+              ok: _controller.exactAlarmAllowed,
+              okLabel: 'Allowed',
+              badLabel: 'Action needed',
+            ),
+            onTap: _openExactAlarmSettings,
+          ),
+          SizedBox(height: spacing.lg),
+          _buildNavigationRow(
+            theme: theme,
+            icon: Icons.notifications_active_outlined,
+            title: 'Notifications',
+            description: 'Backup banner if full-screen alarms are blocked.',
+            accentColor: colors.primary,
+            trailing: _buildStatusPill(
+              theme: theme,
+              ok: _controller.notificationsAllowed,
+              okLabel: 'On',
+              badLabel: 'Blocked',
+            ),
+            onTap: _openNotificationSettings,
+          ),
+          SizedBox(height: spacing.lg),
+          _buildNavigationRow(
+            theme: theme,
+            icon: Icons.battery_alert_rounded,
+            title: 'Battery optimization',
+            description: 'Allow background delivery so alarms are not killed.',
+            accentColor: colors.primary,
+            trailing: _buildStatusPill(
+              theme: theme,
+              ok: _controller.ignoringBatteryOptimizations,
+              okLabel: 'Unrestricted',
+              badLabel: 'Optimized',
+            ),
+            onTap: _openBatteryOptimizationSettings,
+          ),
+          SizedBox(height: spacing.md),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TextButton.icon(
+              icon: _controller.readinessLoading
+                  ? SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                      ),
+                    )
+                  : const Icon(Icons.refresh_rounded),
+              label: Text(
+                  _controller.readinessLoading ? 'Checking…' : 'Refresh status'),
+              onPressed: _controller.readinessLoading
+                  ? null
+                  : _controller.refreshAlarmReadiness,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -668,8 +991,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -692,7 +1015,7 @@ class _SettingsPageState extends State<SettingsPage> {
             description: 'Preview the quick heads-up alert.',
             accentColor: colors.primary,
             trailing: Icon(Icons.play_arrow_rounded, color: colors.primary),
-            onTap: _sendTestNotification,
+            onTap: _controller.sendTestNotification,
           ),
           SizedBox(height: spacing.lg),
           _buildToggleRow(
@@ -700,15 +1023,17 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.bug_report_outlined,
             title: 'Verbose alarm logging (debug)',
             description: 'Print exact alarm scheduling details.',
-            value: _verboseLogging,
-            onChanged: _toggleVerboseLogging,
+            value: _controller.verboseLogging,
+            onChanged: _controller.toggleVerboseLogging,
           ),
           SizedBox(height: spacing.lg),
           PrimaryButton(
             label: 'Launch alarm preview',
             leading: const Icon(Icons.play_circle_outline_rounded),
-            onPressed: _triggerAlarmTest,
+            onPressed: () =>
+                _controller.triggerAlarmTest(_openExactAlarmSettings),
           ),
+
         ],
       ),
     );
@@ -717,8 +1042,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSupportCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
 
-    return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+    return Padding(
+      padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -727,13 +1052,7 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: Icons.refresh_rounded,
             title: 'Resync class reminders',
             description: 'Regenerate alarms after schedule changes.',
-            onTap: () async {
-              setState(() => _saving = true);
-              await NotifScheduler.resync();
-              if (!mounted) return;
-              setState(() => _saving = false);
-              _showSnack('Resync in progress.');
-            },
+            onTap: _controller.resyncReminders,
           ),
           SizedBox(height: spacing.lg),
           _buildNavigationRow(
@@ -776,16 +1095,10 @@ class _SettingsPageState extends State<SettingsPage> {
     return GestureDetector(
       onTap: () => onChanged(!value),
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: spacing.edgeInsetsAll(spacing.md),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerHigh,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(
-            color: colors.outline.withValues(alpha: 0.12),
-          ),
-        ),
+      child: Padding(
+        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _buildIconBadge(theme, icon, accent),
             SizedBox(width: spacing.md),
@@ -832,6 +1145,42 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
+  Widget _buildStatusPill({
+    required ThemeData theme,
+    required bool? ok,
+    String okLabel = 'Allowed',
+    String badLabel = 'Blocked',
+  }) {
+    final colors = theme.colorScheme;
+    final isOk = ok == true;
+    final isUnknown = ok == null;
+    final label = isUnknown ? 'Unknown' : (isOk ? okLabel : badLabel);
+    final bg = isUnknown
+        ? colors.surfaceContainerHighest
+        : isOk
+            ? colors.primary.withValues(alpha: 0.16)
+            : colors.errorContainer;
+    final fg = isUnknown
+        ? colors.onSurfaceVariant
+        : isOk
+            ? colors.primary
+            : colors.error;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: AppTokens.radius.pill,
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: fg,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+
   Widget _buildNavigationRow({
     required ThemeData theme,
     required IconData icon,
@@ -846,6 +1195,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final accent = accentColor ?? colors.primary;
 
     final row = Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildIconBadge(theme, icon, accent),
         SizedBox(width: spacing.md),
@@ -882,13 +1232,8 @@ class _SettingsPageState extends State<SettingsPage> {
     );
 
     if (onTap == null) {
-      return Container(
-        padding: spacing.edgeInsetsAll(spacing.md),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerHigh,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(color: colors.outline.withValues(alpha: 0.12)),
-        ),
+      return Padding(
+        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
         child: row,
       );
     }
@@ -896,28 +1241,313 @@ class _SettingsPageState extends State<SettingsPage> {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: spacing.edgeInsetsAll(spacing.md),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerHigh,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(color: colors.outline.withValues(alpha: 0.12)),
-        ),
+      child: Padding(
+        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
         child: row,
       ),
     );
   }
 
   Widget _buildIconBadge(ThemeData theme, IconData icon, Color accent) {
-    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      height: 44,
-      width: 44,
+      height: 42,
+      width: 42,
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: isDark ? 0.22 : 0.14),
-        borderRadius: AppTokens.radius.md,
+        color: accent.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(10),
       ),
-      child: Icon(icon, color: accent),
+      alignment: Alignment.center,
+      child: Icon(icon, color: accent, size: 22),
+    );
+  }
+
+  Widget _buildSyncCard(ThemeData theme) {
+    final spacing = AppTokens.spacing;
+    final colors = theme.colorScheme;
+
+    String formatSync(DateTime? value) {
+      if (value == null) return 'Never';
+      final now = DateTime.now();
+      final diff = now.difference(value);
+      if (diff.inMinutes < 1) return 'Just now';
+      if (diff.inHours < 1) return '${diff.inMinutes} min ago';
+      if (diff.inHours < 24) return '${diff.inHours}h ago';
+      return DateFormat('MMM d, h:mm a').format(value);
+    }
+
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ValueListenableBuilder<DateTime?>(
+            valueListenable: DataSync.instance.lastScheduleSync,
+            builder: (context, lastSchedule, _) {
+              return ValueListenableBuilder<DateTime?>(
+                valueListenable: DataSync.instance.lastRemindersSync,
+                builder: (context, lastReminders, __) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _SyncRow(
+                        icon: Icons.schedule_rounded,
+                        label: 'Schedules',
+                        value: formatSync(lastSchedule),
+                      ),
+                      SizedBox(height: spacing.sm),
+                      _SyncRow(
+                        icon: Icons.notifications_active_outlined,
+                        label: 'Reminders',
+                        value: formatSync(lastReminders),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+          SizedBox(height: spacing.md),
+          ValueListenableBuilder<int>(
+            valueListenable: OfflineQueue.instance.pendingCount,
+            builder: (context, pending, _) {
+              return Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: colors.surfaceContainerHighest,
+                      borderRadius: AppTokens.radius.pill,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          pending > 0 ? Icons.cloud_off_rounded : Icons.cloud_done_rounded,
+                          size: 18,
+                          color: pending > 0 ? colors.secondary : colors.primary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          pending > 0
+                              ? '$pending change${pending == 1 ? '' : 's'} queued'
+                              : 'No queued changes',
+                          style: theme.textTheme.labelMedium?.copyWith(
+                            color: colors.onSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        if (pending >= 100) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: colors.error.withValues(alpha: 0.12),
+                              borderRadius: AppTokens.radius.pill,
+                            ),
+                            child: Text(
+                              'Queue full',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: colors.error,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: SecondaryButton(
+                      label: 'Process queue',
+                      onPressed: () => OfflineQueue.instance.processQueue(),
+                      minHeight: 40,
+                      expanded: true,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed:
+                        pending > 0 ? () => OfflineQueue.instance.clear() : null,
+                    style: TextButton.styleFrom(
+                      minimumSize: const Size(0, 40),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    child: const Text('Clear'),
+                  ),
+                ],
+              );
+            },
+          ),
+          SizedBox(height: spacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: PrimaryButton(
+                  label: 'Sync now',
+                  onPressed: () {
+                    DataSync.instance.requestFullRefresh();
+                    _controller.onSnack?.call('Sync requested.');
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SyncRow extends StatelessWidget {
+  const _SyncRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+
+    final accent = colors.primary;
+
+    return Padding(
+      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            height: 42,
+            width: 42,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            alignment: Alignment.center,
+            child: Icon(icon, color: accent, size: 22),
+          ),
+          SizedBox(width: spacing.md),
+          Text(
+            label,
+            style: AppTokens.typography.subtitle.copyWith(
+              color: colors.onSurface,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const Spacer(),
+          Text(
+            value,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  const _ThemeOption({
+    required this.selected,
+    required this.onTap,
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onColor,
+    this.borderColor,
+    this.showBorder = false,
+    this.isOutline = false,
+  });
+
+  final bool selected;
+  final VoidCallback onTap;
+  final String label;
+  final IconData icon;
+  final Color color;
+  final Color onColor;
+  final Color? borderColor;
+  final bool showBorder;
+  final bool isOutline;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 64,
+            decoration: BoxDecoration(
+              color: isOutline ? Colors.transparent : color,
+              borderRadius: AppTokens.radius.lg,
+              border: Border.all(
+                color: selected
+                    ? colors.primary
+                    : (isOutline
+                        ? colors.outline.withValues(alpha: 0.3)
+                        : (showBorder
+                            ? colors.outline.withValues(alpha: 0.1)
+                            : (borderColor ?? Colors.transparent))),
+                width: selected ? 2 : 1,
+              ),
+            ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Icon(
+                    icon,
+                    color: isOutline ? colors.onSurface : onColor,
+                    size: 24,
+                  ),
+                ),
+                if (selected)
+                  Positioned(
+                    top: 4,
+                    right: 4,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: colors.primary,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: isOutline ? colors.surface : color,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.check,
+                        size: 10,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          SizedBox(height: spacing.sm),
+          Text(
+            label,
+            style: theme.textTheme.labelMedium?.copyWith(
+              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              color: selected ? colors.primary : colors.onSurface,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

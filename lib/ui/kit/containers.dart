@@ -1,83 +1,358 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../services/analytics_service.dart';
 import '../theme/tokens.dart';
 
-class CardX extends StatelessWidget {
+/// Card style variants for unified styling across the app.
+enum CardVariant {
+  /// Standard elevated card with subtle shadow (default).
+  elevated,
+
+  /// Outlined card with border, no shadow.
+  outlined,
+
+  /// Filled card with solid background, no border.
+  filled,
+
+  /// Glass-morphism card with blur backdrop.
+  glass,
+
+  /// Hero card with gradient accent and prominent shadow.
+  hero,
+}
+
+class CardX extends StatefulWidget {
   const CardX({
     super.key,
     required this.child,
+    this.variant = CardVariant.elevated,
     this.onTap,
+    this.onLongPress,
     this.padding,
     this.margin,
     this.backgroundColor,
     this.borderColor,
+    this.borderRadius,
+    this.accentColor,
+    this.elevation,
+    this.animateOnTap = true,
+    this.hapticFeedback = true,
   });
 
   final Widget child;
+  final CardVariant variant;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
   final Color? backgroundColor;
   final Color? borderColor;
+  final BorderRadius? borderRadius;
+  final Color? accentColor;
+  final double? elevation;
+
+  /// Whether to animate scale on tap (default: true).
+  final bool animateOnTap;
+
+  /// Whether to trigger haptic feedback on tap (default: true).
+  final bool hapticFeedback;
+
+  @override
+  State<CardX> createState() => _CardXState();
+}
+
+class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+  bool _hovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 80),
+      reverseDuration: const Duration(milliseconds: 180),
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.975).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOut,
+        reverseCurve: Curves.easeOutBack,
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (widget.onTap != null && widget.animateOnTap) {
+      _controller.forward();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _controller.reverse();
+  }
+
+  void _handleTapCancel() {
+    _controller.reverse();
+  }
+
+  void _handleTap() {
+    if (widget.onTap == null) return;
+    if (widget.hapticFeedback) {
+      HapticFeedback.selectionClick();
+    }
+    AnalyticsService.instance.logEvent(
+      'ui_tap_cardx',
+      params: {'route': ModalRoute.of(context)?.settings.name},
+    );
+    widget.onTap!();
+  }
+
+  void _handleLongPress() {
+    if (widget.onLongPress == null) return;
+    if (widget.hapticFeedback) {
+      HapticFeedback.mediumImpact();
+    }
+    widget.onLongPress!();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final baseColor = backgroundColor ??
-        (isDark ? colors.surfaceContainerHigh : colors.surface);
-    final surface = baseColor;
-    final decoration = BoxDecoration(
-      color: surface,
-      borderRadius: AppTokens.radius.xl,
-      border: Border.all(
-        color: borderColor ??
-            (isDark
-                ? colors.outline.withValues(alpha: 0.24)
-                : colors.outlineVariant.withValues(alpha: 0.24)),
-      ),
-      boxShadow: isDark
-          ? const []
-          : [
-              BoxShadow(
-                color: colors.outline.withValues(alpha: 0.08),
-                blurRadius: 16,
-                offset: const Offset(0, 12),
-              ),
-            ],
+    final radius = widget.borderRadius ?? AppTokens.radius.xl;
+
+    // Resolve colors based on variant
+    final CardStyle style = _resolveStyle(
+      variant: widget.variant,
+      colors: colors,
+      isDark: isDark,
+      backgroundOverride: widget.backgroundColor,
+      borderOverride: widget.borderColor,
+      accentColor: widget.accentColor,
+      elevationOverride: widget.elevation,
+      hovered: _hovered && widget.onTap != null,
     );
 
-    final card = Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap == null
-            ? null
-            : () {
-                AnalyticsService.instance.logEvent(
-                  'ui_tap_cardx',
-                  params: {'route': ModalRoute.of(context)?.settings.name},
-                );
-                onTap?.call();
-              },
-        borderRadius: AppTokens.radius.xl,
-        splashColor: colors.primary.withValues(alpha: 0.08),
-        highlightColor: Colors.transparent,
-        child: Ink(
-          decoration: decoration,
-          child: Padding(
-            padding: padding ??
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-            child: SizedBox(width: double.infinity, child: child),
+    final defaultPadding = AppTokens.spacing.edgeInsetsSymmetric(
+      horizontal: AppTokens.spacing.xl,
+      vertical: AppTokens.spacing.lg + 2,
+    );
+
+    Widget cardContent = Padding(
+      padding: widget.padding ?? defaultPadding,
+      child: SizedBox(width: double.infinity, child: widget.child),
+    );
+
+    // Glass variant needs backdrop filter
+    if (widget.variant == CardVariant.glass) {
+      cardContent = ClipRRect(
+        borderRadius: radius,
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          child: AnimatedContainer(
+            duration: AppTokens.motion.fast,
+            decoration: BoxDecoration(
+              color: style.background,
+              borderRadius: radius,
+              border: style.border,
+              boxShadow: style.shadows,
+            ),
+            child: cardContent,
           ),
         ),
+      );
+    } else {
+      cardContent = AnimatedContainer(
+        duration: AppTokens.motion.fast,
+        decoration: BoxDecoration(
+          color: style.background,
+          borderRadius: radius,
+          border: style.border,
+          boxShadow: style.shadows,
+          gradient: style.gradient,
+        ),
+        child: cardContent,
+      );
+    }
+
+    final Widget card = MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: widget.onTap != null
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.basic,
+      child: GestureDetector(
+        onTap: widget.onTap != null ? _handleTap : null,
+        onLongPress: widget.onLongPress != null ? _handleLongPress : null,
+        onTapDown: _handleTapDown,
+        onTapUp: _handleTapUp,
+        onTapCancel: _handleTapCancel,
+        child: widget.animateOnTap && widget.onTap != null
+            ? AnimatedBuilder(
+                animation: _controller,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _scaleAnimation.value,
+                    child: child,
+                  );
+                },
+                child: cardContent,
+              )
+            : cardContent,
       ),
     );
 
-    if (margin == null) return card;
-    return Padding(padding: margin!, child: card);
+    if (widget.margin == null) return card;
+    return Padding(padding: widget.margin!, child: card);
   }
+
+  CardStyle _resolveStyle({
+    required CardVariant variant,
+    required ColorScheme colors,
+    required bool isDark,
+    Color? backgroundOverride,
+    Color? borderOverride,
+    Color? accentColor,
+    double? elevationOverride,
+    bool hovered = false,
+  }) {
+    // Hover adjustments
+
+    final hoverShadowBoost = hovered ? 4.0 : 0.0;
+
+    switch (variant) {
+      case CardVariant.elevated:
+        return CardStyle(
+          background: backgroundOverride ??
+              (isDark ? colors.surfaceContainerHigh : Colors.white),
+          border: Border.all(
+            color: borderOverride ??
+                (hovered
+                    ? colors.primary.withValues(alpha: 0.3)
+                    : (isDark
+                        ? colors.outline.withValues(alpha: 0.12)
+                        : const Color(0xFFE5E5E5))),
+            width: isDark ? 1 : 0.5,
+          ),
+          shadows: isDark
+              ? []
+              : [
+                  BoxShadow(
+                    color: hovered
+                        ? Colors.black.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.05),
+                    blurRadius: hovered ? 16 : 12,
+                    offset: hovered ? const Offset(0, 6) : const Offset(0, 4),
+                  ),
+                ],
+        );
+
+      case CardVariant.outlined:
+        return CardStyle(
+          background: backgroundOverride ??
+              (hovered
+                  ? colors.primary.withValues(alpha: isDark ? 0.06 : 0.03)
+                  : Colors.transparent),
+          border: Border.all(
+            color: borderOverride ??
+                (hovered
+                    ? colors.primary.withValues(alpha: isDark ? 0.5 : 0.4)
+                    : colors.outline.withValues(alpha: isDark ? 0.4 : 0.3)),
+            width: 1.5,
+          ),
+          shadows: const [],
+        );
+
+      case CardVariant.filled:
+        return CardStyle(
+          background: backgroundOverride ??
+              (hovered
+                  ? (isDark
+                      ? colors.primary.withValues(alpha: 0.12)
+                      : colors.primary.withValues(alpha: 0.06))
+                  : (isDark
+                      ? colors.surfaceContainerHighest
+                      : colors.surfaceContainerHigh)),
+          border: null,
+          shadows: const [],
+        );
+
+      case CardVariant.glass:
+        return CardStyle(
+          background: backgroundOverride ??
+              (isDark
+                  ? colors.surface.withValues(alpha: hovered ? 0.78 : 0.72)
+                  : colors.surface.withValues(alpha: hovered ? 0.92 : 0.85)),
+          border: Border.all(
+            color: borderOverride ??
+                (hovered
+                    ? colors.primary.withValues(alpha: 0.25)
+                    : (isDark
+                        ? colors.outline.withValues(alpha: 0.2)
+                        : colors.outline.withValues(alpha: 0.15))),
+          ),
+          shadows: [
+            BoxShadow(
+              color: hovered
+                  ? colors.primary.withValues(alpha: isDark ? 0.2 : 0.1)
+                  : colors.shadow.withValues(alpha: isDark ? 0.3 : 0.1),
+              blurRadius: 24 + hoverShadowBoost,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        );
+
+      case CardVariant.hero:
+        final accent = accentColor ?? colors.primary;
+        return CardStyle(
+          background: backgroundOverride,
+          border: null,
+          shadows: [
+            BoxShadow(
+              color: accent.withValues(alpha: isDark ? (hovered ? 0.4 : 0.32) : (hovered ? 0.28 : 0.22)),
+              blurRadius: 24 + hoverShadowBoost,
+              offset: Offset(0, 16 + (hovered ? 2 : 0)),
+            ),
+          ],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              accent.withValues(alpha: isDark ? 0.85 : 0.95),
+              accent.withValues(alpha: isDark ? 0.65 : 0.7),
+            ],
+          ),
+        );
+    }
+  }
+}
+
+/// Internal style configuration for CardX variants.
+class CardStyle {
+  const CardStyle({
+    required this.background,
+    required this.border,
+    required this.shadows,
+    this.gradient,
+  });
+
+  final Color? background;
+  final BoxBorder? border;
+  final List<BoxShadow> shadows;
+  final Gradient? gradient;
 }
 
 class Section extends StatelessWidget {

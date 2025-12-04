@@ -1,7 +1,14 @@
-part of 'schedules_screen.dart';
+// ignore_for_file: unused_local_variable, unused_import
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class _ScheduleMessageCard extends StatelessWidget {
-  const _ScheduleMessageCard({
+import '../../ui/kit/kit.dart';
+import '../../ui/theme/card_styles.dart';
+import '../../ui/theme/tokens.dart';
+
+class ScheduleMessageCard extends StatelessWidget {
+  const ScheduleMessageCard({
+    super.key,
     required this.icon,
     required this.title,
     required this.message,
@@ -26,10 +33,29 @@ class _ScheduleMessageCard extends StatelessWidget {
     final cardBackground = elevatedCardBackground(theme);
     final borderColor = elevatedCardBorder(theme);
 
-    return CardX(
-      backgroundColor: cardBackground,
-      borderColor: borderColor,
-      padding: const EdgeInsets.all(20),
+    return Container(
+      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: theme.brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -55,29 +81,29 @@ class _ScheduleMessageCard extends StatelessWidget {
             ),
           ),
           if (primaryLabel != null || secondaryLabel != null) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: AppTokens.spacing.lg),
             Row(
               children: [
                 if (primaryLabel != null) ...[
                   FilledButton(
                     onPressed: onPrimary,
                     style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 44),
+                      minimumSize: const Size(0, 48),
                       shape: RoundedRectangleBorder(
-                        borderRadius: AppTokens.radius.lg,
+                        borderRadius: AppTokens.radius.xl,
                       ),
                     ),
                     child: Text(primaryLabel!),
                   ),
                 ],
                 if (secondaryLabel != null) ...[
-                  if (primaryLabel != null) const SizedBox(width: 12),
+                  if (primaryLabel != null) SizedBox(width: AppTokens.spacing.md),
                   OutlinedButton(
                     onPressed: onSecondary,
                     style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 44),
+                      minimumSize: const Size(0, 48),
                       shape: RoundedRectangleBorder(
-                        borderRadius: AppTokens.radius.lg,
+                        borderRadius: AppTokens.radius.xl,
                       ),
                     ),
                     child: Text(secondaryLabel!),
@@ -92,8 +118,8 @@ class _ScheduleMessageCard extends StatelessWidget {
   }
 }
 
-class _OfflineBanner extends StatelessWidget {
-  const _OfflineBanner({super.key, required this.lastSynced});
+class OfflineBanner extends StatelessWidget {
+  const OfflineBanner({super.key, required this.lastSynced});
 
   final DateTime? lastSynced;
 

@@ -122,8 +122,7 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
     await tester.pumpAndSettle();
 
-    final verificationShortcut =
-        find.widgetWithText(TextButton, 'Enter verification code');
+    final verificationShortcut = find.text('Enter verification code');
     expect(verificationShortcut, findsOneWidget);
 
     await tester.ensureVisible(verificationShortcut);

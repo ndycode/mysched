@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,17 +8,35 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+println("DEBUG: Looking for key.properties at: " + keystorePropertiesFile.absolutePath)
+if (keystorePropertiesFile.exists()) {
+    println("DEBUG: Found key.properties")
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else {
+    println("DEBUG: key.properties NOT FOUND")
+}
+
 android {
-    namespace = "com.example.mysched"
+    signingConfigs {
+        create("release") {
+            keyAlias = keystoreProperties["keyAlias"] as String
+            keyPassword = keystoreProperties["keyPassword"] as String
+            storeFile = keystoreProperties["storeFile"]?.let { file(it as String) }
+            storePassword = keystoreProperties["storePassword"] as String
+        }
+    }
+    namespace = "com.ici.mysched"
     compileSdk = 36 // Use explicit API level for stability
     ndkVersion = "27.0.12077973"
 
     defaultConfig {
-    applicationId = "com.example.mysched"
+    applicationId = "com.ici.mysched"
     minSdk = 24 // Minimum recommended for modern Flutter plugins
     targetSdk = 36 // Match compileSdk for best compatibility
-    versionCode = 1 // Update as needed for releases
-    versionName = "1.0.0" // Update as needed for releases
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
     }
 
     buildTypes {
@@ -25,7 +46,7 @@ android {
         }
         release {
             // Use release signingConfig if available
-            // signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -56,6 +77,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.google.android.material:material:1.11.0")
 
     // ML Kit Text Recognition base and script-specific models to satisfy plugin references
     implementation("com.google.mlkit:text-recognition:16.0.0")

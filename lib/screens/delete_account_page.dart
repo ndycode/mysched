@@ -196,26 +196,76 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
       sections.add(
         ScreenSection(
           title: 'Before you delete',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Deleting your account removes your schedules, reminders, and offline backups immediately.',
-                style: helperStyle,
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
-              SizedBox(height: spacing.sm),
-              Text(
-                'Export your timetable first if you think you might need it later.',
-                style: helperStyle,
-              ),
-            ],
+              boxShadow: theme.brightness == Brightness.dark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Deleting your account removes your schedules, reminders, and offline backups immediately.',
+                  style: helperStyle,
+                ),
+                SizedBox(height: spacing.sm),
+                Text(
+                  'Export your timetable first if you think you might need it later.',
+                  style: helperStyle,
+                ),
+              ],
+            ),
           ),
         ),
       );
       sections.add(
         ScreenSection(
           title: 'Confirm with password',
-          child: passwordForm(),
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
+              boxShadow: theme.brightness == Brightness.dark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
+            child: passwordForm(),
+          ),
         ),
       );
     }

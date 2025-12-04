@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'pressable_scale.dart';
 
@@ -49,20 +50,30 @@ class GlassNavigationBar extends StatelessWidget {
     final media = MediaQuery.of(context);
     final bottomInset = media.padding.bottom;
     final shouldFloatFab = _showQuickAction && !inlineQuickAction;
+    final basePadding = AppTokens.spacing.edgeInsetsSymmetric(
+      horizontal: AppTokens.spacing.lg,
+      vertical: AppTokens.spacing.md,
+    );
+    final double baseBottomPadding = shouldFloatFab ? 12.0 : 8.0;
+    final double bottomPadding = baseBottomPadding + bottomInset;
+    const horizontalPadding = EdgeInsets.symmetric(horizontal: 16);
 
     Widget navSurface(Widget child) {
+      final padding = basePadding + EdgeInsets.only(bottom: bottomPadding);
       return ClipRRect(
-        borderRadius: BorderRadius.circular(28),
+        borderRadius: AppTokens.radius.xxl,
         child: BackdropFilter(
           filter: ImageFilter.blur(
             sigmaX: blurSigma,
             sigmaY: blurSigma,
           ),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: AnimatedContainer(
+            duration: AppMotionSystem.quick,
+            curve: AppMotionSystem.easeOut,
+            padding: padding,
             decoration: BoxDecoration(
               color: background,
-              borderRadius: BorderRadius.circular(28),
+              borderRadius: AppTokens.radius.xxl,
               boxShadow: [
                 BoxShadow(
                   color: shadowColor,
@@ -83,32 +94,39 @@ class GlassNavigationBar extends StatelessWidget {
       children: _buildDestinations(context),
     );
 
+    Widget bar;
     if (!shouldFloatFab) {
-      return Padding(
-        padding: EdgeInsets.fromLTRB(16, 0, 16, bottomInset + 8),
+      bar = Padding(
+        padding: horizontalPadding,
         child: navSurface(navRow),
+      );
+    } else {
+      bar = Padding(
+        padding: horizontalPadding,
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.bottomCenter,
+          children: [
+            navSurface(
+              navRow,
+            ),
+            Positioned(
+              top: -22,
+              child: _FloatingQuickActionButton(
+                onTap: onQuickAction!,
+                active: quickActionOpen,
+                label: quickActionLabel,
+              ),
+            ),
+          ],
+        ),
       );
     }
 
-    return Padding(
-      padding: EdgeInsets.fromLTRB(16, 0, 16, bottomInset + 12),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.bottomCenter,
-        children: [
-          navSurface(
-            navRow,
-          ),
-          Positioned(
-            top: -22,
-            child: _FloatingQuickActionButton(
-              onTap: onQuickAction!,
-              active: quickActionOpen,
-              label: quickActionLabel,
-            ),
-          ),
-        ],
-      ),
+    // Solid surface fill behind the glass to prevent black gaps on translucent backgrounds.
+    return DecoratedBox(
+      decoration: BoxDecoration(color: colors.surface),
+      child: bar,
     );
   }
 
@@ -153,7 +171,7 @@ class GlassNavigationBar extends StatelessWidget {
   }
 }
 
-class _GlassNavItem extends StatelessWidget {
+class _GlassNavItem extends StatefulWidget {
   const _GlassNavItem({
     required this.icon,
     required this.selectedIcon,
@@ -169,6 +187,65 @@ class _GlassNavItem extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
+  State<_GlassNavItem> createState() => _GlassNavItemState();
+}
+
+class _GlassNavItemState extends State<_GlassNavItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+  late final Animation<double> _indicatorWidthAnimation;
+  bool _hovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: AppMotionSystem.quick,
+      reverseDuration: AppMotionSystem.quick,
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: AppMotionSystem.easeOut,
+        reverseCurve: AppMotionSystem.easeIn,
+      ),
+    );
+
+    _indicatorWidthAnimation = Tween<double>(begin: 0.0, end: 18.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: AppMotionSystem.easeOut,
+        reverseCurve: AppMotionSystem.easeIn,
+      ),
+    );
+
+    if (widget.selected) {
+      _controller.value = 1.0;
+    }
+  }
+
+  @override
+  void didUpdateWidget(_GlassNavItem oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selected != oldWidget.selected) {
+      if (widget.selected) {
+        _controller.forward();
+      } else {
+        _controller.reverse();
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
@@ -178,39 +255,78 @@ class _GlassNavItem extends StatelessWidget {
         isDark ? colors.onSurface.withValues(alpha: 0.75) : Colors.black54;
     final highlightColor = activeColor.withValues(alpha: isDark ? 0.24 : 0.12);
     final activeIconColor = colors.onPrimary;
-    final displayIcon = selected ? selectedIcon ?? icon : icon;
-    return PressableScale(
-      onTap: onTap,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            curve: Curves.easeOut,
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: selected ? highlightColor : Colors.transparent,
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: IconTheme(
-              data: IconThemeData(
-                size: 22,
-                color: selected ? activeIconColor : inactiveColor,
+    final displayIcon =
+        widget.selected ? widget.selectedIcon ?? widget.icon : widget.icon;
+
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hovered = true),
+      onExit: (_) => setState(() => _hovered = false),
+      cursor: SystemMouseCursors.click,
+      child: PressableScale(
+        variant: PressableVariant.subtle,
+        onTap: widget.onTap,
+        hapticFeedback: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedContainer(
+              duration: AppMotionSystem.quick,
+              curve: AppMotionSystem.easeOut,
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: widget.selected
+                    ? highlightColor
+                    : (_hovered
+                        ? activeColor.withValues(alpha: isDark ? 0.08 : 0.05)
+                        : Colors.transparent),
+                borderRadius: AppTokens.radius.lg,
               ),
-              child: displayIcon,
+              child: AnimatedBuilder(
+                animation: _scaleAnimation,
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: widget.selected ? _scaleAnimation.value : 1.0,
+                    child: child,
+                  );
+                },
+                child: AnimatedContainer(
+                  duration: AppMotionSystem.instant,
+                  curve: AppMotionSystem.easeOut,
+                  child: IconTheme(
+                    data: IconThemeData(
+                      size: 22,
+                      color: widget.selected ? activeIconColor : inactiveColor,
+                    ),
+                    child: displayIcon,
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 220),
-            height: 4,
-            width: selected ? 18 : 0,
-            decoration: BoxDecoration(
-              color: activeColor,
-              borderRadius: BorderRadius.circular(999),
+            const SizedBox(height: 6),
+            AnimatedBuilder(
+              animation: _indicatorWidthAnimation,
+              builder: (context, _) {
+                return Container(
+                  height: 4,
+                  width: _indicatorWidthAnimation.value,
+                  decoration: BoxDecoration(
+                    color: activeColor,
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: widget.selected
+                        ? [
+                            BoxShadow(
+                              color: activeColor.withValues(alpha: 0.4),
+                              blurRadius: 4,
+                              spreadRadius: 0.5,
+                            ),
+                          ]
+                        : [],
+                  ),
+                );
+              },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -300,9 +416,12 @@ class _FloatingQuickActionButton extends StatelessWidget {
               ),
             ),
             PressableScale(
-              scale: 0.92,
+              variant: PressableVariant.deep,
               onTap: onTap,
-              child: Container(
+              hapticFeedback: true,
+              child: AnimatedContainer(
+                duration: AppMotionSystem.quick,
+                curve: AppMotionSystem.easeOut,
                 width: 68,
                 height: 68,
                 decoration: BoxDecoration(
@@ -311,15 +430,21 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: bubbleShadow,
-                      blurRadius: 30,
-                      offset: const Offset(0, 16),
+                      blurRadius: active ? 36 : 30,
+                      offset: Offset(0, active ? 18 : 16),
+                      spreadRadius: active ? 2 : 0,
                     ),
                   ],
                 ),
-                child: Icon(
-                  active ? Icons.close : Icons.add,
-                  color: onAccent,
-                  size: 32,
+                child: AnimatedRotation(
+                  turns: active ? 0.125 : 0.0,
+                  duration: AppMotionSystem.medium,
+                  curve: AppMotionSystem.easeOut,
+                  child: Icon(
+                    active ? Icons.close : Icons.add,
+                    color: onAccent,
+                    size: 32,
+                  ),
                 ),
               ),
             ),
@@ -377,9 +502,12 @@ class _InlineQuickActionButton extends StatelessWidget {
         child: Transform.translate(
           offset: const Offset(0, -4),
           child: PressableScale(
-            scale: 0.92,
+            variant: PressableVariant.deep,
             onTap: onTap,
-            child: Container(
+            hapticFeedback: true,
+            child: AnimatedContainer(
+              duration: AppMotionSystem.quick,
+              curve: AppMotionSystem.easeOut,
               width: 56,
               height: 56,
               decoration: BoxDecoration(
@@ -387,16 +515,22 @@ class _InlineQuickActionButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.18),
-                    blurRadius: 18,
-                    offset: const Offset(0, 10),
+                    color: color.withValues(alpha: active ? 0.24 : 0.18),
+                    blurRadius: active ? 22 : 18,
+                    offset: Offset(0, active ? 12 : 10),
+                    spreadRadius: active ? 1 : 0,
                   ),
                 ],
               ),
-              child: Icon(
-                active ? Icons.close : Icons.add,
-                color: onColor,
-                size: 28,
+              child: AnimatedRotation(
+                turns: active ? 0.125 : 0.0,
+                duration: AppMotionSystem.medium,
+                curve: AppMotionSystem.easeOut,
+                child: Icon(
+                  active ? Icons.close : Icons.add,
+                  color: onColor,
+                  size: 28,
+                ),
               ),
             ),
           ),

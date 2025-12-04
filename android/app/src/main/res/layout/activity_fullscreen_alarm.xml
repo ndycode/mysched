@@ -4,258 +4,201 @@
     android:id="@+id/alarm_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/alarm_surface"
+    android:background="@drawable/fullscreen_alarm_background"
+    android:paddingStart="24dp"
+    android:paddingEnd="24dp"
+    android:paddingTop="32dp"
     android:paddingBottom="32dp">
 
+
+
+    <!-- Time Card -->
     <LinearLayout
-        android:id="@+id/alarm_label_row"
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/alarm_status_chip"
-        android:gravity="center_vertical"
-        android:paddingStart="18dp"
-        android:paddingEnd="18dp"
+        android:id="@+id/alarm_time_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:layout_width="18dp"
-            android:layout_height="18dp"
-            android:layout_marginEnd="8dp"
-            android:src="@android:drawable/ic_lock_idle_alarm"
-            android:tint="@color/alarm_primary" />
-
         <TextView
-            android:id="@+id/alarm_label"
+            android:id="@+id/alarm_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/sf_rounded"
-            android:text="Class reminder"
-            android:textColor="@color/alarm_primary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-    </LinearLayout>
-
-    <TextView
-        android:id="@+id/alarm_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:fontFamily="@font/sf_rounded"
-        android:gravity="center"
-        android:letterSpacing="-0.02"
-        android:text="12:15"
-        android:textColor="@color/alarm_text_primary"
-        android:textSize="96sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/alarm_label_row" />
-
-    <TextView
-        android:id="@+id/alarm_time_subtitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="@font/sf_rounded"
-        android:text="Thursday, Nov 20 · 8:30 AM"
-        android:textColor="@color/alarm_text_secondary"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/alarm_time" />
-
-    <LinearLayout
-        android:id="@+id/alarm_detail_card"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="24dp"
-        android:layout_marginEnd="24dp"
-        android:background="@drawable/alarm_detail_card"
-        android:elevation="12dp"
-        android:orientation="vertical"
-        android:padding="24dp"
-        app:layout_constraintBottom_toTopOf="@id/button_column"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/alarm_time_subtitle"
-        app:layout_goneMarginBottom="16dp">
-
-        <TextView
-            android:id="@+id/alarm_subject"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/sf_rounded"
-            android:text="Alarm preview"
+            android:fontFamily="sans-serif"
+            android:gravity="center"
+            android:letterSpacing="-0.02"
+            android:text="3:04"
             android:textColor="@color/alarm_text_primary"
-            android:textSize="26sp"
-            android:textStyle="bold" />
+            android:textSize="104sp"
+            android:textStyle="bold"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="72sp"
+            android:autoSizeMaxTextSize="104sp"
+            android:autoSizeStepGranularity="2sp"
+            android:lineHeight="104sp" />
 
+        <!-- Class reminder badge (Moved here) -->
         <LinearLayout
-            android:id="@+id/alarm_detail_meta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:id="@+id/alarm_label_row"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
             android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:background="@drawable/alarm_chip_background"
+            android:gravity="center_vertical"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="16dp"
+                android:layout_height="16dp"
+                android:layout_marginEnd="8dp"
+                android:src="@android:drawable/ic_lock_idle_alarm"
+                android:tint="@color/alarm_text_secondary" />
+
+            <TextView
+                android:id="@+id/alarm_label"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@android:drawable/ic_lock_idle_alarm"
-                    android:tint="@color/alarm_primary" />
-
-                <TextView
-                    android:id="@+id/alarm_chip_time"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/sf_rounded"
-                    android:text="8:30 - 10:00 AM"
-                    android:textColor="@color/alarm_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@android:drawable/ic_menu_today"
-                    android:tint="@color/alarm_primary" />
-
-                <TextView
-                    android:id="@+id/alarm_chip_date"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/sf_rounded"
-                    android:text="Thu, Nov 20"
-                    android:textColor="@color/alarm_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:paddingTop="6dp"
-                android:paddingBottom="6dp">
-
-                <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginEnd="12dp"
-                    android:src="@android:drawable/ic_dialog_map"
-                    android:tint="@color/alarm_primary" />
-
-                <TextView
-                    android:id="@+id/alarm_chip_room"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:fontFamily="@font/sf_rounded"
-                    android:text="Room 203"
-                    android:textColor="@color/alarm_text_primary"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:fontFamily="sans-serif-medium"
+                android:text="Class reminder"
+                android:textColor="@color/alarm_text_secondary"
+                android:textSize="14sp"
+                android:letterSpacing="0.01"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <TextView
-            android:id="@+id/alarm_note"
-            android:layout_width="match_parent"
+            android:id="@+id/alarm_countdown"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:fontFamily="@font/sf_rounded"
-            android:text="Swipe down to dismiss after class starts."
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Alarm stops in 08:00"
+            android:textColor="@color/alarm_primary"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/alarm_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:fontFamily="sans-serif-medium"
+            android:text="Tue, Apr 23"
             android:textColor="@color/alarm_text_secondary"
             android:textSize="15sp" />
     </LinearLayout>
 
+    <!-- Context Card: Next class + status pills -->
+    <LinearLayout
+        android:id="@+id/context_card"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/alarm_time_card">
+
+        <!-- Next class row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:src="@android:drawable/ic_menu_my_calendar"
+                android:tint="@color/alarm_text_secondary" />
+
+            <TextView
+                android:id="@+id/next_class_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Next: Math class at 3:30 PM"
+                android:textColor="@color/alarm_text_primary"
+                android:textSize="15sp"
+                android:fontFamily="sans-serif-medium"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+    <!-- Action Buttons -->
     <LinearLayout
         android:id="@+id/button_column"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginEnd="24dp"
-        android:layout_marginBottom="32dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="28dp"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
         <Button
-            android:id="@+id/snooze_button"
+            android:id="@+id/dismiss_button"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/alarm_button_tonal"
-            android:drawableStart="@drawable/ic_twotone_snooze_24"
-            android:drawablePadding="12dp"
-            android:drawableTint="@color/alarm_primary"
-            android:fontFamily="@font/sf_rounded"
+            android:layout_height="62dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/alarm_button_stop"
+            android:fontFamily="sans-serif"
             android:minHeight="0dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:text="Snooze"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Stop"
             android:textAllCaps="false"
-            android:textColor="@color/alarm_primary"
+            android:textColor="@color/alarm_on_primary"
             android:textSize="17sp"
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/dismiss_button"
+            android:id="@+id/snooze_button"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:background="@drawable/alarm_button_primary"
-            android:drawableStart="@drawable/ic_twotone_stop_24"
-            android:drawablePadding="12dp"
-            android:drawableTint="@android:color/white"
-            android:fontFamily="@font/sf_rounded"
+            android:layout_height="62dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/alarm_button_snooze"
+            android:fontFamily="sans-serif"
             android:minHeight="0dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:text="Stop"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="Snooze 5 min"
             android:textAllCaps="false"
-            android:textColor="@android:color/white"
+            android:textColor="@color/alarm_on_primary"
             android:textSize="17sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/view_reminders_button"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="62dp"
             android:background="@drawable/alarm_button_tonal"
-            android:drawableStart="@android:drawable/ic_menu_agenda"
-            android:drawablePadding="12dp"
-            android:drawableTint="@color/alarm_primary"
-            android:fontFamily="@font/sf_rounded"
+            android:fontFamily="sans-serif"
             android:minHeight="0dp"
-            android:paddingStart="18dp"
-            android:paddingEnd="18dp"
-            android:text="View reminders"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="View dashboard"
             android:textAllCaps="false"
-            android:textColor="@color/alarm_primary"
+            android:textColor="@color/alarm_on_primary"
             android:textSize="17sp"
             android:textStyle="bold" />
     </LinearLayout>

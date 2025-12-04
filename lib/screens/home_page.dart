@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../app/routes.dart';
 import '../services/reminder_scope_store.dart';
 import '../ui/kit/kit.dart';
+import '../ui/theme/tokens.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,10 +30,24 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return const AppScaffold(
+    return AppScaffold(
       screenName: 'home_loading',
+      safeArea: false,
       body: AppBackground(
-        child: Center(child: CircularProgressIndicator()),
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            AppTokens.spacing.xl,
+            MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
+            AppTokens.spacing.xl,
+            AppTokens.spacing.xl,
+          ),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 640),
+              child: const SkeletonDashboardCard(),
+            ),
+          ),
+        ),
       ),
     );
   }

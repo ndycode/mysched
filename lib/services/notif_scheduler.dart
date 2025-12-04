@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app/constants.dart';
 import '../utils/app_log.dart';
 import '../utils/local_notifs.dart';
 import 'schedule_api.dart';
@@ -19,9 +20,9 @@ class NotifScheduler {
 
     final sp = await SharedPreferences.getInstance();
     await ensurePreferenceMigration(prefs: sp);
-    final appNotifs = sp.getBool('app_notifs') ?? true;
-    final classAlarms = sp.getBool('class_alarms') ?? true;
-    final quietWeek = sp.getBool('quiet_week_enabled') ?? false;
+    final appNotifs = sp.getBool(AppConstants.keyAppNotifs) ?? true;
+    final classAlarms = sp.getBool(AppConstants.keyClassAlarms) ?? true;
+    final quietWeek = sp.getBool(AppConstants.keyQuietWeek) ?? false;
     if (!appNotifs || !classAlarms) {
       await _cancelAllTracked(sp);
       return;
@@ -47,9 +48,9 @@ class NotifScheduler {
     }
 
     final leadMinutes = _readPositive(
-          sp.getInt('notifLeadMinutes'),
+          sp.getInt(AppConstants.keyLeadMinutes),
         ) ??
-        10;
+        AppConstants.defaultLeadMinutes;
 
     final scheduleApi = api ?? ScheduleApi();
     final classes = await scheduleApi.getMyClasses();
@@ -152,7 +153,7 @@ class NotifScheduler {
       return;
     }
 
-    final quietWeek = sp.getBool('quiet_week_enabled') ?? false;
+    final quietWeek = sp.getBool(AppConstants.keyQuietWeek) ?? false;
     if (quietWeek) {
       await LocalNotifs.showSnoozeFeedback(minutes: appliedMinutes);
       onSnoozed?.call(classId, appliedMinutes);
@@ -560,29 +561,29 @@ class NotifScheduler {
     int? positiveOrNull(int? value) =>
         value != null && value > 0 ? value : null;
 
-    final lead = sp.getInt('notifLeadMinutes');
+    final lead = sp.getInt(AppConstants.keyLeadMinutes);
     if (positiveOrNull(lead) == null) {
       final legacy = positiveOrNull(
             sp.getInt('default_notif_minutes') ?? sp.getInt('alert_minutes'),
           ) ??
-          10;
-      await sp.setInt('notifLeadMinutes', legacy);
+          AppConstants.defaultLeadMinutes;
+      await sp.setInt(AppConstants.keyLeadMinutes, legacy);
       changed = true;
     }
 
-    final snooze = sp.getInt('snoozeMinutes');
+    final snooze = sp.getInt(AppConstants.keySnoozeMinutes);
     if (positiveOrNull(snooze) == null) {
-      final legacy = positiveOrNull(sp.getInt('default_snooze_minutes')) ?? 5;
-      await sp.setInt('snoozeMinutes', legacy);
+      final legacy = positiveOrNull(sp.getInt('default_snooze_minutes')) ?? AppConstants.defaultSnoozeMinutes;
+      await sp.setInt(AppConstants.keySnoozeMinutes, legacy);
       changed = true;
     }
 
-    if (!sp.containsKey('quiet_week_enabled')) {
-      await sp.setBool('quiet_week_enabled', false);
+    if (!sp.containsKey(AppConstants.keyQuietWeek)) {
+      await sp.setBool(AppConstants.keyQuietWeek, false);
     }
 
-    if (!sp.containsKey('alarm_verbose_logging')) {
-      await sp.setBool('alarm_verbose_logging', false);
+    if (!sp.containsKey(AppConstants.keyVerboseLogging)) {
+      await sp.setBool(AppConstants.keyVerboseLogging, false);
     }
 
     if (changed) {

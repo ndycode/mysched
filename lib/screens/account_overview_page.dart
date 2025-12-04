@@ -13,9 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app/routes.dart';
 import '../env.dart';
 import '../services/auth_service.dart';
+import '../services/telemetry_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
-import '../ui/theme/card_styles.dart';
 import '../utils/nav.dart';
 import 'change_email_page.dart';
 
@@ -90,7 +90,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         _avatar = (me?['avatar_url'] as String?) ?? sp.getString('avatar_url');
         _profileHydrated = true;
       });
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('account_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -232,9 +233,9 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         ),
       ],
       padding: EdgeInsets.fromLTRB(
-        20,
+        spacing.xl,
         media.padding.top + spacing.xxxl,
-        20,
+        spacing.xl,
         spacing.quad + _kBottomNavSafePadding,
       ),
       safeArea: false,
@@ -243,10 +244,29 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
 
   Widget _buildProfileCard(ThemeData theme, ColorScheme colors) {
     final spacing = AppTokens.spacing;
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
-      backgroundColor: elevatedCardBackground(theme),
-      borderColor: elevatedCardBorder(theme),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: theme.brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -272,7 +292,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: colors.surface,
-                    borderRadius: BorderRadius.circular(32),
+                    borderRadius: AppTokens.radius.xxxl,
                     boxShadow: [
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: 0.2),
@@ -282,7 +302,6 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     ],
                   ),
                   child: IconButton(
-                    tooltip: 'Update profile photo',
                     onPressed: _busy ? null : _pickAndUpload,
                     icon: _busy
                         ? SizedBox(
@@ -371,10 +390,29 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         },
       ),
     ];
-    return CardX(
+    return Container(
       padding: EdgeInsets.zero,
-      backgroundColor: elevatedCardBackground(theme),
-      borderColor: elevatedCardBorder(theme),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: theme.brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
       child: Column(
         children: [
           for (var i = 0; i < tiles.length; i++) ...[
@@ -502,7 +540,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
             width: cropDimension,
             height: cropDimension,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: AppTokens.radius.lg,
               child: Crop(
                 controller: _controller,
                 image: widget.imageBytes,

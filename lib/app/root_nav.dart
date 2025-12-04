@@ -178,6 +178,7 @@ class _RootNavState extends State<RootNav>
     final created = await showModalBottomSheet<bool?>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => AddClassSheet(api: _api),
     );
     if (created == true) {
@@ -192,6 +193,7 @@ class _RootNavState extends State<RootNav>
     final result = await showModalBottomSheet<bool?>(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (context) => AddReminderSheet(api: _remindersApi),
     );
     if (result == true) {
@@ -334,21 +336,31 @@ class _RootNavState extends State<RootNav>
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
 
-    final content = IndexedStack(
-      index: _idx,
+    final pages = [
+      DashboardScreen(
+        key: _dashboardKey,
+        api: _api,
+        remindersApi: _remindersApi,
+      ),
+      SchedulesPage(key: _schedulesKey),
+      RemindersPage(
+        key: _remindersKey,
+        api: _remindersApi,
+        initialScope: widget.reminderScopeOverride,
+      ),
+      const SettingsPage(),
+    ];
+
+    final content = Stack(
       children: [
-        DashboardScreen(
-          key: _dashboardKey,
-          api: _api,
-          remindersApi: _remindersApi,
-        ),
-        SchedulesPage(key: _schedulesKey),
-        RemindersPage(
-          key: _remindersKey,
-          api: _remindersApi,
-          initialScope: widget.reminderScopeOverride,
-        ),
-        const SettingsPage(),
+        for (int i = 0; i < pages.length; i++)
+          Offstage(
+            offstage: _idx != i,
+            child: TickerMode(
+              enabled: _idx == i,
+              child: pages[i],
+            ),
+          ),
       ],
     );
 
@@ -363,7 +375,6 @@ class _RootNavState extends State<RootNav>
               builder: (context, child) {
                 final viewPadding = MediaQuery.of(context).padding.bottom;
                 final bottomInset = viewPadding + _kNavHeight;
-                final isDark = Theme.of(context).brightness == Brightness.dark;
                 const scrimColor = Colors.transparent;
                 return Stack(
                   children: [

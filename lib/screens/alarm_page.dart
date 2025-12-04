@@ -1,84 +1,204 @@
 import 'package:flutter/material.dart';
 
 import '../services/reminder_scope_store.dart';
+import '../ui/kit/alarm_preview.dart';
 import '../ui/kit/kit.dart';
+import '../ui/theme/tokens.dart';
 import '../utils/nav.dart';
 
 class AlarmPage extends StatelessWidget {
   const AlarmPage({super.key});
 
+  static const double _kBottomNavSafePadding = 120;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final muted = theme.colorScheme.onSurfaceVariant;
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final media = MediaQuery.of(context);
 
-    return AppScaffold(
+    final backButton = IconButton(
+      splashRadius: 22,
+      onPressed: () => Navigator.of(context).maybePop(),
+      icon: CircleAvatar(
+        radius: 16,
+        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        child: Icon(
+          Icons.arrow_back_rounded,
+          color: colors.primary,
+          size: 18,
+        ),
+      ),
+    );
+
+    final hero = ScreenBrandHeader(
+      leading: backButton,
+      showChevron: false,
+    );
+
+    void showPreviewOverlay() {
+      showDialog<void>(
+        context: context,
+        barrierColor: Colors.black.withValues(alpha: 0.7),
+        builder: (_) => Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.all(spacing.lg),
+          child: const AlarmPreviewMock(expanded: true),
+        ),
+      );
+    }
+
+    return ScreenShell(
       screenName: 'alarms',
-      appBar: const AppBarX(title: 'Class reminders'),
-      body: AppBackground(
-        child: PageBody(
+      hero: hero,
+      sections: [
+        ScreenSection(
+          decorated: false,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CardX(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'How reminders work',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'MySched syncs your timetable to Android\'s exact alarm API. '
-                      'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
-                      style: theme.textTheme.bodyMedium?.copyWith(color: muted),
-                    ),
-                  ],
-                ),
+              const ScreenHeroCard(
+                title: 'Class reminders',
+                subtitle:
+                    'Learn how MySched syncs your timetable to Android alarms.',
               ),
-              const SizedBox(height: 24),
-              CardX(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Heads-up tips',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    const _Bullet(
-                        'Keep notifications enabled so alarms can fire on time.'),
-                    const _Bullet(
-                        'Use Quiet week when you want to pause reminders temporarily.'),
-                    const _Bullet(
-                        'Re-run "Resync class reminders" in Settings after editing your schedule.'),
-                  ],
-                ),
+              SizedBox(height: spacing.lg),
+              Text(
+                'Live preview',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: colors.onSurfaceVariant,
               ),
-              const SizedBox(height: 24),
-              CardX(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Need to change something?',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: () => openReminders(
-                        scope: ReminderScopeStore.instance.value,
-                      ),
-                      child: const Text('Open notification settings'),
-                    ),
-                  ],
+            ),
+            SizedBox(height: spacing.sm),
+            const AlarmPreviewMock(),
+            SizedBox(height: spacing.sm),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: TextButton(
+                onPressed: showPreviewOverlay,
+                  child: const Text('Open fullscreen mock'),
                 ),
               ),
             ],
           ),
         ),
+        ScreenSection(
+          title: 'How reminders work',
+          subtitle: 'Alarm scheduling overview',
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              'MySched syncs your timetable to Android\'s exact alarm API. '
+              'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+        ScreenSection(
+          title: 'Heads-up tips',
+          subtitle: 'Keep your alarms reliable.',
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                _Bullet('Keep notifications enabled so alarms can fire on time.'),
+                _Bullet('Use Quiet week when you want to pause reminders temporarily.'),
+                _Bullet('Re-run "Resync class reminders" in Settings after editing your schedule.'),
+              ],
+            ),
+          ),
+        ),
+        ScreenSection(
+          title: 'Need to change something?',
+          subtitle: 'Open notifications settings to adjust preferences.',
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                PrimaryButton(
+                  label: 'Open notification settings',
+                  onPressed: () => openReminders(
+                    scope: ReminderScopeStore.instance.value,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+      padding: EdgeInsets.fromLTRB(
+        spacing.xl,
+        media.padding.top + spacing.xxxl,
+        spacing.xl,
+        spacing.quad + _kBottomNavSafePadding,
       ),
+      safeArea: false,
     );
   }
 }
@@ -92,13 +212,13 @@ class _Bullet extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
+      padding: EdgeInsets.only(bottom: AppTokens.spacing.sm),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.check_circle_outline,
               size: 18, color: theme.colorScheme.primary),
-          const SizedBox(width: 12),
+          SizedBox(width: AppTokens.spacing.md),
           Expanded(
             child: Text(
               text,

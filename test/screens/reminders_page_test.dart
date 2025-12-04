@@ -1,6 +1,10 @@
+// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:mysched/screens/reminders_page.dart';
+import 'package:mysched/screens/reminders/reminders_cards.dart';
+import 'package:mysched/screens/reminders/reminders_data.dart';
 import 'package:mysched/services/auth_service.dart';
 import 'package:mysched/services/offline_cache_service.dart';
 import 'package:mysched/services/profile_cache.dart';
@@ -111,6 +115,9 @@ void main() {
   });
 
   setUp(() {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.physicalSizeTestValue = const Size(1200, 2400);
+    binding.window.devicePixelRatioTestValue = 1.0;
     SharedPreferences.setMockInitialValues(<String, Object>{});
     OfflineCacheService.resetForTests();
     ProfileCache.clear();
@@ -123,6 +130,9 @@ void main() {
   });
 
   tearDown(() {
+    final binding = TestWidgetsFlutterBinding.ensureInitialized();
+    binding.window.clearPhysicalSizeTestValue();
+    binding.window.clearDevicePixelRatioTestValue();
     AuthService.resetTestOverrides();
   });
 
@@ -161,6 +171,64 @@ void main() {
       find.widgetWithText(OutlinedButton, 'Hide completed'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('shows empty state when no reminders', (tester) async {
+    final api = FakeRemindersApi(seed: []);
+
+    await _pumpReminders(tester, api);
+    await tester.pumpAndSettle();
+
+    expect(find.text('No reminders yet'), findsOneWidget);
+    expect(find.text('New reminder'), findsWidgets);
+  });
+
+  testWidgets('shows queued badge when flagged', (tester) async {
+    final entry = buildReminder(id: 42, title: 'Offline reminder');
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReminderRow(
+            entry: entry,
+            timeFormat: DateFormat('h:mm a'),
+            onToggle: (_) {},
+            onEdit: () {},
+            onDelete: () {},
+            onSnooze: () {},
+            showQueuedBadge: true,
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Queued'), findsOneWidget);
+  });
+
+  testWidgets('shows queued count on group header', (tester) async {
+    final entries = [
+      buildReminder(id: 1, title: 'Pending A'),
+      buildReminder(id: 2, title: 'Pending B'),
+    ];
+    final group = ReminderGroup(label: 'Today', items: entries);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: ReminderGroupCard(
+            group: group,
+            timeFormat: DateFormat('h:mm a'),
+            onToggle: (_, __) async {},
+            onEdit: (_) async {},
+            onDelete: (_) async {},
+            onSnooze: (_) async {},
+            queuedIds: {1},
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Queued 1'), findsOneWidget);
   });
 
   // Additional behavioural coverage can be extended here as more

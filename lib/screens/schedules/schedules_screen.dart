@@ -1,39 +1,22 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:share_plus/share_plus.dart';
 import '../../app/routes.dart';
-import '../../services/export_queue.dart';
-import '../../services/offline_cache_service.dart';
-import '../../services/profile_cache.dart';
+import '../../services/notif_scheduler.dart';
 import '../../services/schedule_api.dart' as sched;
-import '../../services/share_service.dart';
-import '../../services/telemetry_service.dart';
-import '../../services/user_scope.dart';
 import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/kit.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
 import '../add_class_page.dart';
 import '../scan_options_sheet.dart';
 import '../scan_preview_sheet.dart';
 import '../schedules_preview_sheet.dart';
-import '../../widgets/instructor_avatar.dart';
-
-part 'schedules_models.dart';
-part 'schedules_cards.dart';
-part 'schedules_messages.dart';
+import 'schedules_cards.dart';
+import 'schedules_controller.dart';
+import 'schedules_data.dart';
+import 'schedules_messages.dart';
 
 const double _kScheduleBottomSafePadding = 120;
-final DateFormat _dayOfWeekFormat = DateFormat('EEEE, MMM d');
 
 class SchedulesPage extends StatefulWidget {
   SchedulesPage({
@@ -54,60 +37,28 @@ class SchedulesPage extends StatefulWidget {
 }
 
 class SchedulesPageState extends State<SchedulesPage> with RouteAware {
-  late final sched.ScheduleApi _api = widget.api;
-
-  List<sched.ClassItem> _classes = const [];
-  bool _loading = true;
-  bool _offlineFallback = false;
-  bool _retrySuggested = false;
-  bool _dirty = false;
-
-  late final ExportQueue _exportQueue;
-  bool _exporting = false;
-  String? _exportError;
-  _ScheduleAction? _pendingExport;
-
-  String? _profileName;
-  String? _profileEmail;
-  String? _profileAvatar;
-  bool _profileHydrated = false;
-  String? _criticalError;
-  DateTime? _lastFetchedAt;
-
-  VoidCallback? _profileListener;
+  late final SchedulesController _controller;
   PageRoute<dynamic>? _routeSubscription;
-  final Set<int> _pendingToggleClassIds = <int>{};
-  int _classesVersion = 0;
-  int _groupedVersion = -1;
-  List<DayGroup> _groupedCache = const [];
 
   @override
   void initState() {
     super.initState();
-    _exportQueue = ExportQueue(connectivity: _hasConnectivity);
+    _controller = SchedulesController(
+      api: widget.api,
+      connectivityOverride: widget.connectivityOverride,
+    );
     _dismissKeyboard();
-    _profileListener = () {
-      _applyProfile(ProfileCache.notifier.value);
-    };
-    ProfileCache.notifier.addListener(_profileListener!);
-    _applyProfile(ProfileCache.notifier.value);
-    _loadProfile();
-    _load(initial: true);
   }
 
   @override
   void dispose() {
-    if (_profileListener != null) {
-      ProfileCache.notifier.removeListener(_profileListener!);
-    }
+    _controller.dispose();
     if (_routeSubscription != null) {
       routeObserver.unsubscribe(this);
       _routeSubscription = null;
     }
     super.dispose();
   }
-
-  String? _activeUserId() => UserScope.currentUserId();
 
   @override
   void didChangeDependencies() {
@@ -122,10 +73,6 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     }
   }
 
-  Future<void> reload({bool silent = false}) {
-    return _load(silent: silent);
-  }
-
   void _dismissKeyboard() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -133,187 +80,18 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     });
   }
 
-  Future<void> _loadProfile({bool refresh = false}) async {
-    try {
-      final profile = await ProfileCache.load(forceRefresh: refresh);
-      _applyProfile(profile);
-    } catch (_) {
-      if (!mounted) return;
-      if (!_profileHydrated) {
-        setState(() => _profileHydrated = true);
-      }
-    }
-  }
-
-  void _setClasses(List<sched.ClassItem> items) {
-    _classes = items;
-    _classesVersion++;
-    _groupedVersion = -1;
-  }
-
-  List<DayGroup> _groupedDays() {
-    if (_groupedVersion != _classesVersion) {
-      _groupedCache = groupClassesByDay(_classes);
-      _groupedVersion = _classesVersion;
-    }
-    return _groupedCache;
-  }
-
-  void _applyProfile(ProfileSummary? profile) {
-    if (!mounted) return;
-    if (profile == null) {
-      if (_profileHydrated) return;
-      setState(() => _profileHydrated = true);
-      return;
-    }
-    final nextName = profile.name;
-    final nextEmail = profile.email;
-    final nextAvatar = profile.avatarUrl;
-    final changed = nextName != _profileName ||
-        nextEmail != _profileEmail ||
-        nextAvatar != _profileAvatar ||
-        !_profileHydrated;
-    if (!changed) return;
-    setState(() {
-      _profileName = nextName;
-      _profileEmail = nextEmail;
-      _profileAvatar = nextAvatar;
-      _profileHydrated = true;
-    });
-  }
-
-  Future<bool> _hasConnectivity() async {
-    final override = widget.connectivityOverride;
-    if (override != null) {
-      return override();
-    }
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
-    } on SocketException {
-      return false;
-    }
-  }
-
-  Future<void> _load({bool initial = false, bool silent = false}) async {
-    final cached = _api.getCachedClasses();
-    if (initial && cached != null && cached.isNotEmpty) {
-      setState(() {
-        _setClasses(List<sched.ClassItem>.from(cached));
-        _loading = false;
-        _criticalError = null;
-      });
-    }
-
-    if (!mounted) return;
-
-    if (!silent) {
-      setState(() {
-        if (_classes.isEmpty) {
-          _loading = true;
-        }
-        _criticalError = null;
-        if (!initial) _retrySuggested = false;
-      });
-    }
-
-    final uid = _activeUserId();
-
-    try {
-      final items = await _api.getMyClasses(forceRefresh: true);
-      if (uid != null) {
-        final cache = await OfflineCacheService.instance();
-        await cache.saveSchedule(userId: uid, items: items);
-      }
-      if (!mounted) return;
-      setState(() {
-        _setClasses(items);
-        _loading = false;
-        _offlineFallback = false;
-        _criticalError = null;
-        _retrySuggested = false;
-        _lastFetchedAt = DateTime.now();
-      });
-    } catch (error, stack) {
-      List<sched.ClassItem>? offline;
-      if (uid != null) {
-        final cache = await OfflineCacheService.instance();
-        offline = await cache.readSchedule(uid);
-      }
-      if (!mounted) return;
-      final fallback = offline ?? cached;
-      if (fallback != null && fallback.isNotEmpty) {
-        final fallbackList = List<sched.ClassItem>.from(fallback);
-        setState(() {
-          _setClasses(fallbackList);
-          _loading = false;
-          _offlineFallback = offline != null && offline.isNotEmpty;
-          _retrySuggested = true;
-          _criticalError = null;
-        });
-      } else {
-        setState(() {
-          _setClasses(const []);
-          _loading = false;
-          _offlineFallback = false;
-          _retrySuggested = false;
-          _criticalError =
-              'We couldn\'t refresh your schedules. Retry now or scan your card again.';
-        });
-      }
-      TelemetryService.instance.logError(
-        'schedule_refresh_failed',
-        error: error,
-        stack: stack,
-      );
-    }
-  }
-
-  Future<void> _refresh() {
-    return _load(silent: true);
-  }
-
   Future<void> refreshOnTabVisit() {
-    return _refresh();
+    return _controller.refresh();
+  }
+
+  Future<void> reload({bool silent = false}) {
+    return _controller.load(silent: silent);
   }
 
   Future<void> _openAccount() async {
     await context.push(AppRoutes.account);
     if (!mounted) return;
-    await _loadProfile(refresh: true);
-  }
-
-  Widget _buildScheduleStickyHeader({
-    required String label,
-    required int count,
-  }) {
-    return Builder(
-      builder: (context) {
-        final theme = Theme.of(context);
-        final colors = theme.colorScheme;
-        return Padding(
-          padding: const EdgeInsets.symmetric(vertical: 6),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Text(
-                '$count class${count == 1 ? '' : 'es'}',
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+    await _controller.loadProfile(refresh: true);
   }
 
   Future<void> _openAddClass({sched.ClassItem? initial}) async {
@@ -322,8 +100,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       final created = await widget.onAddClass!.call();
       if (!mounted) return;
       if (created == true) {
-        _dirty = true;
-        await _refresh();
+        _controller.dirty = true;
+        await _controller.refresh();
+        await _controller.refresh(); // Double refresh as in original?
       }
       return;
     }
@@ -333,18 +112,19 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       context: context,
       alignment: Alignment.center,
       barrierDismissible: false,
+      dimBackground: true,
       padding: EdgeInsets.fromLTRB(
         20,
         media.padding.top + 24,
         20,
         media.padding.bottom + 24,
       ),
-      builder: (_) => AddClassSheet(api: _api, initialClass: initial),
+      builder: (_) => AddClassSheet(api: widget.api, initialClass: initial),
     );
     if (!mounted) return;
     if (result == true) {
-      _dirty = true;
-      await _refresh();
+      _controller.dirty = true;
+      await _controller.refresh();
     }
   }
 
@@ -374,7 +154,6 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       if (!mounted) return;
       if (preview == null) return;
       if (preview.retake) {
-        // User tapped retake; restart from capture options.
         continue;
       }
       if (!preview.isSuccess) return;
@@ -393,12 +172,11 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       if (!mounted) return;
       if (outcome == null) return;
       if (outcome.retake) {
-        // User wants to recapture; restart flow.
         continue;
       }
       if (outcome.imported) {
-        _dirty = true;
-        await _refresh();
+        _controller.dirty = true;
+        await _controller.refresh();
         _notify(
           'Schedule imported successfully.',
           type: AppSnackBarType.success,
@@ -410,13 +188,14 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
 
   Future<void> _openClassDetails(sched.ClassItem item) async {
     final media = MediaQuery.of(context);
-    final initial = _classes.firstWhere(
+    final initial = _controller.classes.firstWhere(
       (element) => element.id == item.id,
       orElse: () => item,
     );
     await showOverlaySheet<void>(
       context: context,
       alignment: Alignment.center,
+      dimBackground: true,
       padding: EdgeInsets.fromLTRB(
         20,
         media.padding.top + 24,
@@ -424,10 +203,11 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
         media.padding.bottom + 24,
       ),
       builder: (_) => ClassDetailsSheet(
-        api: _api,
+        api: widget.api,
         item: initial,
-        onDetailsChanged: (details) {
-          _applyClassEnabled(details.id, details.enabled);
+        onDetailsChanged: (details) async {
+          _controller.applyClassEnabled(details.id, details.enabled);
+          await NotifScheduler.resync(api: widget.api);
         },
         onEditCustom: initial.isCustom
             ? (details) async {
@@ -450,7 +230,11 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             : null,
         onDeleteCustom: initial.isCustom
             ? (details) async {
-                await _deleteCustom(details.id);
+                await _controller.deleteCustom(
+                  details.id,
+                  onSuccess: (msg) => _notify(msg, type: AppSnackBarType.success),
+                  onError: (err) => _notify(err, type: AppSnackBarType.error),
+                );
               }
             : null,
       ),
@@ -465,237 +249,174 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     showAppSnackBar(context, message, type: type);
   }
 
-  Future<void> _deleteCustom(int id) async {
-    try {
-      await _api.deleteCustomClass(id);
-      if (!mounted) return;
-      _dirty = true;
-      await _refresh();
-      _notify(
-        'Custom class removed.',
-        type: AppSnackBarType.success,
-      );
-    } catch (error) {
-      _notify(
-        'Failed to delete class: $error',
-        type: AppSnackBarType.error,
-      );
-    }
-  }
-
-  void _applyClassEnabled(int id, bool enabled) {
-    setState(() {
-      _setClasses(
-        _classes
-            .map((c) => c.id == id ? c.copyWith(enabled: enabled) : c)
-            .toList(growable: false),
-      );
-    });
-    _dirty = true;
-  }
-
-  Future<void> _toggleClassEnabled(
-    sched.ClassItem item,
-    bool enable,
-  ) async {
-    if (_pendingToggleClassIds.contains(item.id)) return;
-    setState(() => _pendingToggleClassIds.add(item.id));
-    try {
-      await _api.setClassEnabled(item, enable);
-      _applyClassEnabled(item.id, enable);
-    } catch (error) {
-      if (mounted) {
-        showAppSnackBar(
-          context,
-          enable
-              ? 'Unable to enable class. Try again.'
-              : 'Unable to disable class. Try again.',
-          type: AppSnackBarType.error,
-        );
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _pendingToggleClassIds.remove(item.id));
-      }
-    }
-  }
-
-  Widget _buildActionsMenu({Color? iconColor}) {
-    return PopupMenuButton<_ScheduleAction>(
-      key: const ValueKey('schedule-actions-menu'),
-      tooltip: 'Schedule actions',
-      enabled: !_exporting,
+  Widget _buildActionsMenu(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    
+    return PopupMenuButton<ScheduleAction>(
       onSelected: (action) => _handleAction(action),
-      position: PopupMenuPosition.under,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      elevation: isDark ? 8 : 12,
+      color: isDark ? colors.surfaceContainerHigh : Colors.white,
+      surfaceTintColor: Colors.transparent,
+      shadowColor: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
       itemBuilder: (context) => [
-        PopupMenuItem<_ScheduleAction>(
-          key: const ValueKey('schedule-reset-item'),
-          value: _ScheduleAction.reset,
-          child: Row(
-            children: const [
-              Icon(Icons.restart_alt_outlined),
-              SizedBox(width: 12),
-              Text('Reset schedules'),
-            ],
+        PopupMenuItem<ScheduleAction>(
+          value: ScheduleAction.pdf,
+          padding: EdgeInsets.zero,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, ScheduleAction.pdf),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colors.error.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.picture_as_pdf_outlined,
+                        size: 20,
+                        color: colors.error,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Export as PDF',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-        const PopupMenuDivider(),
-        PopupMenuItem<_ScheduleAction>(
-          key: const ValueKey('schedule-export-pdf-item'),
-          value: _ScheduleAction.pdf,
-          child: Row(
-            children: const [
-              Icon(Icons.picture_as_pdf_outlined),
-              SizedBox(width: 12),
-              Text('Export as PDF'),
-            ],
+        PopupMenuItem<ScheduleAction>(
+          value: ScheduleAction.csv,
+          padding: EdgeInsets.zero,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, ScheduleAction.csv),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.table_chart_outlined,
+                        size: 20,
+                        color: Color(0xFF10B981),
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Export as CSV',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
-        PopupMenuItem<_ScheduleAction>(
-          key: const ValueKey('schedule-export-csv-item'),
-          value: _ScheduleAction.csv,
-          child: Row(
-            children: const [
-              Icon(Icons.table_chart_outlined),
-              SizedBox(width: 12),
-              Text('Export as CSV'),
-            ],
+        PopupMenuItem<ScheduleAction>(
+          enabled: false,
+          height: 1,
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
+                  isDark ? colors.outline.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
+                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<ScheduleAction>(
+          value: ScheduleAction.reset,
+          padding: EdgeInsets.zero,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, ScheduleAction.reset),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.restart_alt_outlined,
+                        size: 20,
+                        color: colors.primary,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Reset schedules',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ],
-      child: Icon(
+      icon: Icon(
         Icons.more_vert_rounded,
-        color: iconColor ?? Theme.of(context).colorScheme.onSurfaceVariant,
+        size: 24,
+        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
       ),
     );
   }
 
-  Future<void> _handleAction(_ScheduleAction action) async {
-    if (action == _ScheduleAction.reset) {
+  Future<void> _handleAction(ScheduleAction action) async {
+    if (action == ScheduleAction.reset) {
       await _confirmResetSchedules();
       return;
     }
-
-    if (_exporting) return;
-    final groups = groupClassesByDay(_classes);
-    if (groups.isEmpty) {
-      _notify('Nothing to export just yet.');
-      return;
-    }
-
-    setState(() {
-      _exporting = true;
-      _exportError = null;
-      _pendingExport = action;
-    });
-
-    final now = DateTime.now();
-    ShareParams params;
-    if (action == _ScheduleAction.pdf) {
-      final pdfBytes = await buildSchedulePdf(groups, now: now);
-      final text = buildSchedulePlainText(groups, now: now);
-      params = ShareParams(
-        text: text,
-        subject: 'MySched timetable',
-        files: [
-          XFile.fromData(
-            pdfBytes,
-            mimeType: 'application/pdf',
-            name: 'mysched-timetable.pdf',
-          ),
-          XFile.fromData(
-            Uint8List.fromList(utf8.encode(text)),
-            mimeType: 'text/plain',
-            name: 'mysched-timetable.txt',
-          ),
-        ],
-        fileNameOverrides: [
-          'mysched-timetable.pdf',
-          'mysched-timetable.txt',
-        ],
-      );
-      TelemetryService.instance.logEvent(
-        'schedule_export_pdf',
-        data: {'count': groups.fold<int>(0, (sum, g) => sum + g.items.length)},
-      );
-    } else {
-      final csv = buildScheduleCsv(_classes, now: now);
-      params = ShareParams(
-        text: csv,
-        subject: 'MySched timetable',
-        files: [
-          XFile.fromData(
-            Uint8List.fromList(utf8.encode(csv)),
-            mimeType: 'text/csv',
-            name: 'mysched-timetable.csv',
-          ),
-        ],
-        fileNameOverrides: ['mysched-timetable.csv'],
-      );
-      TelemetryService.instance.logEvent(
-        'schedule_export_csv',
-        data: {'count': _classes.length},
-      );
-    }
-
-    final hasNetwork = await _hasConnectivity();
-    if (!hasNetwork) {
-      if (!mounted) return;
-      setState(() {
-        _exporting = false;
-        _exportError =
-            'No internet connection. Try again once you\'re back online.';
-      });
-      return;
-    }
-
-    final completer = Completer<void>();
-    _exportQueue.enqueue(() async {
-      try {
-        await ShareService.share(params);
-        if (!completer.isCompleted) {
-          completer.complete();
-        }
-      } catch (error, stack) {
-        if (!completer.isCompleted) {
-          completer.completeError(error, stack);
-        }
-      }
-    });
-
-    await _exportQueue.flush();
-
-    try {
-      await completer.future;
-      if (!mounted) return;
-      setState(() {
-        _exporting = false;
-        _exportError = null;
-        _pendingExport = null;
-      });
-    } catch (error, stack) {
-      if (!mounted) return;
-      setState(() {
-        _exporting = false;
-        _exportError = 'Check your internet connection and try again.';
-      });
-      TelemetryService.instance.logError(
-        'schedule_export_failed',
-        error: error,
-        stack: stack,
-        data: {'format': action.name},
-      );
-    }
-  }
-
-  void _retryPendingExport() {
-    final pending = _pendingExport;
-    if (pending == null || _exporting) return;
-    _handleAction(pending);
+    await _controller.handleExportAction(
+      action,
+      onInfo: (msg) => _notify(msg),
+    );
   }
 
   Future<void> _confirmResetSchedules() async {
-    if (_loading) return;
+    if (_controller.loading) return;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -719,35 +440,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     );
     if (confirm != true) return;
 
-    setState(() {
-      _loading = true;
-      _criticalError = null;
-      _exportError = null;
-    });
-
-    try {
-      await _api.resetAllForCurrentUser();
-      if (!mounted) return;
-      setState(() {
-        _setClasses(const []);
-        _loading = false;
-        _offlineFallback = false;
-        _retrySuggested = false;
-        _dirty = true;
-        _lastFetchedAt = DateTime.now();
-      });
-      _notify(
-        'Schedules reset.',
-        type: AppSnackBarType.success,
-      );
-    } catch (error) {
-      if (!mounted) return;
-      setState(() => _loading = false);
-      _notify(
-        'Reset failed. Please try again. ($error)',
-        type: AppSnackBarType.error,
-      );
-    }
+    await _controller.resetSchedules(
+      onSuccess: (msg) => _notify(msg, type: AppSnackBarType.success),
+      onError: (err) => _notify(err, type: AppSnackBarType.error),
+    );
   }
 
   @override
@@ -756,197 +452,278 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final media = MediaQuery.of(context);
-    final hero = ScreenBrandHeader(
-      name: _profileName,
-      email: _profileEmail,
-      avatarUrl: _profileAvatar,
-      onAccountTap: _openAccount,
-      showChevron: false,
-      loading: !_profileHydrated,
-    );
-    final shellPadding = EdgeInsets.fromLTRB(
-      20,
-      media.padding.top + spacing.xxxl,
-      20,
-      spacing.quad + _kScheduleBottomSafePadding,
-    );
 
-    if (_loading && _classes.isEmpty) {
-      return ScreenShell(
-        screenName: 'schedules',
-        hero: hero,
-        sections: const [
-          ScreenSection(
-            decorated: false,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-        ],
-        padding: shellPadding,
-        onRefresh: _refresh,
-        refreshColor: colors.primary,
-        safeArea: false,
-        cacheExtent: 800,
-      );
-    }
-
-    final now = DateTime.now();
-    final summary = _ScheduleSummary.resolve(_classes, now);
-    final groups = _groupedDays();
-
-    final sections = <Widget>[];
-
-    if (_criticalError != null && _classes.isEmpty) {
-      sections.add(
-        ScreenSection(
-          decorated: false,
-          child: _ScheduleMessageCard(
-            icon: Icons.error_outline,
-            title: 'Schedule not loaded',
-            message:
-                'We couldn\'t refresh your schedules. Retry now or scan your card again.',
-            primaryLabel: 'Retry',
-            onPrimary: () => _load(silent: false),
-            secondaryLabel: 'Scan student card',
-            onSecondary: _openScanOptions,
-          ),
-        ),
-      );
-    } else {
-      if (_offlineFallback) {
-        sections.add(
-          ScreenSection(
-            decorated: false,
-            child: _OfflineBanner(
-              key: const ValueKey('offline-cache-banner'),
-              lastSynced: _lastFetchedAt,
-            ),
-          ),
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) {
+        final hero = ScreenBrandHeader(
+          name: _controller.profileName,
+          email: _controller.profileEmail,
+          avatarUrl: _controller.profileAvatar,
+          onAccountTap: _openAccount,
+          showChevron: false,
+          loading: !_controller.profileHydrated,
         );
-      }
-
-      if (_retrySuggested) {
-        sections.add(
-          ScreenSection(
-            decorated: false,
-            child: _ScheduleMessageCard(
-              icon: Icons.sync_problem_outlined,
-              title: 'Almost caught up',
-              message:
-                  'A network hiccup interrupted the last sync. Retry to fetch the latest classes.',
-              primaryLabel: 'Retry sync',
-              onPrimary: _refresh,
-              secondaryLabel: 'Scan card',
-              onSecondary: _openScanOptions,
-            ),
-          ),
+        final shellPadding = EdgeInsets.fromLTRB(
+          spacing.xl,
+          media.padding.top + spacing.xxxl,
+          spacing.xl,
+          spacing.quad + _kScheduleBottomSafePadding,
         );
-      }
 
-      if (_exportError != null && _pendingExport != null) {
-        sections.add(
-          ScreenSection(
-            decorated: false,
-            child: _ScheduleMessageCard(
-              icon: Icons.block,
-              title: 'Export unavailable',
-              message: _exportError!,
-              primaryLabel: 'Try again',
-              onPrimary: _retryPendingExport,
-            ),
-          ),
-        );
-      }
-
-      sections.add(
-        ScreenSection(
-          decorated: false,
-          child: _ScheduleSummaryCard(
-            summary: summary,
-            now: now,
-            onAddClass: () => _openAddClass(),
-            onScanCard: _openScanOptions,
-            menuButton: _buildActionsMenu(
-              iconColor: colors.onSurfaceVariant.withValues(alpha: 0.9),
-            ),
-          ),
-        ),
-      );
-
-      final flattened = [
-        for (final group in groups) ...group.items,
-      ];
-
-      if (flattened.isEmpty) {
-        sections.add(
-          ScreenSection(
-            decorated: false,
-            child: _ScheduleMessageCard(
-              icon: Icons.event_busy_outlined,
-              title: 'No schedules yet',
-              message:
-                  'Use the actions above to add custom classes or scan your student card to import your timetable.',
-            ),
-          ),
-        );
-      } else {
-      sections.add(
-        ScreenSection(
-          decorated: false,
-          title: 'Upcoming classes',
-          subtitle: 'Day headers stay pinned as you scroll.',
-            child: Text(
-              'Tap a class to view details, enable alarms, or edit reminders.',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+        if (_controller.loading && _controller.classes.isEmpty) {
+          return ScreenShell(
+            screenName: 'schedules',
+            hero: hero,
+            sections: [
+              ScreenSection(
+                decorated: false,
+                child: Column(
+                  children: [
+                    const SkeletonCard(showAvatar: false, lineCount: 2),
+                    SizedBox(height: spacing.lg),
+                    const SkeletonList(itemCount: 3, showHeader: true),
+                  ],
+                ),
               ),
-            ),
-          ),
-        );
-        for (final group in groups) {
-          sections.add(
-            _ScheduleGroupSliver(
-              header: _buildScheduleStickyHeader(
-                label: group.label,
-                count: group.items.length,
-              ),
-              group: group,
-              highlightClassId: summary.highlight?.item.id,
-              onOpenDetails: _openClassDetails,
-              onToggleEnabled: _toggleClassEnabled,
-              pendingToggleIds: _pendingToggleClassIds,
-              showHeader: false,
-            ),
+            ],
+            padding: shellPadding,
+            onRefresh: () => _controller.refresh(),
+            refreshColor: colors.primary,
+            safeArea: false,
+            cacheExtent: 800,
           );
         }
-        sections.add(
-          SizedBox(
-            height: spacing.quad + media.padding.bottom + spacing.xl,
+
+        final now = DateTime.now();
+        final summary = ScheduleSummary.resolve(_controller.classes, now);
+        final groups = _controller.groupedDays();
+
+        final sections = <Widget>[];
+
+        if (_controller.criticalError != null && _controller.classes.isEmpty) {
+          sections.add(
+            ScreenSection(
+              decorated: false,
+              child: StateDisplay(
+                variant: StateVariant.error,
+                title: 'Schedule not loaded',
+                message: _controller.criticalError!,
+                primaryActionLabel: 'Retry',
+                onPrimaryAction: () => _controller.load(silent: false),
+                secondaryActionLabel: 'Scan student card',
+                onSecondaryAction: _openScanOptions,
+                compact: true,
+              ),
+            ),
+          );
+        } else {
+          if (_controller.offlineFallback) {
+            sections.add(
+              ScreenSection(
+                decorated: false,
+                child: OfflineBanner(
+                  key: const ValueKey('offline-cache-banner'),
+                  lastSynced: _controller.lastFetchedAt,
+                ),
+              ),
+            );
+          }
+
+          if (_controller.retrySuggested) {
+            sections.add(
+              ScreenSection(
+                decorated: false,
+                child: MessageCard(
+                  icon: Icons.sync_problem_outlined,
+                  title: 'Almost caught up',
+                  message:
+                      'A network hiccup interrupted the last sync. Retry to fetch the latest classes.',
+                  primaryLabel: 'Retry sync',
+                  onPrimary: () => _controller.refresh(),
+                  secondaryLabel: 'Scan card',
+                  onSecondary: _openScanOptions,
+                  tintColor: colors.primary,
+                ),
+              ),
+            );
+          }
+
+          if (_controller.exportError != null &&
+              _controller.pendingExport != null) {
+            sections.add(
+              ScreenSection(
+                decorated: false,
+                child: MessageCard(
+                  icon: Icons.block,
+                  title: 'Export unavailable',
+                  message: _controller.exportError!,
+                  primaryLabel: 'Try again',
+                  onPrimary: () => _controller.retryPendingExport(
+                    onInfo: (msg) => _notify(msg),
+                  ),
+                  tintColor: colors.error,
+                ),
+              ),
+            );
+          }
+
+          sections.add(
+            ScreenSection(
+              decorated: false,
+              child: ScheduleSummaryCard(
+                summary: summary,
+                now: now,
+                onAddClass: () => _openAddClass(),
+                onScanCard: _openScanOptions,
+                menuButton: _buildActionsMenu(context),
+              ),
+            ),
+          );
+
+          final flattened = [
+            for (final group in groups) ...group.items,
+          ];
+
+          if (flattened.isNotEmpty) {
+            // Unified card container for class list - matches dashboard style
+            sections.add(
+              ScreenSection(
+                decorated: false,
+                child: ScheduleClassListCard(
+                  groups: groups,
+                  now: now,
+                  highlightClassId: summary.highlight?.item.id,
+                  onOpenDetails: _openClassDetails,
+                  onToggleEnabled: (item, enable) {
+                    _controller.toggleClassEnabled(
+                      item,
+                      enable,
+                      onError: (msg) => _notify(msg, type: AppSnackBarType.error),
+                    );
+                  },
+                  pendingToggleIds: _controller.pendingToggleClassIds,
+                  onDelete: (id) => _controller.deleteCustom(
+                    id,
+                    onSuccess: (msg) =>
+                        _notify(msg, type: AppSnackBarType.success),
+                    onError: (err) => _notify(err, type: AppSnackBarType.error),
+                  ),
+                  onRefresh: () => _controller.refresh(),
+                  refreshing: _controller.loading,
+                ),
+              ),
+            );
+            sections.add(
+              SizedBox(
+                height: spacing.quad + media.padding.bottom + spacing.xl,
+              ),
+            );
+          } else {
+            final isDark = theme.brightness == Brightness.dark;
+            sections.add(
+              ScreenSection(
+                decorated: false,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+                  decoration: BoxDecoration(
+                    color: isDark ? colors.surfaceContainerHigh : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                      width: isDark ? 1 : 0.5,
+                    ),
+                    boxShadow: isDark
+                        ? null
+                        : [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
+                  ),
+                  child: Column(
+                    children: [
+                      // Large icon with gradient background
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              colors.primary.withValues(alpha: 0.15),
+                              colors.primary.withValues(alpha: 0.08),
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colors.primary.withValues(alpha: 0.20),
+                            width: 2,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.calendar_month_outlined,
+                          size: 48,
+                          color: colors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                      // Title
+                      Text(
+                        'No schedules yet',
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 24,
+                          letterSpacing: -0.5,
+                          color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 12),
+                      // Message
+                      Text(
+                        'Get started by adding your first class or scanning your student card using the buttons above',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+        }
+
+        if (sections.isEmpty) {
+          sections.add(const SizedBox.shrink());
+        }
+
+        return PopScope(
+          canPop: false,
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop) return;
+            Navigator.of(context).pop(_controller.dirty);
+          },
+          child: ScreenShell(
+            screenName: 'schedules',
+            hero: hero,
+            sections: sections,
+            padding: shellPadding,
+            onRefresh: () => _controller.refresh(),
+            refreshColor: colors.primary,
+            safeArea: false,
+            cacheExtent: 800,
+            useSlivers: false,
           ),
         );
-      }
-    }
-
-    if (sections.isEmpty) {
-      sections.add(const SizedBox.shrink());
-    }
-
-    return PopScope(
-      canPop: false,
-      onPopInvokedWithResult: (didPop, _) {
-        if (didPop) return;
-        Navigator.of(context).pop(_dirty);
       },
-      child: ScreenShell(
-        screenName: 'schedules',
-        hero: hero,
-        sections: sections,
-        padding: shellPadding,
-        onRefresh: _refresh,
-        refreshColor: colors.primary,
-        safeArea: false,
-        cacheExtent: 800,
-        useSlivers: true,
-      ),
     );
   }
 }

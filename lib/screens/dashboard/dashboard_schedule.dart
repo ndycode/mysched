@@ -1,3 +1,4 @@
+// ignore_for_file: unnecessary_null_comparison, unused_local_variable
 part of 'dashboard_screen.dart';
 
 class _DashboardSchedulePeek extends StatelessWidget {
@@ -70,94 +71,112 @@ class _DashboardSchedulePeek extends StatelessWidget {
             .join('|')
         : '';
 
-    final cardBackground = elevatedCardBackground(theme);
-    final cardBorder = elevatedCardBorder(theme);
     final dateLabel = DateFormat('EEEE, MMM d').format(now);
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(color: cardBorder),
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 42,
-                width: 42,
+                height: 52,
+                width: 52,
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colors.primary.withValues(alpha: 0.15),
+                      colors.primary.withValues(alpha: 0.10),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: colors.primary.withValues(alpha: 0.25),
+                    width: 1.5,
+                  ),
                 ),
                 child: Icon(
-                  Icons.table_rows_rounded,
+                  Icons.calendar_month_rounded,
                   color: colors.primary,
-                  size: 20,
+                  size: 26,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       '$scopeLabel overview',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 21,
+                        letterSpacing: -0.5,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       dateLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: IconButton(
-                  tooltip: 'Refresh schedules',
-                  onPressed: refreshing ? null : onRefresh,
-                  icon: refreshing
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Icon(
-                          Icons.refresh_rounded,
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.9),
-                        ),
-                ),
-              ),
-              const SizedBox(width: 4),
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: IconButton(
-                  tooltip: 'Review schedule',
-                  onPressed: onOpenSchedules,
-                  icon: Icon(
-                    Icons.calendar_view_week_rounded,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+              if (onRefresh != null) ...[
+                SizedBox(
+                  height: 36,
+                  width: 36,
+                  child: IconButton(
+                    onPressed: refreshing ? null : onRefresh,
+                    icon: refreshing
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(colors.primary),
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh_rounded,
+                            color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.9) : const Color(0xFF757575),
+                            size: 20,
+                          ),
+                    padding: EdgeInsets.zero,
                   ),
                 ),
-              ),
+              ],
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing.md),
           Text(
             scopeLabel == 'Today'
                 ? 'Stay on top of today\'s classes and make changes instantly.'
@@ -167,7 +186,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
               fontSize: 14,
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.lg),
           TextField(
             controller: searchController,
             focusNode: searchFocusNode,
@@ -191,56 +210,63 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   : null,
               filled: true,
               fillColor: colors.surfaceContainerHigh,
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              contentPadding: spacing.edgeInsetsSymmetric(
+                horizontal: spacing.md + 2,
+                vertical: spacing.md,
+              ),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppTokens.radius.lg,
                 borderSide: BorderSide.none,
               ),
             ),
           ),
-          const SizedBox(height: 12),
-          SegmentedButton<String>(
-            style: ButtonStyle(
-              visualDensity: VisualDensity.compact,
-              padding: WidgetStateProperty.all(
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              ),
-              side: WidgetStateProperty.resolveWith(
-                (states) => BorderSide(
-                  color: states.contains(WidgetState.selected)
+          SizedBox(height: spacing.md),
+          Center(
+            child: SegmentedButton<String>(
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                padding: WidgetStateProperty.all(
+                  spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.xl,
+                    vertical: spacing.sm + 2,
+                  ),
+                ),
+                side: WidgetStateProperty.resolveWith(
+                  (states) => BorderSide(
+                    color: states.contains(WidgetState.selected)
+                        ? colors.primary
+                        : colors.outline.withValues(alpha: 0.45),
+                    width: 1.2,
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: 0.14)
+                      : colors.surfaceContainerHighest.withValues(alpha: 0.45),
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.outline.withValues(alpha: 0.45),
-                  width: 1.2,
+                      : colors.onSurfaceVariant.withValues(alpha: 0.9),
                 ),
               ),
-              backgroundColor: WidgetStateProperty.resolveWith(
-                (states) => states.contains(WidgetState.selected)
-                    ? colors.primary.withValues(alpha: 0.14)
-                    : colors.surfaceContainerHighest.withValues(alpha: 0.45),
-              ),
-              foregroundColor: WidgetStateProperty.resolveWith(
-                (states) => states.contains(WidgetState.selected)
-                    ? colors.primary
-                    : colors.onSurfaceVariant.withValues(alpha: 0.9),
-              ),
+              segments: const [
+                ButtonSegment(
+                  value: 'Today',
+                  label: Text('Today'),
+                ),
+                ButtonSegment(
+                  value: 'This week',
+                  label: Text('This week'),
+                ),
+              ],
+              selected: <String>{selectedScope},
+              onSelectionChanged: (value) {
+                if (value.isNotEmpty) onScopeChanged(value.first);
+              },
             ),
-            segments: const [
-              ButtonSegment(
-                value: 'Today',
-                label: Text('Today'),
-              ),
-              ButtonSegment(
-                value: 'This week',
-                label: Text('This week'),
-              ),
-            ],
-            selected: <String>{selectedScope},
-            onSelectionChanged: (value) {
-              if (value.isNotEmpty) onScopeChanged(value.first);
-            },
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing.md),
           AnimatedSize(
             duration: const Duration(milliseconds: 240),
             curve: Curves.easeOutCubic,
@@ -276,48 +302,77 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           onOccurrenceTap: (occ) => onViewDetails(occ.item),
                         ),
                         if (display.length > totalToShow) ...[
-                          const SizedBox(height: 12),
+                          SizedBox(height: spacing.md),
                           Text(
                             '+${display.length - totalToShow} more class'
                             '${display.length - totalToShow == 1 ? '' : 'es'} in scope',
                             style: theme.textTheme.bodyLarge?.copyWith(
                               fontSize: 16,
-                              color: kSummaryMuted,
+                              color: colors.onSurfaceVariant,
                             ),
                           ),
                         ],
                       ],
                     )
-                  : Column(
+                  : Container(
                       key: ValueKey('empty-$selectedScope-$query'),
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          hasQuery
-                              ? 'No classes match your search.'
-                              : selectedScope == 'Today'
-                                  ? 'No classes scheduled today.'
-                                  : 'No classes scheduled for this week.',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontSize: 16,
-                            color: colors.onSurfaceVariant,
-                          ),
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(32),
+                      decoration: BoxDecoration(
+                        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
+                          width: 1,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          hasQuery
-                              ? 'Try a different name, classroom, or scope.'
-                              : 'Switch filters or add a class from Review schedule.',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontSize: 16,
-                            color: kSummaryMuted,
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              hasQuery
+                                  ? Icons.search_off_rounded
+                                  : Icons.event_available_outlined,
+                              size: 40,
+                              color: colors.primary,
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          Text(
+                            hasQuery
+                                ? 'No matches found'
+                                : selectedScope == 'Today'
+                                    ? 'No classes today'
+                                    : 'No classes this week',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 17,
+                              color: isDark ? colors.onSurfaceVariant : const Color(0xFF424242),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            hasQuery
+                                ? 'Try a different name, classroom, or scope.'
+                                : 'Switch filters or add a class from Review schedule.',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontSize: 14,
+                              color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: spacing.lg + 2),
           _buildReviewButton(),
         ],
       ),
@@ -340,41 +395,93 @@ class _DashboardSchedulePeek extends StatelessWidget {
       alpha: theme.brightness == Brightness.dark ? 0.24 : 0.12,
     );
 
-    Widget buildSectionHeader(String label, Color textColor) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-              color: textColor,
+    Widget buildSectionHeader(String label, Color color, IconData icon, int count) {
+      final isDark = theme.brightness == Brightness.dark;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                color.withValues(alpha: 0.10),
+                color.withValues(alpha: 0.06),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: color.withValues(alpha: 0.20),
+              width: 1,
             ),
           ),
-          const SizedBox(height: 6),
-          Container(
-            height: 1,
-            decoration: BoxDecoration(
-              color: dividerColor,
-              borderRadius: BorderRadius.circular(999),
-            ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(
+                  icon,
+                  size: 18,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  label,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 17,
+                    letterSpacing: -0.3,
+                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                  ),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '$count ${count == 1 ? 'class' : 'classes'}',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: color,
+                  ),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 12),
-        ],
+        ),
       );
     }
 
     for (var i = 0; i < totalToShow; i++) {
       if (selectedScope == 'This week') {
         if (i == 0 && upcomingCount > 0) {
-          widgets.add(buildSectionHeader('Upcoming', colors.primary));
+          widgets.add(
+            buildSectionHeader(
+              'Upcoming',
+              colors.primary,
+              Icons.calendar_today_rounded,
+              upcomingCount,
+            ),
+          );
         }
         if (i == upcomingCount && upcomingCount < display.length) {
           widgets.add(
             buildSectionHeader(
               'Completed',
               colors.onSurfaceVariant,
+              Icons.task_alt_rounded,
+              display.length - upcomingCount,
             ),
           );
         }
@@ -390,7 +497,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
       );
 
       if (i != totalToShow - 1) {
-        widgets.add(const SizedBox(height: 12));
+        widgets.add(SizedBox(height: AppTokens.spacing.md));
       }
     }
 
@@ -415,8 +522,6 @@ class _DashboardSchedulePeek extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.max,
         children: [
-          const Icon(Icons.event_note_rounded, size: 20),
-          const SizedBox(width: 10),
           Flexible(
             child: Text(
               'Review schedule',
@@ -452,147 +557,192 @@ class _ScheduleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final subject = occurrence.item.subject;
-    final timeLabel =
-        '${DateFormat('h:mm a').format(occurrence.start)} - ${DateFormat('h:mm a').format(occurrence.end)}';
-    final room = occurrence.item.room.trim();
+    final isDark = theme.brightness == Brightness.dark;
+    
+    final item = occurrence.item;
+    final subject = item.subject;
+    final location = item.room.trim();
+    final instructor = item.instructor.trim();
+    final instructorAvatar = (item.instructorAvatar ?? '').trim();
+    
     final isOngoing = occurrence.isOngoingAt(now);
     final isPast = occurrence.end.isBefore(now);
-
-    String? statusLabel;
-    IconData? statusIcon;
-    Color statusForeground = colors.onSurfaceVariant;
-    Color statusBackground = colors.surfaceContainerHigh;
-
-    if (isPast) {
-      statusLabel = 'Done';
-      statusIcon = Icons.check_rounded;
-      statusForeground = colors.tertiary;
-      statusBackground = colors.tertiary.withValues(alpha: 0.16);
-    } else if (isOngoing) {
-      statusLabel = 'In progress';
-      statusIcon = Icons.play_arrow_rounded;
-      statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.16);
-    } else if (highlight) {
-      statusLabel = 'Next';
-      statusIcon = Icons.arrow_forward_rounded;
-      statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.12);
-    }
-
-    final background = highlight
-        ? colors.primary.withValues(alpha: 0.08)
-        : colors.surfaceContainerHigh;
-    final border = highlight
-        ? colors.primary.withValues(alpha: 0.24)
-        : colors.outline.withValues(alpha: 0.12);
-    final badgeLabel = statusLabel;
-    final badgeIcon = statusIcon ?? Icons.schedule_rounded;
+    final isNext = highlight && !isOngoing && !isPast;
+    
+    final timeFormat = DateFormat('h:mm a');
+    final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
 
     return Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onTap,
-        borderRadius: AppTokens.radius.lg,
-        splashColor: Colors.transparent,
-        highlightColor: Colors.transparent,
+        borderRadius: BorderRadius.circular(14),
+        splashColor: colors.primary.withValues(alpha: 0.05),
+        highlightColor: colors.primary.withValues(alpha: 0.02),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: background,
-            borderRadius: AppTokens.radius.lg,
-            border: Border.all(color: border),
+            color: isDark ? colors.surfaceContainerHigh : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isOngoing 
+                  ? colors.primary.withValues(alpha: 0.30)
+                  : isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+              width: isOngoing ? 1.5 : 0.5,
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isOngoing ? 0.08 : 0.04),
+                      blurRadius: isOngoing ? 12 : 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Top row: Title and Status
+              Row(
                 children: [
-                  Text(
-                    DateFormat('EEE').format(occurrence.start).toUpperCase(),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                      color: colors.primary,
+                  Expanded(
+                    child: Text(
+                      subject,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        letterSpacing: -0.2,
+                        color: isPast
+                            ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
+                            : (isDark ? colors.onSurface : const Color(0xFF1A1A1A)),
+                        decoration: isPast ? TextDecoration.lineThrough : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    DateFormat('MMM d').format(occurrence.start),
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                  const SizedBox(width: 12),
+                  if (isOngoing || isNext || isPast)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isOngoing
+                            ? colors.primary.withValues(alpha: 0.15)
+                            : isPast 
+                                ? (isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5))
+                                : colors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isOngoing ? 'Live' : (isPast ? 'Done' : 'Next'),
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: isOngoing 
+                              ? colors.primary 
+                              : isPast 
+                                  ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
+                                  : colors.primary,
+                        ),
+                      ),
                     ),
-                  ),
                 ],
               ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            subject,
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              decoration:
-                                  isPast ? TextDecoration.lineThrough : null,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        if (badgeLabel != null) ...[
-                          const SizedBox(width: 12),
-                          _StatusChip(
-                            icon: badgeIcon,
-                            label: badgeLabel,
-                            background: statusBackground,
-                            foreground: statusForeground,
-                            compact: true,
-                          ),
-                        ],
-                      ],
+              const SizedBox(height: 16),
+              // Bottom row: Time, Location, Instructor
+              Row(
+                children: [
+                  // Time
+                  Icon(
+                    Icons.access_time_rounded,
+                    size: 16,
+                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    timeRange,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
                     ),
-                    const SizedBox(height: 6),
-                    Text(
-                      timeLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
-                      ),
+                  ),
+                  if (location.isNotEmpty) ...[
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                     ),
-                    if (room.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        room,
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        location,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 14,
-                          color:
-                              colors.onSurfaceVariant.withValues(alpha: 0.68),
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              if (instructor.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    if (instructorAvatar.isNotEmpty)
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(instructorAvatar),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            instructor[0].toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: colors.primary,
+                            ),
+                          ),
                         ),
                       ),
-                    ],
-                    if (occurrence.item.instructor.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      _InstructorRow(
-                        name: occurrence.item.instructor,
-                        avatarUrl: occurrence.item.instructorAvatar,
-                        tint: colors.primary,
-                        dense: true,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        instructor,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ],
+                    ),
                   ],
                 ),
-              ),
+              ],
             ],
           ),
         ),

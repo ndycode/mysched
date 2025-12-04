@@ -17,6 +17,11 @@ class AppTheme {
         Brightness.dark,
       );
 
+  static ThemeData voidTheme() => _themeFromPalette(
+        AppTokens.voidColors,
+        Brightness.dark,
+      );
+
   static ThemeData _themeFromPalette(
     ColorPalette colors,
     Brightness brightness,
@@ -62,7 +67,9 @@ class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
         shadowColor: colors.outline.withValues(alpha: 0.25),
       ),
       dividerTheme: DividerThemeData(
@@ -76,12 +83,14 @@ class AppTheme {
           color: colors.onSurface,
         ),
         backgroundColor: scheme.surfaceContainerHighest,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.md),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         side: BorderSide(color: colors.outline),
       ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
           foregroundColor: colors.onPrimary,
           backgroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
@@ -89,56 +98,107 @@ class AppTheme {
             horizontal: AppTokens.spacing.xl,
             vertical: AppTokens.spacing.md,
           ),
-          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
+          animationDuration: AppTokens.motion.medium,
+          elevation: 0,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
+          foregroundColor: colors.onPrimary,
+          backgroundColor: colors.primary,
+          textStyle: AppTokens.typography.label,
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+            horizontal: AppTokens.spacing.xl,
+            vertical: AppTokens.spacing.md,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
           animationDuration: AppTokens.motion.medium,
           elevation: 0,
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(48),
+          minimumSize: const Size.fromHeight(52),
           foregroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
             horizontal: AppTokens.spacing.xl,
             vertical: AppTokens.spacing.md,
           ),
-          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
           side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
           foregroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
             horizontal: AppTokens.spacing.lg,
             vertical: AppTokens.spacing.sm,
           ),
-          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.md),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26),
+          ),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colors.surface.withValues(alpha: 0.86),
+        fillColor: colors.surfaceContainerHigh.withValues(alpha: 0.5),
         contentPadding: AppTokens.spacing.edgeInsetsSymmetric(
           horizontal: AppTokens.spacing.xl,
           vertical: AppTokens.spacing.lg,
         ),
         border: OutlineInputBorder(
-          borderRadius: AppTokens.radius.xl,
-          borderSide: BorderSide(color: colors.outline.withValues(alpha: 0.6)),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: colors.outline.withValues(alpha: 0.2),
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: colors.outline.withValues(alpha: 0.2),
+          ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: AppTokens.radius.xl,
+          borderRadius: BorderRadius.circular(16),
           borderSide: BorderSide(
-              color: colors.primary.withValues(alpha: 0.9), width: 1.6),
+            color: colors.primary,
+            width: 1.5,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: colors.error.withValues(alpha: 0.5),
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: colors.error,
+            width: 1.5,
+          ),
         ),
         labelStyle: AppTokens.typography.bodySecondary.copyWith(
           color: colors.onSurfaceVariant,
         ),
         hintStyle: AppTokens.typography.bodySecondary.copyWith(
           color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+        ),
+        errorStyle: AppTokens.typography.caption.copyWith(
+          color: colors.error,
+          fontWeight: FontWeight.w500,
         ),
       ),
       checkboxTheme: CheckboxThemeData(
@@ -148,14 +208,28 @@ class AppTheme {
               : colors.outline,
         ),
         checkColor: WidgetStateProperty.all(colors.onPrimary),
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sm),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
       ),
       snackBarTheme: _buildSnackBarTheme(scheme),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: colors.surface,
+        surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: AppTokens.radius.xl.topLeft),
+          borderRadius: BorderRadius.circular(20),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: colors.surface,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -165,7 +239,9 @@ class AppTheme {
         ),
         textColor: colors.onSurface,
         iconColor: colors.onSurfaceVariant,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.md),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(14),
+        ),
       ),
     );
   }
@@ -173,9 +249,15 @@ class AppTheme {
   static SnackBarThemeData _buildSnackBarTheme(ColorScheme scheme) {
     return SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: scheme.surfaceContainerHighest.withValues(alpha: 0.92),
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.lg),
-      elevation: 8,
+      backgroundColor: scheme.surfaceContainerHigh,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+        side: BorderSide(
+          color: scheme.outline.withValues(alpha: 0.12),
+          width: 0.5,
+        ),
+      ),
+      elevation: 0,
       insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
       contentTextStyle: AppTokens.typography.body.copyWith(
         color: scheme.onSurface,

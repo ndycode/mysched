@@ -26,13 +26,7 @@ class _LoginPageState extends State<LoginPage> {
   String? _globalError;
   String? _pendingVerificationEmail;
 
-  void _fillAdminCredentials() {
-    if (_saving) return;
-    setState(() {
-      _email.text = 'severity@gmail.com';
-      _password.text = 'Darksoar1.';
-    });
-  }
+
 
   @override
   void dispose() {
@@ -165,7 +159,6 @@ class _LoginPageState extends State<LoginPage> {
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: IconButton(
-                  tooltip: _hidePassword ? 'Show password' : 'Hide password',
                   onPressed: _saving
                       ? null
                       : () => setState(() => _hidePassword = !_hidePassword),
@@ -189,8 +182,10 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: spacing.xl),
             PrimaryButton(
-              label: _saving ? 'Signing in...' : 'Sign in',
-              onPressed: _saving ? null : _submit,
+              label: 'Sign in',
+              loading: _saving,
+              loadingLabel: 'Signing in...',
+              onPressed: _submit,
               minHeight: 48,
             ),
           ],
@@ -220,13 +215,9 @@ class _LoginPageState extends State<LoginPage> {
       screenName: 'login',
       title: 'Welcome back',
       subtitle: 'Sign in to keep your reminders and schedules in sync.',
-      child: form,
       bottom: bottomActions,
-      headerAction: IconButton(
-        tooltip: 'Autofill admin credentials',
-        onPressed: _fillAdminCredentials,
-        icon: const Icon(Icons.admin_panel_settings_outlined),
-      ),
+
+      child: form,
     );
   }
 }

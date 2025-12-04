@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../ui/kit/kit.dart';
+import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
 
 class PrivacySheet extends StatelessWidget {
@@ -31,6 +32,7 @@ class PrivacySheet extends StatelessWidget {
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height -
         (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
+    final cardBackground = elevatedCardBackground(theme, solid: true);
 
     return Material(
       color: Colors.transparent,
@@ -41,14 +43,21 @@ class PrivacySheet extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: colors.surface,
-            borderRadius: AppTokens.radius.xl,
-            border: Border.all(color: colors.outline.withValues(alpha: 0.12)),
+            color: theme.brightness == Brightness.dark
+                ? theme.colorScheme.surfaceContainerHigh
+                : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                  : const Color(0xFFE5E5E5),
+              width: theme.brightness == Brightness.dark ? 1 : 0.5,
+            ),
             boxShadow: [
               BoxShadow(
-                color: colors.outline.withValues(alpha: 0.18),
-                blurRadius: 28,
-                offset: const Offset(0, 24),
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 40,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
@@ -66,28 +75,32 @@ class PrivacySheet extends StatelessWidget {
                     spacing.sm,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Privacy policy',
-                        style: AppTokens.typography.title.copyWith(
-                          color: colors.onSurface,
-                          fontWeight: FontWeight.w700,
+                      PressableScale(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: colors.primary.withValues(alpha: 0.08),
+                            borderRadius: AppTokens.radius.xl,
+                          ),
+                          child: Icon(
+                            Icons.close_rounded,
+                            size: 18,
+                            color: colors.primary,
+                          ),
                         ),
                       ),
-                      IconButton(
-                        tooltip: 'Close',
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints.tightFor(
-                          width: 36,
-                          height: 36,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: Icon(
-                          Icons.close_rounded,
-                          color: colors.onSurfaceVariant,
+                      Expanded(
+                        child: Text(
+                          'Privacy policy',
+                          textAlign: TextAlign.center,
+                          style: AppTokens.typography.title.copyWith(
+                            color: colors.onSurface,
+                          ),
                         ),
                       ),
+                      const SizedBox(width: 48),
                     ],
                   ),
                 ),
@@ -104,7 +117,17 @@ class PrivacySheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            CardX(
+                            Container(
+                              padding: spacing.edgeInsetsAll(spacing.md),
+                              decoration: BoxDecoration(
+                                color: theme.brightness == Brightness.dark
+                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: AppTokens.radius.lg,
+                                border: Border.all(
+                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -155,7 +178,17 @@ class PrivacySheet extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            CardX(
+                            Container(
+                              padding: spacing.edgeInsetsAll(spacing.md),
+                              decoration: BoxDecoration(
+                                color: theme.brightness == Brightness.dark
+                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: AppTokens.radius.lg,
+                                border: Border.all(
+                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: const [
@@ -184,7 +217,17 @@ class PrivacySheet extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            CardX(
+                            Container(
+                              padding: spacing.edgeInsetsAll(spacing.md),
+                              decoration: BoxDecoration(
+                                color: theme.brightness == Brightness.dark
+                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: AppTokens.radius.lg,
+                                border: Border.all(
+                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: const [
@@ -221,7 +264,17 @@ class PrivacySheet extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            CardX(
+                            Container(
+                              padding: spacing.edgeInsetsAll(spacing.md),
+                              decoration: BoxDecoration(
+                                color: theme.brightness == Brightness.dark
+                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: AppTokens.radius.lg,
+                                border: Border.all(
+                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: const [
@@ -241,7 +294,17 @@ class PrivacySheet extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: spacing.xxxl),
-                            CardX(
+                            Container(
+                              padding: spacing.edgeInsetsAll(spacing.md),
+                              decoration: BoxDecoration(
+                                color: theme.brightness == Brightness.dark
+                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
+                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                borderRadius: AppTokens.radius.lg,
+                                border: Border.all(
+                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                ),
+                              ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -295,8 +358,8 @@ class PrivacySheet extends StatelessWidget {
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
                                 colors: [
-                                  colors.surface,
-                                  colors.surface.withValues(alpha: 0.0),
+                                  cardBackground,
+                                  cardBackground.withValues(alpha: 0.0),
                                 ],
                               ),
                             ),
@@ -315,8 +378,8 @@ class PrivacySheet extends StatelessWidget {
                                 begin: Alignment.bottomCenter,
                                 end: Alignment.topCenter,
                                 colors: [
-                                  colors.surface,
-                                  colors.surface.withValues(alpha: 0.0),
+                                  cardBackground,
+                                  cardBackground.withValues(alpha: 0.0),
                                 ],
                               ),
                             ),

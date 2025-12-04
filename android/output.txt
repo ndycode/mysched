@@ -1,0 +1,44 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Configure project :app
+e: file:///C:/projects/mysched/android/app/build.gradle.kts:8:31: Unresolved reference: util
+e: file:///C:/projects/mysched/android/app/build.gradle.kts:13:34: Unresolved reference: io
+w: file:///C:/projects/mysched/android/app/build.gradle.kts:21:55: No cast needed
+w: file:///C:/projects/mysched/android/app/build.gradle.kts:22:61: No cast needed
+e: file:///C:/projects/mysched/android/app/build.gradle.kts:23:69: Expression expected, but a package name found
+w: file:///C:/projects/mysched/android/app/build.gradle.kts:24:65: No cast needed
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file 'C:\projects\mysched\android\app\build.gradle.kts' line: 8
+
+* What went wrong:
+Script compilation errors:
+
+  Line 08: val keystoreProperties = java.util.Properties()
+                                         ^ Unresolved reference: util
+
+  Line 13:     keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+                                            ^ Unresolved reference: io
+
+  Line 23:             storeFile = keystoreProperties["storeFile"]?.let { file(it) }
+                                                                               ^ Expression expected, but a package name found
+
+3 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 1s
+4 actionable tasks: 4 up-to-date

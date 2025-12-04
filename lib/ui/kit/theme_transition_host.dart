@@ -47,12 +47,12 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
     super.dispose();
   }
 
-  Future<void> transitionTo(ThemeMode mode) async {
+  Future<void> transitionTo(AppThemeMode mode) async {
     if (_animating) return;
     final boundary = _boundaryKey.currentContext?.findRenderObject()
         as RenderRepaintBoundary?;
     if (boundary == null) {
-      await ThemeController.instance.setThemeMode(mode);
+      await ThemeController.instance.setMode(mode);
       return;
     }
 
@@ -66,7 +66,7 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
     });
 
     await Future<void>.delayed(const Duration(milliseconds: 16));
-    await ThemeController.instance.setThemeMode(mode);
+    await ThemeController.instance.setMode(mode);
     await _controller.forward();
     _controller.reset();
     setState(() {
@@ -116,13 +116,14 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
   }
 }
 
-Brightness _resolveBrightness(ThemeMode mode, Brightness platformBrightness) {
+Brightness _resolveBrightness(AppThemeMode mode, Brightness platformBrightness) {
   switch (mode) {
-    case ThemeMode.dark:
+    case AppThemeMode.dark:
+    case AppThemeMode.voidMode:
       return Brightness.dark;
-    case ThemeMode.light:
+    case AppThemeMode.light:
       return Brightness.light;
-    case ThemeMode.system:
+    case AppThemeMode.system:
       return platformBrightness;
   }
 }

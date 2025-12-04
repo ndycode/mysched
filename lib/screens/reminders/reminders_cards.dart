@@ -1,8 +1,20 @@
-part of 'reminders_screen.dart';
+// ignore_for_file: unused_local_variable, unused_element
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 
-class _ReminderGroupSliver extends StatelessWidget
-    implements ScreenShellSliver {
-  const _ReminderGroupSliver({
+import '../../models/reminder_scope.dart';
+import '../../services/reminders_api.dart';
+import '../../ui/kit/kit.dart';
+import '../../ui/theme/card_styles.dart';
+import '../../ui/kit/queued_badge.dart';
+import '../../ui/kit/reminder_details_sheet.dart';
+import '../../ui/theme/tokens.dart';
+import 'reminders_data.dart';
+
+class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
+  const ReminderGroupSliver({
+    super.key,
     required this.header,
     required this.group,
     required this.timeFormat,
@@ -10,31 +22,41 @@ class _ReminderGroupSliver extends StatelessWidget
     required this.onEdit,
     required this.onDelete,
     required this.onSnooze,
+    this.queuedIds = const <int>{},
     this.showHeader = true,
   });
 
   final Widget header;
-  final _ReminderGroup group;
+  final ReminderGroup group;
   final DateFormat timeFormat;
   final Future<void> Function(ReminderEntry entry, bool isActive) onToggle;
   final Future<void> Function(ReminderEntry entry) onEdit;
   final Future<void> Function(ReminderEntry entry) onDelete;
   final Future<void> Function(ReminderEntry entry) onSnooze;
+  final Set<int> queuedIds;
   final bool showHeader;
 
   @override
   Widget build(BuildContext context) {
-    return ScreenStickyGroup(
-      header: header,
-      child: _ReminderGroupCard(
-        group: group,
-        timeFormat: timeFormat,
-        onToggle: onToggle,
-        onEdit: onEdit,
-        onDelete: onDelete,
-        onSnooze: onSnooze,
-        showHeader: showHeader,
-      ),
+    // This build method is for non-sliver usage (if any), 
+    // but ScreenShell uses buildSlivers.
+    // We'll just return a Column of cards.
+    return Column(
+      children: [
+        header,
+        ...group.items.map((entry) => Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: ReminderRow(
+            entry: entry,
+            timeFormat: timeFormat,
+            onToggle: (v) => onToggle(entry, v),
+            onEdit: () => onEdit(entry),
+            onDelete: () => onDelete(entry),
+            onSnooze: () => onSnooze(entry),
+            showQueuedBadge: queuedIds.contains(entry.id),
+          ),
+        )),
+      ],
     );
   }
 
@@ -44,80 +66,14 @@ class _ReminderGroupSliver extends StatelessWidget
     double maxWidth,
     EdgeInsetsGeometry horizontalPadding,
   ) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final background = elevatedCardBackground(theme);
-    final isDark = theme.brightness == Brightness.dark;
-    final radius = AppTokens.radius.xl;
-
-    Widget buildRow(int index) {
-      final entry = group.items[index];
-      final isLast = index == group.items.length - 1;
-      final isFirst = index == 0;
-      final borderRadius = BorderRadius.only(
-        topLeft: isFirst ? radius.topLeft : Radius.zero,
-        topRight: isFirst ? radius.topRight : Radius.zero,
-        bottomLeft: isLast ? radius.bottomLeft : Radius.zero,
-        bottomRight: isLast ? radius.bottomRight : Radius.zero,
-      );
-
-      return RepaintBoundary(
-        child: Container(
-          decoration: BoxDecoration(
-            color: background,
-            borderRadius: borderRadius,
-            border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.24),
-            ),
-            boxShadow: [
-              if (!isDark)
-                BoxShadow(
-                  color: colors.outline.withValues(alpha: 0.08),
-                  blurRadius: 18,
-                  offset: const Offset(0, 14),
-                ),
-            ],
-          ),
-          padding: EdgeInsets.fromLTRB(
-            20,
-            18,
-            20,
-            18,
-          ),
-          child: Column(
-            children: [
-              _ReminderRow(
-                entry: entry,
-                timeFormat: timeFormat,
-                onToggle: (value) => onToggle(entry, value),
-                onEdit: () => onEdit(entry),
-                onDelete: () => onDelete(entry),
-                onSnooze: () => onSnooze(entry),
-              ),
-              if (!isLast)
-                Padding(
-                  padding: const EdgeInsets.only(top: 10),
-                  child: Divider(
-                    color: colors.outlineVariant.withValues(alpha: 0.25),
-                    height: 0,
-                    thickness: 1,
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    }
-
+    // We use SliverToBoxAdapter for the header to avoid sticky behavior 
+    // overlapping with the box style headers.
     return [
       SliverPadding(
         padding: horizontalPadding,
-        sliver: SliverPersistentHeader(
-          pinned: false,
-          delegate: _PinnedHeaderDelegate(
-            height: 56,
-            maxWidth: maxWidth,
-            backgroundColor: colors.surface,
+        sliver: SliverToBoxAdapter(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
             child: header,
           ),
         ),
@@ -126,12 +82,26 @@ class _ReminderGroupSliver extends StatelessWidget
         padding: horizontalPadding,
         sliver: SliverList(
           delegate: SliverChildBuilderDelegate(
-            (context, index) => Center(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: maxWidth),
-                child: buildRow(index),
-              ),
-            ),
+            (context, index) {
+              final entry = group.items[index];
+              return Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: maxWidth),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: ReminderRow(
+                      entry: entry,
+                      timeFormat: timeFormat,
+                      onToggle: (v) => onToggle(entry, v),
+                      onEdit: () => onEdit(entry),
+                      onDelete: () => onDelete(entry),
+                      onSnooze: () => onSnooze(entry),
+                      showQueuedBadge: queuedIds.contains(entry.id),
+                    ),
+                  ),
+                ),
+              );
+            },
             childCount: group.items.length,
           ),
         ),
@@ -140,8 +110,9 @@ class _ReminderGroupSliver extends StatelessWidget
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
+class ReminderSummaryCard extends StatelessWidget {
+  const ReminderSummaryCard({
+    super.key,
     required this.summary,
     required this.now,
     required this.onCreate,
@@ -152,7 +123,7 @@ class _SummaryCard extends StatelessWidget {
     required this.onScopeChanged,
   });
 
-  final _ReminderSummary summary;
+  final ReminderSummary summary;
   final DateTime now;
   final VoidCallback onCreate;
   final VoidCallback onToggleCompleted;
@@ -166,13 +137,27 @@ class _SummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final highlight = summary.highlight;
-    final cardBackground = elevatedCardBackground(theme);
-    final borderColor = elevatedCardBorder(theme);
+    final isDark = theme.brightness == Brightness.dark;
 
-    final card = CardX(
+    final card = Container(
       padding: const EdgeInsets.all(20),
-      backgroundColor: cardBackground,
-      borderColor: borderColor,
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -180,130 +165,100 @@ class _SummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Reminders overview',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          DateFormat('EEEE, MMM d').format(now),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                            color: colors.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: Text(
+                  'Reminders overview',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    letterSpacing: -0.3,
+                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                  ),
                 ),
               ),
-              if (menuButton != null) ...[
-                const SizedBox(width: 4),
-                SizedBox(
-                  height: 36,
-                  width: 36,
-                  child: Center(child: menuButton!),
-                ),
-              ],
+              if (menuButton != null) menuButton!,
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           if (highlight != null) ...[
-            _ReminderHighlightHero(highlight: highlight, now: now),
-            const SizedBox(height: 18),
+            ReminderHighlightHero(highlight: highlight, now: now),
+            const SizedBox(height: 20),
           ] else ...[
+            // Empty State
             Container(
-              padding: const EdgeInsets.all(16),
+              width: double.infinity,
+              padding: const EdgeInsets.all(32),
               decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
-                borderRadius: AppTokens.radius.lg,
+                color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
+                  width: 1,
+                ),
               ),
-              child: Row(
+              child: Column(
                 children: [
-                  Icon(
-                    Icons.inbox_rounded,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.8),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      'All caught up. Create a new reminder to get started.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
                     ),
+                    child: Icon(
+                      Icons.task_alt_rounded,
+                      size: 40,
+                      color: colors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'All caught up',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                      color: isDark ? colors.onSurfaceVariant : const Color(0xFF424242),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Create a reminder to stay on top of tasks.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
           ],
-          RepaintBoundary(
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: ReminderScope.values.map((option) {
-                final selected = option == scope;
-                return ChoiceChip(
-                  label: Text(option.label),
-                  selected: selected,
-                  onSelected: (value) {
-                    if (value) onScopeChanged(option);
-                  },
-                  selectedColor: colors.primary.withValues(alpha: 0.2),
-                  labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                    color: selected ? colors.primary : colors.onSurfaceVariant,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  ),
-                  backgroundColor:
-                      colors.surfaceContainerHighest.withValues(alpha: 0.4),
-                );
-              }).toList(),
-            ),
-          ),
-          const SizedBox(height: 18),
           Row(
             children: [
               Expanded(
-                child: _ReminderMetricChip(
+                child: ReminderMetricChip(
                   icon: Icons.pending_actions_rounded,
                   tint: colors.primary,
                   label: 'Pending',
                   value: summary.pending,
-                  caption: '${summary.total} total',
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ReminderMetricChip(
+                child: ReminderMetricChip(
                   icon: Icons.warning_amber_rounded,
                   tint: colors.error,
                   label: 'Overdue',
                   value: summary.overdue,
-                  caption: summary.overdue == 0
-                      ? 'On schedule'
-                      : '${summary.overdue} to tackle',
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ReminderMetricChip(
+                child: ReminderMetricChip(
                   icon: Icons.snooze_rounded,
                   tint: colors.secondary,
                   label: 'Snoozed',
                   value: summary.snoozed,
-                  caption:
-                      summary.snoozed == 0 ? 'All active' : 'Taking a break',
                 ),
               ),
             ],
@@ -314,13 +269,13 @@ class _SummaryCard extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: onCreate,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
+                  child: const Text(
+                    'New reminder',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text('New reminder'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -328,13 +283,19 @@ class _SummaryCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onToggleCompleted,
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
+                    side: BorderSide(
+                      color: isDark ? colors.outline : const Color(0xFFE0E0E0),
+                      width: 1.5,
                     ),
                   ),
-                  child:
-                      Text(showCompleted ? 'Hide completed' : 'Show completed'),
+                  child: Text(
+                    showCompleted ? 'Hide completed' : 'Show completed',
+                    style: TextStyle(
+                      color: isDark ? colors.onSurface : const Color(0xFF424242),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -347,13 +308,14 @@ class _SummaryCard extends StatelessWidget {
   }
 }
 
-class _ReminderHighlightHero extends StatelessWidget {
-  const _ReminderHighlightHero({
+class ReminderHighlightHero extends StatelessWidget {
+  const ReminderHighlightHero({
+    super.key,
     required this.highlight,
     required this.now,
   });
 
-  final _ReminderHighlight highlight;
+  final ReminderHighlight highlight;
   final DateTime now;
 
   @override
@@ -363,38 +325,38 @@ class _ReminderHighlightHero extends StatelessWidget {
     final entry = highlight.entry;
     final target = highlight.targetTime;
     final label = switch (highlight.status) {
-      _ReminderHighlightStatus.overdue => 'Overdue',
-      _ReminderHighlightStatus.snoozed => 'Snoozed',
-      _ReminderHighlightStatus.upcoming => 'Next reminder',
+      ReminderHighlightStatus.overdue => 'Overdue',
+      ReminderHighlightStatus.snoozed => 'Snoozed',
+      ReminderHighlightStatus.upcoming => 'Next reminder',
     };
     final labelIcon = switch (highlight.status) {
-      _ReminderHighlightStatus.overdue => Icons.report_problem_rounded,
-      _ReminderHighlightStatus.snoozed => Icons.snooze_rounded,
-      _ReminderHighlightStatus.upcoming => Icons.arrow_forward_rounded,
+      ReminderHighlightStatus.overdue => Icons.report_problem_rounded,
+      ReminderHighlightStatus.snoozed => Icons.snooze_rounded,
+      ReminderHighlightStatus.upcoming => Icons.arrow_forward_rounded,
     };
     final badgeIcon = switch (highlight.status) {
-      _ReminderHighlightStatus.overdue => Icons.warning_amber_rounded,
-      _ReminderHighlightStatus.snoozed => Icons.alarm_on_rounded,
-      _ReminderHighlightStatus.upcoming => Icons.flash_on_rounded,
+      ReminderHighlightStatus.overdue => Icons.warning_amber_rounded,
+      ReminderHighlightStatus.snoozed => Icons.alarm_on_rounded,
+      ReminderHighlightStatus.upcoming => Icons.flash_on_rounded,
     };
     final badgeLabel = switch (highlight.status) {
-      _ReminderHighlightStatus.overdue => 'Action needed',
-      _ReminderHighlightStatus.snoozed => 'Snoozed',
-      _ReminderHighlightStatus.upcoming => 'Next',
+      ReminderHighlightStatus.overdue => 'Action needed',
+      ReminderHighlightStatus.snoozed => 'Snoozed',
+      ReminderHighlightStatus.upcoming => 'Next',
     };
     final isDark = theme.brightness == Brightness.dark;
     final baseColor = colors.primary;
     final gradient = [
-      baseColor.withValues(alpha: isDark ? 0.85 : 0.95),
-      baseColor.withValues(alpha: isDark ? 0.65 : 0.7),
+      baseColor,
+      baseColor.withValues(alpha: 0.85),
     ];
-    final shadowColor = baseColor.withValues(alpha: isDark ? 0.32 : 0.22);
-    final foreground = colors.onPrimary;
+    final shadowColor = baseColor.withValues(alpha: 0.3);
+    final foreground = Colors.white;
     final scheduleWindow = DateFormat("EEE, MMM d 'at' h:mm a")
         .format(target)
         .replaceAll('\u202f', ' ');
     final subtitle = _formatRelativeDuration(target.difference(now)) ??
-        (highlight.status == _ReminderHighlightStatus.overdue
+        (highlight.status == ReminderHighlightStatus.overdue
             ? 'Just overdue'
             : 'Due soon');
     final title =
@@ -402,80 +364,74 @@ class _ReminderHighlightHero extends StatelessWidget {
     final details = entry.details?.trim() ?? '';
 
     return Container(
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: gradient,
         ),
-        borderRadius: AppTokens.radius.lg,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: shadowColor,
-            blurRadius: 24,
-            offset: const Offset(0, 16),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              _ReminderHeroChip(
+              ReminderHeroChip(
                 icon: labelIcon,
                 label: label,
-                background: foreground.withValues(alpha: 0.16),
-                foreground: foreground.withValues(alpha: 0.9),
+                background: foreground.withValues(alpha: 0.20),
+                foreground: foreground,
               ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(999),
+              const SizedBox(width: 10),
+              if (subtitle.isNotEmpty)
+                Text(
+                  subtitle,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: foreground.withValues(alpha: 0.85),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      badgeIcon,
-                      size: 18,
-                      color: foreground.withValues(alpha: 0.8),
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      badgeLabel,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: foreground.withValues(alpha: 0.85),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           Text(
             title,
-            style: theme.textTheme.titleMedium?.copyWith(
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 20,
+              fontSize: 22,
+              height: 1.3,
               color: foreground,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 18),
           Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Icon(
-                Icons.schedule_rounded,
-                size: 16,
-                color: foreground.withValues(alpha: 0.78),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: foreground.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.access_time_rounded,
+                  size: 18,
+                  color: foreground,
+                ),
               ),
-              const SizedBox(width: 6),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   scheduleWindow,
@@ -488,34 +444,36 @@ class _ReminderHighlightHero extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(
-                Icons.hourglass_bottom_rounded,
-                size: 14,
-                color: foreground.withValues(alpha: 0.75),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: foreground.withValues(alpha: 0.78),
+          if (details.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: foreground.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.notes_rounded,
+                    size: 18,
+                    color: foreground,
                   ),
                 ),
-              ),
-            ],
-          ),
-          if (details.isNotEmpty) ...[
-            const SizedBox(height: 10),
-            Text(
-              details,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: foreground.withValues(alpha: 0.82),
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    details,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: foreground.withValues(alpha: 0.90),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ],
@@ -535,12 +493,13 @@ class _ReminderHighlightHero extends StatelessWidget {
     if (delta.isNegative) {
       return 'Overdue by $formatted';
     }
-    return 'Due in $formatted';
+    return 'in $formatted';
   }
 }
 
-class _ReminderHeroChip extends StatelessWidget {
-  const _ReminderHeroChip({
+class ReminderHeroChip extends StatelessWidget {
+  const ReminderHeroChip({
+    super.key,
     required this.icon,
     required this.label,
     required this.background,
@@ -556,17 +515,20 @@ class _ReminderHeroChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(
+        horizontal: AppTokens.spacing.sm + 2,
+        vertical: AppTokens.spacing.xs + 1,
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppTokens.radius.pill,
         border: Border.all(color: foreground.withValues(alpha: 0.25)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: foreground),
-          const SizedBox(width: 6),
+          SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -581,88 +543,71 @@ class _ReminderHeroChip extends StatelessWidget {
   }
 }
 
-class _ReminderMetricChip extends StatelessWidget {
-  const _ReminderMetricChip({
+class ReminderMetricChip extends StatelessWidget {
+  const ReminderMetricChip({
+    super.key,
     required this.icon,
     required this.tint,
     required this.label,
     required this.value,
-    required this.caption,
   });
 
   final IconData icon;
   final Color tint;
   final String label;
   final int value;
-  final String caption;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final background = tint.withValues(alpha: isDark ? 0.20 : 0.10);
-    final border = tint.withValues(alpha: isDark ? 0.28 : 0.18);
-    final iconBackground = tint.withValues(alpha: isDark ? 0.22 : 0.16);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: border),
+        color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: tint.withValues(alpha: 0.20),
+          width: 1,
+        ),
       ),
-      constraints: const BoxConstraints(minHeight: 132),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 28,
-            width: 28,
+            padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: iconBackground,
-              borderRadius: BorderRadius.circular(12),
+              color: tint.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
             ),
-            alignment: Alignment.center,
             child: Icon(
               icon,
-              size: 18,
-              color: tint.withValues(alpha: 0.95),
+              size: 22,
+              color: tint,
             ),
           ),
           const SizedBox(height: 12),
           Text(
             '$value',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontFamily: 'SFProRounded',
-              fontWeight: FontWeight.w700,
-              fontSize: 22,
-              color: theme.colorScheme.onSurface,
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+              height: 1.0,
+              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 4),
           Text(
             label,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontSize: 15,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: theme.colorScheme.onSurfaceVariant,
+              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
             ),
             maxLines: 1,
-            softWrap: false,
             overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            caption,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
-              fontSize: 14,
-            ),
-            maxLines: 2,
-            softWrap: true,
-            overflow: TextOverflow.fade,
           ),
         ],
       ),
@@ -670,23 +615,26 @@ class _ReminderMetricChip extends StatelessWidget {
   }
 }
 
-class _ReminderGroupCard extends StatelessWidget {
-  const _ReminderGroupCard({
+class ReminderGroupCard extends StatelessWidget {
+  const ReminderGroupCard({
+    super.key,
     required this.group,
     required this.timeFormat,
     required this.onToggle,
     required this.onEdit,
     required this.onDelete,
     required this.onSnooze,
+    this.queuedIds = const <int>{},
     this.showHeader = true,
   });
 
-  final _ReminderGroup group;
+  final ReminderGroup group;
   final DateFormat timeFormat;
   final Future<void> Function(ReminderEntry entry, bool isActive) onToggle;
   final Future<void> Function(ReminderEntry entry) onEdit;
   final Future<void> Function(ReminderEntry entry) onDelete;
   final Future<void> Function(ReminderEntry entry) onSnooze;
+  final Set<int> queuedIds;
   final bool showHeader;
 
   @override
@@ -695,11 +643,13 @@ class _ReminderGroupCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final cardBackground = elevatedCardBackground(theme);
     final borderColor = elevatedCardBorder(theme);
+    final queuedCount =
+        group.items.where((item) => queuedIds.contains(item.id)).length;
 
     return CardX(
       backgroundColor: cardBackground,
       borderColor: borderColor,
-      padding: const EdgeInsets.all(20),
+      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -721,19 +671,50 @@ class _ReminderGroupCard extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
+                AnimatedSwitcher(
+                  duration: AppTokens.motion.fast,
+                  child: queuedCount > 0
+                      ? Padding(
+                          key: ValueKey('queued-$queuedCount'),
+                          padding:
+                              EdgeInsets.only(left: AppTokens.spacing.sm),
+                          child: QueuedBadge(label: 'Queued $queuedCount'),
+                        )
+                      : Row(
+                          key: const ValueKey('synced-indicator'),
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(width: AppTokens.spacing.sm),
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 16,
+                              color: colors.tertiary,
+                            ),
+                            SizedBox(width: AppTokens.spacing.xs),
+                            Text(
+                              'Synced',
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                color: colors.onSurfaceVariant,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                ),
               ],
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: AppTokens.spacing.md),
           ],
           ...List.generate(
             group.items.length,
-            (index) => _ReminderRow(
+            (index) => ReminderRow(
               entry: group.items[index],
               timeFormat: timeFormat,
               onToggle: (value) => onToggle(group.items[index], value),
               onEdit: () => onEdit(group.items[index]),
               onDelete: () => onDelete(group.items[index]),
               onSnooze: () => onSnooze(group.items[index]),
+              showQueuedBadge: queuedIds.contains(group.items[index].id),
             ),
           ),
         ],
@@ -742,14 +723,16 @@ class _ReminderGroupCard extends StatelessWidget {
   }
 }
 
-class _ReminderRow extends StatelessWidget {
-  const _ReminderRow({
+class ReminderRow extends StatelessWidget {
+  const ReminderRow({
+    super.key,
     required this.entry,
     required this.timeFormat,
     required this.onToggle,
     required this.onEdit,
     required this.onDelete,
     required this.onSnooze,
+    this.showQueuedBadge = false,
   });
 
   final ReminderEntry entry;
@@ -758,6 +741,7 @@ class _ReminderRow extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
   final VoidCallback onSnooze;
+  final bool showQueuedBadge;
 
   @override
   Widget build(BuildContext context) {
@@ -774,178 +758,295 @@ class _ReminderRow extends StatelessWidget {
     final primaryText = isActive ? colors.onSurface : colors.outline;
     final secondaryText = colors.onSurfaceVariant;
 
+    final palette = theme.brightness == Brightness.dark
+        ? AppTokens.darkColors
+        : AppTokens.lightColors;
     final tags = <Widget>[];
+    if (showQueuedBadge) {
+      tags.add(
+        AnimatedSwitcher(
+          duration: AppTokens.motion.fast,
+          child: const QueuedBadge(key: ValueKey('queued-tag')),
+        ),
+      );
+    }
     if (!isActive) {
       tags.add(
-        const _StatusTag(
+        ReminderStatusTag(
           label: 'Completed',
-          tint: Color(0xFF4CAF50),
+          tint: palette.positive,
         ),
       );
     } else if (snoozeUntil != null) {
       tags.add(
-        const _StatusTag(
+        ReminderStatusTag(
           label: 'Snoozed',
-          tint: Color(0xFFFB8C00),
+          tint: palette.warning,
         ),
       );
     } else if (isOverdue) {
       tags.add(
-        _StatusTag(
+        ReminderStatusTag(
           label: 'Overdue',
           tint: colors.error,
         ),
       );
     }
 
-    final containerColor = isOverdue
-        ? colors.error.withValues(alpha: 0.1)
-        : colors.surfaceContainerHigh;
-    final borderColor = isOverdue
-        ? colors.error.withValues(alpha: 0.3)
-        : colors.outline.withValues(alpha: 0.12);
+    final tileBackground = theme.brightness == Brightness.dark 
+        ? colors.surfaceContainerHigh 
+        : Colors.white;
+    final tileBorder = theme.brightness == Brightness.dark 
+        ? colors.outline.withValues(alpha: 0.12) 
+        : const Color(0xFFE5E5E5);
+
     final pillAccent = !isActive
         ? colors.outline
         : isOverdue
             ? colors.error
             : colors.primary;
 
-    return InkWell(
-      onTap: onEdit,
-      onLongPress: () => _showActions(context),
-      borderRadius: AppTokens.radius.lg,
+    final isDark = theme.brightness == Brightness.dark;
+
+    final child = InkWell(
+      onTap: () => _showDetails(context),
+      borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: containerColor,
-          borderRadius: AppTokens.radius.lg,
-          border: Border.all(color: borderColor),
+          color: tileBackground,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isActive 
+                ? colors.primary.withValues(alpha: 0.30)
+                : tileBorder,
+            width: isActive ? 1.5 : 0.5,
+          ),
+          boxShadow: theme.brightness == Brightness.dark
+              ? null
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isActive ? 0.08 : 0.04),
+                    blurRadius: isActive ? 12 : 6,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _ReminderDatePill(
-              date: localDue,
-              accent: pillAccent,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            // Top Row: Title + Toggle
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Text(
-                          entry.title,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: primaryText,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        entry.title,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          letterSpacing: -0.2,
+                          color: primaryText,
+                          decoration: !isActive ? TextDecoration.lineThrough : null,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       if (tags.isNotEmpty) ...[
-                        const SizedBox(width: 6),
+                        SizedBox(height: AppTokens.spacing.xs + 2),
                         Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
+                          spacing: AppTokens.spacing.xs + 2,
+                          runSpacing: AppTokens.spacing.xs + 2,
                           children: tags,
                         ),
                       ],
                     ],
                   ),
-                  const SizedBox(height: 6),
-                  Text(
-                    timeLabel,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: primaryText,
+                ),
+                SizedBox(width: AppTokens.spacing.md),
+                Semantics(
+                  label: entry.title,
+                  hint: isActive ? 'Mark as done' : 'Move back to pending',
+                  toggled: isActive,
+                  child: Transform.scale(
+                    scale: 0.85,
+                    child: Switch.adaptive(
+                      value: isActive,
+                      onChanged: onToggle,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
                   ),
-                  if (details.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        details,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: secondaryText,
-                        ),
-                      ),
-                    ),
-                  if (snoozeUntil != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text(
-                        'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: secondaryText,
-                          fontStyle: FontStyle.italic,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Semantics(
-                      label: entry.title,
-                      hint: isActive ? 'Mark as done' : 'Move back to pending',
-                      toggled: isActive,
-                      child: Switch.adaptive(
-                        value: isActive,
-                        onChanged: onToggle,
-                      ),
-                    ),
-                    const SizedBox(width: 6),
-                    _MenuButton(
-                      onEdit: onEdit,
-                      onSnooze: onSnooze,
-                      onDelete: onDelete,
-                    ),
-                  ],
                 ),
               ],
             ),
+            const SizedBox(height: 12),
+            
+            // Bottom Row: Time + Details
+            Row(
+              children: [
+                Icon(
+                  Icons.access_time_rounded,
+                  size: 16,
+                  color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  timeLabel,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                  ),
+                ),
+                if (details.isNotEmpty) ...[
+                  const SizedBox(width: 16),
+                  Icon(
+                    Icons.notes_rounded,
+                    size: 16,
+                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                  ),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      details,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            
+            if (snoozeUntil != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.snooze_rounded,
+                      size: 14,
+                      color: palette.warning,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: palette.warning,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
     );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(14),
+      child: Slidable(
+        key: ValueKey('dismiss-reminder-${entry.id}'),
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: 0.3,
+          children: [
+            CustomSlidableAction(
+              onPressed: (context) => _handleDelete(context),
+              backgroundColor: Colors.transparent,
+              foregroundColor: colors.onError,
+              child: Container(
+                margin: EdgeInsets.only(left: AppTokens.spacing.sm),
+                decoration: BoxDecoration(
+                  color: colors.error,
+                  borderRadius: AppTokens.radius.lg,
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(Icons.delete_outline_rounded, color: colors.onError),
+                    SizedBox(height: AppTokens.spacing.xs),
+                    Text(
+                      'Delete',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.onError,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        child: child,
+      ),
+    );
   }
 
-  Future<void> _showActions(BuildContext context) async {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    final action = await showModalBottomSheet<_ReminderRowAction>(
+  Future<void> _handleDelete(BuildContext context) async {
+    final confirm = await showDialog<bool>(
       context: context,
-      backgroundColor: Colors.transparent,
-      builder: (context) => _ReminderActionsSheet(entry: entry),
+      builder: (context) => AlertDialog(
+        title: const Text('Delete reminder?'),
+        content: const Text(
+          'This reminder will be permanently removed.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
     );
-    switch (action) {
-      case _ReminderRowAction.edit:
-        onEdit();
-        break;
-      case _ReminderRowAction.snooze:
-        onSnooze();
-        break;
-      case _ReminderRowAction.delete:
-        onDelete();
-        break;
-      case null:
-        break;
+    if (confirm == true) {
+      onDelete();
     }
+  }
+
+  Future<void> _showDetails(BuildContext context) async {
+    final media = MediaQuery.of(context);
+    await showOverlaySheet(
+      context: context,
+      alignment: Alignment.center,
+      dimBackground: true,
+      padding: EdgeInsets.fromLTRB(
+        20,
+        media.padding.top + 24,
+        20,
+        media.padding.bottom + 24,
+      ),
+      builder: (context) => ReminderDetailsSheet(
+        entry: entry,
+        isActive: !entry.isCompleted,
+        onEdit: onEdit,
+        onSnooze: onSnooze,
+        onDelete: onDelete,
+        onToggle: onToggle,
+      ),
+    );
   }
 }
 
-class _StatusTag extends StatelessWidget {
-  const _StatusTag({required this.label, required this.tint});
+class ReminderStatusTag extends StatelessWidget {
+  const ReminderStatusTag({super.key, required this.label, required this.tint});
 
   final String label;
   final Color tint;
@@ -957,10 +1058,13 @@ class _StatusTag extends StatelessWidget {
     final background = tint.withValues(alpha: isDark ? 0.22 : 0.16);
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(
+        horizontal: AppTokens.spacing.sm + 2,
+        vertical: AppTokens.spacing.xs + 2,
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
       ),
       child: Text(
         label,
@@ -1017,45 +1121,233 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-class _ReminderDatePill extends StatelessWidget {
-  const _ReminderDatePill({
-    required this.date,
-    required this.accent,
+
+
+class ReminderListCard extends StatelessWidget {
+  const ReminderListCard({
+    super.key,
+    required this.groups,
+    required this.timeFormat,
+    required this.onToggle,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onSnooze,
+    required this.queuedIds,
   });
 
-  final DateTime date;
-  final Color accent;
+  final List<ReminderGroup> groups;
+  final DateFormat timeFormat;
+  final Future<void> Function(ReminderEntry entry, bool isActive) onToggle;
+  final Future<void> Function(ReminderEntry entry) onEdit;
+  final Future<void> Function(ReminderEntry entry) onDelete;
+  final Future<void> Function(ReminderEntry entry) onSnooze;
+  final Set<int> queuedIds;
 
   @override
   Widget build(BuildContext context) {
-    final weekday = DateFormat('EEE').format(date).toUpperCase();
-    final formatted = DateFormat('MMM d').format(date);
-    final baseColor = accent.withValues(alpha: 0.14);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      width: 72,
-      padding: const EdgeInsets.symmetric(vertical: 12),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: baseColor,
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
         borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            weekday,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: accent,
-                  letterSpacing: 0.6,
+          // Header
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colors.primary.withValues(alpha: 0.15),
+                      colors.primary.withValues(alpha: 0.10),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: colors.primary.withValues(alpha: 0.25),
+                    width: 1.5,
+                  ),
                 ),
+                child: Icon(
+                  Icons.event_note_rounded,
+                  color: colors.primary,
+                  size: 26,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Scheduled reminders',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 21,
+                        letterSpacing: -0.5,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Pinned headers keep each group visible.',
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            formatted,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+          const SizedBox(height: 24),
+
+          // Groups
+          for (var g = 0; g < groups.length; g++) ...[
+            _buildGroupHeader(context, groups[g]),
+            const SizedBox(height: 12),
+            for (var i = 0; i < groups[g].items.length; i++) ...[
+              ReminderRow(
+                entry: groups[g].items[i],
+                timeFormat: timeFormat,
+                onToggle: (v) => onToggle(groups[g].items[i], v),
+                onEdit: () => onEdit(groups[g].items[i]),
+                onDelete: () => onDelete(groups[g].items[i]),
+                onSnooze: () => onSnooze(groups[g].items[i]),
+                showQueuedBadge: queuedIds.contains(groups[g].items[i].id),
+              ),
+              if (i != groups[g].items.length - 1) const SizedBox(height: 10),
+            ],
+            if (g != groups.length - 1) const SizedBox(height: 20),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildGroupHeader(BuildContext context, ReminderGroup group) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final label = group.label;
+    final count = group.items.length;
+
+    final isOverdue = label.toLowerCase().contains('overdue');
+    final isToday = label.toLowerCase().contains('today');
+
+    final baseColor = isOverdue
+        ? colors.error
+        : (isToday ? colors.primary : colors.surfaceContainerHighest);
+
+    final icon = isOverdue
+        ? Icons.warning_amber_rounded
+        : (isToday ? Icons.today_rounded : Icons.event_note_rounded);
+
+    final gradientColors = isOverdue
+        ? [
+            colors.error.withValues(alpha: isDark ? 0.15 : 0.10),
+            colors.error.withValues(alpha: isDark ? 0.10 : 0.05),
+          ]
+        : isToday
+            ? [
+                colors.primary.withValues(alpha: isDark ? 0.15 : 0.10),
+                colors.primary.withValues(alpha: isDark ? 0.10 : 0.05),
+              ]
+            : [
+                isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5),
+                isDark ? colors.surfaceContainerHigh : const Color(0xFFFAFAFA),
+              ];
+
+    final borderColor = isOverdue
+        ? colors.error.withValues(alpha: 0.2)
+        : isToday
+            ? colors.primary.withValues(alpha: 0.2)
+            : (isDark ? colors.outline.withValues(alpha: 0.15) : const Color(0xFFE0E0E0));
+
+    final textColor = isOverdue
+        ? colors.error
+        : isToday
+            ? colors.primary
+            : (isDark ? colors.onSurfaceVariant : const Color(0xFF616161));
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: baseColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 18,
+              color: textColor,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 17,
+                letterSpacing: -0.3,
+                color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: baseColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$count ${count == 1 ? 'reminder' : 'reminders'}',
+              style: theme.textTheme.bodySmall?.copyWith(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: textColor,
+              ),
+            ),
           ),
         ],
       ),

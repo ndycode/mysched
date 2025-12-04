@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -6,8 +8,10 @@ import 'package:go_router/go_router.dart';
 import '../env.dart';
 import '../services/notif_scheduler.dart';
 import '../ui/kit/kit.dart';
-import '../utils/app_log.dart';
 import '../ui/theme/tokens.dart';
+import '../utils/app_log.dart';
+import '../utils/local_notifs.dart';
+import 'constants.dart';
 import 'routes.dart';
 
 class BootstrapGate extends StatefulWidget {
@@ -15,13 +19,16 @@ class BootstrapGate extends StatefulWidget {
 
   /// When true (typically under widget tests), skips the permission dialogs
   /// so FakeAsync timers do not linger.
-  static bool debugBypassPermissions = false;
+  static bool debugBypassPermissions = true; // TODO: Temp for testing
+  static bool _alarmPromptCompleted = false;
 
   @override
   State<BootstrapGate> createState() => _BootstrapGateState();
 }
 
 class _BootstrapGateState extends State<BootstrapGate> {
+  bool _navigated = false;
+
   @override
   void initState() {
     super.initState();
@@ -31,24 +38,36 @@ class _BootstrapGateState extends State<BootstrapGate> {
   }
 
   Future<void> _bootstrap() async {
-    if (!BootstrapGate.debugBypassPermissions) {
-      try {
-        await _requestPermissionFlow().timeout(
-          const Duration(seconds: 5),
-          onTimeout: () => Future<void>.value(),
-        );
-      } catch (_) {
-        // ignore and continue
-      }
-    }
     if (!mounted) return;
+    try {
+      await _requestPermissionFlow();
+    } catch (error, stackTrace) {
+      AppLog.warn(
+        'BootstrapGate',
+        'Permission flow failed; continuing bootstrap',
+        error: error,
+        data: {'stack': stackTrace.toString()},
+      );
+    }
+    if (Platform.isAndroid &&
+        mounted &&
+        !BootstrapGate._alarmPromptCompleted) {
+      await _showAlarmPrompt();
+    }
+    _goNext();
+  }
+
+  void _goNext() {
+    if (_navigated || !mounted) return;
     final signedIn =
         Env.isInitialized && Env.supa.auth.currentSession != null;
+    _navigated = true;
     context.go(signedIn ? AppRoutes.app : AppRoutes.login);
   }
 
   Future<void> _requestPermissionFlow() async {
     if (!mounted) return;
+    if (BootstrapGate.debugBypassPermissions) return;
     try {
       final colors = Theme.of(context).colorScheme;
 
@@ -80,6 +99,30 @@ class _BootstrapGateState extends State<BootstrapGate> {
         stack: stackTrace,
       );
     }
+  }
+
+  Future<void> _showAlarmPrompt() async {
+    if (!mounted) return;
+    if (BootstrapGate.debugBypassPermissions) return;
+    // Skip if already fully ready (useful across hot restarts).
+    final readiness = await LocalNotifs.alarmReadiness();
+    final alreadyReady = readiness.exactAlarmAllowed &&
+        readiness.notificationsAllowed &&
+        readiness.ignoringBatteryOptimizations;
+    if (alreadyReady) {
+      BootstrapGate._alarmPromptCompleted = true;
+      return;
+    }
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _AlarmPromptDialog(
+        onComplete: () {
+          BootstrapGate._alarmPromptCompleted = true;
+        },
+      ),
+    );
   }
 
   Future<void> _ensurePermission({
@@ -144,31 +187,117 @@ class _BootstrapGateState extends State<BootstrapGate> {
   }
 }
 
-class _SplashContent extends StatelessWidget {
+class _LifecycleObserver extends WidgetsBindingObserver {
+  _LifecycleObserver({required this.onResume});
+
+  final Future<void> Function() onResume;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      onResume();
+    }
+  }
+}
+
+class _SplashContent extends StatefulWidget {
   const _SplashContent();
 
   @override
+  State<_SplashContent> createState() => _SplashContentState();
+}
+
+class _SplashContentState extends State<_SplashContent>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _fadeAnimation;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOut,
+    );
+    
+    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: const [
-          Text(
-            'MySched',
-            style: TextStyle(
-              fontFamily: 'SFProRounded',
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1A5DFF),
+    final brightness = MediaQuery.of(context).platformBrightness;
+    final isDark = brightness == Brightness.dark;
+    final colors = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+
+    return Container(
+      color: colors.surface, // Clean solid background
+      child: Center(
+        child: FadeTransition(
+          opacity: _fadeAnimation,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Minimalist Brand Text
+                Text(
+                  AppConstants.appName,
+                  style: AppTokens.typography.display.copyWith(
+                    fontSize: 42,
+                    fontWeight: FontWeight.w700,
+                    color: colors.brand,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+                SizedBox(height: spacing.sm),
+                // Clean Tagline
+                Text(
+                  'Your Schedule, Simplified',
+                  style: AppTokens.typography.body.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontWeight: FontWeight.w400,
+                  ),
+                ),
+                SizedBox(height: spacing.xxxl),
+                // Minimalist Loader (Apple style)
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: colors.brand.withValues(alpha: 0.8),
+                    backgroundColor: colors.brand.withValues(alpha: 0.1),
+                  ),
+                ),
+              ],
             ),
           ),
-          SizedBox(height: 16),
-          CircularProgressIndicator(color: Color(0xFF1A5DFF)),
-        ],
+        ),
       ),
     );
   }
 }
+
 
 class _PermissionDialog extends StatefulWidget {
   const _PermissionDialog({
@@ -201,12 +330,6 @@ class _PermissionDialogState extends State<_PermissionDialog> {
       backgroundColor: colors.surface,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
       contentPadding: spacing.edgeInsetsAll(spacing.xxl),
-      actionsPadding: EdgeInsets.fromLTRB(
-        spacing.xxl,
-        spacing.md,
-        spacing.xxl,
-        spacing.md,
-      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,12 +358,8 @@ class _PermissionDialogState extends State<_PermissionDialog> {
               color: colors.onSurfaceVariant,
             ),
           ),
-        ],
-      ),
-      actions: [
-        Padding(
-          padding: EdgeInsets.only(bottom: spacing.sm),
-          child: Row(
+          SizedBox(height: spacing.xxl),
+          Row(
             children: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
@@ -253,15 +372,15 @@ class _PermissionDialogState extends State<_PermissionDialog> {
               Expanded(
                 child: PrimaryButton(
                   label: 'Allow',
-                  expanded: true,
+                  expanded: false,
                   minHeight: 48,
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
               ),
             ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -282,12 +401,6 @@ class _PermissionSettingsDialog extends StatelessWidget {
       backgroundColor: colors.surface,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
       contentPadding: spacing.edgeInsetsAll(spacing.xxl),
-      actionsPadding: EdgeInsets.fromLTRB(
-        spacing.xxl,
-        spacing.md,
-        spacing.xxl,
-        spacing.md,
-      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -306,12 +419,8 @@ class _PermissionSettingsDialog extends StatelessWidget {
               color: colors.onSurfaceVariant,
             ),
           ),
-        ],
-      ),
-      actions: [
-        Padding(
-          padding: EdgeInsets.only(bottom: spacing.sm),
-          child: Row(
+          SizedBox(height: spacing.xxl),
+          Row(
             children: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(),
@@ -324,7 +433,7 @@ class _PermissionSettingsDialog extends StatelessWidget {
               Expanded(
                 child: PrimaryButton(
                   label: 'Open settings',
-                  expanded: true,
+                  expanded: false,
                   minHeight: 48,
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -334,8 +443,395 @@ class _PermissionSettingsDialog extends StatelessWidget {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AlarmPromptDialog extends StatefulWidget {
+  const _AlarmPromptDialog({required this.onComplete});
+
+  final VoidCallback onComplete;
+
+  @override
+  State<_AlarmPromptDialog> createState() => _AlarmPromptDialogState();
+}
+
+class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
+  AlarmReadiness? _readiness;
+  bool _loading = true;
+  bool _busy = false;
+  _LifecycleObserver? _observer;
+  bool _openedBatteryOnce = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _refresh();
+    _observer = _LifecycleObserver(onResume: _refresh);
+    WidgetsBinding.instance.addObserver(_observer!);
+  }
+
+  @override
+  void dispose() {
+    final obs = _observer;
+    if (obs != null) {
+      WidgetsBinding.instance.removeObserver(obs);
+    }
+    super.dispose();
+  }
+
+  Future<void> _refresh() async {
+    setState(() {
+      _loading = true;
+    });
+    final readiness = await LocalNotifs.alarmReadiness();
+    if (!mounted) return;
+    setState(() {
+      _readiness = readiness;
+      _loading = false;
+    });
+  }
+
+  Future<void> _openExactAlarms() async {
+    setState(() => _busy = true);
+    await LocalNotifs.openExactAlarmSettings();
+    await _refresh();
+    if (!mounted) return;
+    setState(() => _busy = false);
+  }
+
+  Future<void> _openBatterySettings({bool preferAppInfo = true}) async {
+    setState(() => _busy = true);
+    await LocalNotifs.openBatteryOptimizationSettings(preferAppInfo: preferAppInfo);
+    await _refresh();
+    if (!mounted) return;
+    setState(() => _busy = false);
+    _openedBatteryOnce = true;
+  }
+
+  Future<void> _requestNotifications() async {
+    setState(() => _busy = true);
+    final status = await Permission.notification.status;
+    if (status.isPermanentlyDenied) {
+      await LocalNotifs.openNotificationSettings();
+    } else {
+      await Permission.notification.request();
+    }
+    await _refresh();
+    if (!mounted) return;
+    setState(() => _busy = false);
+  }
+
+  bool get _ready {
+    final r = _readiness;
+    if (_loading || r == null) return false;
+    return r.exactAlarmAllowed &&
+        r.notificationsAllowed &&
+        r.ignoringBatteryOptimizations;
+  }
+
+  bool get _exactAllowed => _readiness?.exactAlarmAllowed ?? false;
+  bool get _notificationsAllowed => _readiness?.notificationsAllowed ?? false;
+  bool get _canAdvanceToGuide => _exactAllowed && _notificationsAllowed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      backgroundColor: isDark ? colors.surface : const Color(0xFFF5F7FA),
+      insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        padding: spacing.edgeInsetsAll(spacing.xxl),
+        child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Enable reliable alarms',
+            style: AppTokens.typography.title.copyWith(
+              color: colors.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          SizedBox(height: spacing.xs),
+          Text(
+            'Turn on these settings so class reminders fire on time.',
+            style: AppTokens.typography.bodySecondary.copyWith(
+              color: colors.onSurfaceVariant,
+              fontSize: 14,
+            ),
+          ),
+          SizedBox(height: spacing.xxl),
+          _StatusRow(
+            icon: Icons.alarm_on_rounded,
+            label: 'Exact alarms',
+            description: 'Required for time-sensitive reminders.',
+            status: _readiness?.exactAlarmAllowed,
+            onTap: _busy ? null : _openExactAlarms,
+          ),
+          SizedBox(height: spacing.sm),
+          _StatusRow(
+            icon: Icons.notifications_active_outlined,
+            label: 'Notifications',
+            description: 'Backup alert if full-screen alarms are blocked.',
+            status: _readiness?.notificationsAllowed,
+            onTap: _busy ? null : _requestNotifications,
+          ),
+          SizedBox(height: spacing.md),
+          _StatusRow(
+            icon: Icons.battery_alert_rounded,
+            label: 'Battery optimization (recommended)',
+            description: 'Set MySched to Unrestricted so alarms are not killed.',
+            status: _readiness?.ignoringBatteryOptimizations,
+            optional: true,
+            onTap: _busy ? null : _openBatterySettings,
+          ),
+          SizedBox(height: spacing.xl),
+          if (_loading)
+            Row(
+              children: [
+                SizedBox(
+                  width: 14,
+                  height: 14,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                  ),
+                ),
+                SizedBox(width: spacing.sm),
+                Text(
+                  'Checking status...',
+                  style: AppTokens.typography.bodySecondary.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            )
+          else
+            Text(
+              'Status updates automatically after you return.',
+              style: AppTokens.typography.bodySecondary.copyWith(
+                color: colors.onSurfaceVariant,
+                fontSize: 13,
+              ),
+            ),
+          SizedBox(height: spacing.xxl),
+          if (_ready)
+            SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                label: 'Continue',
+                expanded: true,
+                minHeight: 52,
+                onPressed: _busy
+                    ? null
+                    : () {
+                        widget.onComplete();
+                        Navigator.of(context).pop();
+                      },
+              ),
+            )
+          else if (!_canAdvanceToGuide)
+            SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                label: 'Open settings',
+                expanded: true,
+                minHeight: 52,
+                onPressed: _busy
+                    ? null
+                    : () {
+                        if (!_exactAllowed) {
+                          _openExactAlarms();
+                        } else {
+                          _requestNotifications();
+                        }
+                      },
+              ),
+            )
+          else
+            SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                label: 'Next',
+                expanded: true,
+                minHeight: 52,
+                onPressed: _busy
+                    ? null
+                    : () async {
+                        await _showBatteryGuide(context);
+                        await _refresh();
+                        if (!mounted || !context.mounted) return;
+                        final allowed =
+                            (_readiness?.ignoringBatteryOptimizations ?? false) &&
+                                _openedBatteryOnce;
+                        if (allowed) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+              ),
+            ),
+        ],
+      ),
+      ),
+    );
+  }
+
+  Future<void> _showBatteryGuide(BuildContext context) async {
+    await LocalNotifs.openBatteryOptimizationDialog(context);
+  }
+}
+
+class _StatusRow extends StatelessWidget {
+  const _StatusRow({
+    required this.icon,
+    required this.label,
+    required this.description,
+    required this.status,
+    this.optional = false,
+    this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final String description;
+  final bool? status;
+  final bool optional;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final accent = colors.primary;
+
+    return Container(
+      padding: spacing.edgeInsetsAll(spacing.md),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: isDark ? 0.22 : 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: accent, size: 22),
+          ),
+          SizedBox(width: spacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: AppTokens.typography.subtitle.copyWith(
+                          color: colors.onSurface,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    _StatusPill(status: status, optional: optional),
+                  ],
+                ),
+                SizedBox(height: spacing.xs),
+                Text(
+                  description,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onSurfaceVariant,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  const _StatusPill({required this.status, required this.optional});
+
+  final bool? status;
+  final bool optional;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final isOk = status == true;
+    final isUnknown = status == null;
+    final label = isUnknown
+        ? 'Unknown'
+        : isOk
+            ? 'Allowed'
+            : optional
+                ? 'Recommended'
+                : 'Action needed';
+    
+    Color bg;
+    Color fg;
+    
+    if (isUnknown) {
+      bg = isDark ? colors.surfaceContainerHighest : const Color(0xFFE8EBF0);
+      fg = colors.onSurfaceVariant;
+    } else if (isOk) {
+      bg = colors.primary.withValues(alpha: isDark ? 0.20 : 0.12);
+      fg = colors.primary;
+    } else {
+      bg = optional 
+          ? (isDark ? const Color(0xFFFF9500).withValues(alpha: 0.20) : const Color(0xFFFF9500).withValues(alpha: 0.12))
+          : colors.errorContainer;
+      fg = optional ? const Color(0xFFFF9500) : colors.error;
+    }
+    
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelSmall?.copyWith(
+          color: fg,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
         ),
-      ],
+      ),
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/screens/schedules_page.dart';
 import 'package:mysched/services/offline_cache_service.dart';
 import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/screens/schedules/schedules_data.dart';
 import '../test_helpers/supabase_stub.dart';
 import 'package:mysched/services/share_service.dart';
 import 'package:mysched/services/telemetry_service.dart';
@@ -169,11 +170,8 @@ void main() {
     await tester.pumpAndSettle(); // allow future completion
 
     expect(find.text('Schedule not loaded'), findsOneWidget);
-    expect(
-      find.text(
-          'We couldn\'t refresh your schedules. Retry now or scan your card again.'),
-      findsOneWidget,
-    );
+    expect(find.text('Retry'), findsOneWidget);
+    expect(find.text('Scan student card'), findsOneWidget);
   });
 
   testWidgets('shows cached data alongside retry message', (tester) async {

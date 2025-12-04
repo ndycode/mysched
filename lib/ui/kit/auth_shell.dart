@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../app/constants.dart';
 import '../theme/tokens.dart';
-import 'containers.dart';
 import 'layout.dart';
 
 /// Shared, centered layout for auth flows with a branded top bar.
@@ -37,7 +37,7 @@ class AuthShell extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'MySched',
+              AppConstants.appName,
               textAlign: TextAlign.center,
               style: AppTokens.typography.subtitle.copyWith(
                 color: colors.primary,
@@ -78,8 +78,27 @@ class AuthShell extends StatelessWidget {
       ],
     );
 
-    final card = CardX(
+    final card = Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: theme.brightness == Brightness.dark
+            ? colors.surfaceContainerHigh
+            : Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.brightness == Brightness.dark
+              ? colors.outline.withValues(alpha: 0.12)
+              : const Color(0xFFE5E5E5),
+          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.15),
+            blurRadius: 40,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

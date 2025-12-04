@@ -1,5 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@color/alarm_surface" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Base gradient background -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="180"
+                android:startColor="@color/alarm_surface_gradient_start"
+                android:endColor="@color/alarm_surface_gradient_end" />
+        </shape>
+    </item>
+    <!-- Radial glow overlay -->
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:type="radial"
+                android:gradientRadius="60%p"
+                android:centerX="0.5"
+                android:centerY="0.45"
+                android:startColor="@color/alarm_glow_start"
+                android:endColor="@color/alarm_glow_end" />
+        </shape>
+    </item>
+</layer-list>

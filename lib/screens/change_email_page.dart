@@ -175,7 +175,6 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
               decoration: InputDecoration(
                 labelText: 'Current password',
                 suffixIcon: IconButton(
-                  tooltip: _hidePassword ? 'Show password' : 'Hide password',
                   onPressed: _saving
                       ? null
                       : () => setState(() => _hidePassword = !_hidePassword),
@@ -217,28 +216,53 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         ScreenSection(
           title: 'New address',
           subtitle: 'We\'ll send a 6-digit code to confirm the change.',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Currently signed in as ${widget.currentEmail}',
-                style: descriptionStyle,
+          decorated: false,
+          child: Container(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? colors.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
-              SizedBox(height: spacing.md),
-              formFields(),
-              SizedBox(height: spacing.xl),
-              PrimaryButton(
-                label: _saving ? 'Saving...' : 'Save changes',
-                onPressed: _saving ? null : _submit,
-                minHeight: 48,
-              ),
-              SizedBox(height: spacing.sm),
-              SecondaryButton(
-                label: 'Cancel',
-                onPressed: _saving ? null : () => context.pop(),
-                minHeight: 48,
-              ),
-            ],
+              boxShadow: theme.brightness == Brightness.dark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Currently signed in as ${widget.currentEmail}',
+                  style: descriptionStyle,
+                ),
+                SizedBox(height: spacing.md),
+                formFields(),
+                SizedBox(height: spacing.xl),
+                PrimaryButton(
+                  label: _saving ? 'Saving...' : 'Save changes',
+                  onPressed: _saving ? null : _submit,
+                  minHeight: 48,
+                ),
+                SizedBox(height: spacing.sm),
+                SecondaryButton(
+                  label: 'Cancel',
+                  onPressed: _saving ? null : () => context.pop(),
+                  minHeight: 48,
+                ),
+              ],
+            ),
           ),
         ),
       ],

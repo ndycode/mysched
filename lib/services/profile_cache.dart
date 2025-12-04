@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import '../utils/app_log.dart';
 import 'auth_service.dart';
 
 class ProfileSummary {
@@ -54,8 +55,7 @@ class ProfileCache {
     notifier.value = _cached;
     _refreshCounter++;
     if (kDebugMode) {
-      // ignore: avoid_print
-      print('ProfileCache refreshed ($_refreshCounter)');
+      AppLog.debug('ProfileCache', 'Refreshed', data: {'count': _refreshCounter});
     }
   }
 

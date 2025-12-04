@@ -13,12 +13,12 @@ import '../../models/reminder_scope.dart';
 import '../../services/profile_cache.dart';
 import '../../services/reminder_scope_store.dart';
 import '../../services/reminders_api.dart';
+import '../../services/telemetry_service.dart';
 import '../../services/root_nav_controller.dart';
 import '../../services/schedule_api.dart' as sched;
 import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../utils/nav.dart';
 import '../../widgets/instructor_avatar.dart';
 
@@ -33,8 +33,7 @@ part 'dashboard_schedule.dart';
 part 'dashboard_reminders.dart';
 part 'dashboard_messages.dart';
 
-const kMuted = Color(0xFF4B556D);
-const kSummaryMuted = Color(0xFF7F8AA7);
+// Use AppTokens.lightColors.muted / mutedSecondary for themed access
 const _kDashboardScopePref = 'dashboard.scope.selected';
 const double _kBottomNavSafePadding = 120;
 
@@ -45,10 +44,16 @@ class DashboardScreen extends StatefulWidget {
     super.key,
     required this.api,
     RemindersApi? remindersApi,
-  }) : _remindersOverride = remindersApi;
+    this.scheduleLoaderOverride,
+    this.remindersLoaderOverride,
+    this.debugForceScheduleError = false,
+  })  : _remindersOverride = remindersApi;
 
   final sched.ScheduleApi api;
   final RemindersApi? _remindersOverride;
+  final Future<List<ClassItem>> Function()? scheduleLoaderOverride;
+  final Future<List<ReminderEntry>> Function()? remindersLoaderOverride;
+  final bool debugForceScheduleError;
 
   @override
   State<DashboardScreen> createState() => DashboardScreenState();
@@ -74,6 +79,7 @@ class DashboardScreenState extends State<DashboardScreen>
   bool _scheduleLoading = true;
   bool _remindersLoading = true;
   String? _remindersError;
+  String? _scheduleError;
 
   String? _studentName;
   String? _studentEmail;
@@ -119,7 +125,12 @@ class DashboardScreenState extends State<DashboardScreen>
     _restoreDashboardPrefs();
     _startTicker();
     _loadProfile();
-    _loadAll();
+    if (widget.debugForceScheduleError) {
+      _scheduleLoading = false;
+      _scheduleError = 'Schedules not refreshed';
+    } else {
+      _loadAll();
+    }
   }
 
   @override
@@ -205,7 +216,8 @@ class DashboardScreenState extends State<DashboardScreen>
     try {
       final profile = await ProfileCache.load(forceRefresh: refresh);
       _applyProfile(profile);
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('dashboard_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -252,6 +264,11 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _loadScheduleFromSupabase({bool softRefresh = false}) async {
+    if (mounted) {
+      setState(() {
+        _scheduleError = null;
+      });
+    }
     try {
       final now = DateTime.now();
       final cached = widget.api.getCachedClasses();
@@ -266,13 +283,18 @@ class DashboardScreenState extends State<DashboardScreen>
         return;
       }
 
-      final fresh = await widget.api.refreshMyClasses();
+      final fetcher = widget.scheduleLoaderOverride == null
+          ? widget.api.refreshMyClasses
+          : widget.scheduleLoaderOverride!;
+      final fresh = await fetcher();
       _lastScheduleFetchAt = DateTime.now();
-      await _applySchedule(fresh);
-    } catch (_) {
+      await _applySchedule(List<sched.ClassItem>.from(fresh));
+    } catch (e, stack) {
+      TelemetryService.instance.logError('dashboard_load_schedule', error: e, stack: stack);
       if (!mounted) return;
       setState(() {
         _scheduleLoading = false;
+        _scheduleError = 'Schedules not refreshed. Tap retry.';
       });
     }
   }
@@ -301,6 +323,7 @@ class DashboardScreenState extends State<DashboardScreen>
         ..addAll(source);
       _classDetailsCache.removeWhere((key, _) => !source.containsKey(key));
       _scheduleLoading = false;
+      _scheduleError = null;
       _lastRefreshedAt = refreshedAt;
     });
     _lastScheduleFetchAt = refreshedAt;
@@ -314,16 +337,18 @@ class DashboardScreenState extends State<DashboardScreen>
       _remindersError = null;
     });
     try {
-      final items = await _remindersApi
-          .fetchReminders(includeCompleted: true)
-          .timeout(const Duration(seconds: 8));
+      final loader = widget.remindersLoaderOverride == null
+          ? () => _remindersApi.fetchReminders(includeCompleted: true)
+          : widget.remindersLoaderOverride!;
+      final items = await loader().timeout(const Duration(seconds: 8));
       if (!mounted) return;
       setState(() {
         _reminders = List<ReminderEntry>.unmodifiable(items);
         _remindersLoading = false;
         _lastRefreshedAt = DateTime.now();
       });
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('dashboard_load_reminders', error: e, stack: stack);
       if (!mounted) return;
       setState(() {
         _reminders = const [];
@@ -419,11 +444,12 @@ class DashboardScreenState extends State<DashboardScreen>
       context: context,
       alignment: Alignment.center,
       barrierDismissible: false,
+      dimBackground: true,
       padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 24,
-        20,
-        media.padding.bottom + 24,
+        AppTokens.spacing.xl,
+        media.padding.top + AppTokens.spacing.xxl,
+        AppTokens.spacing.xl,
+        media.padding.bottom + AppTokens.spacing.xxl,
       ),
       builder: (_) => AddClassSheet(
         api: widget.api,
@@ -456,11 +482,12 @@ class DashboardScreenState extends State<DashboardScreen>
     await showOverlaySheet<void>(
       context: context,
       alignment: Alignment.center,
+      dimBackground: true,
       padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 24,
-        20,
-        media.padding.bottom + 24,
+        AppTokens.spacing.xl,
+        media.padding.top + AppTokens.spacing.xxl,
+        AppTokens.spacing.xl,
+        media.padding.bottom + AppTokens.spacing.xxl,
       ),
       builder: (_) => ClassDetailsSheet(
         api: widget.api,
@@ -503,11 +530,12 @@ class DashboardScreenState extends State<DashboardScreen>
     final created = await showOverlaySheet<bool>(
       context: context,
       alignment: Alignment.center,
+      dimBackground: true,
       padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 24,
-        20,
-        media.padding.bottom + 24,
+        AppTokens.spacing.xl,
+        media.padding.top + AppTokens.spacing.xxl,
+        AppTokens.spacing.xl,
+        media.padding.bottom + AppTokens.spacing.xxl,
       ),
       builder: (_) => AddReminderSheet(api: _remindersApi),
     );
@@ -556,7 +584,8 @@ class DashboardScreenState extends State<DashboardScreen>
     try {
       await _remindersApi.toggleCompleted(entry, completed);
       await _loadReminders();
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('dashboard_toggle_reminder', error: e, stack: stack);
       if (!mounted) return;
       showAppSnackBar(
         context,
@@ -576,7 +605,8 @@ class DashboardScreenState extends State<DashboardScreen>
     try {
       await _remindersApi.snoozeReminder(entry.id, const Duration(hours: 1));
       await _loadReminders();
-    } catch (_) {
+    } catch (e, stack) {
+      TelemetryService.instance.logError('dashboard_snooze_reminder', error: e, stack: stack);
       if (!mounted) return;
       showAppSnackBar(
         context,
@@ -680,9 +710,25 @@ class DashboardScreenState extends State<DashboardScreen>
         _reminders.isEmpty;
 
     if (initialLoading) {
-      return const AppScaffold(
+      return AppScaffold(
         screenName: 'dashboard',
-        body: Center(child: CircularProgressIndicator()),
+        safeArea: false,
+        body: AppBackground(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              AppTokens.spacing.xl,
+              MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
+              AppTokens.spacing.xl,
+              AppTokens.spacing.xl,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 640),
+                child: const SkeletonDashboardCard(),
+              ),
+            ),
+          ),
+        ),
       );
     }
 
@@ -743,42 +789,30 @@ class DashboardScreenState extends State<DashboardScreen>
                 );
               }
 
-              return CustomScrollView(
-                physics: physics,
-                slivers: [
-                  SliverPadding(
-                    padding: EdgeInsets.fromLTRB(
-                      20,
-                      topInset + spacing.xxxl,
-                      20,
-                      spacing.xl,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          if (index == 0) {
-                            return wrapContent(
-                              ScreenBrandHeader(
-                                name: _studentName,
-                                email: _studentEmail,
-                                avatarUrl: _studentAvatar,
-                                onAccountTap: _openAccount,
-                                showChevron: false,
-                                loading: !_profileHydrated,
-                              ),
-                            );
-                          }
-                          if (index == 1) {
-                            return wrapContent(SizedBox(height: spacing.xl));
-                          }
-                          final builder = sectionBuilders[index - 2];
-                          return wrapContent(builder(context));
-                        },
-                        childCount: sectionBuilders.length + 2,
-                      ),
-                    ),
+              final sliverItems = <Widget>[
+                wrapContent(
+                  ScreenBrandHeader(
+                    name: _studentName,
+                    email: _studentEmail,
+                    avatarUrl: _studentAvatar,
+                    onAccountTap: _openAccount,
+                    showChevron: false,
+                    loading: !_profileHydrated,
                   ),
-                ],
+                ),
+                wrapContent(SizedBox(height: spacing.xl)),
+                for (final builder in sectionBuilders) wrapContent(builder(context)),
+              ];
+
+              return ListView(
+                physics: physics,
+                padding: EdgeInsets.fromLTRB(
+                  spacing.xl,
+                  topInset + spacing.xxxl,
+                  spacing.xl,
+                  spacing.xl,
+                ),
+                children: sliverItems,
               );
             },
           ),
@@ -835,9 +869,30 @@ class DashboardScreenState extends State<DashboardScreen>
         refreshLabel: refreshLabel,
         onReviewReminders: reminderAlert != null ? _openReminders : null,
         onViewDetails: _openClassDetails,
+        onToggleEnabled: _applyClassEnabled,
+        onViewSchedule: _openSchedules,
       ),
     );
-    addSpacing(24);
+    addSpacing(AppTokens.spacing.xxl);
+
+    if (_scheduleError != null) {
+      addSection(
+        (_) => MessageCard(
+          key: const ValueKey('dashboard-schedule-error'),
+          icon: Icons.error_outline,
+          title: 'Schedules not refreshed',
+          message: _scheduleError!,
+          primaryLabel: 'Retry',
+          onPrimary: _loadScheduleFromSupabase,
+          secondaryLabel: 'Open schedules',
+          onSecondary: _openSchedules,
+          tintColor: Theme.of(context).colorScheme.primary,
+        ),
+      );
+      addSpacing(AppTokens.spacing.lg);
+    }
+
+
 
     addSection(
       (_) => _DashboardSchedulePeek(
@@ -860,7 +915,7 @@ class DashboardScreenState extends State<DashboardScreen>
         onViewDetails: _openClassDetails,
       ),
     );
-    addSpacing(24);
+    addSpacing(AppTokens.spacing.xxl);
 
     addSection(
       (_) => _DashboardReminderCard(

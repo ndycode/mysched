@@ -1,11 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="alarm_surface">#050B18</color>
-    <color name="alarm_card_surface">#111A2F</color>
-    <color name="alarm_card_border">#1F2B45</color>
-    <color name="alarm_primary">#7DA3FF</color>
-    <color name="alarm_primary_pressed">#5D82F0</color>
-    <color name="alarm_text_primary">#F4F6FF</color>
-    <color name="alarm_text_secondary">#ABB7DA</color>
-    <color name="alarm_chip_background">#182444</color>
+    <!-- Dark Mode Palette (Brand Blue) -->
+    <color name="alarm_surface">#000000</color>
+    <color name="alarm_surface_gradient_start">#000000</color>
+    <color name="alarm_surface_gradient_end">#1A1A1A</color>
+    <color name="alarm_glow_start">#330066FF</color>
+    <color name="alarm_glow_end">#00000000</color>
+    
+    <color name="alarm_card_surface">#1A1A1A</color>
+    <color name="alarm_card_bg">#1A1A1A</color>
+    <color name="alarm_card_stroke">#333333</color>
+    
+    <color name="alarm_primary">#0066FF</color>
+    <color name="alarm_primary_lighter">#3385FF</color>
+    <color name="alarm_primary_pressed">#0052CC</color>
+    <color name="alarm_stop_accent">#E54B4F</color>
+    
+    <color name="alarm_text_primary">#FFFFFF</color>
+    <color name="alarm_text_secondary">#A6A6A6</color>
+    <color name="alarm_text_muted">#8B95AD</color>
+    
+    <color name="alarm_chip_background">#262626</color>
+    <color name="alarm_chip_stroke">#333333</color>
+    <color name="alarm_on_primary">#FFFFFF</color>
+    
+    <!-- Button specific -->
+    <color name="alarm_btn_snooze_bg">@color/alarm_primary_lighter</color>
+    <color name="alarm_btn_snooze_stroke">@android:color/transparent</color>
+    <color name="alarm_btn_reminders_bg">@color/alarm_primary_lighter</color>
+    <color name="alarm_btn_reminders_stroke">@android:color/transparent</color>
 </resources>

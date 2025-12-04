@@ -104,6 +104,25 @@ void main() {
     expect(backend.signUpCallCount, 0);
   });
 
+  testWidgets('duplicate student ID codes surface inline error',
+      (tester) async {
+    backend.ensureStudentIdError = Exception('EmailOrId: student_id_in_use');
+
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Terry Example');
+    await tester.enterText(find.byType(TextFormField).at(1), '2024-4321-IC');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), 'terry@example.com');
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+
+    await _tapCreateAccountButton(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Student ID already in use'), findsOneWidget);
+    expect(backend.signUpCallCount, 0);
+  });
+
   testWidgets('duplicate email surfaces inline error', (tester) async {
     backend.signUpError = Exception('Email already registered');
 
@@ -113,6 +132,24 @@ void main() {
     await tester.enterText(find.byType(TextFormField).at(1), '2024-1234-IC');
     await tester.enterText(
         find.byType(TextFormField).at(2), 'morgan@example.com');
+    await tester.enterText(find.byType(TextFormField).at(3), 'password123');
+
+    await _tapCreateAccountButton(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Email already in use'), findsOneWidget);
+    expect(backend.signUpCallCount, 1);
+  });
+
+  testWidgets('duplicate email codes surface inline error', (tester) async {
+    backend.signUpError = Exception('EmailOrId: email_in_use');
+
+    await tester.pumpWidget(const MaterialApp(home: RegisterPage()));
+
+    await tester.enterText(find.byType(TextFormField).at(0), 'Toni Example');
+    await tester.enterText(find.byType(TextFormField).at(1), '2024-9876-IC');
+    await tester.enterText(
+        find.byType(TextFormField).at(2), 'toni@example.com');
     await tester.enterText(find.byType(TextFormField).at(3), 'password123');
 
     await _tapCreateAccountButton(tester);

@@ -5,47 +5,82 @@ class AppTokens {
   const AppTokens._();
 
   static const ColorPalette lightColors = ColorPalette(
-    primary: Color(0xFF1A5DFF),
+    primary: Color(0xFF0066FF),
     onPrimary: Colors.white,
-    primaryContainer: Color(0xFFDDE7FF),
-    onPrimaryContainer: Color(0xFF0C1F5C),
-    surface: Color(0xFFF7FAFF),
-    onSurface: Color(0xFF0F172A),
-    surfaceVariant: Color(0xFFE8F0FF),
-    onSurfaceVariant: Color(0xFF1E293B),
-    background: Color(0xFFEFF4FF),
-    onBackground: Color(0xFF0A1020),
-    outline: Color(0xFFC7D4F8),
-    overlay: Color(0x143E68F9),
+    primaryContainer: Color(0xFFDDE7FF), // Kept as derivative
+    onPrimaryContainer: Color(0xFF001A4D), // Kept as derivative
+    surface: Color(0xFFFFFFFF), // --card
+    onSurface: Color(0xFF000000), // --card-foreground
+    surfaceVariant: Color(0xFFF7F7F7), // --muted
+    onSurfaceVariant: Color(0xFF707070), // --muted-foreground
+    background: Color(0xFFFCFCFC), // --background
+    onBackground: Color(0xFF000000), // --foreground
+    outline: Color(0xFFEBEBEB), // --border
+    overlay: Color(0x140066FF),
     positive: Color(0xFF1FB98F),
-    warning: Color(0xFFF4A938),
-    danger: Color(0xFFED5A5A),
-    info: Color(0xFF3B82F6),
+    warning: Color(0xFFFFAE04), // --chart-1
+    danger: Color(0xFFE54B4F), // --destructive
+    info: Color(0xFF2D61EF), // --chart-2
+    brand: Color(0xFF1A5DFF), // Brand accent for splash/loading
+    muted: Color(0xFF4B556D), // Dashboard muted text
+    mutedSecondary: Color(0xFF7F8AA7), // Summary muted text
+    avatarGradientStart: Color(0xFF95BAFF), // Hero avatar gradient
+    avatarGradientEnd: Color(0xFF6FB7FF), // Hero avatar gradient
   );
 
   static const ColorPalette darkColors = ColorPalette(
-    primary: Color(0xFF7FA5FF),
+    primary: Color(0xFF0066FF), // --primary (same in dark mode per css var, though usually lighter)
     onPrimary: Colors.white,
-    primaryContainer: Color(0xFF293A73),
-    onPrimaryContainer: Color(0xFFDCE6FF),
-    surface: Color(0xFF121212),
-    onSurface: Color(0xFFE3E3E3),
-    surfaceVariant: Color(0xFF1E1E1E),
-    onSurfaceVariant: Color(0xFFBFC7E4),
-    background: Color(0xFF121212),
-    onBackground: Color(0xFFE3E3E3),
-    outline: Color(0xFF2A2A2A),
-    overlay: Color(0x332D4CFF),
+    primaryContainer: Color(0xFF002255),
+    onPrimaryContainer: Color(0xFFDDE7FF),
+    surface: Color(0xFF1A1A1A), // --card
+    onSurface: Color(0xFFFFFFFF), // --card-foreground
+    surfaceVariant: Color(0xFF262626), // --muted
+    onSurfaceVariant: Color(0xFFA6A6A6), // --muted-foreground
+    background: Color(0xFF000000), // --background
+    onBackground: Color(0xFFFFFFFF), // --foreground
+    outline: Color(0xFF333333), // --border
+    overlay: Color(0x330066FF),
     positive: Color(0xFF44E5BC),
-    warning: Color(0xFFFAD06A),
-    danger: Color(0xFFFF8A8A),
-    info: Color(0xFF9AB8FF),
+    warning: Color(0xFFFFAE04),
+    danger: Color(0xFFE54B4F),
+    info: Color(0xFF2D61EF),
+    brand: Color(0xFF1A5DFF), // Brand accent for splash/loading
+    muted: Color(0xFF8B95AD), // Dashboard muted text (lighter for dark mode)
+    mutedSecondary: Color(0xFF9AA4BC), // Summary muted text
+    avatarGradientStart: Color(0xFF95BAFF), // Hero avatar gradient
+    avatarGradientEnd: Color(0xFF6FB7FF), // Hero avatar gradient
+  );
+
+  static const ColorPalette voidColors = ColorPalette(
+    primary: Color(0xFF0066FF),
+    onPrimary: Colors.white,
+    primaryContainer: Color(0xFF001A4D),
+    onPrimaryContainer: Color(0xFFDDE7FF),
+    surface: Color(0xFF050505), // Almost pure black
+    onSurface: Color(0xFFFFFFFF),
+    surfaceVariant: Color(0xFF141414), // Very dark grey
+    onSurfaceVariant: Color(0xFFA6A6A6),
+    background: Color(0xFF000000), // Pure black
+    onBackground: Color(0xFFFFFFFF),
+    outline: Color(0xFF262626),
+    overlay: Color(0x330066FF),
+    positive: Color(0xFF44E5BC),
+    warning: Color(0xFFFFAE04),
+    danger: Color(0xFFE54B4F),
+    info: Color(0xFF2D61EF),
+    brand: Color(0xFF1A5DFF),
+    muted: Color(0xFF6B7280),
+    mutedSecondary: Color(0xFF8B95AD),
+    avatarGradientStart: Color(0xFF95BAFF),
+    avatarGradientEnd: Color(0xFF6FB7FF),
   );
 
   static const AppSpacing spacing = AppSpacing();
   static const AppRadius radius = AppRadius();
   static const AppTypography typography = AppTypography._();
   static const AppMotion motion = AppMotion();
+  static const AppDurations durations = AppDurations();
 }
 
 class ColorPalette {
@@ -66,6 +101,21 @@ class ColorPalette {
   final Color danger;
   final Color info;
 
+  /// Brand accent color used in splash/loading screens.
+  final Color brand;
+
+  /// Muted text color for secondary content.
+  final Color muted;
+
+  /// Summary/tertiary muted color.
+  final Color mutedSecondary;
+
+  /// Avatar gradient start color.
+  final Color avatarGradientStart;
+
+  /// Avatar gradient end color.
+  final Color avatarGradientEnd;
+
   const ColorPalette({
     required this.primary,
     required this.onPrimary,
@@ -83,7 +133,16 @@ class ColorPalette {
     required this.warning,
     required this.danger,
     required this.info,
+    required this.brand,
+    required this.muted,
+    required this.mutedSecondary,
+    required this.avatarGradientStart,
+    required this.avatarGradientEnd,
   });
+
+  // Aliases for Material 3 compatibility
+  Color get surfaceContainerHigh => surfaceVariant;
+  Color get error => danger;
 }
 
 class AppSpacing {
@@ -119,6 +178,11 @@ class AppRadius {
   final BorderRadius md = const BorderRadius.all(Radius.circular(12));
   final BorderRadius lg = const BorderRadius.all(Radius.circular(16));
   final BorderRadius xl = const BorderRadius.all(Radius.circular(24));
+  final BorderRadius xxl = const BorderRadius.all(Radius.circular(28));
+  final BorderRadius xxxl = const BorderRadius.all(Radius.circular(32));
+
+  /// Fully rounded "pill" shape for chips, badges, and buttons.
+  final BorderRadius pill = const BorderRadius.all(Radius.circular(999));
 
   BorderRadius circular(double value) =>
       BorderRadius.all(Radius.circular(value));
@@ -184,8 +248,61 @@ class AppTypography {
 class AppMotion {
   const AppMotion();
 
+  // Duration tokens
+  final Duration instant = const Duration(milliseconds: 80);
   final Duration fast = const Duration(milliseconds: 120);
   final Duration medium = const Duration(milliseconds: 200);
   final Duration slow = const Duration(milliseconds: 320);
+  final Duration slower = const Duration(milliseconds: 500);
+
+  // Curve tokens
   final Curve ease = Curves.easeOutCubic;
+  final Curve easeIn = Curves.easeInCubic;
+  final Curve easeOut = Curves.easeOutCubic;
+  final Curve easeInOut = Curves.easeInOutCubic;
+
+  // Press/release specific curves
+  final Curve press = Curves.easeOut;
+  final Curve release = Curves.easeOutBack;
+  final Curve bounce = Curves.elasticOut;
+  final Curve spring = Curves.easeOutBack;
+
+  // Scale values for interactions
+  final double pressScale = 0.96;
+  final double pressScaleSubtle = 0.985;
+  final double hoverScale = 1.02;
+
+  // Opacity values for interactions
+  final double pressOpacity = 0.85;
+  final double disabledOpacity = 0.5;
+  final double hoverOpacity = 0.92;
+}
+
+/// Centralized duration constants for timeouts, intervals, and delays.
+class AppDurations {
+  const AppDurations();
+
+  /// Network request timeout.
+  final Duration networkTimeout = const Duration(seconds: 20);
+
+  /// Cache time-to-live for schedule data.
+  final Duration cacheTtl = const Duration(minutes: 1);
+
+  /// Ticker interval for time-based UI updates.
+  final Duration tickerInterval = const Duration(minutes: 1);
+
+  /// Heads-up notification lead time before alarm.
+  final Duration headsUpLead = const Duration(minutes: 1);
+
+  /// Minimum interval between schedule fetches.
+  final Duration fetchDebounce = const Duration(seconds: 3);
+
+  /// Default snooze duration for reminders.
+  final Duration defaultSnooze = const Duration(hours: 1);
+
+  /// Animation delay for staggered reveals.
+  final Duration staggerDelay = const Duration(milliseconds: 220);
+
+  /// Delay before form submission feedback.
+  final Duration submitDelay = const Duration(milliseconds: 500);
 }

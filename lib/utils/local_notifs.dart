@@ -2,13 +2,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_log.dart';
 import '../services/user_scope.dart';
+import '../ui/kit/battery_optimization_sheet.dart';
 import 'nav.dart';
 
 /// Android-only wrapper around `flutter_local_notifications`.
@@ -55,6 +56,10 @@ class LocalNotifs {
   static const _ackStoreKey = 'notif_ack_map';
   static const _nativeIdsKey = 'scheduled_native_alarm_ids';
   static const _anonUserKey = '_anon';
+  static const _readinessChannel = 'alarmReadiness';
+  static const _openNotificationSettingsChannel = 'openNotificationSettings';
+  static const _openBatteryOptimizationSettingsChannel =
+      'openBatteryOptimizationSettings';
 
   static String _userKey([String? explicitUserId]) {
     if (explicitUserId != null && explicitUserId.trim().isNotEmpty) {
@@ -358,6 +363,86 @@ class LocalNotifs {
       }
       return false;
     }
+  }
+
+  /// Aggregates alarm readiness signals for UI prompts.
+  static Future<AlarmReadiness> alarmReadiness() async {
+    if (!isAndroidContext) {
+      return const AlarmReadiness(
+        exactAlarmAllowed: false,
+        notificationsAllowed: false,
+        ignoringBatteryOptimizations: false,
+        sdkInt: 0,
+      );
+    }
+    if (debugForceAndroid) {
+      return const AlarmReadiness(
+        exactAlarmAllowed: true,
+        notificationsAllowed: true,
+        ignoringBatteryOptimizations: true,
+        sdkInt: 33,
+      );
+    }
+    try {
+      final result =
+          await _channel.invokeMethod<Map<dynamic, dynamic>>(_readinessChannel);
+      return AlarmReadiness.fromMap(result);
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'alarmReadiness failed',
+          error: err,
+        );
+      }
+      return const AlarmReadiness(
+        exactAlarmAllowed: false,
+        notificationsAllowed: false,
+        ignoringBatteryOptimizations: false,
+        sdkInt: 0,
+      );
+    }
+  }
+
+  static Future<void> openNotificationSettings() async {
+    if (!isAndroidContext) return;
+    if (debugForceAndroid) return;
+    try {
+      await _channel.invokeMethod(_openNotificationSettingsChannel);
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'openNotificationSettings failed',
+          error: err,
+        );
+      }
+    }
+  }
+
+  static Future<void> openBatteryOptimizationSettings({bool preferAppInfo = true}) async {
+    if (!isAndroidContext) return;
+    if (debugForceAndroid) return;
+    try {
+      await _channel.invokeMethod(_openBatteryOptimizationSettingsChannel, {
+        'preferAppInfo': preferAppInfo,
+      });
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'openBatteryOptimizationSettings failed',
+          error: err,
+        );
+      }
+    }
+  }
+
+  static Future<void> openBatteryOptimizationDialog(BuildContext context) async {
+    await showDialog(
+      context: context,
+      builder: (context) => const BatteryOptimizationDialog(),
+    );
   }
 
   /// Check whether an occurrence has been acknowledged.
@@ -752,6 +837,39 @@ class LocalNotifs {
       data: {'id': id},
       error: error,
       stack: stack,
+    );
+  }
+}
+
+class AlarmReadiness {
+  final bool exactAlarmAllowed;
+  final bool notificationsAllowed;
+  final bool ignoringBatteryOptimizations;
+  final int sdkInt;
+
+  const AlarmReadiness({
+    required this.exactAlarmAllowed,
+    required this.notificationsAllowed,
+    required this.ignoringBatteryOptimizations,
+    required this.sdkInt,
+  });
+
+  factory AlarmReadiness.fromMap(Map<dynamic, dynamic>? map) {
+    if (map == null) {
+      return const AlarmReadiness(
+        exactAlarmAllowed: false,
+        notificationsAllowed: false,
+        ignoringBatteryOptimizations: false,
+        sdkInt: 0,
+      );
+    }
+    bool asBool(String key) => map[key] == true;
+    final sdk = map['sdkInt'];
+    return AlarmReadiness(
+      exactAlarmAllowed: asBool('exactAlarmAllowed'),
+      notificationsAllowed: asBool('notificationsAllowed'),
+      ignoringBatteryOptimizations: asBool('ignoringBatteryOptimizations'),
+      sdkInt: sdk is int ? sdk : 0,
     );
   }
 }

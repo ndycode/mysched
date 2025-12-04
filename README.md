@@ -17,7 +17,7 @@ MySched uses:
 
 ## Architecture & Systems
 
-- **Env bootstrap**: `Env.init()` loads `.env` files or `--dart-define` values, validates Supabase credentials, and emits telemetry events when configuration is missing or succeeds.
+- **Env bootstrap**: `Env.init()` loads `.env` files or `--dart-define` values, requires `SUPABASE_URL`/`SUPABASE_ANON_KEY` (no hardcoded fallbacks), and emits telemetry events when configuration is missing or succeeds.
 - **UI kit**: `lib/ui/kit` centralizes scaffolds, buttons, and layout primitives with built-in analytics, haptics, and motion defaults aligned to the brand.
 - **Telemetry**: `AnalyticsService` fronts `TelemetryService`, making it trivial to direct events to a production sink without touching call sites.
 - **Theme & motion**: `AppTheme`, `AppFadeThroughPageTransitionsBuilder`, and `TelemetryNavigatorObserver` keep Material styling, transitions, and navigation metrics consistent app-wide.

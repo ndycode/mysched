@@ -1,5 +1,7 @@
 // lib/widgets/schedule_list.dart
 import 'package:flutter/material.dart';
+import '../ui/kit/status_chip.dart';
+import '../ui/theme/tokens.dart';
 import '../services/schedule_api.dart';
 
 /// Reusable schedule list widget (grouped by day, toggle, delete, refresh, optional edit for custom)
@@ -45,6 +47,42 @@ class ScheduleList extends StatelessWidget {
       byDay[d]!.sort((a, b) => a.start.compareTo(b.start));
     }
 
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    int? activeClassId;
+
+    // Find the single active class (current or next) for today
+    final todaysClasses = byDay[now.weekday];
+    if (todaysClasses != null) {
+      for (final c in todaysClasses) {
+        final endTime = _parseTime(c.end);
+        var end = DateTime(
+          today.year,
+          today.month,
+          today.day,
+          endTime.hour,
+          endTime.minute,
+        );
+        // Handle overnight classes if necessary (simple heuristic)
+        final startTime = _parseTime(c.start);
+        final start = DateTime(
+          today.year,
+          today.month,
+          today.day,
+          startTime.hour,
+          startTime.minute,
+        );
+        if (end.isBefore(start)) {
+          end = end.add(const Duration(days: 1));
+        }
+
+        if (end.isAfter(now)) {
+          activeClassId = c.id;
+          break; // Found the first one that hasn't finished yet
+        }
+      }
+    }
+
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: colors.primary,
@@ -81,6 +119,7 @@ class ScheduleList extends StatelessWidget {
                       _Row(
                         c: byDay[d]![i],
                         showDivider: i != byDay[d]!.length - 1,
+                        isActive: byDay[d]![i].id == activeClassId,
                         onToggle: (v) => onToggle(byDay[d]![i], v),
                         onDelete: () => onDelete(byDay[d]![i]),
                         onEdit: onEdit,
@@ -98,6 +137,7 @@ class ScheduleList extends StatelessWidget {
 class _Row extends StatelessWidget {
   final ClassItem c;
   final bool showDivider;
+  final bool isActive;
   final ValueChanged<bool> onToggle;
   final VoidCallback onDelete;
   final Future<void> Function(ClassItem)? onEdit;
@@ -105,6 +145,7 @@ class _Row extends StatelessWidget {
   const _Row({
     required this.c,
     required this.showDivider,
+    this.isActive = false,
     required this.onToggle,
     required this.onDelete,
     required this.onEdit,
@@ -123,6 +164,68 @@ class _Row extends StatelessWidget {
     final room = (c.room ?? '').trim();
     final titleOrCode = title.isNotEmpty ? title : code;
     final hasRoom = room.isNotEmpty;
+
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final isToday = c.day == now.weekday;
+
+    final startTime = _parseTime(c.start);
+    final endTime = _parseTime(c.end);
+
+    final start = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      startTime.hour,
+      startTime.minute,
+    );
+
+    var end = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      endTime.hour,
+      endTime.minute,
+    );
+    if (end.isBefore(start)) {
+      end = end.add(const Duration(days: 1));
+    }
+
+    final isOngoing = isToday && !start.isAfter(now) && end.isAfter(now);
+    final isPast = isToday && end.isBefore(now);
+
+    String? statusLabel;
+    IconData? statusIcon;
+    Color statusForeground = colors.onSurfaceVariant;
+    Color statusBackground = colors.surfaceContainerHigh;
+
+    if (isPast) {
+      statusLabel = 'Done';
+      statusIcon = Icons.check_rounded;
+      statusForeground = colors.tertiary;
+      statusBackground = colors.tertiary.withValues(alpha: 0.16);
+    } else if (isOngoing) {
+      statusLabel = 'In progress';
+      statusIcon = Icons.play_arrow_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.16);
+    } else if (isActive && !isPast) {
+      // If it's the active class but not ongoing (so it must be next), show "Next"
+      // Wait, the requirement is just "blue thing" (highlight).
+      // The dashboard shows "Next" chip for highlighted future classes.
+      // Let's match that.
+      statusLabel = 'Next';
+      statusIcon = Icons.arrow_forward_rounded;
+      statusForeground = colors.primary;
+      statusBackground = colors.primary.withValues(alpha: 0.12);
+    }
+
+    final background = isActive
+        ? colors.primary.withValues(alpha: 0.08)
+        : Colors.transparent;
+    final border = isActive
+        ? colors.primary.withValues(alpha: 0.24)
+        : Colors.transparent;
 
     return Dismissible(
       key: ValueKey(
@@ -159,7 +262,13 @@ class _Row extends StatelessWidget {
         return ok ?? false;
       },
       onDismissed: (_) => onDelete(),
-      child: Padding(
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: AppTokens.radius.md,
+          border: Border.all(color: border),
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         child: Column(
           children: [
@@ -200,16 +309,25 @@ class _Row extends StatelessWidget {
                               ),
                             ),
                           ),
-                          if (c.isCustom == true && onEdit != null)
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit_outlined,
-                                size: 18,
-                                color: colors.primary,
-                              ),
-                              tooltip: 'Edit class',
-                              onPressed: () => onEdit!(c),
+                          if (statusLabel != null) ...[
+                            const SizedBox(width: 8),
+                            StatusChip(
+                              icon: statusIcon!,
+                              label: statusLabel,
+                              background: statusBackground,
+                              foreground: statusForeground,
+                              compact: true,
                             ),
+                          ],
+                          if (c.isCustom == true && onEdit != null)
+                              IconButton(
+                                icon: Icon(
+                                  Icons.edit_outlined,
+                                  size: 18,
+                                  color: colors.primary,
+                                ),
+                                onPressed: () => onEdit!(c),
+                              ),
                         ],
                       ),
                       const SizedBox(height: 6),
@@ -254,4 +372,37 @@ class _Row extends StatelessWidget {
       ),
     );
   }
+}
+
+TimeOfDay _parseTime(String raw) {
+  final minutes = _minutesFromText(raw);
+  final hour = (minutes ~/ 60).clamp(0, 23);
+  final minute = minutes % 60;
+  return TimeOfDay(hour: hour, minute: minute);
+}
+
+int _minutesFromText(String raw) {
+  final value = raw.trim().toLowerCase().replaceAll('.', '');
+  if (value.isEmpty) return 0;
+  var text = value;
+  var meridian = '';
+  if (text.endsWith('am') || text.endsWith('pm')) {
+    meridian = text.substring(text.length - 2);
+    text = text.substring(0, text.length - 2).trim();
+  }
+  int hour;
+  int minute;
+  if (text.contains(':')) {
+    final parts = text.split(':');
+    hour = int.tryParse(parts[0]) ?? 0;
+    minute = parts.length >= 2 ? int.tryParse(parts[1]) ?? 0 : 0;
+  } else {
+    hour = int.tryParse(text) ?? 0;
+    minute = 0;
+  }
+  if (meridian == 'pm' && hour != 12) hour += 12;
+  if (meridian == 'am' && hour == 12) hour = 0;
+  hour = hour.clamp(0, 23);
+  minute = minute.clamp(0, 59);
+  return hour * 60 + minute;
 }

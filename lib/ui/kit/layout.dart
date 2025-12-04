@@ -147,8 +147,11 @@ class PageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectivePadding =
-        padding ?? const EdgeInsets.symmetric(horizontal: 24, vertical: 24);
+    final effectivePadding = padding ??
+        AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.xxl,
+          vertical: AppTokens.spacing.xxl,
+        );
 
     Widget buildAligned(Alignment alignment) {
       final colors = Theme.of(context).colorScheme;

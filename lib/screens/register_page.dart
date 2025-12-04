@@ -113,11 +113,20 @@ class _RegisterPageState extends State<RegisterPage> {
 
   String _mapError(Object error) {
     final message = error.toString().toLowerCase();
-    if (message.contains('student id')) {
+    final hasEmailOrIdCode = message.contains('emailorid');
+    final studentIdConflict =
+        message.contains('student id') || message.contains('student_id');
+    if (studentIdConflict || (hasEmailOrIdCode && message.contains('student'))) {
       return 'Student ID already in use';
     }
-    if (message.contains('email') &&
-        (message.contains('use') || message.contains('registered'))) {
+    final emailConflict = hasEmailOrIdCode ||
+        message.contains('email_in_use') ||
+        message.contains('user already registered') ||
+        message.contains('already registered') ||
+        message.contains('already exists') ||
+        (message.contains('email') &&
+            (message.contains('use') || message.contains('registered')));
+    if (emailConflict) {
       return 'Email already in use';
     }
     if (message.contains('password')) {
@@ -201,7 +210,6 @@ class _RegisterPageState extends State<RegisterPage> {
               decoration: InputDecoration(
                 labelText: 'Password',
                 suffixIcon: IconButton(
-                  tooltip: _hidePassword ? 'Show password' : 'Hide password',
                   onPressed: _saving
                       ? null
                       : () => setState(() => _hidePassword = !_hidePassword),
@@ -225,8 +233,10 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             SizedBox(height: spacing.xl),
             PrimaryButton(
-              label: _saving ? 'Creating account...' : 'Create account',
-              onPressed: _saving ? null : _submit,
+              label: 'Create account',
+              loading: _saving,
+              loadingLabel: 'Creating account...',
+              onPressed: _submit,
               minHeight: 48,
             ),
           ],
@@ -250,8 +260,8 @@ class _RegisterPageState extends State<RegisterPage> {
       screenName: 'register',
       title: 'Create your MySched account',
       subtitle: 'Join MySched to organize your schedule and reminders.',
-      child: form,
       bottom: bottomActions,
+      child: form,
     );
   }
 }

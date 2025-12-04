@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../services/schedule_api.dart' as sched;
+import '../../services/notif_scheduler.dart';
 import '../../widgets/instructor_avatar.dart';
 import '../../services/telemetry_service.dart';
 import '../theme/card_styles.dart';
@@ -99,6 +100,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
         enable ? 'Class enabled.' : 'Class disabled.',
         type: AppSnackBarType.success,
       );
+      await NotifScheduler.resync(api: widget.api);
     } catch (error) {
       _toast(
         'Failed to update class: $error',
@@ -151,6 +153,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
         'Custom class deleted.',
         type: AppSnackBarType.success,
       );
+      await NotifScheduler.resync(api: widget.api);
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -275,7 +278,8 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * 0.78;
+    final maxHeight = media.size.height * 0.85;
+    final isDark = theme.brightness == Brightness.dark;
 
     return ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 520),
@@ -287,65 +291,33 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
           boxShadow: [
             BoxShadow(
               color: theme.shadowColor.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.32 : 0.18,
+                alpha: isDark ? 0.35 : 0.18,
               ),
-              blurRadius: 24,
-              offset: const Offset(0, 18),
+              blurRadius: 28,
+              offset: const Offset(0, 20),
             ),
           ],
         ),
         child: Material(
           type: MaterialType.transparency,
           child: Padding(
-            padding: spacing.edgeInsetsOnly(
-              left: spacing.xl + 8,
-              right: spacing.xl + 8,
-              top: spacing.xl + 4,
-              bottom: spacing.xl,
-            ),
+            padding: EdgeInsets.all(spacing.xl),
             child: ConstrainedBox(
               constraints: BoxConstraints(maxHeight: maxHeight),
               child: Column(
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Row(
-                    children: [
-                      PressableScale(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(24),
-                          ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: 18,
-                            color: colors.primary,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Class details',
-                          textAlign: TextAlign.center,
-                          style: AppTokens.typography.title.copyWith(
-                            color: colors.onSurface,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 48),
-                    ],
-                  ),
-                  SizedBox(height: spacing.lg),
                   Flexible(
                     child: FutureBuilder<sched.ClassDetails>(
                       future: _future,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState != ConnectionState.done) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                          return const SizedBox(
+                            height: 200,
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           );
                         }
                         if (snapshot.hasError || !snapshot.hasData) {
@@ -354,6 +326,13 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              _HeaderRow(
+                                title: 'Error',
+                                subtitle: 'Class details',
+                                icon: Icons.error_outline_rounded,
+                                onClose: () => Navigator.of(context).pop(),
+                              ),
+                              SizedBox(height: spacing.lg),
                               Text(
                                 message,
                                 style: theme.textTheme.bodyMedium?.copyWith(
@@ -385,6 +364,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                               : null,
                           deleteBusy: _deleteBusy,
                           reportBusy: _reportBusy,
+                          onClose: () => Navigator.of(context).pop(),
                         );
                       },
                     ),
@@ -399,9 +379,106 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
   }
 }
 
+class _HeaderRow extends StatelessWidget {
+  const _HeaderRow({
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onClose,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: 52,
+          width: 52,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                colors.primary.withValues(alpha: 0.15),
+                colors.primary.withValues(alpha: 0.10),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: colors.primary.withValues(alpha: 0.25),
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: colors.primary,
+            size: 26,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  letterSpacing: -0.5,
+                  height: 1.2,
+                  color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 12),
+        PressableScale(
+          onTap: onClose,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: colors.onSurface.withValues(alpha: 0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              Icons.close_rounded,
+              size: 20,
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _ClassDetailsContent extends StatelessWidget {
   const _ClassDetailsContent({
     required this.details,
+    required this.onClose,
     this.onToggle,
     this.onEdit,
     this.onDelete,
@@ -412,6 +489,7 @@ class _ClassDetailsContent extends StatelessWidget {
   });
 
   final sched.ClassDetails details;
+  final VoidCallback onClose;
   final VoidCallback? onToggle;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -425,6 +503,7 @@ class _ClassDetailsContent extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
 
     final startLabel = _formatTime(details.start);
     final endLabel = _formatTime(details.end);
@@ -433,21 +512,6 @@ class _ClassDetailsContent extends StatelessWidget {
     final scheduleValue = dayLabel != null
         ? '$dayLabel, $startLabel - $endLabel'
         : '$startLabel - $endLabel';
-
-    final bool isLinked = !details.isCustom;
-    final tags = <Widget>[
-      _InfoChip(
-        icon: details.isCustom ? Icons.star_border_rounded : Icons.cloud_sync,
-        label: details.isCustom ? 'Custom class' : 'Synced class',
-        color: details.isCustom ? colors.secondary : colors.primary,
-      ),
-      if (!details.enabled)
-        _InfoChip(
-          icon: Icons.pause_circle_outline,
-          label: 'Disabled',
-          color: colors.outline,
-        ),
-    ];
 
     final sectionParts = <String>[];
     if (details.sectionCode != null && details.sectionCode!.isNotEmpty) {
@@ -458,126 +522,163 @@ class _ClassDetailsContent extends StatelessWidget {
     }
     final sectionValue = sectionParts.isEmpty ? null : sectionParts.join(' / ');
 
-    final infoRows = <Widget>[
-      _DetailRow(
-        icon: Icons.schedule_rounded,
-        label: 'Schedule',
-        value: scheduleValue,
-      ),
-      if (details.room != null && details.room!.isNotEmpty)
-        _DetailRow(
-          icon: Icons.location_on_outlined,
-          label: 'Room',
-          value: details.room!,
-        ),
-      if (details.units != null)
-        _DetailRow(
-          icon: Icons.calculate_outlined,
-          label: 'Units',
-          value: details.units.toString(),
-        ),
-      if (sectionValue != null || details.sectionName != null)
-        _DetailRow(
-          icon: Icons.class_outlined,
-          label: 'Section',
-          value: sectionValue ?? details.sectionName ?? 'Section',
-          helper: sectionValue != null && details.sectionName != null
-              ? details.sectionName
-              : null,
-        ),
-      if (details.sectionStatus != null && details.sectionStatus!.isNotEmpty)
-        _DetailRow(
-          icon: Icons.info_outline,
-          label: 'Section status',
-          value: details.sectionStatus!,
-        ),
-      if (details.createdAt != null)
-        _DetailRow(
-          icon: Icons.history_edu_outlined,
-          label: details.isCustom ? 'Added on' : 'Created',
-          value: _formatDate(details.createdAt!),
-        ),
-      if (details.updatedAt != null &&
-          (details.createdAt == null ||
-              !details.updatedAt!.isAtSameMomentAs(details.createdAt!)))
-        _DetailRow(
-          icon: Icons.update,
-          label: 'Updated',
-          value: _formatDate(details.updatedAt!),
-        ),
-    ];
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          details.title,
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: colors.onSurface,
+        _HeaderRow(
+          title: details.title,
+          subtitle: 'Class details',
+          icon: Icons.class_rounded,
+          onClose: onClose,
+        ),
+        SizedBox(height: spacing.xl),
+        
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Tags
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _InfoChip(
+                      icon: details.isCustom ? Icons.edit_note_rounded : Icons.cloud_sync_rounded,
+                      label: details.isCustom ? 'Custom class' : 'Synced class',
+                      color: details.isCustom ? colors.primary : colors.tertiary,
+                    ),
+                    if (!details.enabled)
+                      _InfoChip(
+                        icon: Icons.pause_circle_outline_rounded,
+                        label: 'Disabled',
+                        color: colors.outline,
+                      ),
+                  ],
+                ),
+                SizedBox(height: spacing.lg),
+
+                // Main Details Container
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: isDark 
+                        ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
+                        : colors.primary.withValues(alpha: 0.04),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: isDark 
+                          ? colors.outline.withValues(alpha: 0.12) 
+                          : colors.primary.withValues(alpha: 0.10),
+                      width: 1,
+                    ),
+                  ),
+                  child: Column(
+                    children: [
+                      _DetailRow(
+                        icon: Icons.access_time_rounded,
+                        label: 'Schedule',
+                        value: scheduleValue,
+                        isPremium: true,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        child: Divider(
+                          height: 1,
+                          color: isDark 
+                              ? colors.outline.withValues(alpha: 0.15) 
+                              : colors.primary.withValues(alpha: 0.10),
+                        ),
+                      ),
+                      _DetailRow(
+                        icon: Icons.place_outlined,
+                        label: 'Room',
+                        value: details.room ?? 'No room assigned',
+                        isPremium: true,
+                      ),
+                      if (details.units != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(
+                            height: 1,
+                            color: isDark 
+                                ? colors.outline.withValues(alpha: 0.15) 
+                                : colors.primary.withValues(alpha: 0.10),
+                          ),
+                        ),
+                        _DetailRow(
+                          icon: Icons.calculate_outlined,
+                          label: 'Units',
+                          value: details.units.toString(),
+                          isPremium: true,
+                        ),
+                      ],
+                      if (sectionValue != null || details.sectionName != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(
+                            height: 1,
+                            color: isDark 
+                                ? colors.outline.withValues(alpha: 0.15) 
+                                : colors.primary.withValues(alpha: 0.10),
+                          ),
+                        ),
+                        _DetailRow(
+                          icon: Icons.class_outlined,
+                          label: 'Section',
+                          value: sectionValue ?? details.sectionName ?? 'Section',
+                          helper: sectionValue != null && details.sectionName != null
+                              ? details.sectionName
+                              : null,
+                          isPremium: true,
+                        ),
+                      ],
+                      if (details.createdAt != null) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          child: Divider(
+                            height: 1,
+                            color: isDark 
+                                ? colors.outline.withValues(alpha: 0.15) 
+                                : colors.primary.withValues(alpha: 0.10),
+                          ),
+                        ),
+                        _DetailRow(
+                          icon: Icons.history_edu_outlined,
+                          label: details.isCustom ? 'Added on' : 'Created',
+                          value: _formatDate(details.createdAt!),
+                          isPremium: true,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                
+                if (details.instructorName != null && details.instructorName!.isNotEmpty) ...[
+                  SizedBox(height: spacing.lg),
+                  _InstructorDetail(details: details),
+                ],
+
+                SizedBox(height: spacing.xl),
+
+                // Actions
+                _ClassDetailActions(
+                  details: details,
+                  onToggle: onToggle,
+                  onEdit: onEdit,
+                  onDelete: onDelete,
+                  onReport: onReport,
+                  toggleBusy: toggleBusy,
+                  deleteBusy: deleteBusy,
+                  reportBusy: reportBusy,
+                ),
+              ],
+            ),
           ),
         ),
-        if (details.code != null && details.code!.isNotEmpty) ...[
-          const SizedBox(height: 6),
-          Text(
-            details.code!,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-        if (tags.isNotEmpty) ...[
-          SizedBox(height: spacing.lg),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: tags,
-          ),
-        ],
-        if (isLinked) ...[
-          SizedBox(height: spacing.sm),
-          Text(
-            'This class stays in sync with the campus schedule. Reach out to an admin if details are incorrect.',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ],
-        SizedBox(height: spacing.xl),
-        ..._insertSpacing(infoRows, spacing.lg),
-        if (details.instructorName != null &&
-            details.instructorName!.isNotEmpty) ...[
-          SizedBox(height: spacing.xl),
-          _InstructorDetail(details: details),
-        ],
-        if (onEdit != null || onToggle != null || onDelete != null) ...[
-          SizedBox(height: spacing.xl),
-          _ClassDetailActions(
-            details: details,
-            onToggle: onToggle,
-            onEdit: onEdit,
-            onDelete: onDelete,
-            onReport: onReport,
-            toggleBusy: toggleBusy,
-            deleteBusy: deleteBusy,
-            reportBusy: reportBusy,
-          ),
-        ],
       ],
     );
-  }
-
-  static List<Widget> _insertSpacing(List<Widget> items, double spacing) {
-    if (items.isEmpty) return const [];
-    final result = <Widget>[];
-    for (var i = 0; i < items.length; i++) {
-      result.add(items[i]);
-      if (i < items.length - 1) {
-        result.add(SizedBox(height: spacing));
-      }
-    }
-    return result;
   }
 
   static String _formatDate(DateTime date) {
@@ -591,230 +692,6 @@ class _ClassDetailsContent extends StatelessWidget {
   }
 }
 
-class _ClassDetailActions extends StatelessWidget {
-  const _ClassDetailActions({
-    required this.details,
-    required this.onToggle,
-    required this.onEdit,
-    required this.onDelete,
-    required this.onReport,
-    required this.toggleBusy,
-    required this.deleteBusy,
-    required this.reportBusy,
-  });
-
-  final sched.ClassDetails details;
-  final VoidCallback? onToggle;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final VoidCallback? onReport;
-  final bool toggleBusy;
-  final bool deleteBusy;
-  final bool reportBusy;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final children = <Widget>[];
-
-    if (onEdit != null) {
-      children.add(
-        Semantics(
-          button: true,
-          label: 'Edit custom class',
-          child: Tooltip(
-            message: 'Open the custom class editor',
-            child: FilledButton.icon(
-              onPressed: onEdit,
-              icon: const Icon(Icons.edit_rounded),
-              label: const Text('Edit custom class'),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (onToggle != null) {
-      final label = details.enabled ? 'Disable class' : 'Enable class';
-      final icon = details.enabled
-          ? Icons.pause_circle_outline
-          : Icons.play_circle_outline;
-      children.add(
-        Semantics(
-          button: true,
-          toggled: details.enabled,
-          label: label,
-          child: Tooltip(
-            message: details.enabled
-                ? 'Temporarily hide this class from your schedule'
-                : 'Show this class in your schedule again',
-            child: FilledButton.tonalIcon(
-              onPressed: toggleBusy ? null : onToggle,
-              icon: toggleBusy
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(colors.primary),
-                      ),
-                    )
-                  : Icon(icon),
-              label: Text(label),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (!details.isCustom && onReport != null) {
-      children.add(
-        Semantics(
-          button: true,
-          label: 'Report schedule issue',
-          child: Tooltip(
-            message: 'Let the admins know something looks wrong',
-            child: TextButton.icon(
-              onPressed: reportBusy ? null : onReport,
-              icon: reportBusy
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          Theme.of(context).colorScheme.primary,
-                        ),
-                      ),
-                    )
-                  : const Icon(Icons.flag_outlined),
-              label: Text(
-                reportBusy ? 'Sending report...' : 'Report schedule issue',
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-    if (onDelete != null) {
-      children.add(
-        Semantics(
-          button: true,
-          label: 'Delete class',
-          child: Tooltip(
-            message: 'Remove this custom class from MySched',
-            child: TextButton.icon(
-              onPressed: deleteBusy ? null : onDelete,
-              icon: deleteBusy
-                  ? SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(colors.error),
-                      ),
-                    )
-                  : const Icon(Icons.delete_outline_rounded),
-              label: const Text('Delete class'),
-              style: TextButton.styleFrom(
-                foregroundColor: colors.error,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
-    if (children.isEmpty && !details.isCustom) {
-      children.add(
-        Text(
-          'Linked classes can only be edited by an administrator.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-      );
-    } else if (children.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: _spaced(children),
-    );
-  }
-
-  List<Widget> _spaced(List<Widget> items) {
-    if (items.length <= 1) return items;
-    final result = <Widget>[];
-    for (var i = 0; i < items.length; i++) {
-      result.add(items[i]);
-      if (i < items.length - 1) {
-        result.add(const SizedBox(height: 12));
-      }
-    }
-    return result;
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.helper,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String? helper;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 20, color: colors.primary),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: theme.textTheme.labelMedium?.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                value,
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              if (helper != null && helper!.isNotEmpty) ...[
-                const SizedBox(height: 4),
-                Text(
-                  helper!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _InstructorDetail extends StatelessWidget {
   const _InstructorDetail({required this.details});
 
@@ -824,74 +701,69 @@ class _InstructorDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final name = details.instructorName ?? '';
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Instructor',
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: colors.onSurfaceVariant,
+    
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Instructor',
+            style: theme.textTheme.labelMedium?.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            InstructorAvatar(
-              name: name,
-              avatarUrl: details.instructorAvatar,
-              tint: colors.primary,
-              size: 40,
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (details.instructorTitle != null &&
-                      details.instructorTitle!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      details.instructorTitle!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                  if (details.instructorDepartment != null &&
-                      details.instructorDepartment!.isNotEmpty) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      details.instructorDepartment!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
-                      ),
-                    ),
-                  ],
-                  if (details.instructorEmail != null &&
-                      details.instructorEmail!.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    SelectableText(
-                      details.instructorEmail!,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.primary,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ],
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              InstructorAvatar(
+                name: name,
+                avatarUrl: details.instructorAvatar,
+                tint: colors.primary,
+                size: 42,
               ),
-            ),
-          ],
-        ),
-      ],
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    if (details.instructorEmail != null &&
+                        details.instructorEmail!.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        details.instructorEmail!,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: colors.primary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -932,6 +804,79 @@ class _InfoChip extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _DetailRow extends StatelessWidget {
+  const _DetailRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    this.helper,
+    this.isPremium = false,
+  });
+
+  final IconData icon;
+  final String label;
+  final String value;
+  final String? helper;
+  final bool isPremium;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon, 
+            size: 20, 
+            color: colors.primary,
+          ),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: theme.textTheme.labelMedium?.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontSize: 12,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                value,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: colors.onSurface,
+                ),
+              ),
+              if (helper != null && helper!.isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  helper!,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: colors.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
     );
   }
 }
@@ -981,4 +926,164 @@ String _weekdayName(int day) {
   ];
   if (day >= 1 && day <= 7) return names[day];
   return 'Day $day';
+}
+
+class _ClassDetailActions extends StatelessWidget {
+  const _ClassDetailActions({
+    required this.details,
+    required this.onToggle,
+    required this.onEdit,
+    required this.onDelete,
+    required this.onReport,
+    required this.toggleBusy,
+    required this.deleteBusy,
+    required this.reportBusy,
+  });
+
+  final sched.ClassDetails details;
+  final VoidCallback? onToggle;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback? onReport;
+  final bool toggleBusy;
+  final bool deleteBusy;
+  final bool reportBusy;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final children = <Widget>[];
+
+    if (onEdit != null) {
+      children.add(
+        FilledButton.icon(
+          onPressed: onEdit,
+          icon: const Icon(Icons.edit_rounded, size: 18),
+          label: const Text('Edit custom class'),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (onToggle != null) {
+      final label = details.enabled ? 'Disable class' : 'Enable class';
+      final icon = details.enabled
+          ? Icons.pause_circle_outline_rounded
+          : Icons.play_circle_outline_rounded;
+      children.add(
+        FilledButton.tonalIcon(
+          onPressed: toggleBusy ? null : onToggle,
+          icon: toggleBusy
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                  ),
+                )
+              : Icon(icon, size: 20),
+          label: Text(label),
+          style: FilledButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            backgroundColor: details.enabled ? colors.primaryContainer : null,
+            foregroundColor: details.enabled ? colors.onPrimaryContainer : null,
+          ),
+        ),
+      );
+    }
+
+    if (!details.isCustom && onReport != null) {
+      children.add(
+        TextButton.icon(
+          onPressed: reportBusy ? null : onReport,
+          icon: reportBusy
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                )
+              : const Icon(Icons.flag_outlined, size: 20),
+          label: Text(
+            reportBusy ? 'Sending report...' : 'Report schedule issue',
+          ),
+          style: TextButton.styleFrom(
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+      );
+    }
+    if (onDelete != null) {
+      children.add(
+        TextButton.icon(
+          onPressed: deleteBusy ? null : onDelete,
+          icon: deleteBusy
+              ? SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(colors.error),
+                  ),
+                )
+              : const Icon(Icons.delete_outline_rounded, size: 20),
+          label: const Text('Delete class'),
+          style: TextButton.styleFrom(
+            foregroundColor: colors.error,
+            minimumSize: const Size.fromHeight(50),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (children.isEmpty && !details.isCustom) {
+      children.add(
+        Text(
+          'Linked classes can only be edited by an administrator.',
+          style: theme.textTheme.bodyMedium?.copyWith(
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      );
+    } else if (children.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: _spaced(children),
+    );
+  }
+
+  List<Widget> _spaced(List<Widget> items) {
+    if (items.length <= 1) return items;
+    final result = <Widget>[];
+    for (var i = 0; i < items.length; i++) {
+      result.add(items[i]);
+      if (i < items.length - 1) {
+        result.add(const SizedBox(height: 12));
+      }
+    }
+    return result;
+  }
 }

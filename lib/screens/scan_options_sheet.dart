@@ -1,3 +1,4 @@
+// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,48 +38,48 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final media = MediaQuery.of(context);
-    final viewInsets = MediaQuery.viewInsetsOf(context);
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
 
     return SafeArea(
       child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            spacing.xl,
-            20,
-            media.padding.bottom + viewInsets.bottom + spacing.xl,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: 520,
+            maxHeight: media.size.height * 0.78,
           ),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: 420,
-              maxHeight: media.size.height * 0.78,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(color: borderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.shadowColor.withValues(
-                        alpha:
-                            theme.brightness == Brightness.dark ? 0.32 : 0.18),
-                    blurRadius: 24,
-                    offset: const Offset(0, 18),
-                  ),
-                ],
+          child: Container(
+            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
+            decoration: BoxDecoration(
+              color: theme.brightness == Brightness.dark
+                  ? theme.colorScheme.surfaceContainerHigh
+                  : Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    : const Color(0xFFE5E5E5),
+                width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Padding(
-                  padding: spacing.edgeInsetsOnly(
-                    left: spacing.xl + 8,
-                    right: spacing.xl + 8,
-                    top: spacing.xl + 4,
-                    bottom: spacing.xl,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  offset: const Offset(0, 10),
+                ),
+              ],
+            ),
+            child: Material(
+              type: MaterialType.transparency,
+              child: ClipRRect(
+                borderRadius: AppTokens.radius.xl,
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    spacing.xl,
+                    spacing.xl,
+                    spacing.xl,
+                    media.viewInsets.bottom + spacing.xl,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -92,7 +93,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: colors.primary.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: AppTokens.radius.xl,
                               ),
                               child: Icon(
                                 Icons.close_rounded,
@@ -123,13 +124,12 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                       ),
                       SizedBox(height: spacing.xl + 4),
                       Container(
-                        height: 180,
+                        height: 280,
                         decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest,
-                          borderRadius: AppTokens.radius.lg,
+                          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                            color:
-                                colors.outlineVariant.withValues(alpha: 0.38),
+                            color: colors.outlineVariant.withValues(alpha: 0.2),
                           ),
                         ),
                         alignment: Alignment.center,
@@ -141,30 +141,28 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                         ),
                       ),
                       SizedBox(height: spacing.xxl),
-                      FilledButton.icon(
-                        onPressed:
-                            _busy ? null : () => _pick(ImageSource.camera),
-                        icon: const Icon(Icons.camera_alt_outlined),
-                        label: Text(_busy ? 'Opening camera…' : 'Take photo'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.xl,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PrimaryButton(
+                              onPressed:
+                                  _busy ? null : () => _pick(ImageSource.camera),
+                              label: _busy ? 'Opening...' : 'Take photo',
+                              icon: Icons.camera_alt_outlined,
+                              minHeight: 48,
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: spacing.md),
-                      OutlinedButton.icon(
-                        onPressed:
-                            _busy ? null : () => _pick(ImageSource.gallery),
-                        icon: const Icon(Icons.photo_library_outlined),
-                        label: const Text('Upload from photos'),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.xl,
+                          SizedBox(width: spacing.md),
+                          Expanded(
+                            child: SecondaryButton(
+                              onPressed:
+                                  _busy ? null : () => _pick(ImageSource.gallery),
+                              label: 'Upload',
+                              icon: Icons.photo_library_outlined,
+                              minHeight: 48,
+                            ),
                           ),
-                        ),
+                        ],
                       ),
                     ],
                   ),

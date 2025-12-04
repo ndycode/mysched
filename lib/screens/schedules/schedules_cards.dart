@@ -1,14 +1,377 @@
-part of 'schedules_screen.dart';
+// ignore_for_file: unused_local_variable, unused_element
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:intl/intl.dart';
 
-class _ScheduleGroupSliver extends StatelessWidget
+import '../../services/schedule_api.dart' as sched;
+import '../../ui/kit/kit.dart';
+import '../../ui/theme/card_styles.dart';
+import '../../ui/theme/tokens.dart';
+import '../../widgets/instructor_avatar.dart';
+import 'schedules_data.dart';
+
+/// Unified card container for the class list - matches dashboard style.
+class ScheduleClassListCard extends StatelessWidget {
+  const ScheduleClassListCard({
+    super.key,
+    required this.groups,
+    required this.now,
+    required this.highlightClassId,
+    required this.onOpenDetails,
+    required this.onToggleEnabled,
+    required this.pendingToggleIds,
+    this.onDelete,
+    this.onRefresh,
+    this.refreshing = false,
+  });
+
+  final List<DayGroup> groups;
+  final DateTime now;
+  final int? highlightClassId;
+  final void Function(sched.ClassItem item) onOpenDetails;
+  final void Function(sched.ClassItem item, bool enable) onToggleEnabled;
+  final Set<int> pendingToggleIds;
+  final Future<void> Function(int id)? onDelete;
+  final Future<void> Function()? onRefresh;
+  final bool refreshing;
+
+  // Helper functions for time calculations
+  static int _minutesFromText(String text) {
+    final cleaned = text.trim().toLowerCase().replaceAll('.', '');
+    var meridian = '';
+    var payload = cleaned;
+    if (payload.endsWith('am') || payload.endsWith('pm')) {
+      meridian = payload.substring(payload.length - 2);
+      payload = payload.substring(0, payload.length - 2).trim();
+    }
+    int hour;
+    int minute;
+    if (payload.contains(':')) {
+      final parts = payload.split(':').map((part) => part.trim()).toList();
+      hour = int.tryParse(parts[0]) ?? 0;
+      minute = parts.length >= 2 ? int.tryParse(parts[1]) ?? 0 : 0;
+    } else {
+      hour = int.tryParse(payload) ?? 0;
+      minute = 0;
+    }
+    if (meridian == 'pm' && hour != 12) hour += 12;
+    if (meridian == 'am' && hour == 12) hour = 0;
+    hour = hour.clamp(0, 23);
+    minute = minute.clamp(0, 59);
+    return hour * 60 + minute;
+  }
+
+  static DateTime _nextOccurrence(sched.ClassItem item, DateTime now) {
+    final today = DateTime(now.year, now.month, now.day);
+    final minutes = _minutesFromText(item.start);
+    final hour = minutes ~/ 60;
+    final minute = minutes % 60;
+    final dayDiff = (item.day - now.weekday + 7) % 7;
+    var start = DateTime(
+      today.year,
+      today.month,
+      today.day,
+      hour,
+      minute,
+    ).add(Duration(days: dayDiff));
+    final end = _endFor(item, start);
+    if (dayDiff == 0 && end.isBefore(now)) {
+      start = start.add(const Duration(days: 7));
+    }
+    return start;
+  }
+
+  static DateTime _endFor(sched.ClassItem item, DateTime start) {
+    final endMinutes = _minutesFromText(item.end);
+    final endHour = endMinutes ~/ 60;
+    final endMinute = endMinutes % 60;
+    var end = DateTime(
+      start.year,
+      start.month,
+      start.day,
+      endHour,
+      endMinute,
+    );
+    if (!end.isAfter(start)) {
+      end = end.add(const Duration(days: 1));
+    }
+    return end;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final dateLabel = DateFormat('EEEE, MMM d').format(now);
+
+    final hasClasses = groups.isNotEmpty && groups.any((g) => g.items.isNotEmpty);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header - Enhanced
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 52,
+                width: 52,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colors.primary.withValues(alpha: 0.15),
+                      colors.primary.withValues(alpha: 0.10),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: colors.primary.withValues(alpha: 0.25),
+                    width: 1.5,
+                  ),
+                ),
+                child: Icon(
+                  Icons.calendar_month_rounded,
+                  color: colors.primary,
+                  size: 26,
+                ),
+              ),
+              SizedBox(width: spacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Weekly Schedule',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 21,
+                        letterSpacing: -0.5,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      dateLabel,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (onRefresh != null) ...[ 
+                SizedBox(
+                  height: 36,
+                  width: 36,
+                  child: IconButton(
+                    onPressed: refreshing ? null : onRefresh,
+                    icon: refreshing
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation(colors.primary),
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh_rounded,
+                            color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.9) : const Color(0xFF757575),
+                            size: 20,
+                          ),
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Tap a class to view details, enable alarms, or edit reminders.',
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.70) : const Color(0xFF9E9E9E),
+              fontSize: 13,
+            ),
+          ),
+          SizedBox(height: spacing.xl),
+
+          // Class list
+          if (!hasClasses) ...[
+            Container(
+              padding: const EdgeInsets.all(32),
+              decoration: BoxDecoration(
+                color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
+                  width: 1,
+                ),
+              ),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.event_available_outlined,
+                      size: 40,
+                      color: colors.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'No classes scheduled',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 17,
+                      color: isDark ? colors.onSurfaceVariant : const Color(0xFF424242),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Add a class or scan your student card to get started.',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            for (var g = 0; g < groups.length; g++) ...[
+              if (groups[g].items.isNotEmpty) ...[
+                // Day Header - Premium redesign
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        colors.primary.withValues(alpha: 0.10),
+                        colors.primary.withValues(alpha: 0.06),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: colors.primary.withValues(alpha: 0.20),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Icon(
+                          Icons.calendar_today_rounded,
+                          size: 18,
+                          color: colors.primary,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          groups[g].label,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 17,
+                            letterSpacing: -0.3,
+                            color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: colors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Classes for this day
+                for (var i = 0; i < groups[g].items.length; i++) ...[
+                  ScheduleRow(
+                    item: groups[g].items[i],
+                    isLast: i == groups[g].items.length - 1,
+                    highlight: highlightClassId == groups[g].items[i].id,
+                    onOpenDetails: () => onOpenDetails(groups[g].items[i]),
+                    onToggleEnabled: (enable) =>
+                        onToggleEnabled(groups[g].items[i], enable),
+                    toggleBusy: pendingToggleIds.contains(groups[g].items[i].id),
+                    onDelete: onDelete != null
+                        ? () => onDelete!(groups[g].items[i].id)
+                        : null,
+                  ),
+                  if (i != groups[g].items.length - 1) const SizedBox(height: 10),
+                ],
+                if (g != groups.length - 1) const SizedBox(height: 20),
+              ],
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class ScheduleGroupSliver extends StatelessWidget
     implements ScreenShellSliver {
-  const _ScheduleGroupSliver({
+  const ScheduleGroupSliver({
+    super.key,
     required this.header,
     required this.group,
     required this.onOpenDetails,
     required this.onToggleEnabled,
     required this.pendingToggleIds,
     this.highlightClassId,
+    this.onDelete,
     this.showHeader = true,
   });
 
@@ -16,6 +379,7 @@ class _ScheduleGroupSliver extends StatelessWidget
   final DayGroup group;
   final void Function(sched.ClassItem item) onOpenDetails;
   final void Function(sched.ClassItem item, bool enable) onToggleEnabled;
+  final Future<void> Function(int id)? onDelete;
   final Set<int> pendingToggleIds;
   final int? highlightClassId;
   final bool showHeader;
@@ -24,12 +388,13 @@ class _ScheduleGroupSliver extends StatelessWidget
   Widget build(BuildContext context) {
     return ScreenStickyGroup(
       header: header,
-      child: _ScheduleGroupCard(
+      child: ScheduleGroupCard(
         group: group,
         onOpenDetails: onOpenDetails,
         onToggleEnabled: onToggleEnabled,
         pendingToggleIds: pendingToggleIds,
         highlightClassId: highlightClassId,
+        onDelete: onDelete,
         showHeader: showHeader,
       ),
     );
@@ -62,12 +427,13 @@ class _ScheduleGroupSliver extends StatelessWidget
           child: Center(
             child: ConstrainedBox(
               constraints: BoxConstraints(maxWidth: maxWidth),
-              child: _ScheduleGroupCard(
+              child: ScheduleGroupCard(
                 group: group,
                 onOpenDetails: onOpenDetails,
                 onToggleEnabled: onToggleEnabled,
                 pendingToggleIds: pendingToggleIds,
                 highlightClassId: highlightClassId,
+                onDelete: onDelete,
                 showHeader: false,
               ),
             ),
@@ -78,13 +444,15 @@ class _ScheduleGroupSliver extends StatelessWidget
   }
 }
 
-class _ScheduleGroupCard extends StatelessWidget {
-  const _ScheduleGroupCard({
+class ScheduleGroupCard extends StatelessWidget {
+  const ScheduleGroupCard({
+    super.key,
     required this.group,
     required this.onOpenDetails,
     required this.onToggleEnabled,
     required this.pendingToggleIds,
     this.highlightClassId,
+    this.onDelete,
     this.showHeader = true,
   });
 
@@ -93,6 +461,7 @@ class _ScheduleGroupCard extends StatelessWidget {
   final void Function(sched.ClassItem item, bool enable) onToggleEnabled;
   final Set<int> pendingToggleIds;
   final int? highlightClassId;
+  final Future<void> Function(int id)? onDelete;
   final bool showHeader;
 
   @override
@@ -102,8 +471,9 @@ class _ScheduleGroupCard extends StatelessWidget {
     final background = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final shadowColor = colors.outline.withValues(alpha: 0.08);
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.xl,
@@ -130,10 +500,10 @@ class _ScheduleGroupCard extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: spacing.md + 2),
           ],
           for (var i = 0; i < group.items.length; i++) ...[
-            _ScheduleRow(
+            ScheduleRow(
               item: group.items[i],
               isLast: i == group.items.length - 1,
               highlight: highlightClassId == group.items[i].id,
@@ -141,8 +511,11 @@ class _ScheduleGroupCard extends StatelessWidget {
               onToggleEnabled: (enable) =>
                   onToggleEnabled(group.items[i], enable),
               toggleBusy: pendingToggleIds.contains(group.items[i].id),
+              onDelete: onDelete != null
+                  ? () => onDelete!(group.items[i].id)
+                  : null,
             ),
-            if (i != group.items.length - 1) const SizedBox(height: 10),
+            if (i != group.items.length - 1) SizedBox(height: spacing.sm + 2),
           ],
         ],
       ),
@@ -150,8 +523,9 @@ class _ScheduleGroupCard extends StatelessWidget {
   }
 }
 
-class _ScheduleSummaryCard extends StatelessWidget {
-  const _ScheduleSummaryCard({
+class ScheduleSummaryCard extends StatelessWidget {
+  const ScheduleSummaryCard({
+    super.key,
     required this.summary,
     required this.now,
     required this.onAddClass,
@@ -159,7 +533,7 @@ class _ScheduleSummaryCard extends StatelessWidget {
     required this.menuButton,
   });
 
-  final _ScheduleSummary summary;
+  final ScheduleSummary summary;
   final DateTime now;
   final VoidCallback onAddClass;
   final VoidCallback onScanCard;
@@ -169,14 +543,28 @@ class _ScheduleSummaryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final cardBackground = elevatedCardBackground(theme);
-    final borderColor = elevatedCardBorder(theme);
+    final isDark = theme.brightness == Brightness.dark;
     final highlight = summary.highlight;
 
-    final card = CardX(
-      padding: const EdgeInsets.all(20),
-      backgroundColor: cardBackground,
-      borderColor: borderColor,
+    final card = Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 12,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,118 +572,50 @@ class _ScheduleSummaryCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Schedules overview',
-                      style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 22,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          _dayOfWeekFormat.format(now),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
-                            color: colors.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                child: Text(
+                  'Schedules overview',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 20,
+                    letterSpacing: -0.3,
+                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                  ),
                 ),
               ),
-              const SizedBox(width: 4),
-              SizedBox(
-                height: 36,
-                width: 36,
-                child: Center(child: menuButton),
-              ),
+              menuButton,
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 20),
           if (highlight != null) ...[
             _ScheduleHighlightHero(highlight: highlight, now: now),
-            const SizedBox(height: 18),
-          ] else ...[
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
-                borderRadius: AppTokens.radius.lg,
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.self_improvement_outlined,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.8),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'No schedules yet',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          'Scan your student card or add a class manually to import your timetable.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 20),
           ],
           Row(
             children: [
               Expanded(
-                child: _ScheduleMetricChip(
-                  icon: Icons.class_outlined,
-                  tint: colors.primary,
-                  label: 'Scheduled',
+                child: _CompactMetricChip(
+                  icon: Icons.event_note_outlined,
                   value: summary.total,
-                  caption: '${summary.active} active',
+                  label: 'Scheduled',
+                  tint: colors.primary,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ScheduleMetricChip(
+                child: _CompactMetricChip(
                   icon: Icons.toggle_off_outlined,
-                  tint: colors.error,
-                  label: 'Disabled',
                   value: summary.disabled,
-                  caption: summary.disabled == 0
-                      ? 'All sessions live'
-                      : 'Temporarily hidden',
+                  label: 'Disabled',
+                  tint: colors.error,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: _ScheduleMetricChip(
-                  icon: Icons.edit_note_outlined,
-                  tint: colors.tertiary,
-                  label: 'Custom',
+                child: _CompactMetricChip(
+                  icon: Icons.edit_outlined,
                   value: summary.custom,
-                  caption: summary.custom == 0
-                      ? 'Synced only'
-                      : 'Includes custom classes',
+                  label: 'Custom',
+                  tint: const Color(0xFFFF9500),
                 ),
               ),
             ],
@@ -306,13 +626,13 @@ class _ScheduleSummaryCard extends StatelessWidget {
               Expanded(
                 child: FilledButton(
                   onPressed: onAddClass,
-                  style: FilledButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
+                  child: const Text(
+                    'Add class',
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: const Text('Add class'),
                 ),
               ),
               const SizedBox(width: 12),
@@ -320,12 +640,19 @@ class _ScheduleSummaryCard extends StatelessWidget {
                 child: OutlinedButton(
                   onPressed: onScanCard,
                   style: OutlinedButton.styleFrom(
-                    minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.xl,
+                    side: BorderSide(
+                      color: isDark ? colors.outline : const Color(0xFFE0E0E0),
+                      width: 1.5,
                     ),
                   ),
-                  child: const Text('Scan student card'),
+                  child: Text(
+                    'Scan card',
+                    style: TextStyle(
+                      color: isDark ? colors.onSurface : const Color(0xFF424242),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -344,7 +671,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
     required this.now,
   });
 
-  final _ScheduleHighlight highlight;
+  final ScheduleHighlight highlight;
   final DateTime now;
 
   @override
@@ -358,72 +685,161 @@ class _ScheduleHighlightHero extends StatelessWidget {
     final instructor = (item.instructor ?? '').trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
     final hasInstructor = instructor.isNotEmpty;
-    final isLive = highlight.status == _ScheduleHighlightStatus.ongoing;
-    final statusLabel = isLive ? 'Happening now' : 'Up next';
-    final badgeLabel = isLive ? 'Live' : 'Next';
+    final isLive = highlight.status == ScheduleHighlightStatus.ongoing;
+    final statusLabel = isLive ? 'Live Now' : 'Coming Up';
     final timeLabel =
         '${DateFormat('h:mm a').format(highlight.start)} - ${DateFormat('h:mm a').format(highlight.end)}';
-    final dateLabel = DateFormat('EEE, MMM d').format(highlight.start);
+    final dateLabel = DateFormat('EEEE, MMMM d').format(highlight.start);
     final isDark = theme.brightness == Brightness.dark;
-    final baseColor = colors.primary;
-    final gradient = [
-      baseColor.withValues(alpha: isDark ? 0.85 : 0.95),
-      baseColor.withValues(alpha: isDark ? 0.65 : 0.7),
-    ];
-    final shadowColor = baseColor.withValues(alpha: isDark ? 0.32 : 0.22);
-    final foreground = colors.onPrimary;
+    final foreground = Colors.white;
+
+    // Calculate time until class
+    final now = DateTime.now();
+    final timeUntil = highlight.start.difference(now);
+    String timeUntilText = '';
+    if (!isLive && timeUntil.inMinutes > 0) {
+      if (timeUntil.inHours > 0) {
+        timeUntilText = 'in ${timeUntil.inHours}h ${timeUntil.inMinutes % 60}m';
+      } else {
+        timeUntilText = 'in ${timeUntil.inMinutes}m';
+      }
+    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: gradient,
+          colors: [
+            colors.primary,
+            colors.primary.withValues(alpha: 0.85),
+          ],
         ),
-        borderRadius: AppTokens.radius.lg,
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: shadowColor,
-            blurRadius: 24,
-            offset: const Offset(0, 16),
+            color: colors.primary.withValues(alpha: 0.3),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Status badge
           Row(
             children: [
-              _ScheduleHeroChip(
-                icon: isLive
-                    ? Icons.play_arrow_rounded
-                    : Icons.arrow_forward_rounded,
-                label: statusLabel,
-                background: foreground.withValues(alpha: 0.16),
-                foreground: foreground.withValues(alpha: 0.9),
-              ),
-              const Spacer(),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
                 decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(999),
+                  color: foreground.withValues(alpha: 0.20),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.flash_on_rounded,
-                      size: 18,
-                      color: foreground.withValues(alpha: 0.8),
-                    ),
-                    const SizedBox(width: 6),
+                    if (isLive)
+                      Container(
+                        width: 8,
+                        height: 8,
+                        margin: const EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: foreground,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: foreground.withValues(alpha: 0.5),
+                              blurRadius: 4,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      Icon(
+                        Icons.schedule_rounded,
+                        size: 16,
+                        color: foreground,
+                      ),
+                    if (!isLive) const SizedBox(width: 6),
                     Text(
-                      badgeLabel,
-                      style: theme.textTheme.labelMedium?.copyWith(
+                      statusLabel,
+                      style: theme.textTheme.labelLarge?.copyWith(
                         fontWeight: FontWeight.w600,
-                        color: foreground.withValues(alpha: 0.85),
+                        fontSize: 13,
+                        color: foreground,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (timeUntilText.isNotEmpty) ...[
+                const SizedBox(width: 10),
+                Text(
+                  timeUntilText,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: foreground.withValues(alpha: 0.85),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: 20),
+          
+          // Class title
+          Text(
+            subject,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              fontSize: 22,
+              height: 1.3,
+              color: foreground,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 18),
+          
+          // Time
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: foreground.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.access_time_rounded,
+                  size: 18,
+                  color: foreground,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      timeLabel,
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: foreground,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      dateLabel,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: foreground.withValues(alpha: 0.80),
+                        fontSize: 13,
                       ),
                     ),
                   ],
@@ -431,88 +847,55 @@ class _ScheduleHighlightHero extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 14),
-          Text(
-            subject,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-              fontSize: 20,
-              color: foreground,
-            ),
-          ),
-          const SizedBox(height: 10),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.schedule_rounded,
-                size: 16,
-                color: foreground.withValues(alpha: 0.78),
-              ),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  timeLabel,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: foreground,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today_rounded,
-                size: 14,
-                color: foreground.withValues(alpha: 0.75),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                dateLabel,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: foreground.withValues(alpha: 0.78),
-                ),
-              ),
-            ],
-          ),
+          
           if (location.isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: 14),
             Row(
               children: [
-                Icon(
-                  Icons.place_outlined,
-                  size: 16,
-                  color: foreground.withValues(alpha: 0.76),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: foreground.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    Icons.place_outlined,
+                    size: 18,
+                    color: foreground,
+                  ),
                 ),
-                const SizedBox(width: 6),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     location,
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: foreground.withValues(alpha: 0.82),
-                      fontSize: 16,
+                      color: foreground.withValues(alpha: 0.90),
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
               ],
             ),
           ],
+          
           if (hasInstructor) ...[
-            const SizedBox(height: 14),
-            _ScheduleInstructorRow(
-              name: instructor,
-              avatarUrl: instructorAvatar.isEmpty ? null : instructorAvatar,
-              tint: foreground,
-              inverse: true,
-              dense: false,
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: foreground.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: _ScheduleInstructorRow(
+                name: instructor,
+                avatarUrl: instructorAvatar.isEmpty ? null : instructorAvatar,
+                tint: foreground,
+                inverse: true,
+                dense: false,
+              ),
             ),
           ],
         ],
@@ -538,17 +921,20 @@ class _ScheduleHeroChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(
+        horizontal: AppTokens.spacing.sm + 2,
+        vertical: AppTokens.spacing.xs + 1,
+      ),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(999),
+        borderRadius: AppTokens.radius.pill,
         border: Border.all(color: foreground.withValues(alpha: 0.25)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 14, color: foreground),
-          const SizedBox(width: 6),
+          SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -581,70 +967,66 @@ class _ScheduleMetricChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final background = tint.withValues(alpha: isDark ? 0.20 : 0.10);
-    final border = tint.withValues(alpha: isDark ? 0.28 : 0.18);
-    final iconBackground = tint.withValues(alpha: isDark ? 0.22 : 0.16);
 
     return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: border),
+        color: isDark ? tint.withValues(alpha: 0.12) : const Color(0xFFF5F7FA),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isDark ? tint.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
       ),
-      constraints: const BoxConstraints(minHeight: 132),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: 28,
-            width: 28,
+            height: 32,
+            width: 32,
             decoration: BoxDecoration(
-              color: iconBackground,
-              borderRadius: BorderRadius.circular(12),
+              color: tint.withValues(alpha: isDark ? 0.20 : 0.12),
+              borderRadius: BorderRadius.circular(8),
             ),
             alignment: Alignment.center,
             child: Icon(
               icon,
-              color: tint.withValues(alpha: 0.95),
+              color: tint,
               size: 18,
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
           Text(
             '$value',
-            style: theme.textTheme.titleMedium?.copyWith(
-              fontFamily: 'SFProRounded',
+            style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 22,
-              color: theme.colorScheme.onSurface,
+              fontSize: 24,
+              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
             ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 2),
           Text(
             label,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 15,
-              color: theme.colorScheme.onSurfaceVariant,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+              fontSize: 13,
+              color: isDark ? colors.onSurfaceVariant : const Color(0xFF616161),
             ),
             maxLines: 1,
-            softWrap: false,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 2),
           Text(
             caption,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.72),
-              fontSize: 14,
+              fontSize: 11,
+              color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.70) : const Color(0xFF9E9E9E),
             ),
-            maxLines: 2,
-            softWrap: true,
-            overflow: TextOverflow.fade,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -652,14 +1034,88 @@ class _ScheduleMetricChip extends StatelessWidget {
   }
 }
 
-class _ScheduleRow extends StatelessWidget {
-  const _ScheduleRow({
+// Compact horizontal metric chip for timeline-style layout
+class _CompactMetricChip extends StatelessWidget {
+  const _CompactMetricChip({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.tint,
+  });
+
+  final IconData icon;
+  final int value;
+  final String label;
+  final Color tint;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: tint.withValues(alpha: 0.20),
+          width: 1,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(
+              icon,
+              size: 22,
+              color: tint,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            '$value',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+              height: 1.0,
+              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ScheduleRow extends StatelessWidget {
+  const ScheduleRow({
+    super.key,
     required this.item,
     required this.isLast,
     required this.highlight,
     required this.onOpenDetails,
     required this.onToggleEnabled,
     required this.toggleBusy,
+    this.onDelete,
   });
 
   final sched.ClassItem item;
@@ -668,6 +1124,7 @@ class _ScheduleRow extends StatelessWidget {
   final VoidCallback onOpenDetails;
   final void Function(bool enable) onToggleEnabled;
   final bool toggleBusy;
+  final VoidCallback? onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -675,291 +1132,268 @@ class _ScheduleRow extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final now = DateTime.now();
-    final nextStart = _nextOccurrence(item, now);
-    final nextEnd = _endFor(item, nextStart);
+    final nextStart = ScheduleClassListCard._nextOccurrence(item, now);
+    final nextEnd = ScheduleClassListCard._endFor(item, nextStart);
     final rawSubject = ((item.title ?? item.code ?? '').trim());
-    final subjectText = rawSubject.isEmpty ? 'Class ${item.id}' : rawSubject;
+    final subject = rawSubject.isEmpty ? 'Class ${item.id}' : rawSubject;
     final location = (item.room ?? '').trim();
     final instructor = (item.instructor ?? '').trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
-    final disabled = !item.enabled;
-    final timeLabel =
-        '${DateFormat('h:mm a').format(nextStart)} - ${DateFormat('h:mm a').format(nextEnd)}';
-
-    String? statusLabel;
-    IconData? statusIcon;
-    Color statusForeground = colors.onSurfaceVariant;
-    Color statusBackground = colors.surfaceContainerHigh;
-
-    if (disabled) {
-      statusLabel = 'Hidden';
-      statusIcon = Icons.visibility_off_outlined;
-      statusForeground = colors.error;
-      statusBackground = colors.error.withValues(alpha: 0.12);
-    } else if (nextEnd.isBefore(now)) {
-      statusLabel = 'Done';
-      statusIcon = Icons.check_rounded;
-      statusForeground = colors.tertiary;
-      statusBackground = colors.tertiary.withValues(alpha: 0.16);
-    } else if (!nextStart.isAfter(now) && nextEnd.isAfter(now)) {
-      statusLabel = 'In progress';
-      statusIcon = Icons.play_arrow_rounded;
-      statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.16);
-    } else if (highlight) {
-      statusLabel = 'Next';
-      statusIcon = Icons.arrow_forward_rounded;
-      statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.12);
-    }
-
+    final isLive = now.isAfter(nextStart) && now.isBefore(nextEnd);
+    final isNext = !isLive && nextStart.difference(now).inMinutes < 60;
     final isHidden = !item.enabled;
-    final isNext = highlight && !disabled && nextStart.isAfter(now);
-    final nextBackground = Color.alphaBlend(
-      colors.primary.withValues(alpha: isDark ? 0.18 : 0.12),
-      isDark ? colors.surfaceContainerHighest : colors.surface,
-    );
-    final background = isNext ? nextBackground : colors.surfaceContainerHigh;
-    final border = isNext
-        ? colors.primary.withValues(alpha: isDark ? 0.32 : 0.26)
-        : colors.outlineVariant.withValues(alpha: 0.24);
-    final capsuleColor = isHidden
-        ? colors.error.withValues(alpha: 0.12)
-        : colors.primary.withValues(alpha: 0.14);
-    final capsuleTextColor = isHidden ? colors.error : colors.primary;
-    final overlayBase =
-        isHidden ? colors.error : colors.primary.withValues(alpha: 0.8);
-    final applyOverlay = !highlight && !isHidden;
-    final highlightOverlay =
-        applyOverlay ? overlayBase.withValues(alpha: 0.08) : Colors.transparent;
-    final splashOverlay =
-        applyOverlay ? overlayBase.withValues(alpha: 0.12) : Colors.transparent;
 
-    String? leadBadgeLabel;
-    final Color leadBadgeColor = colors.primary;
-    if (!disabled) {
-      if (!nextStart.isAfter(now) && nextEnd.isAfter(now)) {
-        leadBadgeLabel = 'Live';
-      } else if (highlight) {
-        leadBadgeLabel = 'Next';
-      }
-    }
-    final shouldShowTrailingStatus =
-        statusLabel != null && leadBadgeLabel == null;
-    final shadowColor = isNext
-        ? colors.primary.withValues(alpha: isDark ? 0.26 : 0.18)
-        : colors.outline.withValues(alpha: 0.08);
+    final timeFormat = DateFormat('h:mm a');
+    final timeRange = '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
 
-    return Material(
+    final child = Material(
       color: Colors.transparent,
+      borderRadius: BorderRadius.circular(16),
       child: InkWell(
         onTap: onOpenDetails,
-        borderRadius: AppTokens.radius.lg,
-        splashColor: splashOverlay,
-        highlightColor: highlightOverlay,
+        borderRadius: BorderRadius.circular(14),
+        splashColor: colors.primary.withValues(alpha: 0.05),
+        highlightColor: colors.primary.withValues(alpha: 0.02),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: background,
-            borderRadius: AppTokens.radius.lg,
-            border: Border.all(color: border),
-            boxShadow: [
-              if (!isHidden)
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 18,
-                  offset: const Offset(0, 14),
-                ),
-            ],
+            color: isDark ? colors.surfaceContainerHigh : Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isLive 
+                  ? colors.primary.withValues(alpha: 0.30)
+                  : isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+              width: isLive ? 1.5 : 0.5,
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isLive ? 0.08 : 0.04),
+                      blurRadius: isLive ? 12 : 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
           ),
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Column(
-                mainAxisSize: MainAxisSize.min,
+              // Top row: Title and Toggle
+              Row(
                 children: [
-                  if (leadBadgeLabel != null) ...[
-                    _ScheduleLeadBadge(
-                      label: leadBadgeLabel,
-                      color: leadBadgeColor,
-                    ),
-                    const SizedBox(height: 8),
-                  ],
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 12,
-                    ),
-                    decoration: BoxDecoration(
-                      color: capsuleColor,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          DateFormat('EEE').format(nextStart).toUpperCase(),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: capsuleTextColor,
-                            fontSize: 13,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          DateFormat('MMM d').format(nextStart),
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color:
-                                colors.onSurfaceVariant.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
+                  Expanded(
+                    child: Text(
+                      subject,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        letterSpacing: -0.2,
+                        color: isHidden
+                            ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
+                            : (isDark ? colors.onSurface : const Color(0xFF1A1A1A)),
+                        decoration: isHidden ? TextDecoration.lineThrough : null,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
+                  const SizedBox(width: 12),
+                  // Status badge or toggle
+                  if (isLive || isNext)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: isLive
+                            ? colors.primary.withValues(alpha: 0.15)
+                            : colors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        isLive ? 'Live' : 'Next',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: colors.primary,
+                        ),
+                      ),
+                    )
+                  else
+                    Transform.scale(
+                      scale: 0.85,
+                      child: Switch(
+                        value: !isHidden,
+                        onChanged: toggleBusy ? null : onToggleEnabled,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
                 ],
               ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      subjectText,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                        decoration: nextEnd.isBefore(now)
-                            ? TextDecoration.lineThrough
-                            : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+              const SizedBox(height: 12),
+              // Bottom row: Time, Location, Instructor
+              Row(
+                children: [
+                  // Time
+                  Icon(
+                    Icons.access_time_rounded,
+                    size: 16,
+                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    timeRange,
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      timeLabel,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                  ),
+                  if (location.isNotEmpty) ...[
+                    const SizedBox(width: 16),
+                    Icon(
+                      Icons.location_on_outlined,
+                      size: 16,
+                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                     ),
-                    if (location.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Text(
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
                         location,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: 14,
-                          color:
-                              colors.onSurfaceVariant.withValues(alpha: 0.68),
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
                         ),
-                      ),
-                    ],
-                    if (instructor.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      _ScheduleInstructorRow(
-                        name: instructor,
-                        avatarUrl:
-                            instructorAvatar.isEmpty ? null : instructorAvatar,
-                        tint: colors.primary,
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (shouldShowTrailingStatus)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _ScheduleStatusChip(
-                        icon: statusIcon ?? Icons.schedule_rounded,
-                        label: statusLabel,
-                        background: statusBackground,
-                        foreground: statusForeground,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                  Switch.adaptive(
-                    value: !disabled,
-                    onChanged: toggleBusy ? null : onToggleEnabled,
-                  ),
+                  ],
                 ],
               ),
+              if (instructor.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    if (instructorAvatar.isNotEmpty)
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          image: DecorationImage(
+                            image: NetworkImage(instructorAvatar),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        width: 24,
+                        height: 24,
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Text(
+                            instructor[0].toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: colors.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        instructor,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),
       ),
     );
-  }
-}
 
-class _ScheduleStatusChip extends StatelessWidget {
-  const _ScheduleStatusChip({
-    required this.icon,
-    required this.label,
-    required this.background,
-    required this.foreground,
-  });
+    if (!item.isCustom || onDelete == null) {
+      return child;
+    }
 
-  final IconData icon;
-  final String label;
-  final Color background;
-  final Color foreground;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: foreground),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: foreground,
-                  fontWeight: FontWeight.w600,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Slidable(
+        key: ValueKey('dismiss-class-${item.id}'),
+        endActionPane: ActionPane(
+          motion: const DrawerMotion(),
+          extentRatio: 0.4,
+          children: [
+            CustomSlidableAction(
+              onPressed: (context) async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Delete custom class?'),
+                    content: const Text(
+                      'This class will be removed from your schedules and reminders.',
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text('Cancel'),
+                      ),
+                      FilledButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text('Delete'),
+                      ),
+                    ],
+                  ),
+                );
+                if (confirm == true) {
+                  onDelete!();
+                }
+              },
+              backgroundColor: Colors.transparent,
+              foregroundColor: colors.onError,
+              child: Container(
+                margin: EdgeInsets.only(left: AppTokens.spacing.sm),
+                decoration: BoxDecoration(
+                  color: colors.error,
+                  borderRadius: AppTokens.radius.lg,
                 ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ScheduleLeadBadge extends StatelessWidget {
-  const _ScheduleLeadBadge({required this.label, required this.color});
-
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: isDark ? 0.28 : 0.16),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        label.toUpperCase(),
-        style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.8,
-          color: color,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Icon(Icons.delete_outline_rounded, color: colors.onError),
+                    SizedBox(height: AppTokens.spacing.xs),
+                    Text(
+                      'Delete',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: colors.onError,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
+        child: child,
       ),
     );
   }

@@ -3,19 +3,39 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Persists the user's preferred theme and exposes transition hints so we can
 /// mask palette swaps with a soft overlay.
+enum AppThemeMode {
+  light,
+  dark,
+  voidMode,
+  system;
+
+  String get label {
+    switch (this) {
+      case AppThemeMode.light:
+        return 'Light';
+      case AppThemeMode.dark:
+        return 'Dark';
+      case AppThemeMode.voidMode:
+        return 'Void';
+      case AppThemeMode.system:
+        return 'System';
+    }
+  }
+}
+
 class ThemeController {
   ThemeController._();
 
   static final ThemeController instance = ThemeController._();
 
-  static const String _storageKey = 'ui_theme_mode';
+  static const String _storageKey = 'ui_theme_mode_v2';
   static const Duration _overlayDuration = Duration(milliseconds: 260);
 
-  final ValueNotifier<ThemeMode> mode =
-      ValueNotifier<ThemeMode>(ThemeMode.system);
+  final ValueNotifier<AppThemeMode> mode =
+      ValueNotifier<AppThemeMode>(AppThemeMode.system);
   final ValueNotifier<bool> transitioning = ValueNotifier<bool>(false);
 
-  ThemeMode _previousMode = ThemeMode.system;
+  AppThemeMode _previousMode = AppThemeMode.system;
   bool _initialized = false;
 
   Future<void> init() async {
@@ -29,10 +49,10 @@ class ThemeController {
     _initialized = true;
   }
 
-  ThemeMode get currentMode => mode.value;
-  ThemeMode get previousMode => _previousMode;
+  AppThemeMode get currentMode => mode.value;
+  AppThemeMode get previousMode => _previousMode;
 
-  Future<void> setThemeMode(ThemeMode value) async {
+  Future<void> setMode(AppThemeMode value) async {
     if (mode.value == value) return;
     _previousMode = mode.value;
     transitioning.value = true;
@@ -46,27 +66,31 @@ class ThemeController {
     });
   }
 
-  String _encode(ThemeMode mode) {
+  String _encode(AppThemeMode mode) {
     switch (mode) {
-      case ThemeMode.dark:
+      case AppThemeMode.dark:
         return 'dark';
-      case ThemeMode.light:
+      case AppThemeMode.light:
         return 'light';
-      case ThemeMode.system:
+      case AppThemeMode.voidMode:
+        return 'void';
+      case AppThemeMode.system:
         return 'system';
     }
   }
 
-  ThemeMode _decode(String raw) {
+  AppThemeMode _decode(String raw) {
     switch (raw) {
       case 'dark':
-        return ThemeMode.dark;
+        return AppThemeMode.dark;
       case 'light':
-        return ThemeMode.light;
+        return AppThemeMode.light;
+      case 'void':
+        return AppThemeMode.voidMode;
       case 'system':
-        return ThemeMode.system;
+        return AppThemeMode.system;
       default:
-        return ThemeMode.system;
+        return AppThemeMode.system;
     }
   }
 }

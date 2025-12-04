@@ -9,4 +9,5 @@ abstract class AppRoutes {
   static const changeEmail = '/account/change-email';
   static const changePassword = '/account/change-password';
   static const deleteAccount = '/account/delete';
+  static const styleGuide = '/style-guide';
 }

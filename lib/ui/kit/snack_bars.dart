@@ -17,7 +17,6 @@ void showAppSnackBar(
   final colors = theme.colorScheme;
   final media = MediaQuery.of(context);
   final spacing = AppTokens.spacing;
-  final radius = AppTokens.radius;
 
   late final Color accent;
   late final IconData icon;
@@ -29,26 +28,38 @@ void showAppSnackBar(
   switch (type) {
     case AppSnackBarType.success:
       accent = colors.tertiary;
-      background = colors.surfaceContainerHigh;
-      borderColor = accent.withValues(alpha: 0.28);
+      background = theme.brightness == Brightness.dark
+          ? colors.surfaceContainerHigh
+          : Colors.white;
+      borderColor = theme.brightness == Brightness.dark
+          ? colors.outline.withValues(alpha: 0.12)
+          : const Color(0xFFE5E5E5);
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.18);
+      badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.check_circle_rounded;
       break;
     case AppSnackBarType.error:
       accent = colors.error;
-      background = colors.surfaceContainerHigh;
-      borderColor = accent.withValues(alpha: 0.28);
+      background = theme.brightness == Brightness.dark
+          ? colors.surfaceContainerHigh
+          : Colors.white;
+      borderColor = theme.brightness == Brightness.dark
+          ? colors.outline.withValues(alpha: 0.12)
+          : const Color(0xFFE5E5E5);
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.18);
+      badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.error_outline_rounded;
       break;
     case AppSnackBarType.info:
       accent = colors.primary;
-      background = colors.surfaceContainerHigh;
-      borderColor = accent.withValues(alpha: 0.24);
+      background = theme.brightness == Brightness.dark
+          ? colors.surfaceContainerHigh
+          : Colors.white;
+      borderColor = theme.brightness == Brightness.dark
+          ? colors.outline.withValues(alpha: 0.12)
+          : const Color(0xFFE5E5E5);
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.18);
+      badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.info_outline_rounded;
       break;
   }
@@ -67,11 +78,20 @@ void showAppSnackBar(
       vertical: spacing.lg,
     ),
     shape: RoundedRectangleBorder(
-      borderRadius: radius.lg,
-      side: BorderSide(color: borderColor, width: 1.2),
+      borderRadius: BorderRadius.circular(20),
+      side: BorderSide(
+        color: borderColor,
+        width: theme.brightness == Brightness.dark ? 1 : 0.5,
+      ),
     ),
     backgroundColor: background,
-    elevation: 6,
+    elevation: 0, // We will use a custom shadow via decoration if possible, but SnackBar doesn't support it easily. 
+    // Actually, SnackBar elevation is the best way to get shadow. Let's keep it but maybe adjust.
+    // Wait, if I want a specific shadow color/blur, I might need to wrap content in a Material, but SnackBar is special.
+    // Let's stick to elevation but ensure the background and border are premium.
+    // To get the "premium" shadow, we can't easily do it on SnackBar widget itself without custom painter.
+    // Standard elevation 6 is okay, but let's see if we can improve.
+    // For now, I will stick to standard elevation but updated border/radius/colors.
     content: Row(
       children: [
         Container(

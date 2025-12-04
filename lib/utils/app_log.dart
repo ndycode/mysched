@@ -1,5 +1,7 @@
 import 'package:flutter/foundation.dart';
 
+import '../app/constants.dart';
+
 /// Lightweight logging helper that prints structured tags to logcat.
 ///
 /// Usage:
@@ -10,7 +12,7 @@ import 'package:flutter/foundation.dart';
 class AppLog {
   const AppLog._();
 
-  static const _rootTag = 'MySched';
+  static const _rootTag = AppConstants.appName;
 
   static void debug(
     String scope,

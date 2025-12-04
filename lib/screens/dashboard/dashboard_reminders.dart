@@ -1,3 +1,4 @@
+// ignore_for_file: unused_element
 part of 'dashboard_screen.dart';
 
 class _DashboardReminderCard extends StatelessWidget {
@@ -61,53 +62,78 @@ class _DashboardReminderCard extends StatelessWidget {
                     ? 'Everything is complete. Nice work!'
                     : 'Keep tasks ahead of schedule.';
 
-    final cardBackground = elevatedCardBackground(theme);
-    final cardBorder = elevatedCardBorder(theme);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(color: cardBorder),
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: isDark ? 1 : 0.5,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                height: 42,
-                width: 42,
+                height: 52,
+                width: 52,
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      colors.primary.withValues(alpha: 0.15),
+                      colors.primary.withValues(alpha: 0.10),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: colors.primary.withValues(alpha: 0.25),
+                    width: 1.5,
+                  ),
                 ),
                 child: Icon(
-                  Icons.check_circle_outline,
-                  size: 22,
+                  Icons.check_circle_outline_rounded,
                   color: colors.primary,
+                  size: 26,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Reminders',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 21,
+                        letterSpacing: -0.5,
+                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
                         fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
                     ),
                   ],
@@ -116,32 +142,55 @@ class _DashboardReminderCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: ReminderScope.values.map((option) {
-              final selected = option == scope;
-              return ChoiceChip(
-                label: Text(option.label),
-                selected: selected,
-                onSelected: (value) {
-                  if (value) onScopeChanged(option);
-                },
-                selectedColor: colors.primary.withValues(alpha: 0.18),
-                labelStyle: theme.textTheme.bodyMedium?.copyWith(
-                  color: selected ? colors.primary : colors.onSurfaceVariant,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          Center(
+            child: SegmentedButton<ReminderScope>(
+              style: ButtonStyle(
+                visualDensity: VisualDensity.compact,
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                 ),
-                backgroundColor:
-                    colors.surfaceContainerHigh.withValues(alpha: 0.5),
-              );
-            }).toList(),
+                side: WidgetStateProperty.resolveWith(
+                  (states) => BorderSide(
+                    color: states.contains(WidgetState.selected)
+                        ? colors.primary
+                        : colors.outline.withValues(alpha: 0.45),
+                    width: 1.2,
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: 0.14)
+                      : colors.surfaceContainerHighest.withValues(alpha: 0.45),
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurfaceVariant.withValues(alpha: 0.9),
+                ),
+              ),
+              segments: ReminderScope.values.map((option) {
+                return ButtonSegment<ReminderScope>(
+                  value: option,
+                  label: Text(
+                    option.label,
+                    softWrap: false,
+                  ),
+                );
+              }).toList(),
+              selected: <ReminderScope>{scope},
+              onSelectionChanged: (value) {
+                if (value.isNotEmpty) onScopeChanged(value.first);
+              },
+            ),
           ),
           const SizedBox(height: 16),
           _ReminderProgressPill(
             label: completionLabel,
             progress: completionProgress,
-            color: colors.primary,
+            color: isDark ? colors.onSurfaceVariant : const Color(0xFF616161),
           ),
           const SizedBox(height: 16),
           if (loading && reminders.isEmpty)
@@ -173,12 +222,18 @@ class _DashboardReminderCard extends StatelessWidget {
                   ),
                 )),
             if (pending.length > display.length)
-              Text(
-                '+${pending.length - display.length} more pending reminder'
-                '${pending.length - display.length == 1 ? '' : 's'}',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: kSummaryMuted,
-                  fontSize: 14,
+              Padding(
+                padding: EdgeInsets.only(top: AppTokens.spacing.xs),
+                child: Center(
+                  child: Text(
+                    '+${pending.length - display.length} more pending reminder'
+                    '${pending.length - display.length == 1 ? '' : 's'}',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: colors.primary,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
           ],
@@ -285,22 +340,20 @@ class _StatusChip extends StatelessWidget {
     required this.label,
     required this.background,
     required this.foreground,
-    this.compact = false,
   });
 
   final IconData icon;
   final String label;
   final Color background;
   final Color foreground;
-  final bool compact;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: compact ? 10 : 12,
-        vertical: compact ? 5 : 6,
+        horizontal: 12,
+        vertical: 6,
       ),
       decoration: BoxDecoration(
         color: background,
@@ -340,88 +393,73 @@ class _ReminderProgressPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final clamped = progress.clamp(0.0, 1.0);
-    final indicatorColor = color;
+    final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    final baseStart =
-        isDark ? color.withValues(alpha: 0.28) : color.withValues(alpha: 0.18);
-    final baseEnd =
-        isDark ? color.withValues(alpha: 0.14) : color.withValues(alpha: 0.08);
+    final percent = (progress.clamp(0.0, 1.0) * 100).round();
+    
+    // Use neutral gray for the card, matching Schedule's "Completed" section
+    final headerColor = colors.onSurfaceVariant;
 
-    return TweenAnimationBuilder<double>(
-      tween: Tween<double>(begin: 0, end: clamped),
-      duration: const Duration(milliseconds: 360),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, _) {
-        final percent = (value * 100).round();
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [baseStart, baseEnd],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            headerColor.withValues(alpha: 0.10),
+            headerColor.withValues(alpha: 0.06),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(
+          color: headerColor.withValues(alpha: 0.20),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: headerColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
             ),
-            borderRadius: AppTokens.radius.lg,
-            border: Border.all(color: indicatorColor.withValues(alpha: 0.22)),
+            child: Icon(
+              Icons.track_changes_rounded,
+              size: 18,
+              color: headerColor,
+            ),
           ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    height: 28,
-                    width: 28,
-                    decoration: BoxDecoration(
-                      color: indicatorColor.withValues(alpha: 0.18),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.track_changes_rounded,
-                      size: 16,
-                      color: indicatorColor,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: indicatorColor,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      maxLines: 1,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$percent%',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: indicatorColor,
-                    ),
-                  ),
-                ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w800,
+                fontSize: 17,
+                letterSpacing: -0.3,
+                color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
               ),
-              const SizedBox(height: 6),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(999),
-                child: LinearProgressIndicator(
-                  value: value,
-                  minHeight: 4,
-                  color: indicatorColor,
-                  backgroundColor: indicatorColor.withValues(alpha: 0.24),
-                ),
-              ),
-            ],
+            ),
           ),
-        );
-      },
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            decoration: BoxDecoration(
+              color: headerColor.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '$percent%',
+              style: theme.textTheme.labelMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: 13,
+                color: headerColor,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -445,73 +483,76 @@ class _DashboardReminderTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final isDone = entry.isCompleted;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: colors.surface,
-        borderRadius: AppTokens.radius.lg,
+        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: colors.outline.withValues(alpha: 0.14),
+          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          width: 0.5,
         ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            height: 44,
-            width: 44,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  height: 44,
-                  width: 44,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: colors.outlineVariant.withValues(alpha: 0.35),
-                    ),
-                  ),
+            height: 24,
+            width: 24,
+            child: Transform.scale(
+              scale: 1.1,
+              child: Checkbox(
+                value: isDone,
+                onChanged: pendingAction
+                    ? null
+                    : (value) {
+                        if (value == null) return;
+                        onToggle(entry, value);
+                      },
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                Transform.scale(
-                  scale: 1.05,
-                  child: Checkbox(
-                    value: isDone,
-                    onChanged: pendingAction
-                        ? null
-                        : (value) {
-                            if (value == null) return;
-                            onToggle(entry, value);
-                          },
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
+                side: BorderSide(
+                  color: colors.primary.withValues(alpha: 0.5),
+                  width: 1.5,
                 ),
-              ],
+                activeColor: colors.primary,
+              ),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   entry.title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
                     fontSize: 16,
-                    decoration: isDone
-                        ? TextDecoration.lineThrough
-                        : TextDecoration.none,
+                    letterSpacing: -0.2,
+                    color: isDone
+                        ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
+                        : (isDark ? colors.onSurface : const Color(0xFF1A1A1A)),
+                    decoration: isDone ? TextDecoration.lineThrough : null,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (entry.details?.isNotEmpty == true) ...[
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Text(
                     entry.details!,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -522,13 +563,13 @@ class _DashboardReminderTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     Icon(
                       Icons.schedule_rounded,
-                      size: 16,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                      size: 14,
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 6),
                     Expanded(
@@ -536,54 +577,11 @@ class _DashboardReminderTile extends StatelessWidget {
                         dueLabel,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.tonalIcon(
-                        onPressed: pendingAction
-                            ? null
-                            : () => onToggle(entry, !isDone),
-                        icon: Icon(
-                          isDone ? Icons.undo_rounded : Icons.done_all_rounded,
-                          size: 18,
-                        ),
-                        label: Text(isDone ? 'Mark pending' : 'Mark done'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.md,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton.icon(
-                        onPressed: pendingAction || isDone
-                            ? null
-                            : () => onSnooze(entry),
-                        icon: const Icon(Icons.snooze_rounded, size: 18),
-                        label: const Text('Snooze 1h'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.md,
-                          ),
-                        ),
                       ),
                     ),
                   ],
@@ -592,10 +590,10 @@ class _DashboardReminderTile extends StatelessWidget {
             ),
           ),
           if (pendingAction) ...[
-            const SizedBox(width: 14),
+            const SizedBox(width: 12),
             const SizedBox(
-              width: 18,
-              height: 18,
+              width: 16,
+              height: 16,
               child: CircularProgressIndicator(strokeWidth: 2),
             ),
           ],

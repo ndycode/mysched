@@ -1,18 +1,24 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'app/app_router.dart';
+import 'app/constants.dart';
 import 'env.dart';
 import 'services/analytics_service.dart';
 import 'services/theme_controller.dart';
 import 'services/telemetry_service.dart';
 import 'services/navigation_channel.dart';
 import 'services/reminder_scope_store.dart';
+import 'services/offline_queue.dart';
+import 'services/connection_monitor.dart';
+import 'services/data_sync.dart';
+import 'services/widget_service.dart';
 import 'ui/kit/theme_transition_host.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/theme/tokens.dart';
@@ -31,10 +37,22 @@ Future<void> main() async {
         params: {'elapsed_ms': bootstrapStopwatch.elapsedMilliseconds},
       );
     });
-    await Env.init();
+    final envOk = await _initEnv();
+    if (!envOk) {
+      runApp(const _ConfigErrorApp());
+      return;
+    }
+    ConnectionMonitor.instance.startMonitoring();
+    await OfflineQueue.instance.init();
     await ReminderScopeStore.instance.initialize();
     await NavigationChannel.instance.init();
+    await DataSync.instance.init();
     await ThemeController.instance.init();
+    // Initialize and update home screen widget
+    if (Platform.isAndroid) {
+      await WidgetService.initialize();
+      await WidgetService.updateWidgets();
+    }
     runApp(const MySchedApp());
   }, (error, stack) {
     TelemetryService.instance.logError(
@@ -76,12 +94,26 @@ void _installErrorHandlers() {
   };
 }
 
+Future<bool> _initEnv() async {
+  try {
+    await Env.init();
+    return true;
+  } catch (error, stack) {
+    TelemetryService.instance.logError(
+      'config_env_init_failed',
+      error: error,
+      stack: stack,
+    );
+    return false;
+  }
+}
+
 class MySchedApp extends StatelessWidget {
   const MySchedApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
+    return ValueListenableBuilder<AppThemeMode>(
       valueListenable: ThemeController.instance.mode,
       builder: (context, mode, _) {
         return AnimatedSwitcher(
@@ -89,8 +121,8 @@ class MySchedApp extends StatelessWidget {
           switchInCurve: AppTokens.motion.ease,
           switchOutCurve: AppTokens.motion.ease,
           child: _ThemedApp(
-            key: ValueKey<ThemeMode>(mode),
-            themeMode: mode,
+            key: ValueKey<AppThemeMode>(mode),
+            mode: mode,
           ),
         );
       },
@@ -98,19 +130,78 @@ class MySchedApp extends StatelessWidget {
   }
 }
 
-class _ThemedApp extends StatelessWidget {
-  const _ThemedApp({required this.themeMode, super.key});
-
-  final ThemeMode themeMode;
+class _ConfigErrorApp extends StatelessWidget {
+  const _ConfigErrorApp();
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+    return MaterialApp(
+      title: AppConstants.appName,
+      home: Scaffold(
+        backgroundColor: colors.surface,
+        body: Center(
+          child: Padding(
+            padding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  AppConstants.appName,
+                  style: AppTokens.typography.headline.copyWith(
+                    color: colors.brand,
+                  ),
+                ),
+                SizedBox(height: spacing.xxl),
+                Icon(Icons.cloud_off_rounded, size: 56, color: colors.danger),
+                SizedBox(height: spacing.md),
+                Text(
+                  'Missing Supabase configuration.',
+                  textAlign: TextAlign.center,
+                  style: AppTokens.typography.subtitle.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                SizedBox(height: spacing.sm),
+                Text(
+                  'Add SUPABASE_URL and SUPABASE_ANON_KEY to .env or pass them with --dart-define, then restart the app.',
+                  textAlign: TextAlign.center,
+                  style: AppTokens.typography.body,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemedApp extends StatelessWidget {
+  const _ThemedApp({required this.mode, super.key});
+
+  final AppThemeMode mode;
+
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = switch (mode) {
+      AppThemeMode.light => ThemeMode.light,
+      AppThemeMode.dark => ThemeMode.dark,
+      AppThemeMode.voidMode => ThemeMode.dark,
+      AppThemeMode.system => ThemeMode.system,
+    };
+
+    final lightTheme = AppTheme.light();
+    final darkTheme =
+        mode == AppThemeMode.voidMode ? AppTheme.voidTheme() : AppTheme.dark();
+
     return MaterialApp.router(
       key: key,
-      title: 'MySched',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      theme: lightTheme,
+      darkTheme: darkTheme,
       themeMode: themeMode,
       themeAnimationDuration: Duration.zero,
       builder: (context, child) {
@@ -131,7 +222,13 @@ class _ThemedApp extends StatelessWidget {
         );
         return ThemeTransitionHost(
           platformBrightness: media.platformBrightness,
-          child: content,
+          child: GestureDetector(
+            onTap: () {
+              // Global rule: Dismiss keyboard when tapping outside of inputs
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: content,
+          ),
         );
       },
       routerConfig: appRouter,

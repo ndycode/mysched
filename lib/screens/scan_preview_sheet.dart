@@ -1,3 +1,4 @@
+// ignore_for_file: unused_local_variable
 import 'dart:io';
 import 'dart:math';
 
@@ -213,32 +214,31 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: 520,
-              maxHeight: media.size.height * 0.9,
             ),
             child: Container(
               decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(color: borderColor),
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : Colors.white,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: theme.brightness == Brightness.dark
+                      ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                      : const Color(0xFFE5E5E5),
+                  width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: theme.shadowColor.withValues(
-                        alpha:
-                            theme.brightness == Brightness.dark ? 0.32 : 0.18),
-                    blurRadius: 24,
-                    offset: const Offset(0, 18),
+                    color: Colors.black.withValues(alpha: 0.15),
+                    blurRadius: 40,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
               child: Material(
                 type: MaterialType.transparency,
                 child: Padding(
-                  padding: spacing.edgeInsetsOnly(
-                    left: spacing.xl + 8,
-                    right: spacing.xl + 8,
-                    top: spacing.xl + 4,
-                    bottom: spacing.xl,
-                  ),
+                  padding: EdgeInsets.all(spacing.xl),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
@@ -251,7 +251,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: colors.primary.withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: AppTokens.radius.xl,
                               ),
                               child: Icon(
                                 Icons.close_rounded,
@@ -278,7 +278,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                               padding: const EdgeInsets.all(8),
                               decoration: BoxDecoration(
                                 color: colors.surfaceContainerHighest,
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius: AppTokens.radius.xl,
                               ),
                               child: Icon(
                                 Icons.refresh_rounded,
@@ -364,48 +364,58 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                       ),
                       if (_error != null) ...[
                         SizedBox(height: spacing.lg),
-                        ErrorState(
+                        StateDisplay(
+                          variant: StateVariant.error,
                           title: 'Scan failed',
                           message: _error!,
+                          primaryActionLabel: 'Retry',
+                          onPrimaryAction: _processing ? null : _scan,
+                          secondaryActionLabel: 'Retake',
+                          onSecondaryAction: _processing
+                              ? null
+                              : () => Navigator.of(context)
+                                  .pop(const ScanPreviewOutcome.retake()),
+                          compact: true,
                         ),
                       ],
                       SizedBox(height: spacing.xl),
-                      FilledButton.icon(
-                        onPressed:
-                            _processing || !file.existsSync() ? null : _scan,
-                        icon: _processing
-                            ? SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    colors.onPrimary,
-                                  ),
-                                ),
-                              )
-                            : const Icon(Icons.qr_code_scanner_rounded),
-                        label: Text(_processing ? 'Scanning…' : 'Scan'),
-                        style: FilledButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.xl,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: PrimaryButton(
+                              onPressed:
+                                  _processing || !file.existsSync() ? null : _scan,
+                              label: _processing ? 'Scanning...' : 'Scan',
+                              icon: _processing
+                                  ? null
+                                  : Icons.qr_code_scanner_rounded,
+                              leading: _processing
+                                  ? SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          colors.onPrimary,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                              minHeight: 48,
+                            ),
                           ),
-                        ),
-                      ),
-                      SizedBox(height: spacing.md),
-                      OutlinedButton(
-                        onPressed: _processing
-                            ? null
-                            : () => Navigator.of(context)
-                                .pop(const ScanPreviewOutcome.retake()),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size.fromHeight(48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppTokens.radius.xl,
+                          SizedBox(width: spacing.md),
+                          Expanded(
+                            child: SecondaryButton(
+                              onPressed: _processing
+                                  ? null
+                                  : () => Navigator.of(context)
+                                      .pop(const ScanPreviewOutcome.retake()),
+                              label: 'Retake',
+                              minHeight: 48,
+                            ),
                           ),
-                        ),
-                        child: const Text('Retake'),
+                        ],
                       ),
                     ],
                   ),

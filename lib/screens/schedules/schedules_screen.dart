@@ -255,6 +255,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final isDark = theme.brightness == Brightness.dark;
     
     return PopupMenuButton<ScheduleAction>(
+      key: const ValueKey('schedule-actions-menu'),
       onSelected: (action) => _handleAction(action),
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.lg,
@@ -265,6 +266,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       shadowColor: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
       itemBuilder: (context) => [
         PopupMenuItem<ScheduleAction>(
+          key: const ValueKey('schedule-export-pdf-item'),
           value: ScheduleAction.pdf,
           padding: EdgeInsets.zero,
           child: Material(
@@ -274,6 +276,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
               child: Padding(
                 padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
@@ -288,11 +291,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md + 2),
-                    Text(
-                      'Export as PDF',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurface,
+                    Flexible(
+                      child: Text(
+                        'Export as PDF',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -302,6 +307,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
           ),
         ),
         PopupMenuItem<ScheduleAction>(
+          key: const ValueKey('schedule-export-csv-item'),
           value: ScheduleAction.csv,
           padding: EdgeInsets.zero,
           child: Material(
@@ -311,6 +317,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
               child: Padding(
                 padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
@@ -325,11 +332,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md + 2),
-                    Text(
-                      'Export as CSV',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurface,
+                    Flexible(
+                      child: Text(
+                        'Export as CSV',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -365,6 +374,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
               child: Padding(
                 padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
                 child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
@@ -379,11 +389,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md + 2),
-                    Text(
-                      'Reset schedules',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurface,
+                    Flexible(
+                      child: Text(
+                        'Reset schedules',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -426,13 +438,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             SecondaryButton(
               label: 'Cancel',
               onPressed: () => Navigator.of(context).pop(false),
-              minHeight: 44,
+              minHeight: AppTokens.componentSize.buttonSm,
               expanded: false,
             ),
             PrimaryButton(
               label: 'Reset',
               onPressed: () => Navigator.of(context).pop(true),
-              minHeight: 44,
+              minHeight: AppTokens.componentSize.buttonSm,
               expanded: false,
             ),
           ],

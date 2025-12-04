@@ -83,6 +83,7 @@ class AppTokens {
   static const AppDurations durations = AppDurations();
   static const AppIconSize iconSize = AppIconSize();
   static const AppComponentSize componentSize = AppComponentSize();
+  static const AppShadow shadow = AppShadow();
 }
 
 class ColorPalette {
@@ -176,10 +177,20 @@ class AppSpacing {
 class AppRadius {
   const AppRadius();
 
+  /// Extra-small radius for checkboxes and subtle rounding
+  final BorderRadius xs = const BorderRadius.all(Radius.circular(6));
   final BorderRadius sm = const BorderRadius.all(Radius.circular(8));
+  /// Chip radius (between sm and md)
+  final BorderRadius chip = const BorderRadius.all(Radius.circular(10));
   final BorderRadius md = const BorderRadius.all(Radius.circular(12));
+  /// Popup/list tile radius (between md and lg)
+  final BorderRadius popup = const BorderRadius.all(Radius.circular(14));
   final BorderRadius lg = const BorderRadius.all(Radius.circular(16));
+  /// Sheet/dialog radius
+  final BorderRadius sheet = const BorderRadius.all(Radius.circular(20));
   final BorderRadius xl = const BorderRadius.all(Radius.circular(24));
+  /// Button radius (between xl and xxl)
+  final BorderRadius button = const BorderRadius.all(Radius.circular(26));
   final BorderRadius xxl = const BorderRadius.all(Radius.circular(28));
   final BorderRadius xxxl = const BorderRadius.all(Radius.circular(32));
 
@@ -189,6 +200,7 @@ class AppRadius {
   BorderRadius circular(double value) =>
       BorderRadius.all(Radius.circular(value));
 }
+
 
 class AppTypography {
   const AppTypography._();
@@ -200,6 +212,13 @@ class AppTypography {
         fontSize: 32,
         fontWeight: FontWeight.w700,
         height: 1.12,
+      );
+  /// Extra large brand/splash text
+  TextStyle get brand => const TextStyle(
+        fontFamily: primaryFont,
+        fontSize: 42,
+        fontWeight: FontWeight.w700,
+        height: 1.1,
       );
   TextStyle get headline => const TextStyle(
         fontFamily: primaryFont,
@@ -362,9 +381,9 @@ class AppComponentSize {
   final double dividerThick = 2;
 
   // Button heights
-  final double buttonSm = 36;
+  final double buttonSm = 44;
   final double buttonMd = 48;
-  final double buttonLg = 56;
+  final double buttonLg = 52;
 
   // Card preview heights
   final double previewSm = 120;
@@ -374,4 +393,22 @@ class AppComponentSize {
   // Progress indicator
   final double progressHeight = 4;
   final double progressWidth = 40;
+}
+
+/// Shadow blur radius presets for consistent elevation effects.
+class AppShadow {
+  const AppShadow();
+
+  /// Extra-small blur for subtle badges (4)
+  final double xs = 4;
+  /// Small blur for minimal elevation (6)
+  final double sm = 6;
+  /// Medium blur for standard tiles/cards (12)
+  final double md = 12;
+  /// Large blur for elevated cards (16)
+  final double lg = 16;
+  /// Extra-large blur for prominent cards (20)
+  final double xl = 20;
+  /// XXL blur for hero cards and modals (40)
+  final double xxl = 40;
 }

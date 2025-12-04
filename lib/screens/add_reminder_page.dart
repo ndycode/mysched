@@ -97,7 +97,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: 0.15),
-                  blurRadius: 40,
+                  blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
               ],
@@ -161,7 +161,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                                         }
                                       });
                                     },
-                              minHeight: 48,
+                              minHeight: AppTokens.componentSize.buttonMd,
                             ),
                           ),
                           SizedBox(width: AppTokens.spacing.md),
@@ -169,7 +169,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                             child: SecondaryButton(
                               label: 'Cancel',
                               onPressed: () => Navigator.of(context).maybePop(),
-                              minHeight: 48,
+                              minHeight: AppTokens.componentSize.buttonMd,
                             ),
                           ),
                         ],
@@ -472,7 +472,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   child: SecondaryButton(
                     label: 'Cancel',
                     onPressed: _submitting ? null : widget.onCancel,
-                    minHeight: 48,
+                    minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ),
                 SizedBox(width: AppTokens.spacing.md),
@@ -484,7 +484,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                             ? 'Save reminder'
                             : 'Update reminder'),
                     onPressed: _submitting ? null : _submit,
-                    minHeight: 48,
+                    minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ),
               ],

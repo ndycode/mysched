@@ -45,13 +45,13 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           SecondaryButton(
             label: 'Cancel',
             onPressed: () => Navigator.pop(ctx, false),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
           PrimaryButton(
             label: 'Delete',
             onPressed: () => Navigator.pop(ctx, true),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
         ],
@@ -217,7 +217,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   : [
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: 0.05),
-                        blurRadius: 12,
+                        blurRadius: AppTokens.shadow.md,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -259,7 +259,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   : [
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: 0.05),
-                        blurRadius: 12,
+                        blurRadius: AppTokens.shadow.md,
                         offset: const Offset(0, 4),
                       ),
                     ],

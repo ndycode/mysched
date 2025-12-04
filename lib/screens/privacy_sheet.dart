@@ -317,7 +317,7 @@ class PrivacySheet extends StatelessWidget {
           SecondaryButton(
             label: 'Close',
             onPressed: () => Navigator.of(context).pop(),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
         ],

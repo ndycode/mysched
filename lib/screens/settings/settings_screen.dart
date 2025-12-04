@@ -179,7 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: 0.15),
-                  blurRadius: 40,
+                  blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
               ],
@@ -424,7 +424,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -449,7 +449,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -474,7 +474,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -499,7 +499,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -528,7 +528,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       : [
                           BoxShadow(
                             color: colors.shadow.withValues(alpha: 0.05),
-                            blurRadius: 12,
+                            blurRadius: AppTokens.shadow.md,
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -558,7 +558,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       : [
                           BoxShadow(
                             color: colors.shadow.withValues(alpha: 0.05),
-                            blurRadius: 12,
+                            blurRadius: AppTokens.shadow.md,
                             offset: const Offset(0, 4),
                           ),
                         ],
@@ -601,7 +601,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -629,7 +629,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     : [
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: 0.06),
-                          blurRadius: 16,
+                          blurRadius: AppTokens.shadow.lg,
                           offset: const Offset(0, 4),
                         ),
                       ],
@@ -972,7 +972,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ? null
                   : _controller.refreshAlarmReadiness,
               expanded: false,
-              minHeight: 44,
+              minHeight: AppTokens.componentSize.buttonSm,
             ),
           ),
         ],

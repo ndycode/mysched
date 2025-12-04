@@ -275,7 +275,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         boxShadow: [
           BoxShadow(
             color: colors.shadow.withValues(alpha: 0.05),
-            blurRadius: 12,
+            blurRadius: AppTokens.shadow.md,
             offset: const Offset(0, 4),
           ),
         ],
@@ -432,7 +432,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         boxShadow: [
           BoxShadow(
             color: colors.shadow.withValues(alpha: 0.05),
-            blurRadius: 12,
+            blurRadius: AppTokens.shadow.md,
             offset: const Offset(0, 4),
           ),
         ],

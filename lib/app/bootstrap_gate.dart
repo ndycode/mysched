@@ -262,9 +262,7 @@ class _SplashContentState extends State<_SplashContent>
                 // Minimalist Brand Text
                 Text(
                   AppConstants.appName,
-                  style: AppTokens.typography.display.copyWith(
-                    fontSize: 42,
-                    fontWeight: FontWeight.w700,
+                  style: AppTokens.typography.brand.copyWith(
                     color: colors.brand,
                     letterSpacing: -0.5,
                   ),

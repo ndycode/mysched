@@ -39,7 +39,7 @@ class ReminderMessageCard extends StatelessWidget {
             : [
                 BoxShadow(
                   color: colors.shadow.withValues(alpha: 0.05),
-                  blurRadius: 12,
+                  blurRadius: AppTokens.shadow.md,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -73,7 +73,7 @@ class ReminderMessageCard extends StatelessWidget {
             PrimaryButton(
               label: primaryLabel!,
               onPressed: onPrimary,
-              minHeight: 48,
+              minHeight: AppTokens.componentSize.buttonMd,
               expanded: true,
             ),
           ],
@@ -116,7 +116,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppTokens.radius.xxl.topLeft.x)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

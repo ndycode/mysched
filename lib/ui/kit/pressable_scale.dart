@@ -334,7 +334,7 @@ class AnimatedIconButton extends StatefulWidget {
     this.size = 24,
     this.color,
     this.backgroundColor,
-    this.padding = const EdgeInsets.all(8),
+    this.padding = const EdgeInsets.all(8), // Default matches AppTokens.spacing.sm
     this.borderRadius,
     this.tooltip,
     this.rotateOnPress = false,

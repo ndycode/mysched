@@ -103,7 +103,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                 child: PrimaryButton(
                   label: 'View schedule',
                   onPressed: onViewSchedule,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   expanded: true,
                 ),
               ),
@@ -112,7 +112,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                 child: SecondaryButton(
                   label: 'Reminders',
                   onPressed: onReviewReminders,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   expanded: true,
                 ),
               ),
@@ -383,7 +383,7 @@ class _UpcomingHeroTile extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: colors.primary.withValues(alpha: 0.3),
-                blurRadius: 20,
+                blurRadius: AppTokens.shadow.xl,
                 offset: const Offset(0, 8),
               ),
             ],
@@ -906,7 +906,7 @@ class _DashboardMetricChip extends StatelessWidget {
             color: highlight
                 ? tint.withValues(alpha: 0.08)
                 : colors.shadow.withValues(alpha: isDark ? 0 : 0.03),
-            blurRadius: 12,
+            blurRadius: AppTokens.shadow.md,
             offset: const Offset(0, 4),
           ),
         ],

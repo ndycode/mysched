@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/motion.dart';
+import '../theme/tokens.dart';
 
 /// Overlay sheet route with smooth 120Hz-optimized animations.
 class OverlaySheetRoute<T> extends PageRoute<T> {
@@ -237,8 +238,8 @@ Future<T?> showSmoothBottomSheet<T>({
     backgroundColor: backgroundColor,
     elevation: elevation,
     shape: shape ??
-        const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppTokens.radius.xl.topLeft.x)),
         ),
     clipBehavior: clipBehavior,
     constraints: constraints,

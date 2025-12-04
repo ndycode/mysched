@@ -106,7 +106,15 @@ class FlakyShareRecorder {
 
 late RecordingShareRecorder _recordingShare;
 
-Future<void> _pumpPage(WidgetTester tester, ScheduleApi api) async {
+Future<void> _pumpPage(WidgetTester tester, ScheduleApi api, {Size? surfaceSize}) async {
+  // Use a larger surface size to prevent overflow issues with popup menus
+  tester.view.physicalSize = surfaceSize ?? const Size(1080, 1920);
+  tester.view.devicePixelRatio = 1.0;
+  addTearDown(() {
+    tester.view.resetPhysicalSize();
+    tester.view.resetDevicePixelRatio();
+  });
+
   await tester.pumpWidget(
     MaterialApp(
       home: Scaffold(

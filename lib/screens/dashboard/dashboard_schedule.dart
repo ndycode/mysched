@@ -489,7 +489,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     return PrimaryButton(
       label: 'Review schedule',
       onPressed: refreshing ? null : onOpenSchedules,
-      minHeight: 52,
+      minHeight: AppTokens.componentSize.buttonLg,
       expanded: true,
     );
   }
@@ -510,11 +510,6 @@ class _ScheduleRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-    
     final item = occurrence.item;
     final subject = item.subject;
     final location = item.room.trim();
@@ -528,178 +523,37 @@ class _ScheduleRow extends StatelessWidget {
     final timeFormat = DateFormat('h:mm a');
     final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
 
-    return Material(
-      color: Colors.transparent,
-      borderRadius: AppTokens.radius.lg,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppTokens.radius.md,
-        splashColor: colors.primary.withValues(alpha: 0.05),
-        highlightColor: colors.primary.withValues(alpha: 0.02),
-        child: Container(
-          padding: spacing.edgeInsetsAll(spacing.lg),
-          decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : colors.surface,
-            borderRadius: AppTokens.radius.md,
-            border: Border.all(
-              color: isOngoing 
-                  ? colors.primary.withValues(alpha: 0.30)
-                  : colors.outlineVariant,
-              width: isOngoing ? 1.5 : 0.5,
-            ),
-            boxShadow: isDark
-                ? null
-                : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: isOngoing ? 0.08 : 0.04),
-                      blurRadius: isOngoing ? 12 : 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: Title and Status
-              Row(
-                children: [
-                  Expanded(
-                child: Text(
-                  subject,
-                  style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
-                    color: isPast
-                        ? colors.onSurfaceVariant
-                        : colors.onSurface,
-                        decoration: isPast ? TextDecoration.lineThrough : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  SizedBox(width: spacing.md),
-                  if (isOngoing || isNext || isPast)
-                    Container(
-                      padding: spacing.edgeInsetsSymmetric(
-                        horizontal: spacing.md,
-                        vertical: spacing.xs,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isOngoing
-                            ? colors.primary.withValues(alpha: 0.15)
-                            : isPast 
-                                ? colors.surfaceContainerHighest
-                                : colors.primary.withValues(alpha: 0.08),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                    child: Text(
-                      isOngoing ? 'Live' : (isPast ? 'Done' : 'Next'),
-                      style: AppTokens.typography.caption.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: isOngoing 
-                            ? colors.primary 
-                            : isPast 
-                                ? colors.onSurfaceVariant
-                                  : colors.primary,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              SizedBox(height: spacing.lg),
-              // Bottom row: Time, Location, Instructor
-              Row(
-                children: [
-                  // Time
-                  Icon(
-                    Icons.access_time_rounded,
-                    size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  SizedBox(width: spacing.xs + 2),
-                Text(
-                  timeRange,
-                  style: AppTokens.typography.bodySecondary.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-                  if (location.isNotEmpty) ...[
-                    SizedBox(width: spacing.lg),
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: AppTokens.iconSize.sm,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    SizedBox(width: spacing.xs + 2),
-                    Expanded(
-                    child: Text(
-                      location,
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurfaceVariant,
-                      ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              if (instructor.isNotEmpty) ...[
-                SizedBox(height: spacing.sm + 2),
-                Row(
-                  children: [
-                    if (instructorAvatar.isNotEmpty)
-                      Container(
-                        width: AppTokens.componentSize.badgeLg,
-                        height: AppTokens.componentSize.badgeLg,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(instructorAvatar),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        width: AppTokens.componentSize.badgeLg,
-                        height: AppTokens.componentSize.badgeLg,
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            instructor[0].toUpperCase(),
-                            style: AppTokens.typography.caption.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    SizedBox(width: spacing.sm),
-                    Expanded(
-                    child: Text(
-                      instructor,
-                      style: AppTokens.typography.caption.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurfaceVariant,
-                      ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
+    // Build metadata items
+    final metadata = <MetadataItem>[
+      MetadataItem(icon: Icons.access_time_rounded, label: timeRange),
+      if (location.isNotEmpty)
+        MetadataItem(icon: Icons.location_on_outlined, label: location, expanded: true),
+    ];
+
+    // Build status badge
+    StatusBadge? badge;
+    if (isOngoing) {
+      badge = const StatusBadge(label: 'Live', variant: StatusBadgeVariant.live);
+    } else if (isNext) {
+      badge = const StatusBadge(label: 'Next', variant: StatusBadgeVariant.next);
+    } else if (isPast) {
+      badge = const StatusBadge(label: 'Done', variant: StatusBadgeVariant.done);
+    }
+
+    return EntityTile(
+      title: subject,
+      isActive: !isPast,
+      isStrikethrough: isPast,
+      isHighlighted: isOngoing,
+      metadata: metadata,
+      badge: badge,
+      bottomContent: instructor.isNotEmpty
+          ? InstructorRow(
+              name: instructor,
+              avatarUrl: instructorAvatar.isNotEmpty ? instructorAvatar : null,
+            )
+          : null,
+      onTap: onTap,
     );
   }
 }

@@ -55,7 +55,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Heads-up before class'), findsWidgets);
-    final tenMinutesOption = find.widgetWithText(ListTile, '10 minutes');
+    // The picker uses InkWell with Text, not ListTile
+    final tenMinutesOption = find.text('10 minutes');
     await tester.ensureVisible(tenMinutesOption);
     await tester.tap(tenMinutesOption);
     await tester.pumpAndSettle();

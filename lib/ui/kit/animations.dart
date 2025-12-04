@@ -337,7 +337,7 @@ class _SmoothRippleState extends State<SmoothRipple>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final color = widget.rippleColor ?? theme.colorScheme.primary.withValues(alpha: 0.12);
-    final radius = widget.borderRadius ?? BorderRadius.circular(12);
+    final radius = widget.borderRadius ?? AppTokens.radius.md;
 
     return GestureDetector(
       onTap: _handleTap,

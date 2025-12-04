@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
               loading: _saving,
               loadingLabel: 'Signing in...',
               onPressed: _submit,
-              minHeight: 48,
+              minHeight: AppTokens.componentSize.buttonMd,
             ),
           ],
         ),
@@ -204,7 +204,7 @@ class _LoginPageState extends State<LoginPage> {
           SecondaryButton(
             label: 'Enter verification code',
             onPressed: _saving ? null : _openVerificationFlow,
-            minHeight: 48,
+            minHeight: AppTokens.componentSize.buttonMd,
           ),
         ],
       ],

@@ -236,7 +236,7 @@ class _RegisterPageState extends State<RegisterPage> {
               loading: _saving,
               loadingLabel: 'Creating account...',
               onPressed: _submit,
-              minHeight: 48,
+              minHeight: AppTokens.componentSize.buttonMd,
             ),
           ],
         ),
@@ -250,7 +250,7 @@ class _RegisterPageState extends State<RegisterPage> {
           label: 'Already have an account? Sign in',
           onPressed:
               _saving ? null : () => context.go(AppRoutes.login),
-          minHeight: 48,
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
       ],
     );

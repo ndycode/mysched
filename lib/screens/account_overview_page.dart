@@ -389,13 +389,13 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           SecondaryButton(
             label: 'Cancel',
             onPressed: () => Navigator.pop(ctx, false),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
           PrimaryButton(
             label: 'Sign out',
             onPressed: () => Navigator.pop(ctx, true),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
         ],
@@ -521,7 +521,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
           SecondaryButton(
             label: 'Cancel',
             onPressed: _saving ? null : () => Navigator.of(context).pop(),
-            minHeight: 44,
+            minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
           _saving
@@ -544,7 +544,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
                     });
                     _controller.crop();
                   },
-                  minHeight: 44,
+                  minHeight: AppTokens.componentSize.buttonSm,
                   expanded: false,
                 ),
         ],

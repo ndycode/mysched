@@ -122,7 +122,7 @@ class ScheduleClassListCard extends StatelessWidget {
             : [
                 BoxShadow(
                   color: colors.shadow.withValues(alpha: 0.06),
-                  blurRadius: 16,
+                  blurRadius: AppTokens.shadow.lg,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -478,7 +478,7 @@ class ScheduleGroupCard extends StatelessWidget {
             : [
                 BoxShadow(
                   color: shadowColor,
-                  blurRadius: 18,
+                  blurRadius: AppTokens.shadow.lg,
                   offset: const Offset(0, 14),
                 ),
               ],
@@ -554,7 +554,7 @@ class ScheduleSummaryCard extends StatelessWidget {
             : [
                 BoxShadow(
                   color: colors.shadow.withValues(alpha: 0.05),
-                  blurRadius: 12,
+                  blurRadius: AppTokens.shadow.md,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -586,29 +586,32 @@ class ScheduleSummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.event_note_outlined,
-                  value: summary.total,
+                  value: '${summary.total}',
                   label: 'Scheduled',
                   tint: colors.primary,
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.toggle_off_outlined,
-                  value: summary.disabled,
+                  value: '${summary.disabled}',
                   label: 'Disabled',
                   tint: colors.error,
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: _CompactMetricChip(
+                child: MetricChip(
                   icon: Icons.edit_outlined,
-                  value: summary.custom,
+                  value: '${summary.custom}',
                   label: 'Custom',
                   tint: colors.tertiary,
+                  displayStyle: true,
                 ),
               ),
             ],
@@ -620,7 +623,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                 child: PrimaryButton(
                   label: 'Add class',
                   onPressed: onAddClass,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   expanded: true,
                 ),
               ),
@@ -629,7 +632,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                 child: SecondaryButton(
                   label: 'Scan card',
                   onPressed: onScanCard,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   expanded: true,
                 ),
               ),
@@ -699,7 +702,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colors.primary.withValues(alpha: 0.3),
-            blurRadius: 20,
+            blurRadius: AppTokens.shadow.xl,
             offset: const Offset(0, 8),
           ),
         ],
@@ -921,159 +924,6 @@ class _ScheduleHeroChip extends StatelessWidget {
   }
 }
 
-class _ScheduleMetricChip extends StatelessWidget {
-  const _ScheduleMetricChip({
-    required this.icon,
-    required this.tint,
-    required this.label,
-    required this.value,
-    required this.caption,
-  });
-
-  final IconData icon;
-  final Color tint;
-  final String label;
-  final int value;
-  final String caption;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.md + 2),
-      decoration: BoxDecoration(
-        color: isDark ? tint.withValues(alpha: 0.12) : colors.surfaceContainerHighest,
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(
-          color: isDark ? tint.withValues(alpha: 0.20) : colors.outline,
-          width: isDark ? 1 : 0.5,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            height: AppTokens.componentSize.avatarSm,
-            width: AppTokens.componentSize.avatarSm,
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: isDark ? 0.20 : 0.12),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            alignment: Alignment.center,
-            child: Icon(
-              icon,
-              color: tint,
-              size: AppTokens.iconSize.sm,
-            ),
-          ),
-          SizedBox(height: spacing.sm + 2),
-          Text(
-            '$value',
-            style: AppTokens.typography.headline.copyWith(
-              fontWeight: FontWeight.w700,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: AppTokens.spacing.xs),
-          Text(
-            label,
-            style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w500,
-              color: colors.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          SizedBox(height: AppTokens.spacing.xs),
-          Text(
-            caption,
-            style: AppTokens.typography.caption.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// Compact horizontal metric chip for timeline-style layout
-class _CompactMetricChip extends StatelessWidget {
-  const _CompactMetricChip({
-    required this.icon,
-    required this.value,
-    required this.label,
-    required this.tint,
-  });
-
-  final IconData icon;
-  final int value;
-  final String label;
-  final Color tint;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(
-          color: tint.withValues(alpha: 0.20),
-          width: AppTokens.componentSize.divider,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: spacing.edgeInsetsAll(spacing.sm + 2),
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: 0.15),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            child: Icon(
-              icon,
-              size: AppTokens.iconSize.lg,
-              color: tint,
-            ),
-          ),
-          SizedBox(height: spacing.md),
-          Text(
-            '$value',
-            style: AppTokens.typography.display.copyWith(
-              fontWeight: FontWeight.w800,
-              height: 1.0,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            label,
-            style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colors.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class ScheduleRow extends StatelessWidget {
   const ScheduleRow({
@@ -1099,8 +949,6 @@ class ScheduleRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
     final now = DateTime.now();
     final nextStart = ScheduleClassListCard._nextOccurrence(item, now);
     final nextEnd = ScheduleClassListCard._endFor(item, nextStart);
@@ -1116,179 +964,47 @@ class ScheduleRow extends StatelessWidget {
     final timeFormat = DateFormat('h:mm a');
     final timeRange = '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
 
-    final child = Material(
-      color: Colors.transparent,
-      borderRadius: AppTokens.radius.lg,
-      child: InkWell(
-        onTap: onOpenDetails,
-        borderRadius: AppTokens.radius.md,
-        splashColor: colors.primary.withValues(alpha: 0.05),
-        highlightColor: colors.primary.withValues(alpha: 0.02),
-        child: Container(
-          padding: spacing.edgeInsetsAll(spacing.lg),
-          decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : colors.surface,
-            borderRadius: AppTokens.radius.md,
-            border: Border.all(
-              color: isLive 
-                  ? colors.primary.withValues(alpha: 0.30)
-                  : colors.outline.withValues(alpha: isDark ? 0.12 : 0.5),
-              width: isLive ? 1.5 : 0.5,
-            ),
-            boxShadow: isDark
-                ? null
-                : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: isLive ? 0.08 : 0.04),
-                      blurRadius: isLive ? 12 : 6,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Top row: Title and Toggle
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      subject,
-                      style: AppTokens.typography.subtitle.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.2,
-                        color: isHidden
-                            ? colors.onSurfaceVariant
-                            : colors.onSurface,
-                        decoration: isHidden ? TextDecoration.lineThrough : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  SizedBox(width: spacing.md),
-                  // Status badge or toggle
-                  if (isLive || isNext)
-                    Container(
-                      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm + 2, vertical: spacing.xs),
-                      decoration: BoxDecoration(
-                        color: isLive
-                            ? colors.primary.withValues(alpha: 0.15)
-                            : colors.primary.withValues(alpha: 0.08),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Text(
-                        isLive ? 'Live' : 'Next',
-                        style: AppTokens.typography.caption.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: colors.primary,
-                        ),
-                      ),
-                    )
-                  else
-                    Transform.scale(
-                      scale: 0.85,
-                      child: Switch(
-                        value: !isHidden,
-                        onChanged: toggleBusy ? null : onToggleEnabled,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                    ),
-                ],
-              ),
-              SizedBox(height: spacing.md),
-              // Bottom row: Time, Location, Instructor
-              Row(
-                children: [
-                  // Time
-                  Icon(
-                    Icons.access_time_rounded,
-                    size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant,
-                  ),
-                  SizedBox(width: spacing.xs + 2),
-                  Text(
-                    timeRange,
-                    style: AppTokens.typography.bodySecondary.copyWith(
-                      fontWeight: FontWeight.w500,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  if (location.isNotEmpty) ...[
-                    SizedBox(width: spacing.lg),
-                    Icon(
-                      Icons.location_on_outlined,
-                      size: AppTokens.iconSize.sm,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    SizedBox(width: spacing.xs + 2),
-                    Expanded(
-                      child: Text(
-                        location,
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: colors.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              if (instructor.isNotEmpty) ...[
-                SizedBox(height: spacing.sm + 2),
-                Row(
-                  children: [
-                    if (instructorAvatar.isNotEmpty)
-                      Container(
-                        width: AppTokens.componentSize.badgeLg,
-                        height: AppTokens.componentSize.badgeLg,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            image: NetworkImage(instructorAvatar),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        width: AppTokens.componentSize.badgeLg,
-                        height: AppTokens.componentSize.badgeLg,
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            instructor[0].toUpperCase(),
-                            style: AppTokens.typography.caption.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: colors.primary,
-                            ),
-                          ),
-                        ),
-                      ),
-                    SizedBox(width: spacing.sm),
-                    Expanded(
-                      child: Text(
-                        instructor,
-                        style: AppTokens.typography.caption.copyWith(
-                          fontWeight: FontWeight.w500,
-                          color: colors.onSurfaceVariant,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ],
-          ),
+    // Build metadata items
+    final metadata = <MetadataItem>[
+      MetadataItem(icon: Icons.access_time_rounded, label: timeRange),
+      if (location.isNotEmpty)
+        MetadataItem(icon: Icons.location_on_outlined, label: location, expanded: true),
+    ];
+
+    // Build trailing widget (badge or toggle)
+    Widget? trailing;
+    StatusBadge? badge;
+    
+    if (isLive) {
+      badge = const StatusBadge(label: 'Live', variant: StatusBadgeVariant.live);
+    } else if (isNext) {
+      badge = const StatusBadge(label: 'Next', variant: StatusBadgeVariant.next);
+    } else {
+      trailing = Transform.scale(
+        scale: 0.85,
+        child: Switch(
+          value: !isHidden,
+          onChanged: toggleBusy ? null : onToggleEnabled,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
-      ),
+      );
+    }
+
+    final child = EntityTile(
+      title: subject,
+      isActive: !isHidden,
+      isStrikethrough: isHidden,
+      isHighlighted: isLive,
+      metadata: metadata,
+      badge: badge,
+      trailing: trailing,
+      bottomContent: instructor.isNotEmpty
+          ? InstructorRow(
+              name: instructor,
+              avatarUrl: instructorAvatar.isNotEmpty ? instructorAvatar : null,
+            )
+          : null,
+      onTap: onOpenDetails,
     );
 
     if (!item.isCustom || onDelete == null) {
@@ -1316,13 +1032,13 @@ class ScheduleRow extends StatelessWidget {
                       SecondaryButton(
                         label: 'Cancel',
                         onPressed: () => Navigator.of(context).pop(false),
-                        minHeight: 44,
+                        minHeight: AppTokens.componentSize.buttonSm,
                         expanded: false,
                       ),
                       PrimaryButton(
                         label: 'Delete',
                         onPressed: () => Navigator.of(context).pop(true),
-                        minHeight: 44,
+                        minHeight: AppTokens.componentSize.buttonSm,
                         expanded: false,
                       ),
                     ],

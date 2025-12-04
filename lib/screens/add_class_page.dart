@@ -243,7 +243,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
               child: SecondaryButton(
                 label: 'Cancel',
                 onPressed: () => Navigator.of(context).maybePop(),
-                minHeight: 48,
+                minHeight: AppTokens.componentSize.buttonMd,
               ),
             ),
             SizedBox(width: spacing.md),
@@ -251,7 +251,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
               child: PrimaryButton(
                 label: _isEditing ? 'Save class' : 'Add class',
                 onPressed: () => _formKey.currentState?.triggerSave(),
-                minHeight: 48,
+                minHeight: AppTokens.componentSize.buttonMd,
               ),
             ),
           ],
@@ -317,7 +317,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: 0.15),
-                  blurRadius: 40,
+                  blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
               ],
@@ -379,7 +379,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                                         }
                                       });
                                     },
-                              minHeight: 48,
+                              minHeight: AppTokens.componentSize.buttonMd,
                             ),
                           ),
                           SizedBox(width: spacing.md),
@@ -387,7 +387,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                             child: SecondaryButton(
                               label: 'Cancel',
                               onPressed: () => Navigator.of(context).maybePop(),
-                              minHeight: 48,
+                              minHeight: AppTokens.componentSize.buttonMd,
                             ),
                           ),
                         ],
@@ -1095,7 +1095,7 @@ class _AddClassFormState extends State<AddClassForm> {
               : [
                   BoxShadow(
                     color: colors.shadow.withValues(alpha: 0.05),
-                    blurRadius: 12,
+                    blurRadius: AppTokens.shadow.md,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -1155,7 +1155,7 @@ class _AddClassFormState extends State<AddClassForm> {
               : [
                   BoxShadow(
                     color: colors.shadow.withValues(alpha: 0.05),
-                    blurRadius: 12,
+                    blurRadius: AppTokens.shadow.md,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -1260,7 +1260,7 @@ class _AddClassFormState extends State<AddClassForm> {
               : [
                   BoxShadow(
                     color: colors.shadow.withValues(alpha: 0.05),
-                    blurRadius: 12,
+                    blurRadius: AppTokens.shadow.md,
                     offset: const Offset(0, 4),
                   ),
                 ],

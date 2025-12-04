@@ -34,6 +34,7 @@ class EntityTile extends StatelessWidget {
     this.trailing,
     this.badge,
     this.tags = const [],
+    this.bottomContent,
     this.isActive = true,
     this.isStrikethrough = false,
     this.isHighlighted = false,
@@ -59,6 +60,9 @@ class EntityTile extends StatelessWidget {
   /// Optional list of tag widgets
   final List<Widget> tags;
 
+  /// Optional custom widget below metadata (e.g., instructor row)
+  final Widget? bottomContent;
+
   /// Whether this item is in an active state (affects styling)
   final bool isActive;
 
@@ -73,6 +77,7 @@ class EntityTile extends StatelessWidget {
 
   /// Custom border radius
   final BorderRadius? borderRadius;
+
 
   @override
   Widget build(BuildContext context) {
@@ -185,6 +190,12 @@ class EntityTile extends StatelessWidget {
                     ],
                   ],
                 ),
+              ],
+
+              // Bottom content (e.g., instructor row)
+              if (bottomContent != null) ...[
+                SizedBox(height: spacing.sm + 2),
+                bottomContent!,
               ],
             ],
           ),

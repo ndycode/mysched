@@ -12,8 +12,10 @@ class MetricChip extends StatelessWidget {
     required this.value,
     required this.label,
     required this.icon,
+    this.caption,
     this.tint,
     this.compact = false,
+    this.displayStyle = false,
   });
 
   /// The primary value to display (e.g., "5", "2h 30m")
@@ -25,11 +27,17 @@ class MetricChip extends StatelessWidget {
   /// Icon to show before the value
   final IconData icon;
 
+  /// Optional caption below label
+  final String? caption;
+
   /// Optional accent color (defaults to primary)
   final Color? tint;
 
   /// If true, uses horizontal compact layout
   final bool compact;
+
+  /// If true, uses larger display typography for value
+  final bool displayStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -94,16 +102,11 @@ class MetricChip extends StatelessWidget {
 
     // Card-style layout for larger displays
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
+      padding: spacing.edgeInsetsAll(spacing.md + 2),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            accent.withValues(alpha: 0.10),
-            accent.withValues(alpha: 0.06),
-          ],
-        ),
+        color: isDark 
+            ? accent.withValues(alpha: 0.12) 
+            : accent.withValues(alpha: 0.08),
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: accent.withValues(alpha: 0.20),
@@ -112,34 +115,56 @@ class MetricChip extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: spacing.edgeInsetsAll(spacing.sm),
+            height: AppTokens.componentSize.avatarSm,
+            width: AppTokens.componentSize.avatarSm,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.15),
+              color: accent.withValues(alpha: isDark ? 0.20 : 0.12),
               borderRadius: AppTokens.radius.sm,
             ),
+            alignment: Alignment.center,
             child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
           ),
-          SizedBox(height: spacing.md),
+          SizedBox(height: spacing.sm + 2),
           Text(
             value,
-            style: AppTokens.typography.title.copyWith(
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-              color: colors.onSurface,
-            ),
+            style: displayStyle
+                ? AppTokens.typography.display.copyWith(
+                    fontWeight: FontWeight.w800,
+                    height: 1.0,
+                    color: colors.onSurface,
+                  )
+                : AppTokens.typography.headline.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: colors.onSurface,
+                  ),
           ),
           SizedBox(height: spacing.xs),
           Text(
             label,
-            style: AppTokens.typography.bodySecondary.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w500,
               color: colors.onSurfaceVariant,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
+          if (caption != null) ...[
+            SizedBox(height: spacing.xs),
+            Text(
+              caption!,
+              style: AppTokens.typography.caption.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
         ],
       ),
     );
   }
 }
+

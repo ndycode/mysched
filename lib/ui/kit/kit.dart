@@ -11,6 +11,7 @@ export 'brand_scaffold.dart';
 export 'overlay_sheet.dart';
 export 'snack_bars.dart';
 export 'consent_dialog.dart';
+export 'modals.dart';
 export 'glass_navigation_bar.dart';
 export 'root_nav_config.dart';
 export 'screen_shell.dart';
@@ -23,3 +24,5 @@ export 'entity_tile.dart';
 export 'status_badge.dart';
 export 'metric_chip.dart';
 export 'section_header_card.dart';
+export 'instructor_row.dart';
+

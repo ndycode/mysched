@@ -192,7 +192,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                   : [
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: 0.05),
-                        blurRadius: 12,
+                        blurRadius: AppTokens.shadow.md,
                         offset: const Offset(0, 4),
                       ),
                     ],
@@ -210,13 +210,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 PrimaryButton(
                   label: _saving ? 'Saving...' : 'Save changes',
                   onPressed: _saving ? null : _submit,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                 ),
                 SizedBox(height: spacing.sm),
                 SecondaryButton(
                   label: 'Cancel',
                   onPressed: _saving ? null : () => context.pop(),
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                 ),
               ],
             ),

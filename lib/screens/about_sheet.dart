@@ -73,7 +73,7 @@ class AboutSheet extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: theme.colorScheme.shadow.withValues(alpha: 0.15),
-                blurRadius: 40,
+                blurRadius: AppTokens.shadow.xxl,
                 offset: const Offset(0, 10),
               ),
             ],

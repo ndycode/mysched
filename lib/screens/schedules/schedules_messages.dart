@@ -49,7 +49,7 @@ class ScheduleMessageCard extends StatelessWidget {
             : [
                 BoxShadow(
                   color: colors.shadow.withValues(alpha: 0.05),
-                  blurRadius: 12,
+                  blurRadius: AppTokens.shadow.md,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -86,7 +86,7 @@ class ScheduleMessageCard extends StatelessWidget {
                   PrimaryButton(
                     label: primaryLabel!,
                     onPressed: onPrimary,
-                    minHeight: 48,
+                    minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ],
                 if (secondaryLabel != null) ...[
@@ -94,7 +94,7 @@ class ScheduleMessageCard extends StatelessWidget {
                   SecondaryButton(
                     label: secondaryLabel!,
                     onPressed: onSecondary,
-                    minHeight: 48,
+                    minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ],
               ],

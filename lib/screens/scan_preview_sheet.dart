@@ -375,7 +375,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                                   ),
                                 )
                               : null,
-                          minHeight: 48,
+                          minHeight: AppTokens.componentSize.buttonMd,
                         ),
                       ),
                       SizedBox(width: spacing.md),
@@ -386,7 +386,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                               : () => Navigator.of(context)
                                   .pop(const ScanPreviewOutcome.retake()),
                           label: 'Retake',
-                          minHeight: 48,
+                          minHeight: AppTokens.componentSize.buttonMd,
                         ),
                       ),
                     ],

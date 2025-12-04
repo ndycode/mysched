@@ -38,7 +38,7 @@ class _DashboardMessageCard extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: shadowColor,
-            blurRadius: 16,
+            blurRadius: AppTokens.shadow.lg,
             offset: const Offset(0, 4),
           ),
         ],
@@ -98,7 +98,7 @@ class _DashboardMessageCard extends StatelessWidget {
                     child: PrimaryButton(
                       label: primaryLabel!,
                       onPressed: onPrimary,
-                      minHeight: 48,
+                      minHeight: AppTokens.componentSize.buttonMd,
                       expanded: true,
                     ),
                   ),
@@ -109,7 +109,7 @@ class _DashboardMessageCard extends StatelessWidget {
                     child: SecondaryButton(
                       label: secondaryLabel!,
                       onPressed: onSecondary,
-                      minHeight: 48,
+                      minHeight: AppTokens.componentSize.buttonMd,
                       expanded: true,
                     ),
                   ),

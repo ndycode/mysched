@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,7 +27,11 @@ enum AppThemeMode {
 class ThemeController {
   ThemeController._();
 
-  static final ThemeController instance = ThemeController._();
+  static ThemeController? _instance;
+  static ThemeController get instance {
+    _instance ??= ThemeController._();
+    return _instance!;
+  }
 
   static const String _storageKey = 'ui_theme_mode_v2';
   static const Duration _overlayDuration = Duration(milliseconds: 260);
@@ -92,5 +97,10 @@ class ThemeController {
       default:
         return AppThemeMode.system;
     }
+  }
+
+  @visibleForTesting
+  static void resetForTesting() {
+    _instance = null;
   }
 }

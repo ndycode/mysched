@@ -324,7 +324,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
           label: _verifying ? 'Verifying...' : 'Verify email',
           onPressed:
               (!_hasEmail || _verifying || _resending) ? null : _verify,
-          minHeight: 48,
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
         ],
       ),
@@ -395,7 +395,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               SecondaryButton(
                 label: 'Back to login',
                 onPressed: _verifying ? null : _goBackToLogin,
-                minHeight: 48,
+                minHeight: AppTokens.componentSize.buttonMd,
               ),
             ],
           ),

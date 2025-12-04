@@ -68,7 +68,7 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
         ),
         shadowColor: colors.outline.withValues(alpha: 0.25),
       ),
@@ -84,7 +84,7 @@ class AppTheme {
         ),
         backgroundColor: scheme.surfaceContainerHighest,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: AppTokens.radius.chip,
         ),
         side: BorderSide(color: colors.outline),
       ),
@@ -99,7 +99,7 @@ class AppTheme {
             vertical: AppTokens.spacing.md,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: AppTokens.radius.button,
           ),
           animationDuration: AppTokens.motion.medium,
           elevation: 0,
@@ -116,7 +116,7 @@ class AppTheme {
             vertical: AppTokens.spacing.md,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: AppTokens.radius.button,
           ),
           animationDuration: AppTokens.motion.medium,
           elevation: 0,
@@ -132,7 +132,7 @@ class AppTheme {
             vertical: AppTokens.spacing.md,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: AppTokens.radius.button,
           ),
           side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
         ),
@@ -147,7 +147,7 @@ class AppTheme {
             vertical: AppTokens.spacing.sm,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(26),
+            borderRadius: AppTokens.radius.button,
           ),
         ),
       ),
@@ -159,32 +159,32 @@ class AppTheme {
           vertical: AppTokens.spacing.lg,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.outline.withValues(alpha: 0.2),
           ),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.outline.withValues(alpha: 0.2),
           ),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.primary,
             width: 1.5,
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.error.withValues(alpha: 0.5),
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.error,
             width: 1.5,
@@ -208,28 +208,28 @@ class AppTheme {
               : colors.outline,
         ),
         checkColor: WidgetStateProperty.all(colors.onPrimary),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xs),
       ),
       snackBarTheme: _buildSnackBarTheme(scheme),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppTokens.radius.sheet.topLeft.x)),
         ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: AppTokens.radius.sheet,
         ),
       ),
       popupMenuTheme: PopupMenuThemeData(
         color: colors.surface,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppTokens.radius.popup,
         ),
       ),
       listTileTheme: ListTileThemeData(
@@ -240,7 +240,7 @@ class AppTheme {
         textColor: colors.onSurface,
         iconColor: colors.onSurfaceVariant,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppTokens.radius.popup,
         ),
       ),
     );
@@ -251,14 +251,17 @@ class AppTheme {
       behavior: SnackBarBehavior.floating,
       backgroundColor: scheme.surfaceContainerHigh,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTokens.radius.sheet,
         side: BorderSide(
           color: scheme.outline.withValues(alpha: 0.12),
           width: 0.5,
         ),
       ),
       elevation: 0,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      insetPadding: AppTokens.spacing.edgeInsetsSymmetric(
+        horizontal: AppTokens.spacing.xxl,
+        vertical: AppTokens.spacing.md,
+      ),
       contentTextStyle: AppTokens.typography.body.copyWith(
         color: scheme.onSurface,
         fontWeight: FontWeight.w600,

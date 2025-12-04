@@ -253,7 +253,7 @@ class _ReminderActions extends StatelessWidget {
         icon: Icons.add_alarm_rounded,
         label: 'Add reminder',
         onPressed: onAddReminder,
-        minHeight: 48,
+        minHeight: AppTokens.componentSize.buttonMd,
         expanded: true,
       );
     }
@@ -263,7 +263,7 @@ class _ReminderActions extends StatelessWidget {
         icon: Icons.launch_rounded,
         label: 'Manage list',
         onPressed: onOpenReminders,
-        minHeight: 48,
+        minHeight: AppTokens.componentSize.buttonMd,
         expanded: true,
       );
     }

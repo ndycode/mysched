@@ -223,29 +223,32 @@ class ReminderSummaryCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: ReminderMetricChip(
+                child: MetricChip(
                   icon: Icons.pending_actions_rounded,
                   tint: colors.primary,
                   label: 'Pending',
-                  value: summary.pending,
+                  value: '${summary.pending}',
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: ReminderMetricChip(
+                child: MetricChip(
                   icon: Icons.warning_amber_rounded,
                   tint: colors.error,
                   label: 'Overdue',
-                  value: summary.overdue,
+                  value: '${summary.overdue}',
+                  displayStyle: true,
                 ),
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: ReminderMetricChip(
+                child: MetricChip(
                   icon: Icons.snooze_rounded,
                   tint: colors.secondary,
                   label: 'Snoozed',
-                  value: summary.snoozed,
+                  value: '${summary.snoozed}',
+                  displayStyle: true,
                 ),
               ),
             ],
@@ -257,7 +260,7 @@ class ReminderSummaryCard extends StatelessWidget {
                 child: PrimaryButton(
                   label: 'New reminder',
                   onPressed: onCreate,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                 ),
               ),
               SizedBox(width: spacing.md),
@@ -265,7 +268,7 @@ class ReminderSummaryCard extends StatelessWidget {
                 child: SecondaryButton(
                   label: showCompleted ? 'Hide completed' : 'Show completed',
                   onPressed: onToggleCompleted,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                 ),
               ),
             ],
@@ -346,7 +349,7 @@ class ReminderHighlightHero extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: shadowColor,
-            blurRadius: 20,
+            blurRadius: AppTokens.shadow.xl,
             offset: const Offset(0, 8),
           ),
         ],
@@ -509,76 +512,6 @@ class ReminderHeroChip extends StatelessWidget {
   }
 }
 
-class ReminderMetricChip extends StatelessWidget {
-  const ReminderMetricChip({
-    super.key,
-    required this.icon,
-    required this.tint,
-    required this.label,
-    required this.value,
-  });
-
-  final IconData icon;
-  final Color tint;
-  final String label;
-  final int value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.md),
-      decoration: BoxDecoration(
-        color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: tint.withValues(alpha: 0.20),
-          width: AppTokens.componentSize.divider,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: spacing.edgeInsetsAll(spacing.md),
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: 0.15),
-              borderRadius: AppTokens.radius.md,
-            ),
-            child: Icon(
-              icon,
-              size: AppTokens.iconSize.lg,
-              color: tint,
-            ),
-          ),
-          SizedBox(height: spacing.md),
-          Text(
-            '$value',
-            style: AppTokens.typography.display.copyWith(
-              fontWeight: FontWeight.w800,
-              height: 1.0,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            label,
-            style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w600,
-              color: colors.onSurfaceVariant,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class ReminderGroupCard extends StatelessWidget {
   const ReminderGroupCard({
@@ -720,12 +653,12 @@ class ReminderRow extends StatelessWidget {
     final isOverdue =
         isActive && snoozeUntil == null && localDue.isBefore(DateTime.now());
 
-    final primaryText = isActive ? colors.onSurface : colors.outline;
-    final secondaryText = colors.onSurfaceVariant;
-
     final palette = theme.brightness == Brightness.dark
         ? AppTokens.darkColors
         : AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+    
+    // Build tags
     final tags = <Widget>[];
     if (showQueuedBadge) {
       tags.add(
@@ -758,160 +691,61 @@ class ReminderRow extends StatelessWidget {
       );
     }
 
-    final tileBackground = theme.brightness == Brightness.dark 
-        ? colors.surfaceContainerHigh 
-        : colors.surface;
-    final tileBorder = theme.brightness == Brightness.dark 
-        ? colors.outline.withValues(alpha: 0.12) 
-        : colors.outline;
+    // Build metadata items
+    final metadata = <MetadataItem>[
+      MetadataItem(icon: Icons.access_time_rounded, label: timeLabel),
+      if (details.isNotEmpty)
+        MetadataItem(icon: Icons.notes_rounded, label: details, expanded: true),
+    ];
 
-    final pillAccent = !isActive
-        ? colors.outline
-        : isOverdue
-            ? colors.error
-            : colors.primary;
-
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
-
-    final child = InkWell(
-      onTap: () => _showDetails(context),
-      borderRadius: AppTokens.radius.lg,
-      child: Container(
-        padding: spacing.edgeInsetsAll(spacing.lg),
-        decoration: BoxDecoration(
-          color: tileBackground,
-          borderRadius: AppTokens.radius.lg,
-          border: Border.all(
-            color: isActive 
-                ? colors.primary.withValues(alpha: 0.30)
-                : tileBorder,
-            width: isActive ? 1.5 : 0.5,
-          ),
-          boxShadow: theme.brightness == Brightness.dark
-              ? null
-              : [
-                  BoxShadow(
-                    color: colors.shadow.withValues(alpha: isActive ? 0.08 : 0.04),
-                    blurRadius: isActive ? 12 : 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Top Row: Title + Toggle
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                    Text(
-                      entry.title,
-                      style: AppTokens.typography.subtitle.copyWith(
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.2,
-                        color: primaryText,
-                        decoration: !isActive ? TextDecoration.lineThrough : null,
-                      ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (tags.isNotEmpty) ...[
-                        SizedBox(height: AppTokens.spacing.xs + 2),
-                        Wrap(
-                          spacing: AppTokens.spacing.xs + 2,
-                          runSpacing: AppTokens.spacing.xs + 2,
-                          children: tags,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                SizedBox(width: AppTokens.spacing.md),
-                Semantics(
-                  label: entry.title,
-                  hint: isActive ? 'Mark as done' : 'Move back to pending',
-                  toggled: isActive,
-                  child: Transform.scale(
-                    scale: 0.85,
-                    child: Switch.adaptive(
-                      value: isActive,
-                      onChanged: onToggle,
-                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: spacing.md),
-             
-            // Bottom Row: Time + Details
-            Row(
-              children: [
-                Icon(
-                  Icons.access_time_rounded,
-                  size: AppTokens.iconSize.sm,
-                  color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                ),
-                SizedBox(width: spacing.sm),
-                Text(
-                  timeLabel,
-                  style: AppTokens.typography.bodySecondary.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.85),
-                  ),
-                ),
-                if (details.isNotEmpty) ...[
-                  SizedBox(width: spacing.lg),
-                  Icon(
-                    Icons.notes_rounded,
-                    size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                  ),
-                  SizedBox(width: spacing.sm),
-                  Expanded(
-                    child: Text(
-                      details,
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.85),
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            
-            if (snoozeUntil != null)
-              Padding(
-                padding: spacing.edgeInsetsOnly(top: spacing.sm),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.snooze_rounded,
-                      size: AppTokens.iconSize.xs,
-                      color: palette.warning,
-                    ),
-                    SizedBox(width: spacing.sm),
-                    Text(
-                      'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
-                      style: AppTokens.typography.caption.copyWith(
-                        color: palette.warning,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-          ],
+    // Build trailing toggle
+    final trailing = Semantics(
+      label: entry.title,
+      hint: isActive ? 'Mark as done' : 'Move back to pending',
+      toggled: isActive,
+      child: Transform.scale(
+        scale: 0.85,
+        child: Switch.adaptive(
+          value: isActive,
+          onChanged: onToggle,
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       ),
+    );
+
+    // Build snooze info as bottom content
+    Widget? bottomContent;
+    if (snoozeUntil != null) {
+      bottomContent = Row(
+        children: [
+          Icon(
+            Icons.snooze_rounded,
+            size: AppTokens.iconSize.xs,
+            color: palette.warning,
+          ),
+          SizedBox(width: spacing.sm),
+          Text(
+            'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
+            style: AppTokens.typography.caption.copyWith(
+              color: palette.warning,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      );
+    }
+
+    final child = EntityTile(
+      title: entry.title,
+      isActive: isActive,
+      isStrikethrough: !isActive,
+      isHighlighted: isActive,
+      metadata: metadata,
+      tags: tags,
+      trailing: trailing,
+      bottomContent: bottomContent,
+      onTap: () => _showDetails(context),
+      borderRadius: AppTokens.radius.lg,
     );
 
     return ClipRRect(

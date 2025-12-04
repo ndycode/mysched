@@ -119,28 +119,12 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
 
 
   Future<void> _deleteReminder(ReminderEntry entry) async {
-    final ok = await showDialog<bool>(
+    final ok = await AppModal.showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete reminder?'),
-        content: const Text(
-          'This reminder will be removed and any scheduled notifications will be cancelled.',
-        ),
-        actions: [
-          SecondaryButton(
-            label: 'Cancel',
-            onPressed: () => Navigator.of(context).pop(false),
-            minHeight: 44,
-            expanded: false,
-          ),
-          PrimaryButton(
-            label: 'Delete',
-            onPressed: () => Navigator.of(context).pop(true),
-            minHeight: 44,
-            expanded: false,
-          ),
-        ],
-      ),
+      title: 'Delete reminder?',
+      message: 'This reminder will be removed and any scheduled notifications will be cancelled.',
+      confirmLabel: 'Delete',
+      isDanger: true,
     );
     if (ok != true) return;
     

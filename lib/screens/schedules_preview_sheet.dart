@@ -150,7 +150,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
               boxShadow: [
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: 0.15),
-                  blurRadius: 40,
+                  blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
               ],
@@ -256,7 +256,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                                     ),
                                   )
                                 : null,
-                            minHeight: 48,
+                            minHeight: AppTokens.componentSize.buttonMd,
                           ),
                         ),
                         SizedBox(width: spacing.md),
@@ -267,7 +267,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                                 : () => Navigator.of(context)
                                     .pop(const ScheduleImportOutcome.retake()),
                             label: 'Retake',
-                            minHeight: 48,
+                            minHeight: AppTokens.componentSize.buttonMd,
                           ),
                         ),
                       ],

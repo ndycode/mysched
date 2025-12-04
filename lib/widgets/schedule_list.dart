@@ -1,6 +1,6 @@
 // lib/widgets/schedule_list.dart
 import 'package:flutter/material.dart';
-import '../ui/kit/status_chip.dart';
+import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
 import '../services/schedule_api.dart';
 
@@ -238,26 +238,14 @@ class _Row extends StatelessWidget {
         child: Icon(Icons.delete, color: colors.onError),
       ),
       confirmDismiss: (_) async {
-        final ok = await showDialog<bool>(
+        final ok = await AppModal.showConfirmDialog(
           context: context,
-          builder: (_) => AlertDialog(
-            title: const Text('Delete class?'),
-            content: Text(
-              c.isCustom == true
-                  ? 'This custom class will be removed.'
-                  : 'This class will be removed from your view.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
+          title: 'Delete class?',
+          message: c.isCustom == true
+              ? 'This custom class will be removed.'
+              : 'This class will be removed from your view.',
+          confirmLabel: 'Delete',
+          isDanger: true,
         );
         return ok ?? false;
       },

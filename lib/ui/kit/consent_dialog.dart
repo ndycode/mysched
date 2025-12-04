@@ -25,7 +25,6 @@ Future<bool> ensureScanConsent(BuildContext context) async {
   final theme = Theme.of(context);
   final colors = theme.colorScheme;
   final spacing = AppTokens.spacing;
-  final radius = AppTokens.radius;
 
   final agreed = await showDialog<bool>(
     context: context,
@@ -34,7 +33,7 @@ Future<bool> ensureScanConsent(BuildContext context) async {
       return AlertDialog(
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: radius.xl),
+        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
         contentPadding: spacing.edgeInsetsAll(spacing.xl),
         title: Text(
           'Before you scan',
@@ -88,8 +87,8 @@ Future<bool> ensureScanConsent(BuildContext context) async {
             style: FilledButton.styleFrom(
               backgroundColor: colors.primary,
               foregroundColor: colors.onPrimary,
-              minimumSize: const Size(0, 44),
-              shape: RoundedRectangleBorder(borderRadius: radius.lg),
+              minimumSize: Size(0, AppTokens.componentSize.buttonSm),
+              shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
             ),
             child: const Text('Agree & Continue'),
           ),

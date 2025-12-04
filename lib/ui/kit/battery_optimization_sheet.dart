@@ -15,8 +15,9 @@ class BatteryOptimizationDialog extends StatelessWidget {
     final spacing = AppTokens.spacing;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
       backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
       contentPadding: spacing.edgeInsetsAll(spacing.xl),
       actionsPadding: EdgeInsets.fromLTRB(

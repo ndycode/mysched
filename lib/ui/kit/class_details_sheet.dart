@@ -123,24 +123,12 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
 
   Future<void> _deleteCustom(sched.ClassDetails details) async {
     if (!details.isCustom || _deleteBusy) return;
-    final confirm = await showDialog<bool>(
+    final confirm = await AppModal.showConfirmDialog(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Delete custom class?'),
-            content: const Text(
-              'This class will be removed from your schedules and reminders.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
+          title: 'Delete custom class?',
+          message: 'This class will be removed from your schedules and reminders.',
+          confirmLabel: 'Delete',
+          isDanger: true,
         ) ??
         false;
     if (!confirm) return;
@@ -181,24 +169,61 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
             final trimmed = controller.text.trim();
             final canSubmit = trimmed.length >= 8;
             return AlertDialog(
-              title: const Text('Report a schedule issue'),
+              backgroundColor: Theme.of(context).colorScheme.surface,
+              surfaceTintColor: Colors.transparent,
+              shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
+              titlePadding: AppTokens.spacing.edgeInsetsOnly(
+                left: AppTokens.spacing.xl,
+                right: AppTokens.spacing.xl,
+                top: AppTokens.spacing.xl,
+                bottom: AppTokens.spacing.sm,
+              ),
+              contentPadding: AppTokens.spacing.edgeInsetsOnly(
+                left: AppTokens.spacing.xl,
+                right: AppTokens.spacing.xl,
+                bottom: AppTokens.spacing.lg,
+              ),
+              actionsPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
+              title: Text(
+                'Report a schedule issue',
+                style: AppTokens.typography.title.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Tell us what looks wrong so an administrator can review it.',
+                    style: AppTokens.typography.body.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
-                  SizedBox(height: AppTokens.spacing.md),
+                  SizedBox(height: AppTokens.spacing.lg),
                   TextField(
                     controller: controller,
                     maxLines: 4,
                     autofocus: true,
                     onChanged: (_) => setModalState(() {}),
-                    decoration: const InputDecoration(
-                      hintText:
-                          'Example: Time conflict, instructor mismatch...',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      hintText: 'Example: Time conflict, instructor mismatch...',
+                      filled: true,
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      border: OutlineInputBorder(
+                        borderRadius: AppTokens.radius.md,
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: AppTokens.radius.md,
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: AppTokens.radius.md,
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+                      ),
+                      contentPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.sm),
@@ -211,15 +236,19 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                 ],
               ),
               actions: [
-                TextButton(
+                SecondaryButton(
+                  label: 'Cancel',
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Cancel'),
+                  minHeight: AppTokens.componentSize.buttonSm,
+                  expanded: false,
                 ),
-                FilledButton(
+                PrimaryButton(
+                  label: 'Send report',
                   onPressed: canSubmit
                       ? () => Navigator.of(context).pop(trimmed)
                       : null,
-                  child: const Text('Send report'),
+                  minHeight: AppTokens.componentSize.buttonSm,
+                  expanded: false,
                 ),
               ],
             );

@@ -426,30 +426,12 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
 
   Future<void> _confirmResetSchedules() async {
     if (_controller.loading) return;
-    final confirm = await showDialog<bool>(
+    final confirm = await AppModal.showConfirmDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Reset schedules?'),
-          content: const Text(
-            'This will remove all linked classes and custom additions for this account. You can rescan or sync again later.',
-          ),
-          actions: [
-            SecondaryButton(
-              label: 'Cancel',
-              onPressed: () => Navigator.of(context).pop(false),
-              minHeight: AppTokens.componentSize.buttonSm,
-              expanded: false,
-            ),
-            PrimaryButton(
-              label: 'Reset',
-              onPressed: () => Navigator.of(context).pop(true),
-              minHeight: AppTokens.componentSize.buttonSm,
-              expanded: false,
-            ),
-          ],
-        );
-      },
+      title: 'Reset schedules?',
+      message: 'This will remove all linked classes and custom additions for this account. You can rescan or sync again later.',
+      confirmLabel: 'Reset',
+      isDanger: true,
     );
     if (confirm != true) return;
 

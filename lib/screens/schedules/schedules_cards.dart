@@ -1021,28 +1021,12 @@ class ScheduleRow extends StatelessWidget {
           children: [
             CustomSlidableAction(
               onPressed: (context) async {
-                final confirm = await showDialog<bool>(
+                final confirm = await AppModal.showConfirmDialog(
                   context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Delete custom class?'),
-                    content: const Text(
-                      'This class will be removed from your schedules and reminders.',
-                    ),
-                    actions: [
-                      SecondaryButton(
-                        label: 'Cancel',
-                        onPressed: () => Navigator.of(context).pop(false),
-                        minHeight: AppTokens.componentSize.buttonSm,
-                        expanded: false,
-                      ),
-                      PrimaryButton(
-                        label: 'Delete',
-                        onPressed: () => Navigator.of(context).pop(true),
-                        minHeight: AppTokens.componentSize.buttonSm,
-                        expanded: false,
-                      ),
-                    ],
-                  ),
+                  title: 'Delete custom class?',
+                  message: 'This class will be removed from your schedules and reminders.',
+                  confirmLabel: 'Delete',
+                  isDanger: true,
                 );
                 if (confirm == true) {
                   onDelete!();

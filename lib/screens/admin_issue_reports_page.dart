@@ -713,25 +713,41 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
     final colors = theme.colorScheme;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
-      contentPadding: spacing.edgeInsetsAll(spacing.xxl),
-      actionsPadding: EdgeInsets.fromLTRB(
-        spacing.xxl,
-        spacing.md,
-        spacing.xxl,
-        spacing.md,
+      backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
+      titlePadding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: spacing.xl,
+        bottom: spacing.sm,
       ),
-      title: const Text('Add a resolution note'),
+      contentPadding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        bottom: spacing.lg,
+      ),
+      actionsPadding: spacing.edgeInsetsAll(spacing.lg),
+      title: Text(
+        'Add a resolution note',
+        style: AppTokens.typography.title.copyWith(
+          fontWeight: FontWeight.w700,
+          color: colors.onSurface,
+        ),
+      ),
       content: SizedBox(
         width: 420,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Let other admins know what you changed so everyone stays informed.',
+              style: AppTokens.typography.body.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
             ),
-            SizedBox(height: spacing.md),
+            SizedBox(height: spacing.lg),
             TextField(
               controller: _controller,
               minLines: 3,
@@ -745,7 +761,21 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
               decoration: InputDecoration(
                 hintText:
                     'Example: Updated instructor to Prof. Cruz and corrected time slot.',
-                border: const OutlineInputBorder(),
+                filled: true,
+                fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                border: OutlineInputBorder(
+                  borderRadius: AppTokens.radius.md,
+                  borderSide: BorderSide(color: colors.outline),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: AppTokens.radius.md,
+                  borderSide: BorderSide(color: colors.outline.withValues(alpha: 0.5)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: AppTokens.radius.md,
+                  borderSide: BorderSide(color: colors.primary, width: 1.5),
+                ),
+                contentPadding: spacing.edgeInsetsAll(spacing.md),
                 errorText: _showValidation
                     ? 'Please add a short summary before resolving.'
                     : null,
@@ -755,16 +785,17 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
         ),
       ),
       actions: [
-        TextButton(
+        SecondaryButton(
+          label: 'Cancel',
           onPressed: () => Navigator.of(context).pop(null),
-          style: TextButton.styleFrom(
-            foregroundColor: colors.onSurfaceVariant,
-          ),
-          child: const Text('Cancel'),
+          minHeight: AppTokens.componentSize.buttonSm,
+          expanded: false,
         ),
-        FilledButton(
+        PrimaryButton(
+          label: 'Save note',
           onPressed: _handleSave,
-          child: const Text('Save note'),
+          minHeight: AppTokens.componentSize.buttonSm,
+          expanded: false,
         ),
       ],
     );

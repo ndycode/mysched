@@ -15,6 +15,7 @@ import '../../services/telemetry_service.dart';
 import '../../services/user_scope.dart';
 import '../../services/data_sync.dart';
 import '../../services/widget_service.dart';
+import '../../ui/theme/motion.dart';
 import '../../utils/schedule_overlap.dart' as schedule_overlap;
 import 'schedules_data.dart';
 
@@ -209,7 +210,7 @@ class SchedulesController extends ChangeNotifier {
       // Update home screen widget after a short delay to ensure data is persisted
       if (Platform.isAndroid) {
         debugPrint('[SchedulesController] Triggering widget update after schedule load');
-        await Future.delayed(const Duration(milliseconds: 300));
+        await Future.delayed(AppMotionSystem.medium);
         unawaited(WidgetService.updateWidgets());
       }
     } catch (error, stack) {

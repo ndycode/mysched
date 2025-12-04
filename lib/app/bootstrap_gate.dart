@@ -19,7 +19,7 @@ class BootstrapGate extends StatefulWidget {
 
   /// When true (typically under widget tests), skips the permission dialogs
   /// so FakeAsync timers do not linger.
-  static bool debugBypassPermissions = true; // TODO: Temp for testing
+  static bool debugBypassPermissions = false;
   static bool _alarmPromptCompleted = false;
 
   @override
@@ -218,7 +218,7 @@ class _SplashContentState extends State<_SplashContent>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 800),
+      duration: AppTokens.motion.slower * 1.6,
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -324,8 +324,9 @@ class _PermissionDialogState extends State<_PermissionDialog> {
     final badgeColor = widget.accent.withValues(alpha: isDark ? 0.28 : 0.14);
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
       backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
       contentPadding: spacing.edgeInsetsAll(spacing.xxl),
       content: Column(
@@ -371,7 +372,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
                 child: PrimaryButton(
                   label: 'Allow',
                   expanded: false,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   onPressed: () => Navigator.of(context).pop(true),
                 ),
               ),
@@ -395,8 +396,9 @@ class _PermissionSettingsDialog extends StatelessWidget {
     final spacing = AppTokens.spacing;
 
     return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
       backgroundColor: colors.surface,
+      surfaceTintColor: Colors.transparent,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
       contentPadding: spacing.edgeInsetsAll(spacing.xxl),
       content: Column(
@@ -432,7 +434,7 @@ class _PermissionSettingsDialog extends StatelessWidget {
                 child: PrimaryButton(
                   label: 'Open settings',
                   expanded: false,
-                  minHeight: 48,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   onPressed: () {
                     Navigator.of(context).pop();
                     openAppSettings();
@@ -816,8 +818,9 @@ class _StatusPill extends StatelessWidget {
       fg = optional ? AppTokens.lightColors.warning : colors.error;
     }
     
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.md, vertical: spacing.xs + 2),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: AppTokens.radius.sm,

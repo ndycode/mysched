@@ -60,16 +60,34 @@ class AppModal {
             minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
-          PrimaryButton(
-            label: confirmLabel,
-            onPressed: () {
-              onConfirm?.call();
-              Navigator.of(context).pop(true);
-            },
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-            backgroundColor: isDanger ? colors.error : null,
-          ),
+          if (isDanger)
+            FilledButton(
+              onPressed: () {
+                onConfirm?.call();
+                Navigator.of(context).pop(true);
+              },
+              style: FilledButton.styleFrom(
+                backgroundColor: colors.error,
+                foregroundColor: colors.onError,
+                minimumSize: Size(0, AppTokens.componentSize.buttonSm),
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.xl,
+                  vertical: spacing.md,
+                ),
+                shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
+              ),
+              child: Text(confirmLabel),
+            )
+          else
+            PrimaryButton(
+              label: confirmLabel,
+              onPressed: () {
+                onConfirm?.call();
+                Navigator.of(context).pop(true);
+              },
+              minHeight: AppTokens.componentSize.buttonSm,
+              expanded: false,
+            ),
         ],
       ),
     );

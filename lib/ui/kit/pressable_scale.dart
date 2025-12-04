@@ -315,7 +315,7 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
           padding: widget.padding,
           child: AnimatedScale(
             scale: _pressed && widget.enabled ? 0.985 : 1.0,
-            duration: const Duration(milliseconds: 80),
+            duration: AppMotionSystem.instant,
             curve: Curves.easeOut,
             child: widget.child,
           ),
@@ -375,8 +375,8 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 100),
-      reverseDuration: const Duration(milliseconds: 200),
+      duration: AppMotionSystem.fast,
+      reverseDuration: AppMotionSystem.standard,
     );
 
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.88).animate(
@@ -493,8 +493,8 @@ class _BouncyTapState extends State<BouncyTap>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 120),
-      reverseDuration: const Duration(milliseconds: 300),
+      duration: AppMotionSystem.fast,
+      reverseDuration: AppMotionSystem.medium,
     );
 
     _animation = Tween<double>(begin: 1.0, end: 0.9).animate(

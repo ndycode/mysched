@@ -380,26 +380,11 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   }
 
   Future<void> _confirmSignOut(BuildContext context) async {
-    final shouldSignOut = await showDialog<bool>(
+    final shouldSignOut = await AppModal.showConfirmDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Sign out?'),
-        content: const Text('You\'ll return to the login screen.'),
-        actions: [
-          SecondaryButton(
-            label: 'Cancel',
-            onPressed: () => Navigator.pop(ctx, false),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-          PrimaryButton(
-            label: 'Sign out',
-            onPressed: () => Navigator.pop(ctx, true),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-        ],
-      ),
+      title: 'Sign out?',
+      message: 'You\'ll return to the login screen.',
+      confirmLabel: 'Sign out',
     );
 
     if (shouldSignOut == true) {
@@ -488,7 +473,28 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
     final cropDimension = (screenWidth * 0.8).clamp(220.0, 360.0);
 
     return AlertDialog(
-      title: const Text('Crop profile photo'),
+      backgroundColor: theme.colorScheme.surface,
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
+      titlePadding: AppTokens.spacing.edgeInsetsOnly(
+        left: AppTokens.spacing.xl,
+        right: AppTokens.spacing.xl,
+        top: AppTokens.spacing.xl,
+        bottom: AppTokens.spacing.sm,
+      ),
+      contentPadding: AppTokens.spacing.edgeInsetsOnly(
+        left: AppTokens.spacing.xl,
+        right: AppTokens.spacing.xl,
+        bottom: AppTokens.spacing.lg,
+      ),
+      actionsPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
+      title: Text(
+        'Crop profile photo',
+        style: AppTokens.typography.title.copyWith(
+          fontWeight: FontWeight.w700,
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -510,7 +516,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
           SizedBox(height: AppTokens.spacing.md),
           Text(
             'Pinch to zoom and position yourself inside the square frame.',
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: AppTokens.typography.bodySecondary.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
             textAlign: TextAlign.center,

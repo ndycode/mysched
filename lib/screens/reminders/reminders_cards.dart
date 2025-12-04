@@ -793,24 +793,12 @@ class ReminderRow extends StatelessWidget {
   }
 
   Future<void> _handleDelete(BuildContext context) async {
-    final confirm = await showDialog<bool>(
+    final confirm = await AppModal.showConfirmDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete reminder?'),
-        content: const Text(
-          'This reminder will be permanently removed.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      title: 'Delete reminder?',
+      message: 'This reminder will be permanently removed.',
+      confirmLabel: 'Delete',
+      isDanger: true,
     );
     if (confirm == true) {
       onDelete();

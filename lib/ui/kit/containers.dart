@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/analytics_service.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 /// Card style variants for unified styling across the app.
@@ -74,8 +75,8 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 80),
-      reverseDuration: const Duration(milliseconds: 180),
+      duration: AppMotionSystem.instant,
+      reverseDuration: AppMotionSystem.quick,
     );
 
     _scaleAnimation = Tween<double>(begin: 1.0, end: 0.975).animate(

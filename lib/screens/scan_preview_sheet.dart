@@ -9,6 +9,7 @@ import '../env.dart';
 import '../models/schedule_class.dart';
 import '../models/section.dart' as model;
 import '../ui/kit/kit.dart';
+import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../utils/errors.dart';
 import '../utils/formatters.dart';
@@ -314,9 +315,8 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                                     }
                                     return AnimatedOpacity(
                                       opacity: frame == null ? 0 : 1,
-                                      duration:
-                                          const Duration(milliseconds: 200),
-                                      curve: Curves.easeInOut,
+                                      duration: AppMotionSystem.standard,
+                                      curve: AppMotionSystem.easeInOut,
                                       child: child,
                                     );
                                   },

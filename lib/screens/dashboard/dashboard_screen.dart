@@ -18,6 +18,7 @@ import '../../services/root_nav_controller.dart';
 import '../../services/schedule_api.dart' as sched;
 import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/kit.dart';
+import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
 import '../../widgets/instructor_avatar.dart';

@@ -10,6 +10,7 @@ import '../services/schedule_api.dart';
 import '../services/profile_cache.dart';
 import '../services/telemetry_service.dart';
 import '../ui/kit/kit.dart';
+import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../ui/theme/card_styles.dart';
 import '../utils/nav.dart';
@@ -810,7 +811,7 @@ class _AddClassFormState extends State<AddClassForm> {
       // Ensure the new class is visible to the scheduler
       await widget.api.refreshMyClasses();
       // Short delay to allow DB propagation if needed
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(AppMotionSystem.deliberate);
       
       await NotifScheduler.resync(api: widget.api);
       if (!mounted) return;

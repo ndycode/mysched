@@ -25,21 +25,12 @@ class AboutSheet extends StatelessWidget {
   }
 
   static Future<void> _showReleaseNotes(BuildContext context) {
-    return showDialog<void>(
+    return AppModal.showAlertDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Release notes'),
-        content: const Text(
-          'Thanks for using MySched! The full changelog lives in Settings → Updates. '
+      title: 'Release notes',
+      message: 'Thanks for using MySched! The full changelog lives in Settings → Updates. '
           'This quick view will link there once the hub is ready.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
+      icon: Icons.article_outlined,
     );
   }
 

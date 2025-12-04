@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../services/profile_cache.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'brand_header.dart';
 import 'layout.dart';
@@ -116,7 +117,7 @@ class _BrandScaffoldState extends State<BrandScaffold> {
       floatingActionButton: widget.floatingActionButton,
       body: AppBackground(
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 200),
+          duration: AppMotionSystem.standard,
           child: _loadingProfile && _profile.avatarUrl == null
               ? const Center(child: CircularProgressIndicator())
               : listView,

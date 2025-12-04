@@ -250,13 +250,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
           ),
           SizedBox(height: spacing.md),
           AnimatedSize(
-            duration: const Duration(milliseconds: 240),
-            curve: Curves.easeOutCubic,
+            duration: AppMotionSystem.medium,
+            curve: AppMotionSystem.easeOut,
             alignment: Alignment.topCenter,
             child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 200),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
+              duration: AppMotionSystem.standard,
+              switchInCurve: AppMotionSystem.easeOut,
+              switchOutCurve: AppMotionSystem.easeIn,
               transitionBuilder: (child, animation) => FadeTransition(
                 opacity: animation,
                 child: SlideTransition(

@@ -34,28 +34,12 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
   Future<void> _attemptDelete() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final confirmed = await showDialog<bool>(
+    final confirmed = await AppModal.showConfirmDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Delete account?'),
-        content: const Text(
-          'This permanently removes your schedule data. This action cannot be undone.',
-        ),
-        actions: [
-          SecondaryButton(
-            label: 'Cancel',
-            onPressed: () => Navigator.pop(ctx, false),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-          PrimaryButton(
-            label: 'Delete',
-            onPressed: () => Navigator.pop(ctx, true),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-        ],
-      ),
+      title: 'Delete account?',
+      message: 'This permanently removes your schedule data. This action cannot be undone.',
+      confirmLabel: 'Delete',
+      isDanger: true,
     );
 
     if (confirmed != true) return;

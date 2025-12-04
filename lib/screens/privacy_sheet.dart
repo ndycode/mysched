@@ -306,22 +306,11 @@ class PrivacySheet extends StatelessWidget {
   }
 
   static Future<void> _openFullPolicy(BuildContext context) {
-    return showDialog<void>(
+    return AppModal.showAlertDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Full privacy policy'),
-        content: const Text(
-          'A downloadable PDF is coming soon. For now, the full policy is mirrored in Settings → Updates.',
-        ),
-        actions: [
-          SecondaryButton(
-            label: 'Close',
-            onPressed: () => Navigator.of(context).pop(),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-        ],
-      ),
+      title: 'Full privacy policy',
+      message: 'A downloadable PDF is coming soon. For now, the full policy is mirrored in Settings → Updates.',
+      icon: Icons.picture_as_pdf_outlined,
     );
   }
 }

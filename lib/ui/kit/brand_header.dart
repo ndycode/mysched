@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/constants.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'hero_avatar.dart';
 import 'pressable_scale.dart';
@@ -139,7 +140,7 @@ class ScreenBrandHeader extends StatelessWidget {
     this.trailing,
     this.loading = false,
     this.animateSwap = true,
-    this.animationDuration = const Duration(milliseconds: 220),
+    this.animationDuration = AppMotionSystem.standard,
     this.showSkeletonAvatar = true,
     this.height,
     this.avatarRadius,

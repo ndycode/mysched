@@ -651,11 +651,11 @@ class _SettingsPageState extends State<SettingsPage> {
           screenName: 'settings',
           hero: hero,
           sections: sections,
-          padding: EdgeInsets.fromLTRB(
-            spacing.xl,
-            media.padding.top + spacing.xxxl,
-            spacing.xl,
-            spacing.quad + _kBottomNavSafePadding,
+          padding: spacing.edgeInsetsOnly(
+            left: spacing.xl,
+            right: spacing.xl,
+            top: media.padding.top + spacing.xxxl,
+            bottom: spacing.quad + _kBottomNavSafePadding,
           ),
           safeArea: false,
         );

@@ -109,10 +109,10 @@ class ScheduleClassListCard extends StatelessWidget {
     final hasClasses = groups.isNotEmpty && groups.any((g) => g.items.isNotEmpty);
 
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
           width: isDark ? 1 : 0.5,
@@ -146,7 +146,7 @@ class ScheduleClassListCard extends StatelessWidget {
                       colors.primary.withValues(alpha: 0.10),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppTokens.radius.md,
                   border: Border.all(
                     color: colors.primary.withValues(alpha: 0.25),
                     width: 1.5,
@@ -172,7 +172,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: spacing.xs),
                     Text(
                       dateLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -210,7 +210,7 @@ class ScheduleClassListCard extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: spacing.sm),
           Text(
             'Tap a class to view details, enable alarms, or edit reminders.',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -223,10 +223,10 @@ class ScheduleClassListCard extends StatelessWidget {
           // Class list
           if (!hasClasses) ...[
             Container(
-              padding: const EdgeInsets.all(32),
+              padding: spacing.edgeInsetsAll(spacing.xxl),
               decoration: BoxDecoration(
                 color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
                   width: 1,
@@ -235,7 +235,7 @@ class ScheduleClassListCard extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: spacing.edgeInsetsAll(spacing.lg),
                     decoration: BoxDecoration(
                       color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
@@ -246,7 +246,7 @@ class ScheduleClassListCard extends StatelessWidget {
                       color: colors.primary,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: spacing.xl),
                   Text(
                     'No classes scheduled',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -256,7 +256,7 @@ class ScheduleClassListCard extends StatelessWidget {
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: spacing.sm),
                   Text(
                     'Add a class or scan your student card to get started.',
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -273,7 +273,7 @@ class ScheduleClassListCard extends StatelessWidget {
               if (groups[g].items.isNotEmpty) ...[
                 // Day Header - Premium redesign
                 Container(
-                  padding: const EdgeInsets.all(12),
+                  padding: spacing.edgeInsetsAll(spacing.md),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -283,7 +283,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         colors.primary.withValues(alpha: 0.06),
                       ],
                     ),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: AppTokens.radius.md,
                     border: Border.all(
                       color: colors.primary.withValues(alpha: 0.20),
                       width: 1,
@@ -292,10 +292,10 @@ class ScheduleClassListCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(8),
+                        padding: spacing.edgeInsetsAll(spacing.sm),
                         decoration: BoxDecoration(
                           color: colors.primary.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: AppTokens.radius.sm,
                         ),
                         child: Icon(
                           Icons.calendar_today_rounded,
@@ -303,7 +303,7 @@ class ScheduleClassListCard extends StatelessWidget {
                           color: colors.primary,
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: spacing.md),
                       Expanded(
                         child: Text(
                           groups[g].label,
@@ -316,10 +316,10 @@ class ScheduleClassListCard extends StatelessWidget {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm + 2, vertical: spacing.xs + 1),
                         decoration: BoxDecoration(
                           color: colors.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: AppTokens.radius.sm,
                         ),
                         child: Text(
                           '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
@@ -333,7 +333,7 @@ class ScheduleClassListCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                const SizedBox(height: 12),
+                SizedBox(height: spacing.md),
 
                 // Classes for this day
                 for (var i = 0; i < groups[g].items.length; i++) ...[
@@ -349,9 +349,9 @@ class ScheduleClassListCard extends StatelessWidget {
                         ? () => onDelete!(groups[g].items[i].id)
                         : null,
                   ),
-                  if (i != groups[g].items.length - 1) const SizedBox(height: 10),
+                  if (i != groups[g].items.length - 1) SizedBox(height: spacing.sm + 2),
                 ],
-                if (g != groups.length - 1) const SizedBox(height: 20),
+                if (g != groups.length - 1) SizedBox(height: spacing.xl),
               ],
             ],
           ],
@@ -544,13 +544,14 @@ class ScheduleSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     final highlight = summary.highlight;
 
     final card = Container(
-      padding: const EdgeInsets.all(24),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
           width: isDark ? 1 : 0.5,
@@ -585,10 +586,10 @@ class ScheduleSummaryCard extends StatelessWidget {
               menuButton,
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           if (highlight != null) ...[
             _ScheduleHighlightHero(highlight: highlight, now: now),
-            const SizedBox(height: 20),
+            SizedBox(height: spacing.xl),
           ],
           Row(
             children: [
@@ -600,7 +601,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                   tint: colors.primary,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: _CompactMetricChip(
                   icon: Icons.toggle_off_outlined,
@@ -609,7 +610,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                   tint: colors.error,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: _CompactMetricChip(
                   icon: Icons.edit_outlined,
@@ -620,39 +621,24 @@ class ScheduleSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           Row(
             children: [
               Expanded(
-                child: FilledButton(
+                child: PrimaryButton(
+                  label: 'Add class',
                   onPressed: onAddClass,
-                  child: const Text(
-                    'Add class',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
+                  expanded: true,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
-                child: OutlinedButton(
+                child: SecondaryButton(
+                  label: 'Scan card',
                   onPressed: onScanCard,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: isDark ? colors.outline : const Color(0xFFE0E0E0),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Text(
-                    'Scan card',
-                    style: TextStyle(
-                      color: isDark ? colors.onSurface : const Color(0xFF424242),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
+                  expanded: true,
                 ),
               ),
             ],
@@ -678,6 +664,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     final item = highlight.item;
     final rawTitle = (item.title ?? item.code ?? '').trim();
     final subject = rawTitle.isEmpty ? 'Upcoming class' : rawTitle;
@@ -706,7 +693,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
@@ -716,7 +703,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
             colors.primary.withValues(alpha: 0.85),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
         boxShadow: [
           BoxShadow(
             color: colors.primary.withValues(alpha: 0.3),
@@ -732,10 +719,10 @@ class _ScheduleHighlightHero extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.md, vertical: spacing.sm - 1),
                 decoration: BoxDecoration(
                   color: foreground.withValues(alpha: 0.20),
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: AppTokens.radius.pill,
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -744,7 +731,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                       Container(
                         width: 8,
                         height: 8,
-                        margin: const EdgeInsets.only(right: 8),
+                        margin: EdgeInsets.only(right: spacing.sm),
                         decoration: BoxDecoration(
                           color: foreground,
                           shape: BoxShape.circle,
@@ -763,7 +750,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                         size: 16,
                         color: foreground,
                       ),
-                    if (!isLive) const SizedBox(width: 6),
+                    if (!isLive) SizedBox(width: spacing.xs + 2),
                     Text(
                       statusLabel,
                       style: theme.textTheme.labelLarge?.copyWith(
@@ -777,7 +764,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                 ),
               ),
               if (timeUntilText.isNotEmpty) ...[
-                const SizedBox(width: 10),
+                SizedBox(width: spacing.sm + 2),
                 Text(
                   timeUntilText,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -789,7 +776,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
               ],
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           
           // Class title
           Text(
@@ -804,16 +791,16 @@ class _ScheduleHighlightHero extends StatelessWidget {
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: spacing.lg + 2),
           
           // Time
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
                   color: foreground.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
                   Icons.access_time_rounded,
@@ -821,7 +808,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                   color: foreground,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -834,7 +821,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                         fontSize: 16,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    SizedBox(height: 2),
                     Text(
                       dateLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -849,14 +836,14 @@ class _ScheduleHighlightHero extends StatelessWidget {
           ),
           
           if (location.isNotEmpty) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: spacing.md + 2),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: spacing.edgeInsetsAll(spacing.sm),
                   decoration: BoxDecoration(
                     color: foreground.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppTokens.radius.sm,
                   ),
                   child: Icon(
                     Icons.place_outlined,
@@ -864,7 +851,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     color: foreground,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: spacing.md),
                 Expanded(
                   child: Text(
                     location,
@@ -882,12 +869,12 @@ class _ScheduleHighlightHero extends StatelessWidget {
           ],
           
           if (hasInstructor) ...[
-            const SizedBox(height: 16),
+            SizedBox(height: spacing.lg),
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: spacing.edgeInsetsAll(spacing.md),
               decoration: BoxDecoration(
                 color: foreground.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: AppTokens.radius.md,
               ),
               child: _ScheduleInstructorRow(
                 name: instructor,
@@ -969,12 +956,13 @@ class _ScheduleMetricChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: spacing.edgeInsetsAll(spacing.md + 2),
       decoration: BoxDecoration(
         color: isDark ? tint.withValues(alpha: 0.12) : const Color(0xFFF5F7FA),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: isDark ? tint.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
           width: isDark ? 1 : 0.5,
@@ -989,7 +977,7 @@ class _ScheduleMetricChip extends StatelessWidget {
             width: 32,
             decoration: BoxDecoration(
               color: tint.withValues(alpha: isDark ? 0.20 : 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppTokens.radius.sm,
             ),
             alignment: Alignment.center,
             child: Icon(
@@ -998,7 +986,7 @@ class _ScheduleMetricChip extends StatelessWidget {
               size: 18,
             ),
           ),
-          const SizedBox(height: 10),
+          SizedBox(height: spacing.sm + 2),
           Text(
             '$value',
             style: theme.textTheme.titleLarge?.copyWith(
@@ -1007,7 +995,7 @@ class _ScheduleMetricChip extends StatelessWidget {
               color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
             ),
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             label,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -1018,7 +1006,7 @@ class _ScheduleMetricChip extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          const SizedBox(height: 2),
+          SizedBox(height: 2),
           Text(
             caption,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -1053,12 +1041,13 @@ class _CompactMetricChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
         color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
           width: 1,
@@ -1068,10 +1057,10 @@ class _CompactMetricChip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: spacing.edgeInsetsAll(spacing.sm + 2),
             decoration: BoxDecoration(
               color: tint.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.sm,
             ),
             child: Icon(
               icon,
@@ -1079,7 +1068,7 @@ class _CompactMetricChip extends StatelessWidget {
               color: tint,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing.md),
           Text(
             '$value',
             style: theme.textTheme.headlineMedium?.copyWith(
@@ -1089,7 +1078,7 @@ class _CompactMetricChip extends StatelessWidget {
               color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: spacing.xs),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -1131,6 +1120,7 @@ class ScheduleRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     final now = DateTime.now();
     final nextStart = ScheduleClassListCard._nextOccurrence(item, now);
     final nextEnd = ScheduleClassListCard._endFor(item, nextStart);
@@ -1148,17 +1138,17 @@ class ScheduleRow extends StatelessWidget {
 
     final child = Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTokens.radius.lg,
       child: InkWell(
         onTap: onOpenDetails,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.md,
         splashColor: colors.primary.withValues(alpha: 0.05),
         highlightColor: colors.primary.withValues(alpha: 0.02),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: isLive 
                   ? colors.primary.withValues(alpha: 0.30)
@@ -1197,16 +1187,16 @@ class ScheduleRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing.md),
                   // Status badge or toggle
                   if (isLive || isNext)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm + 2, vertical: spacing.xs),
                       decoration: BoxDecoration(
                         color: isLive
                             ? colors.primary.withValues(alpha: 0.15)
                             : colors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
                         isLive ? 'Live' : 'Next',
@@ -1228,7 +1218,7 @@ class ScheduleRow extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: spacing.md),
               // Bottom row: Time, Location, Instructor
               Row(
                 children: [
@@ -1238,7 +1228,7 @@ class ScheduleRow extends StatelessWidget {
                     size: 16,
                     color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: spacing.xs + 2),
                   Text(
                     timeRange,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -1248,13 +1238,13 @@ class ScheduleRow extends StatelessWidget {
                     ),
                   ),
                   if (location.isNotEmpty) ...[
-                    const SizedBox(width: 16),
+                    SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
                       size: 16,
                       color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: spacing.xs + 2),
                     Expanded(
                       child: Text(
                         location,
@@ -1271,7 +1261,7 @@ class ScheduleRow extends StatelessWidget {
                 ],
               ),
               if (instructor.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: spacing.sm + 2),
                 Row(
                   children: [
                     if (instructorAvatar.isNotEmpty)
@@ -1305,7 +1295,7 @@ class ScheduleRow extends StatelessWidget {
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: spacing.sm),
                     Expanded(
                       child: Text(
                         instructor,
@@ -1332,7 +1322,7 @@ class ScheduleRow extends StatelessWidget {
     }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTokens.radius.lg,
       child: Slidable(
         key: ValueKey('dismiss-class-${item.id}'),
         endActionPane: ActionPane(
@@ -1349,13 +1339,17 @@ class ScheduleRow extends StatelessWidget {
                       'This class will be removed from your schedules and reminders.',
                     ),
                     actions: [
-                      TextButton(
+                      SecondaryButton(
+                        label: 'Cancel',
                         onPressed: () => Navigator.of(context).pop(false),
-                        child: const Text('Cancel'),
+                        minHeight: 44,
+                        expanded: false,
                       ),
-                      FilledButton(
+                      PrimaryButton(
+                        label: 'Delete',
                         onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Delete'),
+                        minHeight: 44,
+                        expanded: false,
                       ),
                     ],
                   ),

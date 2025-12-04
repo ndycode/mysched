@@ -39,7 +39,7 @@ class ScheduleMessageCard extends StatelessWidget {
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : Colors.white,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: 0.12)
@@ -62,7 +62,7 @@ class ScheduleMessageCard extends StatelessWidget {
           Row(
             children: [
               Icon(icon, color: colors.primary),
-              const SizedBox(width: 12),
+              SizedBox(width: AppTokens.spacing.md),
               Expanded(
                 child: Text(
                   title,
@@ -73,7 +73,7 @@ class ScheduleMessageCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppTokens.spacing.sm),
           Text(
             message,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -85,28 +85,18 @@ class ScheduleMessageCard extends StatelessWidget {
             Row(
               children: [
                 if (primaryLabel != null) ...[
-                  FilledButton(
+                  PrimaryButton(
+                    label: primaryLabel!,
                     onPressed: onPrimary,
-                    style: FilledButton.styleFrom(
-                      minimumSize: const Size(0, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppTokens.radius.xl,
-                      ),
-                    ),
-                    child: Text(primaryLabel!),
+                    minHeight: 48,
                   ),
                 ],
                 if (secondaryLabel != null) ...[
                   if (primaryLabel != null) SizedBox(width: AppTokens.spacing.md),
-                  OutlinedButton(
+                  SecondaryButton(
+                    label: secondaryLabel!,
                     onPressed: onSecondary,
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 48),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: AppTokens.radius.xl,
-                      ),
-                    ),
-                    child: Text(secondaryLabel!),
+                    minHeight: 48,
                   ),
                 ],
               ],
@@ -132,7 +122,7 @@ class OfflineBanner extends StatelessWidget {
         : 'You are viewing your saved schedule from '
             '${DateFormat('MMM d - h:mm a').format(lastSynced!)}.';
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg + 2),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: AppTokens.radius.lg,
@@ -143,7 +133,7 @@ class OfflineBanner extends StatelessWidget {
       child: Row(
         children: [
           Icon(Icons.cloud_off_outlined, color: colors.secondary),
-          const SizedBox(width: 12),
+          SizedBox(width: AppTokens.spacing.md),
           Expanded(
             child: Text(
               '$text We\'ll refresh automatically when you\'re back online.',

@@ -440,16 +440,17 @@ class DashboardScreenState extends State<DashboardScreen>
 
   Future<void> _editCustomClass(sched.ClassItem schedItem) async {
     final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
     final updated = await showOverlaySheet<bool>(
       context: context,
       alignment: Alignment.center,
       barrierDismissible: false,
       dimBackground: true,
-      padding: EdgeInsets.fromLTRB(
-        AppTokens.spacing.xl,
-        media.padding.top + AppTokens.spacing.xxl,
-        AppTokens.spacing.xl,
-        media.padding.bottom + AppTokens.spacing.xxl,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
       ),
       builder: (_) => AddClassSheet(
         api: widget.api,
@@ -463,6 +464,7 @@ class DashboardScreenState extends State<DashboardScreen>
 
   Future<void> _openClassDetails(ClassItem item) async {
     final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
     final base = _classSource[item.id];
     final sched.ClassItem schedItem = base ??
         sched.ClassItem(
@@ -483,11 +485,11 @@ class DashboardScreenState extends State<DashboardScreen>
       context: context,
       alignment: Alignment.center,
       dimBackground: true,
-      padding: EdgeInsets.fromLTRB(
-        AppTokens.spacing.xl,
-        media.padding.top + AppTokens.spacing.xxl,
-        AppTokens.spacing.xl,
-        media.padding.bottom + AppTokens.spacing.xxl,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
       ),
       builder: (_) => ClassDetailsSheet(
         api: widget.api,
@@ -527,15 +529,16 @@ class DashboardScreenState extends State<DashboardScreen>
 
   Future<void> _openAddReminder() async {
     final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
     final created = await showOverlaySheet<bool>(
       context: context,
       alignment: Alignment.center,
       dimBackground: true,
-      padding: EdgeInsets.fromLTRB(
-        AppTokens.spacing.xl,
-        media.padding.top + AppTokens.spacing.xxl,
-        AppTokens.spacing.xl,
-        media.padding.bottom + AppTokens.spacing.xxl,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
       ),
       builder: (_) => AddReminderSheet(api: _remindersApi),
     );
@@ -710,6 +713,8 @@ class DashboardScreenState extends State<DashboardScreen>
         _reminders.isEmpty;
 
     if (initialLoading) {
+      final spacing = AppTokens.spacing;
+      final media = MediaQuery.of(context);
       return ScreenShell(
         screenName: 'dashboard',
         hero: const ScreenHeroCard(
@@ -722,11 +727,11 @@ class DashboardScreenState extends State<DashboardScreen>
             child: SkeletonDashboardCard(),
           ),
         ],
-        padding: EdgeInsets.fromLTRB(
-          AppTokens.spacing.xl,
-          MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
-          AppTokens.spacing.xl,
-          AppTokens.spacing.xl,
+        padding: spacing.edgeInsetsOnly(
+          left: spacing.xl,
+          right: spacing.xl,
+          top: media.padding.top + spacing.xxxl,
+          bottom: spacing.xl,
         ),
         safeArea: false,
       );
@@ -785,11 +790,11 @@ class DashboardScreenState extends State<DashboardScreen>
             loading: !_profileHydrated,
           ),
           sections: sections,
-          padding: EdgeInsets.fromLTRB(
-            spacing.xl,
-            topInset + spacing.xxxl,
-            spacing.xl,
-            spacing.xl,
+          padding: spacing.edgeInsetsOnly(
+            left: spacing.xl,
+            right: spacing.xl,
+            top: topInset + spacing.xxxl,
+            bottom: spacing.xl,
           ),
           safeArea: false,
           onRefresh: _refreshAll,
@@ -833,7 +838,7 @@ class DashboardScreenState extends State<DashboardScreen>
           onPrimary: _loadReminders,
         ),
       );
-      addSpacing(12);
+      addSpacing(AppTokens.spacing.md);
     }
 
     addSection(
@@ -845,7 +850,7 @@ class DashboardScreenState extends State<DashboardScreen>
         reminderAlert: reminderAlert,
         scopeMessage: scopeMessage,
         refreshLabel: refreshLabel,
-        onReviewReminders: reminderAlert != null ? _openReminders : null,
+        onReviewReminders: _openReminders,
         onViewDetails: _openClassDetails,
         onToggleEnabled: _applyClassEnabled,
         onViewSchedule: _openSchedules,

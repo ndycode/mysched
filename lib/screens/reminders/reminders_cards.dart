@@ -38,6 +38,7 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
 
   @override
   Widget build(BuildContext context) {
+    final spacing = AppTokens.spacing;
     // This build method is for non-sliver usage (if any), 
     // but ScreenShell uses buildSlivers.
     // We'll just return a Column of cards.
@@ -45,7 +46,7 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
       children: [
         header,
         ...group.items.map((entry) => Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: spacing.edgeInsetsOnly(bottom: spacing.md),
           child: ReminderRow(
             entry: entry,
             timeFormat: timeFormat,
@@ -66,6 +67,7 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
     double maxWidth,
     EdgeInsetsGeometry horizontalPadding,
   ) {
+    final spacing = AppTokens.spacing;
     // We use SliverToBoxAdapter for the header to avoid sticky behavior 
     // overlapping with the box style headers.
     return [
@@ -88,7 +90,7 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxWidth),
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
+                    padding: spacing.edgeInsetsOnly(bottom: spacing.md),
                     child: ReminderRow(
                       entry: entry,
                       timeFormat: timeFormat,
@@ -138,26 +140,14 @@ class ReminderSummaryCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final highlight = summary.highlight;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
-    final card = Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
-          width: isDark ? 1 : 0.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+    final card = CardX(
+      padding: spacing.edgeInsetsAll(spacing.xl),
+      backgroundColor: isDark ? colors.surfaceContainerHigh : Colors.white,
+      borderColor:
+          isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+      borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -178,18 +168,18 @@ class ReminderSummaryCard extends StatelessWidget {
               if (menuButton != null) menuButton!,
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           if (highlight != null) ...[
             ReminderHighlightHero(highlight: highlight, now: now),
-            const SizedBox(height: 20),
+            SizedBox(height: spacing.xl),
           ] else ...[
             // Empty State
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(32),
+              padding: spacing.edgeInsetsAll(spacing.xxxl),
               decoration: BoxDecoration(
                 color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
                   width: 1,
@@ -198,7 +188,7 @@ class ReminderSummaryCard extends StatelessWidget {
               child: Column(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: spacing.edgeInsetsAll(spacing.lg),
                     decoration: BoxDecoration(
                       color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
                       shape: BoxShape.circle,
@@ -209,7 +199,7 @@ class ReminderSummaryCard extends StatelessWidget {
                       color: colors.primary,
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: spacing.xl),
                   Text(
                     'All caught up',
                     style: theme.textTheme.titleMedium?.copyWith(
@@ -243,7 +233,7 @@ class ReminderSummaryCard extends StatelessWidget {
                   value: summary.pending,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: ReminderMetricChip(
                   icon: Icons.warning_amber_rounded,
@@ -252,7 +242,7 @@ class ReminderSummaryCard extends StatelessWidget {
                   value: summary.overdue,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: ReminderMetricChip(
                   icon: Icons.snooze_rounded,
@@ -263,39 +253,22 @@ class ReminderSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           Row(
             children: [
               Expanded(
-                child: FilledButton(
+                child: PrimaryButton(
+                  label: 'New reminder',
                   onPressed: onCreate,
-                  child: const Text(
-                    'New reminder',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
-                child: OutlinedButton(
+                child: SecondaryButton(
+                  label: showCompleted ? 'Hide completed' : 'Show completed',
                   onPressed: onToggleCompleted,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: isDark ? colors.outline : const Color(0xFFE0E0E0),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Text(
-                    showCompleted ? 'Hide completed' : 'Show completed',
-                    style: TextStyle(
-                      color: isDark ? colors.onSurface : const Color(0xFF424242),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
                 ),
               ),
             ],
@@ -345,6 +318,7 @@ class ReminderHighlightHero extends StatelessWidget {
       ReminderHighlightStatus.upcoming => 'Next',
     };
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     final baseColor = colors.primary;
     final gradient = [
       baseColor,
@@ -364,14 +338,14 @@ class ReminderHighlightHero extends StatelessWidget {
     final details = entry.details?.trim() ?? '';
 
     return Container(
-      padding: const EdgeInsets.all(24),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: gradient,
         ),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
         boxShadow: [
           BoxShadow(
             color: shadowColor,
@@ -391,7 +365,7 @@ class ReminderHighlightHero extends StatelessWidget {
                 background: foreground.withValues(alpha: 0.20),
                 foreground: foreground,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: spacing.md),
               if (subtitle.isNotEmpty)
                 Text(
                   subtitle,
@@ -403,7 +377,7 @@ class ReminderHighlightHero extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.xl),
           Text(
             title,
             maxLines: 2,
@@ -416,14 +390,14 @@ class ReminderHighlightHero extends StatelessWidget {
               letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: spacing.lg + spacing.xs),
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
                   color: foreground.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
                   Icons.access_time_rounded,
@@ -431,7 +405,7 @@ class ReminderHighlightHero extends StatelessWidget {
                   color: foreground,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: Text(
                   scheduleWindow,
@@ -445,14 +419,14 @@ class ReminderHighlightHero extends StatelessWidget {
             ],
           ),
           if (details.isNotEmpty) ...[
-            const SizedBox(height: 14),
+            SizedBox(height: spacing.md + spacing.xs),
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: spacing.edgeInsetsAll(spacing.sm),
                   decoration: BoxDecoration(
                     color: foreground.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: AppTokens.radius.sm,
                   ),
                   child: Icon(
                     Icons.notes_rounded,
@@ -460,7 +434,7 @@ class ReminderHighlightHero extends StatelessWidget {
                     color: foreground,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: spacing.md),
                 Expanded(
                   child: Text(
                     details,
@@ -562,12 +536,13 @@ class ReminderMetricChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: spacing.edgeInsetsAll(spacing.md),
       decoration: BoxDecoration(
         color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
           width: 1,
@@ -577,10 +552,10 @@ class ReminderMetricChip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: spacing.edgeInsetsAll(spacing.md),
             decoration: BoxDecoration(
               color: tint.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.md,
             ),
             child: Icon(
               icon,
@@ -588,7 +563,7 @@ class ReminderMetricChip extends StatelessWidget {
               color: tint,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing.md),
           Text(
             '$value',
             style: theme.textTheme.headlineMedium?.copyWith(
@@ -807,15 +782,16 @@ class ReminderRow extends StatelessWidget {
             : colors.primary;
 
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     final child = InkWell(
       onTap: () => _showDetails(context),
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: AppTokens.radius.lg,
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: spacing.edgeInsetsAll(spacing.lg),
         decoration: BoxDecoration(
           color: tileBackground,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: AppTokens.radius.lg,
           border: Border.all(
             color: isActive 
                 ? colors.primary.withValues(alpha: 0.30)
@@ -882,8 +858,8 @@ class ReminderRow extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            
+            SizedBox(height: spacing.md),
+             
             // Bottom Row: Time + Details
             Row(
               children: [
@@ -892,7 +868,7 @@ class ReminderRow extends StatelessWidget {
                   size: 16,
                   color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                 ),
-                const SizedBox(width: 6),
+                SizedBox(width: spacing.sm),
                 Text(
                   timeLabel,
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -902,13 +878,13 @@ class ReminderRow extends StatelessWidget {
                   ),
                 ),
                 if (details.isNotEmpty) ...[
-                  const SizedBox(width: 16),
+                  SizedBox(width: spacing.lg),
                   Icon(
                     Icons.notes_rounded,
                     size: 16,
                     color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: spacing.sm),
                   Expanded(
                     child: Text(
                       details,
@@ -927,7 +903,7 @@ class ReminderRow extends StatelessWidget {
             
             if (snoozeUntil != null)
               Padding(
-                padding: const EdgeInsets.only(top: 8),
+                padding: spacing.edgeInsetsOnly(top: spacing.sm),
                 child: Row(
                   children: [
                     Icon(
@@ -935,7 +911,7 @@ class ReminderRow extends StatelessWidget {
                       size: 14,
                       color: palette.warning,
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: spacing.sm),
                     Text(
                       'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
                       style: theme.textTheme.bodySmall?.copyWith(
@@ -1023,15 +999,16 @@ class ReminderRow extends StatelessWidget {
 
   Future<void> _showDetails(BuildContext context) async {
     final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
     await showOverlaySheet(
       context: context,
       alignment: Alignment.center,
       dimBackground: true,
-      padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 24,
-        20,
-        media.padding.bottom + 24,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
       ),
       builder: (context) => ReminderDetailsSheet(
         entry: entry,
@@ -1148,26 +1125,14 @@ class ReminderListCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
-          width: isDark ? 1 : 0.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+    return CardX(
+      padding: spacing.edgeInsetsAll(spacing.xl),
+      backgroundColor: isDark ? colors.surfaceContainerHigh : Colors.white,
+      borderColor:
+          isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+      borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1296,25 +1261,26 @@ class ReminderListCard extends StatelessWidget {
         : isToday
             ? colors.primary
             : (isDark ? colors.onSurfaceVariant : const Color(0xFF616161));
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: spacing.edgeInsetsAll(spacing.md),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: gradientColors,
         ),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.lg,
         border: Border.all(color: borderColor, width: 1),
       ),
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: spacing.edgeInsetsAll(spacing.sm),
             decoration: BoxDecoration(
               color: baseColor.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.md,
             ),
             child: Icon(
               icon,
@@ -1322,7 +1288,7 @@ class ReminderListCard extends StatelessWidget {
               color: textColor,
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: spacing.md),
           Expanded(
             child: Text(
               label,
@@ -1335,10 +1301,13 @@ class ReminderListCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.md,
+              vertical: spacing.sm,
+            ),
             decoration: BoxDecoration(
               color: baseColor.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: AppTokens.radius.sm,
             ),
             child: Text(
               '$count ${count == 1 ? 'reminder' : 'reminders'}',

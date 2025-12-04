@@ -75,25 +75,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
 
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
-          width: isDark ? 1 : 0.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+    return CardX(
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -112,7 +95,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                       colors.primary.withValues(alpha: 0.10),
                     ],
                   ),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: AppTokens.radius.md,
                   border: Border.all(
                     color: colors.primary.withValues(alpha: 0.25),
                     width: 1.5,
@@ -138,7 +121,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                         color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: spacing.xs),
                     Text(
                       dateLabel,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -317,10 +300,10 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   : Container(
                       key: ValueKey('empty-$selectedScope-$query'),
                       width: double.infinity,
-                      padding: const EdgeInsets.all(32),
+                      padding: spacing.edgeInsetsAll(spacing.xxxl),
                       decoration: BoxDecoration(
                         color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
-                        borderRadius: BorderRadius.circular(16),
+                        borderRadius: AppTokens.radius.lg,
                         border: Border.all(
                           color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
                           width: 1,
@@ -329,7 +312,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                       child: Column(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            padding: spacing.edgeInsetsAll(spacing.lg),
                             decoration: BoxDecoration(
                               color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
                               shape: BoxShape.circle,
@@ -342,7 +325,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                               color: colors.primary,
                             ),
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: spacing.xl),
                           Text(
                             hasQuery
                                 ? 'No matches found'
@@ -356,7 +339,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
+                          SizedBox(height: spacing.sm),
                           Text(
                             hasQuery
                                 ? 'Try a different name, classroom, or scope.'
@@ -391,6 +374,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final widgets = <Widget>[];
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     final dividerColor = colors.outlineVariant.withValues(
       alpha: theme.brightness == Brightness.dark ? 0.24 : 0.12,
     );
@@ -398,9 +382,9 @@ class _DashboardSchedulePeek extends StatelessWidget {
     Widget buildSectionHeader(String label, Color color, IconData icon, int count) {
       final isDark = theme.brightness == Brightness.dark;
       return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: spacing.edgeInsetsOnly(bottom: spacing.md),
         child: Container(
-          padding: const EdgeInsets.all(12),
+          padding: spacing.edgeInsetsAll(spacing.md),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -410,7 +394,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 color.withValues(alpha: 0.06),
               ],
             ),
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: color.withValues(alpha: 0.20),
               width: 1,
@@ -419,10 +403,10 @@ class _DashboardSchedulePeek extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
                   icon,
@@ -430,7 +414,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   color: color,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: Text(
                   label,
@@ -443,10 +427,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.md,
+                  vertical: spacing.xs + 1,
+                ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: AppTokens.radius.sm,
                 ),
                 child: Text(
                   '$count ${count == 1 ? 'class' : 'classes'}',
@@ -505,37 +492,11 @@ class _DashboardSchedulePeek extends StatelessWidget {
   }
 
   Widget _buildReviewButton() {
-    return FilledButton(
+    return PrimaryButton(
+      label: 'Review schedule',
       onPressed: refreshing ? null : onOpenSchedules,
-      style: FilledButton.styleFrom(
-        minimumSize: const Size.fromHeight(50),
-        shape: RoundedRectangleBorder(
-          borderRadius: AppTokens.radius.xl,
-        ),
-        padding: AppTokens.spacing.edgeInsetsSymmetric(
-          horizontal: AppTokens.spacing.lg,
-          vertical: AppTokens.spacing.sm,
-        ),
-        foregroundColor: colors.onPrimary,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        children: [
-          Flexible(
-            child: Text(
-              'Review schedule',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w600,
-                fontSize: 16,
-                color: colors.onPrimary,
-              ),
-            ),
-          ),
-        ],
-      ),
+      minHeight: 52,
+      expanded: true,
     );
   }
 }
@@ -558,6 +519,7 @@ class _ScheduleRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     
     final item = occurrence.item;
     final subject = item.subject;
@@ -574,17 +536,17 @@ class _ScheduleRow extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTokens.radius.lg,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.md,
         splashColor: colors.primary.withValues(alpha: 0.05),
         highlightColor: colors.primary.withValues(alpha: 0.02),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: isOngoing 
                   ? colors.primary.withValues(alpha: 0.30)
@@ -623,17 +585,20 @@ class _ScheduleRow extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing.md),
                   if (isOngoing || isNext || isPast)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: spacing.edgeInsetsSymmetric(
+                        horizontal: spacing.md,
+                        vertical: spacing.xs,
+                      ),
                       decoration: BoxDecoration(
                         color: isOngoing
                             ? colors.primary.withValues(alpha: 0.15)
                             : isPast 
                                 ? (isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5))
                                 : colors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
                         isOngoing ? 'Live' : (isPast ? 'Done' : 'Next'),
@@ -650,7 +615,7 @@ class _ScheduleRow extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: spacing.lg),
               // Bottom row: Time, Location, Instructor
               Row(
                 children: [
@@ -660,7 +625,7 @@ class _ScheduleRow extends StatelessWidget {
                     size: 16,
                     color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: spacing.xs + 2),
                   Text(
                     timeRange,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -670,13 +635,13 @@ class _ScheduleRow extends StatelessWidget {
                     ),
                   ),
                   if (location.isNotEmpty) ...[
-                    const SizedBox(width: 16),
+                    SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
                       size: 16,
                       color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: spacing.xs + 2),
                     Expanded(
                       child: Text(
                         location,
@@ -693,7 +658,7 @@ class _ScheduleRow extends StatelessWidget {
                 ],
               ),
               if (instructor.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: spacing.sm + 2),
                 Row(
                   children: [
                     if (instructorAvatar.isNotEmpty)
@@ -727,7 +692,7 @@ class _ScheduleRow extends StatelessWidget {
                           ),
                         ),
                       ),
-                    const SizedBox(width: 8),
+                    SizedBox(width: spacing.sm),
                     Expanded(
                       child: Text(
                         instructor,

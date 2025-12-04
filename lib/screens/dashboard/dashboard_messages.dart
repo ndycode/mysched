@@ -95,44 +95,22 @@ class _DashboardMessageCard extends StatelessWidget {
               children: [
                 if (primaryLabel != null)
                   Expanded(
-                    child: FilledButton(
+                    child: PrimaryButton(
+                      label: primaryLabel!,
                       onPressed: onPrimary,
-                      style: FilledButton.styleFrom(
-                        backgroundColor: colors.primary,
-                        foregroundColor: colors.onPrimary,
-                        padding: spacing.edgeInsetsSymmetric(vertical: spacing.md),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppTokens.radius.lg,
-                        ),
-                        textStyle: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                        ),
-                      ),
-                      child: Text(primaryLabel!),
+                      minHeight: 48,
+                      expanded: true,
                     ),
                   ),
                 if (primaryLabel != null && secondaryLabel != null)
                   SizedBox(width: spacing.md),
                 if (secondaryLabel != null)
                   Expanded(
-                    child: OutlinedButton(
+                    child: SecondaryButton(
+                      label: secondaryLabel!,
                       onPressed: onSecondary,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: colors.onSurface,
-                        side: BorderSide(
-                          color: colors.outline.withValues(alpha: 0.3),
-                        ),
-                        padding: spacing.edgeInsetsSymmetric(vertical: spacing.md),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: AppTokens.radius.lg,
-                        ),
-                        textStyle: theme.textTheme.labelLarge?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                        ),
-                      ),
-                      child: Text(secondaryLabel!),
+                      minHeight: 48,
+                      expanded: true,
                     ),
                   ),
               ],

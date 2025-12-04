@@ -89,14 +89,15 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
 
   Future<void> _openAddPage([ReminderEntry? editing]) async {
     final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
     final changed = await showOverlaySheet<bool>(
       context: context,
       alignment: Alignment.center,
-      padding: EdgeInsets.fromLTRB(
-        20,
-        media.padding.top + 24,
-        20,
-        media.padding.bottom + 24,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
       ),
       builder: (_) => AddReminderSheet(
         api: widget._apiOverride ?? RemindersApi(),
@@ -183,6 +184,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return PopupMenuButton<_ReminderSummaryMenu>(
       onSelected: (action) {
@@ -217,14 +219,17 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.newReminder),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.lg,
+                  vertical: spacing.md,
+                ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
                         color: colors.primary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.add_alarm_rounded,
@@ -232,7 +237,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.primary,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: spacing.lg),
                     Text(
                       'New reminder',
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -255,14 +260,17 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.toggleCompleted),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.lg,
+                  vertical: spacing.md,
+                ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
                         color: colors.secondary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         _controller.showCompleted
@@ -272,7 +280,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.secondary,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: spacing.lg),
                     Text(
                       _controller.showCompleted ? 'Hide completed' : 'Show completed',
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -290,7 +298,10 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         PopupMenuItem<_ReminderSummaryMenu>(
           enabled: false,
           height: 1,
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: spacing.edgeInsetsSymmetric(
+            horizontal: spacing.lg,
+            vertical: spacing.sm,
+          ),
           child: Container(
             height: 1,
             decoration: BoxDecoration(
@@ -312,14 +323,17 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.resetReminders),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.lg,
+                  vertical: spacing.md,
+                ),
                 child: Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
                         color: colors.error.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.restart_alt_rounded,
@@ -327,7 +341,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.error,
                       ),
                     ),
-                    const SizedBox(width: 14),
+                    SizedBox(width: spacing.lg),
                     Text(
                       'Reset reminders',
                       style: theme.textTheme.bodyLarge?.copyWith(
@@ -374,11 +388,11 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           showChevron: false,
           loading: !_controller.profileHydrated,
         );
-        final shellPadding = EdgeInsets.fromLTRB(
-          spacing.xl,
-          media.padding.top + spacing.xxxl,
-          spacing.xl,
-          spacing.quad + _bottomNavSafePadding,
+        final shellPadding = spacing.edgeInsetsOnly(
+          left: spacing.xl,
+          right: spacing.xl,
+          top: media.padding.top + spacing.xxxl,
+          bottom: spacing.quad + _bottomNavSafePadding,
         );
 
         if (_controller.loading) {

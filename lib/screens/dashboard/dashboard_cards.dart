@@ -34,26 +34,10 @@ class _DashboardSummaryCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final hero = upcoming.primary;
+    final spacing = AppTokens.spacing;
 
-    final card = Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
-          width: isDark ? 1 : 0.5,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.06),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-      ),
+    final card = CardX(
+      padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -74,14 +58,14 @@ class _DashboardSummaryCard extends StatelessWidget {
               if (refreshLabel != null) _RefreshChip(label: refreshLabel!),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.lg),
           if (hero != null) ...[
             _UpcomingHeroTile(
               occurrence: hero,
               isLive: upcoming.isActive,
               onViewDetails: onViewDetails,
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: spacing.lg),
           ],
           Row(
             children: [
@@ -93,7 +77,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                   tint: colors.primary,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: _CompactMetricChip(
                   icon: Icons.class_rounded,
@@ -102,7 +86,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                   tint: colors.secondary,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: _CompactMetricChip(
                   icon: Icons.task_alt_rounded,
@@ -113,39 +97,24 @@ class _DashboardSummaryCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 20),
+          SizedBox(height: spacing.lg),
           Row(
             children: [
               Expanded(
-                child: FilledButton(
+                child: PrimaryButton(
+                  label: 'View schedule',
                   onPressed: onViewSchedule,
-                  child: const Text(
-                    'View schedule',
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
+                  expanded: true,
                 ),
               ),
-              const SizedBox(width: 12),
+              SizedBox(width: spacing.md),
               Expanded(
-                child: OutlinedButton(
+                child: SecondaryButton(
+                  label: 'Reminders',
                   onPressed: onReviewReminders,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: isDark ? colors.outline : const Color(0xFFE0E0E0),
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Text(
-                    'Reminders',
-                    style: TextStyle(
-                      color: isDark ? colors.onSurface : const Color(0xFF424242),
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  minHeight: 48,
+                  expanded: true,
                 ),
               ),
             ],
@@ -219,12 +188,13 @@ class _CompactMetricChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
         color: isDark ? tint.withValues(alpha: 0.12) : tint.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: tint.withValues(alpha: 0.20),
           width: 1,
@@ -234,10 +204,10 @@ class _CompactMetricChip extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
+            padding: spacing.edgeInsetsAll(spacing.sm),
             decoration: BoxDecoration(
               color: tint.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: AppTokens.radius.sm,
             ),
             child: Icon(
               icon,
@@ -245,7 +215,7 @@ class _CompactMetricChip extends StatelessWidget {
               color: tint,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: spacing.md),
           Text(
             value,
             style: theme.textTheme.headlineMedium?.copyWith(
@@ -255,7 +225,7 @@ class _CompactMetricChip extends StatelessWidget {
               color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: spacing.xs),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -372,6 +342,7 @@ class _UpcomingHeroTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     final subject = occurrence.item.subject;
     final timeLabel =
         '${DateFormat('h:mm a').format(occurrence.start).toUpperCase()} - ${DateFormat('h:mm a').format(occurrence.end).toUpperCase()}';
@@ -394,12 +365,12 @@ class _UpcomingHeroTile extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTokens.radius.lg,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
         onTap: () => onViewDetails(occurrence.item),
         child: Container(
-          padding: const EdgeInsets.all(24),
+          padding: spacing.edgeInsetsAll(spacing.xxl),
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -409,7 +380,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                 colors.primary.withValues(alpha: 0.85),
               ],
             ),
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: AppTokens.radius.lg,
             boxShadow: [
               BoxShadow(
                 color: colors.primary.withValues(alpha: 0.3),
@@ -425,10 +396,13 @@ class _UpcomingHeroTile extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+                    padding: spacing.edgeInsetsSymmetric(
+                      horizontal: spacing.md,
+                      vertical: spacing.sm,
+                    ),
                     decoration: BoxDecoration(
                       color: foreground.withValues(alpha: 0.20),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: AppTokens.radius.pill,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -437,7 +411,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                           Container(
                             width: 8,
                             height: 8,
-                            margin: const EdgeInsets.only(right: 8),
+                            margin: spacing.edgeInsetsOnly(right: spacing.sm),
                             decoration: BoxDecoration(
                               color: foreground,
                               shape: BoxShape.circle,
@@ -456,7 +430,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                             size: 16,
                             color: foreground,
                           ),
-                        if (!isLive) const SizedBox(width: 6),
+                        if (!isLive) SizedBox(width: spacing.xs + 2),
                         Text(
                           statusLabel,
                           style: theme.textTheme.labelLarge?.copyWith(
@@ -470,7 +444,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                     ),
                   ),
                   if (timeUntilText.isNotEmpty) ...[
-                    const SizedBox(width: 10),
+                    SizedBox(width: spacing.sm + 2),
                     Text(
                       timeUntilText,
                       style: theme.textTheme.bodyMedium?.copyWith(
@@ -482,7 +456,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ],
                 ],
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: spacing.xl),
               
               // Class title
               Text(
@@ -497,16 +471,16 @@ class _UpcomingHeroTile extends StatelessWidget {
                   letterSpacing: -0.5,
                 ),
               ),
-              const SizedBox(height: 18),
+              SizedBox(height: spacing.lg + 2),
               
               // Time
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(8),
+                    padding: spacing.edgeInsetsAll(spacing.sm),
                     decoration: BoxDecoration(
                       color: foreground.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: AppTokens.radius.sm,
                     ),
                     child: Icon(
                       Icons.access_time_rounded,
@@ -514,7 +488,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                       color: foreground,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing.md),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -527,7 +501,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                             fontSize: 16,
                           ),
                         ),
-                        const SizedBox(height: 2),
+                        SizedBox(height: 2),
                         Text(
                           dateLabel,
                           style: theme.textTheme.bodyMedium?.copyWith(
@@ -540,17 +514,17 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: spacing.md + 2),
               
               // Location
               if (location.isNotEmpty) ...[
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
                         color: foreground.withValues(alpha: 0.15),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.place_outlined,
@@ -558,7 +532,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         color: foreground,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: spacing.md),
                     Expanded(
                       child: Text(
                         location,
@@ -576,15 +550,15 @@ class _UpcomingHeroTile extends StatelessWidget {
               ],
               
               // Instructor
-              if (occurrence.item.instructor.isNotEmpty) ...[
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: foreground.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
+                if (occurrence.item.instructor.isNotEmpty) ...[
+                  SizedBox(height: spacing.lg),
+                  Container(
+                    padding: spacing.edgeInsetsAll(spacing.md),
+                    decoration: BoxDecoration(
+                      color: foreground.withValues(alpha: 0.12),
+                      borderRadius: AppTokens.radius.md,
+                    ),
+                    child: Row(
                     children: [
                       InstructorAvatar(
                         name: occurrence.item.instructor,
@@ -595,7 +569,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         inverse: true,
                         size: 26,
                       ),
-                      const SizedBox(width: 6),
+                      SizedBox(width: spacing.xs + 2),
                       Expanded(
                         child: Text(
                           occurrence.item.instructor,
@@ -656,17 +630,17 @@ class _UpcomingListTile extends StatelessWidget {
 
     return Material(
       color: Colors.transparent,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: AppTokens.radius.lg,
       child: InkWell(
         onTap: () => onViewDetails(occurrence.item),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: AppTokens.radius.md,
         splashColor: colors.primary.withValues(alpha: 0.05),
         highlightColor: colors.primary.withValues(alpha: 0.02),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : Colors.white,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: (isLive || isNext) && !disabled
                   ? colors.primary.withValues(alpha: 0.30)
@@ -707,17 +681,20 @@ class _UpcomingListTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: spacing.md),
                   if (!disabled)
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: spacing.edgeInsetsSymmetric(
+                        horizontal: spacing.md,
+                        vertical: spacing.xs,
+                      ),
                       decoration: BoxDecoration(
                         color: isLive
                             ? colors.primary.withValues(alpha: 0.15)
                             : isPast 
                                 ? (isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5))
                                 : colors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
                         isLive ? 'Live' : (isPast ? 'Done' : 'Next'),
@@ -734,10 +711,13 @@ class _UpcomingListTile extends StatelessWidget {
                     ),
                   if (disabled)
                      Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: spacing.edgeInsetsSymmetric(
+                        horizontal: spacing.md,
+                        vertical: spacing.xs,
+                      ),
                       decoration: BoxDecoration(
                         color: colors.error.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
                         'Off',
@@ -750,7 +730,7 @@ class _UpcomingListTile extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: spacing.md),
               // Bottom row: Time, Location, Toggle
               Row(
                 children: [
@@ -759,7 +739,7 @@ class _UpcomingListTile extends StatelessWidget {
                     size: 16,
                     color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                   ),
-                  const SizedBox(width: 6),
+                  SizedBox(width: spacing.xs + 2),
                   Text(
                     timeRange,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -769,13 +749,13 @@ class _UpcomingListTile extends StatelessWidget {
                     ),
                   ),
                   if (location.isNotEmpty) ...[
-                    const SizedBox(width: 16),
+                    SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
                       size: 16,
                       color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
                     ),
-                    const SizedBox(width: 6),
+                    SizedBox(width: spacing.xs + 2),
                     Expanded(
                       child: Text(
                         location,
@@ -805,7 +785,7 @@ class _UpcomingListTile extends StatelessWidget {
                 ],
               ),
               if (instructor.isNotEmpty) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: spacing.sm + 2),
                 _InstructorRow(
                   name: instructor,
                   avatarUrl: occurrence.item.instructorAvatar,
@@ -907,12 +887,13 @@ class _DashboardMetricChip extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: highlight
               ? tint.withValues(alpha: 0.3)
@@ -945,10 +926,10 @@ class _DashboardMetricChip extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
                   color: tint.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: AppTokens.radius.md,
                 ),
                 child: Icon(icon, size: 20, color: tint),
               ),
@@ -966,7 +947,7 @@ class _DashboardMetricChip extends StatelessWidget {
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: spacing.lg),
           Text(
             value,
             style: theme.textTheme.headlineSmall?.copyWith(
@@ -976,7 +957,7 @@ class _DashboardMetricChip extends StatelessWidget {
               height: 1.0,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: spacing.xs),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
@@ -986,7 +967,7 @@ class _DashboardMetricChip extends StatelessWidget {
             ),
           ),
           if (caption.isNotEmpty) ...[
-            const SizedBox(height: 8),
+            SizedBox(height: spacing.sm),
             Text(
               caption,
               style: theme.textTheme.bodySmall?.copyWith(

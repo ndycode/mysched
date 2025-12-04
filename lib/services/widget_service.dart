@@ -1,47 +1,49 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:home_widget/home_widget.dart';
 import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/utils/app_log.dart';
+
+const _scope = 'WidgetService';
 
 /// Service to manage Android home screen widgets
 class WidgetService {
   static Future<void> initialize() async {
-    debugPrint('[WidgetService] Initializing...');
+    AppLog.debug(_scope, 'Initializing...');
     await HomeWidget.setAppGroupId('com.example.mysched');
-    debugPrint('[WidgetService] Initialized');
+    AppLog.debug(_scope, 'Initialized');
   }
 
   /// Update all widgets with latest data
   static Future<void> updateWidgets() async {
     try {
-      debugPrint('[WidgetService] Starting widget update...');
+      AppLog.debug(_scope, 'Starting widget update...');
       final api = ScheduleApi();
       final classes = await api.getMyClasses();
-      debugPrint('[WidgetService] Fetched ${classes.length} classes');
+      AppLog.debug(_scope, 'Fetched ${classes.length} classes');
       
       final now = DateTime.now();
-      debugPrint('[WidgetService] Current time: $now, weekday: ${now.weekday}');
+      AppLog.debug(_scope, 'Current time: $now, weekday: ${now.weekday}');
       
       // Filter enabled classes only
       final enabledClasses = classes.where((c) => c.enabled).toList();
-      debugPrint('[WidgetService] ${enabledClasses.length} enabled classes');
+      AppLog.debug(_scope, '${enabledClasses.length} enabled classes');
       
       // Get next upcoming class
       final nextClass = _getNextClass(enabledClasses, now);
       
       if (nextClass != null) {
-        debugPrint('[WidgetService] Next class found: ${nextClass.title ?? nextClass.code}');
+        AppLog.debug(_scope, 'Next class found: ${nextClass.title ?? nextClass.code}');
         final isOngoing = nextClass.start.compareTo('${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}') <= 0;
         await _saveNextClassData(nextClass, now, isOngoing);
       } else {
-        debugPrint('[WidgetService] No next class found, clearing widget data');
+        AppLog.debug(_scope, 'No next class found, clearing widget data');
         await HomeWidget.saveWidgetData<String>('next_class_subject', null);
         await HomeWidget.saveWidgetData<String>('next_class_time', null);
         await HomeWidget.saveWidgetData<String>('next_class_location', null);
       }
       
       // Update widgets
-      debugPrint('[WidgetService] Triggering widget update on native side...');
+      AppLog.debug(_scope, 'Triggering widget update on native side...');
       
       // Use platform channel to update all widget instances
       try {
@@ -55,10 +57,9 @@ class WidgetService {
         );
       }
       
-      debugPrint('[WidgetService] Widget update complete');
+      AppLog.debug(_scope, 'Widget update complete');
     } catch (e, stack) {
-      debugPrint('[WidgetService] Widget update failed: $e');
-      debugPrint('[WidgetService] Stack trace: $stack');
+      AppLog.error(_scope, 'Widget update failed', error: e, stack: stack);
     }
   }
 
@@ -66,24 +67,24 @@ class WidgetService {
     final currentDay = now.weekday; // 1 = Monday, 7 = Sunday
     final currentTime = '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
     
-    debugPrint('[WidgetService] Looking for current/next class on day $currentDay at $currentTime');
+    AppLog.debug(_scope, 'Looking for current/next class on day $currentDay at $currentTime');
     
     ClassItem? currentClass;
     ClassItem? nextClass;
     String? minTime;
     
     for (final classItem in classes) {
-      debugPrint('[WidgetService] Checking class: ${classItem.title ?? classItem.code}, day=${classItem.day}, start=${classItem.start}, end=${classItem.end}');
+      AppLog.debug(_scope, 'Checking class: ${classItem.title ?? classItem.code}, day=${classItem.day}, start=${classItem.start}, end=${classItem.end}');
       
       // Check if class occurs today
       if (classItem.day != currentDay) {
-        debugPrint('[WidgetService]   Skipped: wrong day (${classItem.day} != $currentDay)');
+        AppLog.debug(_scope, '  Skipped: wrong day (${classItem.day} != $currentDay)');
         continue;
       }
       
       // Check if class is currently ongoing
       if (classItem.start.compareTo(currentTime) <= 0 && classItem.end.compareTo(currentTime) > 0) {
-        debugPrint('[WidgetService]   Found ongoing class!');
+        AppLog.debug(_scope, '  Found ongoing class!');
         currentClass = classItem;
         break; // Prioritize current class
       }
@@ -91,23 +92,23 @@ class WidgetService {
       // Check for next upcoming class
       if (classItem.start.compareTo(currentTime) > 0) {
         if (minTime == null || classItem.start.compareTo(minTime) < 0) {
-          debugPrint('[WidgetService]   Selected as next class');
+          AppLog.debug(_scope, '  Selected as next class');
           minTime = classItem.start;
           nextClass = classItem;
         }
       } else {
-        debugPrint('[WidgetService]   Skipped: already ended (${classItem.start} <= $currentTime < ${classItem.end})');
+        AppLog.debug(_scope, '  Skipped: already ended (${classItem.start} <= $currentTime < ${classItem.end})');
       }
     }
     
     final result = currentClass ?? nextClass;
     
     if (result == null) {
-      debugPrint('[WidgetService] No current or upcoming class found for today');
+      AppLog.debug(_scope, 'No current or upcoming class found for today');
     } else if (currentClass != null) {
-      debugPrint('[WidgetService] Showing CURRENT class: ${result.title ?? result.code} (${result.start} - ${result.end})');
+      AppLog.debug(_scope, 'Showing CURRENT class: ${result.title ?? result.code} (${result.start} - ${result.end})');
     } else {
-      debugPrint('[WidgetService] Showing NEXT class: ${result.title ?? result.code} at ${result.start}');
+      AppLog.debug(_scope, 'Showing NEXT class: ${result.title ?? result.code} at ${result.start}');
     }
     
     return result;
@@ -123,13 +124,13 @@ class WidgetService {
     final instructor = classItem.instructor ?? '';
     final instructorAvatar = classItem.instructorAvatar ?? '';
     
-    debugPrint('[WidgetService] Saving widget data:');
-    debugPrint('[WidgetService]   Subject: $subject');
-    debugPrint('[WidgetService]   Time: $timeLabel');
-    debugPrint('[WidgetService]   Location: $location');
-    debugPrint('[WidgetService]   Instructor: $instructor');
-    debugPrint('[WidgetService]   Instructor Avatar: $instructorAvatar');
-    debugPrint('[WidgetService]   Is Ongoing: $isOngoing');
+    AppLog.debug(_scope, 'Saving widget data', data: {
+      'subject': subject,
+      'time': timeLabel,
+      'location': location,
+      'instructor': instructor,
+      'isOngoing': isOngoing,
+    });
     
     await HomeWidget.saveWidgetData<String>('next_class_subject', subject);
     await HomeWidget.saveWidgetData<String>('next_class_time', timeLabel);

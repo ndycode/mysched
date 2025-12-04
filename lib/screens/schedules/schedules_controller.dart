@@ -16,8 +16,11 @@ import '../../services/user_scope.dart';
 import '../../services/data_sync.dart';
 import '../../services/widget_service.dart';
 import '../../ui/theme/motion.dart';
+import '../../utils/app_log.dart';
 import '../../utils/schedule_overlap.dart' as schedule_overlap;
 import 'schedules_data.dart';
+
+const _scope = 'SchedulesController';
 
 class SchedulesController extends ChangeNotifier {
   SchedulesController({
@@ -209,7 +212,7 @@ class SchedulesController extends ChangeNotifier {
       notifyListeners();
       // Update home screen widget after a short delay to ensure data is persisted
       if (Platform.isAndroid) {
-        debugPrint('[SchedulesController] Triggering widget update after schedule load');
+        AppLog.debug(_scope, 'Triggering widget update after schedule load');
         await Future.delayed(AppMotionSystem.medium);
         unawaited(WidgetService.updateWidgets());
       }
@@ -276,7 +279,7 @@ class SchedulesController extends ChangeNotifier {
       await NotifScheduler.resync(api: _api);
       // Update home screen widget
       if (Platform.isAndroid) {
-        debugPrint('[SchedulesController] Triggering widget update after class toggle');
+        AppLog.debug(_scope, 'Triggering widget update after class toggle');
         unawaited(WidgetService.updateWidgets());
       }
     } catch (error) {

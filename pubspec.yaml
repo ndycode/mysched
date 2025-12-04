@@ -52,7 +52,6 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/guides/
     - assets/icon/
   fonts:
     - family: SFProRounded

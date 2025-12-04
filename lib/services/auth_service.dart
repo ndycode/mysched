@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../env.dart';
+import '../ui/theme/motion.dart';
 import '../utils/local_notifs.dart';
 import '../utils/validation_utils.dart';
 import 'offline_cache_service.dart';
@@ -141,7 +142,7 @@ class AuthService {
     for (var i = 0; i < 3; i++) {
       profile = await _loadAndPersistProfile();
       if (profile != null) break;
-      await _sleep(const Duration(milliseconds: 200));
+      await _sleep(AppMotionSystem.standard); // 200ms
     }
   }
 
@@ -282,7 +283,7 @@ class AuthService {
   }) async {
     const maxAttempts = 3;
     var attempt = 0;
-    var delay = const Duration(milliseconds: 300);
+    var delay = AppMotionSystem.medium; // 300ms
     while (true) {
       attempt += 1;
       try {

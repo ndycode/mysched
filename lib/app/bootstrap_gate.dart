@@ -104,11 +104,10 @@ class _BootstrapGateState extends State<BootstrapGate> {
   Future<void> _showAlarmPrompt() async {
     if (!mounted) return;
     if (BootstrapGate.debugBypassPermissions) return;
-    // Skip if already fully ready (useful across hot restarts).
+    // Skip if critical permissions are ready (battery optimization is optional).
     final readiness = await LocalNotifs.alarmReadiness();
     final alreadyReady = readiness.exactAlarmAllowed &&
-        readiness.notificationsAllowed &&
-        readiness.ignoringBatteryOptimizations;
+        readiness.notificationsAllowed;
     if (alreadyReady) {
       BootstrapGate._alarmPromptCompleted = true;
       return;

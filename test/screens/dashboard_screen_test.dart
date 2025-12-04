@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/screens/dashboard/dashboard_screen.dart';
@@ -116,9 +115,12 @@ void main() {
   });
 
   testWidgets('shows schedule error and retries via loader override', (tester) async {
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.physicalSizeTestValue = const Size(1200, 2400);
-    binding.window.devicePixelRatioTestValue = 1.0;
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
 
     final scheduleApi = _FakeScheduleApi();
 
@@ -133,8 +135,5 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Schedules not refreshed'), findsOneWidget);
-
-    binding.window.clearPhysicalSizeTestValue();
-    binding.window.clearDevicePixelRatioTestValue();
   });
 }

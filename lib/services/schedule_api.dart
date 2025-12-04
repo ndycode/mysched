@@ -2,7 +2,9 @@ import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../utils/app_exceptions.dart';
+import '../utils/app_log.dart';
 import '../utils/instructor_utils.dart';
+import '../ui/theme/motion.dart';
 import 'connection_monitor.dart';
 import 'data_sync.dart';
 import 'offline_queue.dart';
@@ -10,7 +12,8 @@ import 'telemetry_service.dart';
 import 'user_scope.dart';
 
 const _maxRetries = 3;
-const _initialRetryDelay = Duration(milliseconds: 300);
+const _scope = 'ScheduleApi';
+final _initialRetryDelay = AppMotionSystem.medium; // 300ms
 
 class ClassItem {
   final int id;
@@ -761,7 +764,7 @@ class ScheduleApi {
         units: random['units'] != null ? (random['units'] as num).toInt() : null,
       );
     } catch (e) {
-      debugPrint('Error fetching random class: $e');
+      AppLog.error(_scope, 'Error fetching random class', error: e);
       return null;
     }
   }

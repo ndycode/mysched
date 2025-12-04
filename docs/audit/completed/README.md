@@ -12,6 +12,7 @@
 | Spacing | ✅ Uses `AppTokens.spacing.*` |
 | Colors | ✅ Uses `colorScheme.*` |
 | Icon Sizes | ✅ Uses `AppTokens.iconSize.*` |
+| Image Caching | ✅ Uses `cacheWidth`/`cacheHeight` |
 
 ---
 
@@ -26,6 +27,7 @@ Displays instructor avatars with initials fallback.
 | Sizing | Configurable via `size` param (default 28) |
 | BorderRadius | `BorderRadius.circular(size)` - circular avatar |
 | Typography | `textTheme.labelSmall` |
+| Image Caching | `cacheWidth`/`cacheHeight` based on device pixel ratio |
 
 ### schedule_list.dart ✅ COMPLETE  
 Reusable schedule list grouped by day with toggle, delete, and refresh support.
@@ -33,22 +35,25 @@ Reusable schedule list grouped by day with toggle, delete, and refresh support.
 | Pattern | Implementation |
 |---------|----------------|
 | Colors | `colorScheme.primary/error/tertiary/onSurface/onSurfaceVariant` |
-| Spacing | `AppTokens.spacing.md/sm/xs` |
+| Spacing | `spacing.edgeInsetsOnly(...)`, `spacing.edgeInsetsSymmetric(...)` |
 | BorderRadius | `AppTokens.radius.md` |
 | Typography | `textTheme.headlineSmall/titleMedium/bodySmall` |
 | Icon Sizes | `AppTokens.iconSize.sm` |
 
 ---
 
-## Migrated Items
+## Migrated Items (December 5, 2025)
 
-| File | Line | Before | After |
-|------|------|--------|-------|
-| schedule_list.dart | 238 | `Colors.white` | `colors.onError` |
-| schedule_list.dart | 100 | `SizedBox(height: 12)` | `SizedBox(height: AppTokens.spacing.md)` |
-| schedule_list.dart | 306 | `fontSize: 15` | `fontSize: AppTokens.typography.body.fontSize` |
-| schedule_list.dart | 313 | `SizedBox(width: 8)` | `SizedBox(width: AppTokens.spacing.sm)` |
-| schedule_list.dart | 333 | `SizedBox(height: 6)` | `SizedBox(height: AppTokens.spacing.xs)` |
+| File | Before | After |
+|------|--------|-------|
+| schedule_list.dart | `EdgeInsets.fromLTRB(16, 16, 16, 24)` | `spacing.edgeInsetsOnly(...)` |
+| schedule_list.dart | `EdgeInsets.only(top: 16, bottom: 8)` | `spacing.edgeInsetsOnly(top: spacing.lg, bottom: spacing.sm)` |
+| schedule_list.dart | `EdgeInsets.only(right: 16)` | `spacing.edgeInsetsOnly(right: spacing.lg)` |
+| schedule_list.dart | `EdgeInsets.symmetric(vertical: 4, horizontal: 8)` | `spacing.edgeInsetsSymmetric(...)` |
+| schedule_list.dart | `EdgeInsets.symmetric(horizontal: 16, vertical: 14)` | `spacing.edgeInsetsSymmetric(...)` |
+| schedule_list.dart | `EdgeInsets.only(right: 12)` | `spacing.edgeInsetsOnly(right: spacing.md)` |
+| schedule_list.dart | `EdgeInsets.symmetric(vertical: 12)` | `spacing.edgeInsetsSymmetric(vertical: spacing.md)` |
+| instructor_avatar.dart | `Image.network(...)` | Added `cacheWidth`/`cacheHeight` |
 
 ---
 

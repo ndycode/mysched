@@ -3,6 +3,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../utils/app_exceptions.dart';
 import '../utils/pagination.dart';
+import '../ui/theme/motion.dart';
 import 'connection_monitor.dart';
 import 'data_sync.dart';
 import 'offline_queue.dart';
@@ -10,7 +11,7 @@ import '../utils/extensions/reminder_entry_ext.dart';
 
 const _noValue = Object();
 const _maxRetries = 3;
-const _initialDelay = Duration(milliseconds: 300);
+final _initialDelay = AppMotionSystem.medium; // 300ms
 
 enum ReminderStatus { pending, completed }
 

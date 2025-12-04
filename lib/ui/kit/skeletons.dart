@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 /// Lightweight animated block used to mimic loading content with shimmer effect.
@@ -23,7 +24,7 @@ class _SkeletonBlockState extends State<SkeletonBlock>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 1400),
+    duration: AppMotionSystem.long + AppMotionSystem.deliberate + AppMotionSystem.fast, // ~1400ms
   )..repeat();
 
   @override

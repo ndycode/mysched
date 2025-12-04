@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
@@ -115,9 +114,6 @@ void main() {
   });
 
   setUp(() {
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.physicalSizeTestValue = const Size(1200, 2400);
-    binding.window.devicePixelRatioTestValue = 1.0;
     SharedPreferences.setMockInitialValues(<String, Object>{});
     OfflineCacheService.resetForTests();
     ProfileCache.clear();
@@ -130,9 +126,6 @@ void main() {
   });
 
   tearDown(() {
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.clearPhysicalSizeTestValue();
-    binding.window.clearDevicePixelRatioTestValue();
     AuthService.resetTestOverrides();
   });
 

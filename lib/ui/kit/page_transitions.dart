@@ -32,38 +32,38 @@ class SmoothPageRoute<T> extends PageRouteBuilder<T> {
   static Duration _getDuration(PageTransitionType type) {
     switch (type) {
       case PageTransitionType.fadeSlideUp:
-        return const Duration(milliseconds: 350);
+        return AppMotionSystem.medium + AppMotionSystem.staggerStandard; // 350ms
       case PageTransitionType.slideUp:
-        return const Duration(milliseconds: 400);
+        return AppMotionSystem.slow; // 400ms
       case PageTransitionType.slideRight:
-        return const Duration(milliseconds: 350);
+        return AppMotionSystem.medium + AppMotionSystem.staggerStandard; // 350ms
       case PageTransitionType.scaleUp:
-        return const Duration(milliseconds: 400);
+        return AppMotionSystem.slow; // 400ms
       case PageTransitionType.fade:
-        return const Duration(milliseconds: 250);
+        return AppMotionSystem.standard + AppMotionSystem.staggerStandard; // 250ms
       case PageTransitionType.sharedAxis:
-        return const Duration(milliseconds: 400);
+        return AppMotionSystem.slow; // 400ms
       case PageTransitionType.fadeThrough:
-        return const Duration(milliseconds: 500);
+        return AppMotionSystem.deliberate; // 500ms
     }
   }
 
   static Duration _getReverseDuration(PageTransitionType type) {
     switch (type) {
       case PageTransitionType.fadeSlideUp:
-        return const Duration(milliseconds: 300);
+        return AppMotionSystem.medium; // 300ms
       case PageTransitionType.slideUp:
-        return const Duration(milliseconds: 350);
+        return AppMotionSystem.medium + AppMotionSystem.staggerStandard; // 350ms
       case PageTransitionType.slideRight:
-        return const Duration(milliseconds: 300);
+        return AppMotionSystem.medium; // 300ms
       case PageTransitionType.scaleUp:
-        return const Duration(milliseconds: 300);
+        return AppMotionSystem.medium; // 300ms
       case PageTransitionType.fade:
-        return const Duration(milliseconds: 200);
+        return AppMotionSystem.standard; // 200ms
       case PageTransitionType.sharedAxis:
-        return const Duration(milliseconds: 350);
+        return AppMotionSystem.medium + AppMotionSystem.staggerStandard; // 350ms
       case PageTransitionType.fadeThrough:
-        return const Duration(milliseconds: 400);
+        return AppMotionSystem.slow; // 400ms
     }
   }
 

@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../ui/theme/motion.dart';
+
 /// Persists the user's preferred theme and exposes transition hints so we can
 /// mask palette swaps with a soft overlay.
 enum AppThemeMode {
@@ -34,7 +36,7 @@ class ThemeController {
   }
 
   static const String _storageKey = 'ui_theme_mode_v2';
-  static const Duration _overlayDuration = Duration(milliseconds: 260);
+  static final Duration _overlayDuration = AppMotionSystem.standard + AppMotionSystem.staggerSlow - AppMotionSystem.staggerFast; // ~250ms
 
   final ValueNotifier<AppThemeMode> mode =
       ValueNotifier<AppThemeMode>(AppThemeMode.system);

@@ -11,9 +11,12 @@ import '../models/section.dart' as model;
 import '../ui/kit/kit.dart';
 import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
+import '../utils/app_log.dart';
 import '../utils/errors.dart';
 import '../utils/formatters.dart';
 import '../utils/supa.dart';
+
+const _scope = 'ScanPreview';
 
 class ScanPreviewOutcome {
   const ScanPreviewOutcome._({
@@ -114,8 +117,7 @@ class _ScanPreviewSheetState extends State<ScanPreviewSheet> {
         ),
       );
     } catch (error, stack) {
-      debugPrint('scan_preview_sheet: OCR failed -> $error');
-      debugPrint('$stack');
+      AppLog.error(_scope, 'OCR failed', error: error, stack: stack);
       if (!mounted) return;
       setState(() => _error = friendlyError(error.toString()));
     } finally {

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/services/user_scope.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import '../test_helpers/supabase_stub.dart';
 
 void main() {

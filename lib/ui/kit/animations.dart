@@ -229,7 +229,7 @@ class ShimmerEffect extends StatelessWidget {
     super.key,
     required this.child,
     this.enabled = true,
-    this.duration = const Duration(milliseconds: 1200),
+    this.duration = const Duration(milliseconds: 1200), // ~AppMotionSystem.long + slow
   });
 
   final Widget child;
@@ -259,7 +259,7 @@ class BreathingEffect extends StatelessWidget {
     this.maxScale = 1.0,
     this.minOpacity = 0.7,
     this.maxOpacity = 1.0,
-    this.duration = const Duration(milliseconds: 1500),
+    this.duration = const Duration(milliseconds: 1500), // ~AppMotionSystem.long + deliberate + standard
   });
 
   final Widget child;
@@ -761,7 +761,7 @@ class SkeletonLoader extends StatelessWidget {
     )
         .animate(onPlay: (c) => c.repeat())
         .shimmer(
-          duration: const Duration(milliseconds: 1200),
+          duration: AppMotionSystem.long + AppMotionSystem.slow, // ~1200ms
           color: colors.onSurface.withValues(alpha: isDark ? 0.1 : 0.04),
         );
   }

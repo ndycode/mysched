@@ -20,10 +20,12 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: compact
-          ? const EdgeInsets.symmetric(horizontal: 10, vertical: 5)
-          : const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.md - 2,
+        vertical: compact ? spacing.xs + 1 : spacing.xs + 2,
+      ),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.pill,

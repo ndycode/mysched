@@ -55,12 +55,17 @@ class InstructorAvatar extends StatelessWidget {
       return fallback;
     }
 
+    // Calculate cache dimensions based on device pixel ratio
+    final cacheSize = (size * MediaQuery.devicePixelRatioOf(context)).toInt();
+
     return ClipOval(
       child: Image.network(
         url,
         width: size,
         height: size,
         fit: BoxFit.cover,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
         errorBuilder: (_, __, ___) => fallback,
       ),
     );

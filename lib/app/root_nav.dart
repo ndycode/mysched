@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/reminder_scope.dart';
+import '../ui/theme/motion.dart';
 import '../screens/add_class_page.dart';
 import '../screens/add_reminder_page.dart';
 import '../screens/dashboard/dashboard_screen.dart';
@@ -61,7 +62,7 @@ class _RootNavState extends State<RootNav>
     super.initState();
     _quickSheetController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 280),
+      duration: AppMotionSystem.medium - AppMotionSystem.staggerFast, // ~270ms
     );
     RootNavController.attach(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {

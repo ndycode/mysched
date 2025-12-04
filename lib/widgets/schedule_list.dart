@@ -83,12 +83,18 @@ class ScheduleList extends StatelessWidget {
       }
     }
 
+    final spacing = AppTokens.spacing;
     return RefreshIndicator(
       onRefresh: onRefresh,
       color: colors.primary,
       backgroundColor: Colors.transparent,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        padding: spacing.edgeInsetsOnly(
+          left: spacing.lg,
+          top: spacing.lg,
+          right: spacing.lg,
+          bottom: spacing.xxl,
+        ),
         children: [
           Text(
             title,
@@ -101,7 +107,7 @@ class ScheduleList extends StatelessWidget {
           for (var d = 1; d <= 7; d++)
             if (byDay[d]!.isNotEmpty) ...[
               Padding(
-                padding: const EdgeInsets.only(top: 16, bottom: 8),
+                padding: spacing.edgeInsetsOnly(top: spacing.lg, bottom: spacing.sm),
                 child: Text(
                   _dayLabel(d),
                   style: theme.textTheme.bodySmall?.copyWith(
@@ -227,13 +233,14 @@ class _Row extends StatelessWidget {
         ? colors.primary.withValues(alpha: 0.24)
         : Colors.transparent;
 
+    final spacing = AppTokens.spacing;
     return Dismissible(
       key: ValueKey(
           '${c.isCustom == true ? 'C' : 'B'}-${c.day}-${c.start}-${c.end}-$titleOrCode-$room'),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
+        padding: spacing.edgeInsetsOnly(right: spacing.lg),
         color: colors.error,
         child: Icon(Icons.delete, color: colors.onError),
       ),
@@ -251,13 +258,13 @@ class _Row extends StatelessWidget {
       },
       onDismissed: (_) => onDelete(),
       child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        margin: spacing.edgeInsetsSymmetric(vertical: spacing.xs, horizontal: spacing.sm),
         decoration: BoxDecoration(
           color: background,
           borderRadius: AppTokens.radius.md,
           border: Border.all(color: border),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + 2),
         child: Column(
           children: [
             Row(
@@ -271,7 +278,7 @@ class _Row extends StatelessWidget {
                         children: [
                           if (c.isCustom == true)
                             Padding(
-                              padding: const EdgeInsets.only(right: 12),
+                              padding: spacing.edgeInsetsOnly(right: spacing.md),
                               child: Switch.adaptive(
                                 value: c.enabled,
                                 onChanged: onToggle,
@@ -349,7 +356,7 @@ class _Row extends StatelessWidget {
             ),
             if (showDivider)
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12),
+                padding: spacing.edgeInsetsSymmetric(vertical: spacing.md),
                 child: Divider(
                   height: 1,
                   color: colors.outline.withValues(alpha: 0.25),

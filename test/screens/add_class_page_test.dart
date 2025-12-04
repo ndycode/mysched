@@ -1,4 +1,3 @@
-// ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -11,20 +10,16 @@ void main() {
   setUpAll(() async {
     await SupabaseTestBootstrap.ensureInitialized();
   });
-  setUp(() {
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.physicalSizeTestValue = const Size(1200, 2400);
-    binding.window.devicePixelRatioTestValue = 1.0;
-  });
-
-  tearDown(() {
-    final binding = TestWidgetsFlutterBinding.ensureInitialized();
-    binding.window.clearPhysicalSizeTestValue();
-    binding.window.clearDevicePixelRatioTestValue();
-  });
 
   testWidgets('custom instructor field stays available on lookup failure',
       (tester) async {
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     final api = _ThrowingScheduleApi();
 
     await tester.pumpWidget(
@@ -57,12 +52,19 @@ void main() {
   });
 
   testWidgets('prevents overlapping custom class save', (tester) async {
+    tester.view.physicalSize = const Size(1200, 2400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     final today = DateTime.now().weekday;
     final api = _OverlapGuardApi(today);
 
     await tester.pumpWidget(
       MaterialApp(
-        home: AddClassPage(api: api),
+        home: Scaffold(body: AddClassPage(api: api)),
       ),
     );
 

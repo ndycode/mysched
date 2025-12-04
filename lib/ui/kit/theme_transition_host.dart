@@ -65,7 +65,7 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
       _animating = true;
     });
 
-    await Future<void>.delayed(const Duration(milliseconds: 16));
+    await Future<void>.delayed(AppTokens.motion.instant ~/ 5); // ~16ms frame
     await ThemeController.instance.setMode(mode);
     await _controller.forward();
     _controller.reset();

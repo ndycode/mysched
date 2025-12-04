@@ -13,8 +13,11 @@ import '../ui/kit/kit.dart';
 import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../ui/theme/card_styles.dart';
+import '../utils/app_log.dart';
 import '../utils/nav.dart';
 import '../utils/schedule_overlap.dart';
+
+const _scope = 'AddClass';
 
 bool isValidClassTimeRange(TimeOfDay start, TimeOfDay end) {
   final startMinutes = start.hour * 60 + start.minute;
@@ -641,7 +644,7 @@ class _AddClassFormState extends State<AddClassForm> {
       });
     } catch (error) {
       if (!mounted) return;
-      debugPrint('AddClass: failed to load instructors -> $error');
+      AppLog.error(_scope, 'Failed to load instructors', error: error);
       setState(() {
         _loadingInstructors = false;
         _instructorError = 'Failed to load instructors. Tap to retry.';

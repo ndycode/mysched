@@ -68,7 +68,7 @@ class PrivacySheet extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.close_rounded,
-                          size: 18,
+                          size: AppTokens.iconSize.sm,
                           color: colors.primary,
                         ),
                       ),
@@ -111,7 +111,7 @@ class PrivacySheet extends StatelessWidget {
                               child: Icon(
                                 Icons.lock_outline,
                                 color: colors.primary,
-                                size: 20,
+                                size: AppTokens.iconSize.md,
                               ),
                             ),
                             SizedBox(width: spacing.md),
@@ -384,7 +384,7 @@ class _SimpleBullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: AppTokens.spacing.xs),
-          Icon(Icons.circle, size: 8, color: theme.colorScheme.primary),
+          Icon(Icons.circle, size: AppTokens.iconSize.sm - 8, color: theme.colorScheme.primary),
           SizedBox(width: spacing.sm),
           Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],

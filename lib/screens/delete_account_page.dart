@@ -117,7 +117,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
-          size: 18,
+          size: AppTokens.iconSize.sm,
         ),
       ),
     );
@@ -310,7 +310,7 @@ class _SuccessView extends StatelessWidget {
           ),
           child: Icon(
             Icons.check,
-            size: 64,
+            size: AppTokens.iconSize.display,
             color: theme.colorScheme.primary,
           ),
         ),

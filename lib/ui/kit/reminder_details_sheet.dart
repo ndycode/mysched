@@ -139,7 +139,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                         child: Icon(
                           Icons.notifications_active_rounded,
                           color: colors.primary,
-                          size: 26,
+                          size: AppTokens.iconSize.xl,
                         ),
                       ),
                       SizedBox(width: AppTokens.spacing.lg),
@@ -180,7 +180,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: 20,
+                            size: AppTokens.iconSize.md,
                             color: colors.onSurfaceVariant,
                           ),
                         ),
@@ -345,7 +345,7 @@ class _ReminderActions extends StatelessWidget {
     final children = <Widget>[
       FilledButton.icon(
         onPressed: onEdit,
-        icon: const Icon(Icons.edit_rounded, size: 18),
+        icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
         label: const Text('Edit'),
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
@@ -357,7 +357,7 @@ class _ReminderActions extends StatelessWidget {
       if (isActive)
         FilledButton.tonalIcon(
           onPressed: onSnooze,
-          icon: const Icon(Icons.snooze_rounded, size: 18),
+          icon: Icon(Icons.snooze_rounded, size: AppTokens.iconSize.sm),
           label: const Text('Snooze'),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
@@ -379,7 +379,7 @@ class _ReminderActions extends StatelessWidget {
               )
             : Icon(isActive
                 ? Icons.check_circle_outline_rounded
-                : Icons.replay_rounded, size: 20),
+                : Icons.replay_rounded, size: AppTokens.iconSize.md),
         label: Text(isActive ? 'Mark as done' : 'Mark as pending'),
         style: FilledButton.styleFrom(
           backgroundColor: isActive ? colors.primaryContainer : null,
@@ -401,7 +401,7 @@ class _ReminderActions extends StatelessWidget {
                   valueColor: AlwaysStoppedAnimation<Color>(colors.error),
                 ),
               )
-            : const Icon(Icons.delete_outline_rounded, size: 20),
+            : Icon(Icons.delete_outline_rounded, size: AppTokens.iconSize.md),
         label: const Text('Delete reminder'),
         style: TextButton.styleFrom(
           foregroundColor: colors.error,
@@ -457,7 +457,7 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
+          Icon(icon, size: AppTokens.iconSize.sm, color: color),
           SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,
@@ -500,7 +500,7 @@ class _DetailRow extends StatelessWidget {
             color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: AppTokens.radius.sm,
           ),
-          child: Icon(icon, size: 20, color: colors.primary),
+          child: Icon(icon, size: AppTokens.iconSize.md, color: colors.primary),
         ),
         SizedBox(width: AppTokens.spacing.lg),
         Expanded(

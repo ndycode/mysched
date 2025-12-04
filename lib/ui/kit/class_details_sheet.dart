@@ -421,7 +421,7 @@ class _HeaderRow extends StatelessWidget {
           child: Icon(
             icon,
             color: colors.primary,
-            size: 26,
+            size: AppTokens.iconSize.xl,
           ),
         ),
         SizedBox(width: AppTokens.spacing.lg),
@@ -462,7 +462,7 @@ class _HeaderRow extends StatelessWidget {
             ),
             child: Icon(
               Icons.close_rounded,
-              size: 20,
+              size: AppTokens.iconSize.md,
               color: colors.onSurfaceVariant,
             ),
           ),
@@ -729,7 +729,7 @@ class _InstructorDetail extends StatelessWidget {
                 name: name,
                 avatarUrl: details.instructorAvatar,
                 tint: colors.primary,
-                size: 42,
+                size: AppTokens.iconSize.xxl,
               ),
               SizedBox(width: AppTokens.spacing.lg),
               Expanded(
@@ -789,7 +789,7 @@ class _InfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: color),
+          Icon(icon, size: AppTokens.iconSize.sm, color: color),
           SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,
@@ -835,7 +835,7 @@ class _DetailRow extends StatelessWidget {
           ),
           child: Icon(
             icon, 
-            size: 20, 
+            size: AppTokens.iconSize.md, 
             color: colors.primary,
           ),
         ),
@@ -953,7 +953,7 @@ class _ClassDetailActions extends StatelessWidget {
       children.add(
         FilledButton.icon(
           onPressed: onEdit,
-          icon: const Icon(Icons.edit_rounded, size: 18),
+          icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
           label: const Text('Edit custom class'),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
@@ -982,7 +982,7 @@ class _ClassDetailActions extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                   ),
                 )
-              : Icon(icon, size: 20),
+              : Icon(icon, size: AppTokens.iconSize.md),
           label: Text(label),
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
@@ -1011,7 +1011,7 @@ class _ClassDetailActions extends StatelessWidget {
                     ),
                   ),
                 )
-              : const Icon(Icons.flag_outlined, size: 20),
+              : Icon(Icons.flag_outlined, size: AppTokens.iconSize.md),
           label: Text(
             reportBusy ? 'Sending report...' : 'Report schedule issue',
           ),
@@ -1037,7 +1037,7 @@ class _ClassDetailActions extends StatelessWidget {
                     valueColor: AlwaysStoppedAnimation<Color>(colors.error),
                   ),
                 )
-              : const Icon(Icons.delete_outline_rounded, size: 20),
+              : Icon(Icons.delete_outline_rounded, size: AppTokens.iconSize.md),
           label: const Text('Delete class'),
           style: TextButton.styleFrom(
             foregroundColor: colors.error,

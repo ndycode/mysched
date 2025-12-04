@@ -138,7 +138,7 @@ class _Header extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.alarm_rounded, size: 16, color: accent),
+              Icon(Icons.alarm_rounded, size: AppTokens.iconSize.sm, color: accent),
               SizedBox(width: spacing.sm),
               Text(
                 'Class reminder',
@@ -259,7 +259,7 @@ class _ContextCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.event, size: 18, color: textSecondary),
+              Icon(Icons.event, size: AppTokens.iconSize.sm, color: textSecondary),
               SizedBox(width: spacing.sm),
               Expanded(
                 child: Text(
@@ -271,7 +271,7 @@ class _ContextCard extends StatelessWidget {
                 ),
               ),
               Icon(Icons.chevron_right_rounded,
-                  size: 20, color: textSecondary),
+                  size: AppTokens.iconSize.md, color: textSecondary),
             ],
           ),
           SizedBox(height: spacing.md),
@@ -327,7 +327,7 @@ class _StatusPill extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 16, color: textSecondary),
+            Icon(icon, size: AppTokens.iconSize.sm, color: textSecondary),
             SizedBox(width: AppTokens.spacing.xs),
             Flexible(
               child: Text(
@@ -392,7 +392,7 @@ class _Actions extends StatelessWidget {
           textColor: textSecondary,
           borderColor: Colors.white.withValues(alpha: 0.06),
           trailing: Icon(Icons.chevron_right_rounded,
-              color: textSecondary, size: 20),
+              color: textSecondary, size: AppTokens.iconSize.md),
         ),
       ],
     );
@@ -441,7 +441,7 @@ class _ActionButton extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(icon, color: textColor, size: 22),
+          Icon(icon, color: textColor, size: AppTokens.iconSize.lg),
           SizedBox(width: spacing.md),
           Expanded(
             child: Column(

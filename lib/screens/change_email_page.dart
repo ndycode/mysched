@@ -132,7 +132,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
-          size: 18,
+          size: AppTokens.iconSize.sm,
         ),
       ),
     );

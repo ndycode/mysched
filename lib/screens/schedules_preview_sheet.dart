@@ -364,7 +364,7 @@ class _ImportHeader extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.close_rounded,
-                  size: 18,
+                  size: AppTokens.iconSize.sm,
                   color: colors.primary,
                 ),
               ),
@@ -502,7 +502,7 @@ class _ImportInstructorRow extends StatelessWidget {
           name: name,
           tint: tint,
           avatarUrl: avatarUrl,
-          size: 26,
+          size: AppTokens.iconSize.xl,
           borderWidth: 1,
         ),
         SizedBox(width: AppTokens.spacing.sm),
@@ -802,7 +802,7 @@ class _ImportClassTile extends StatelessWidget {
                           children: [
                             Icon(
                               Icons.arrow_forward_rounded,
-                              size: 13,
+                              size: AppTokens.iconSize.xs,
                               color: colors.primary,
                             ),
                             SizedBox(width: spacing.xs - 2),
@@ -837,7 +837,7 @@ class _ImportClassTile extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.schedule_rounded,
-                        size: 15,
+                        size: AppTokens.iconSize.xs,
                         color: colors.onSurfaceVariant.withValues(alpha: 0.82),
                       ),
                       SizedBox(width: spacing.xs),
@@ -856,7 +856,7 @@ class _ImportClassTile extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.place_outlined,
-                        size: 15,
+                        size: AppTokens.iconSize.xs,
                         color: colors.onSurfaceVariant.withValues(alpha: 0.82),
                       ),
                       SizedBox(width: spacing.xs),

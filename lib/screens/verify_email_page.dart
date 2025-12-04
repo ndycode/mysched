@@ -352,7 +352,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
           icon: CircleAvatar(
             radius: 16,
             backgroundColor: colors.primary.withValues(alpha: 0.12),
-            child: Icon(Icons.close_rounded, color: colors.primary, size: 18),
+            child: Icon(Icons.close_rounded, color: colors.primary, size: AppTokens.iconSize.sm),
           ),
         ),
         chips: [

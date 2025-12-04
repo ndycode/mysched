@@ -104,7 +104,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 child: Icon(
                   Icons.calendar_month_rounded,
                   color: colors.primary,
-                  size: 26,
+                  size: AppTokens.iconSize.xl,
                 ),
               ),
               SizedBox(width: spacing.lg),
@@ -149,7 +149,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                         : Icon(
                             Icons.refresh_rounded,
                             color: colors.onSurfaceVariant,
-                            size: 20,
+                            size: AppTokens.iconSize.md,
                           ),
                     padding: EdgeInsets.zero,
                   ),
@@ -319,7 +319,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                               hasQuery
                                   ? Icons.search_off_rounded
                                   : Icons.event_available_outlined,
-                              size: 40,
+                              size: AppTokens.iconSize.xxl,
                               color: colors.primary,
                             ),
                           ),
@@ -406,7 +406,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 ),
                 child: Icon(
                   icon,
-                  size: 18,
+                  size: AppTokens.iconSize.sm,
                   color: color,
                 ),
               ),
@@ -614,7 +614,7 @@ class _ScheduleRow extends StatelessWidget {
                   // Time
                   Icon(
                     Icons.access_time_rounded,
-                    size: 16,
+                    size: AppTokens.iconSize.sm,
                     color: colors.onSurfaceVariant,
                   ),
                   SizedBox(width: spacing.xs + 2),
@@ -629,7 +629,7 @@ class _ScheduleRow extends StatelessWidget {
                     SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
-                      size: 16,
+                      size: AppTokens.iconSize.sm,
                       color: colors.onSurfaceVariant,
                     ),
                     SizedBox(width: spacing.xs + 2),

@@ -186,7 +186,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
-          size: 18,
+          size: AppTokens.iconSize.sm,
         ),
       ),
     );
@@ -260,7 +260,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                 child: _avatar == null
                     ? Icon(
                         Icons.person_rounded,
-                        size: 48,
+                        size: AppTokens.iconSize.xxl + 8,
                         color: colors.onSurface.withValues(alpha: 0.5),
                       )
                     : null,
@@ -445,7 +445,7 @@ class _SettingsTile extends StatelessWidget {
                 borderRadius: AppTokens.radius.sm,
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: color, size: 22),
+              child: Icon(icon, color: color, size: AppTokens.iconSize.lg),
             ),
             SizedBox(width: spacing.md),
             Expanded(

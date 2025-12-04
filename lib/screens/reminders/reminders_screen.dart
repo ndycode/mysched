@@ -237,7 +237,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.add_alarm_rounded,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.primary,
                       ),
                     ),
@@ -279,7 +279,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         _controller.showCompleted
                             ? Icons.visibility_off_outlined
                             : Icons.visibility_outlined,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.secondary,
                       ),
                     ),
@@ -339,7 +339,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.restart_alt_rounded,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.error,
                       ),
                     ),
@@ -360,7 +360,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
       ],
       icon: Icon(
         Icons.more_vert_rounded,
-        size: 24,
+        size: AppTokens.iconSize.lg,
         color: colors.onSurfaceVariant.withValues(alpha: 0.9),
       ),
     );

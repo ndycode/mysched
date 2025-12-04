@@ -336,7 +336,7 @@ class IconTonalButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, size: 20),
+        Icon(icon, size: AppTokens.iconSize.md),
         SizedBox(width: AppTokens.spacing.sm),
         Flexible(
           child: Text(
@@ -405,7 +405,7 @@ class _ButtonContent extends StatelessWidget {
           padding: EdgeInsets.only(right: AppTokens.spacing.sm),
           child: IconTheme.merge(
             data: IconThemeData(
-              size: 20,
+              size: AppTokens.iconSize.md,
               color: textColor,
             ),
             child: leading!,

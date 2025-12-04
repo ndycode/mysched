@@ -155,7 +155,7 @@ class ScheduleClassListCard extends StatelessWidget {
                 child: Icon(
                   Icons.calendar_month_rounded,
                   color: colors.primary,
-                  size: 26,
+                  size: AppTokens.iconSize.xl,
                 ),
               ),
               SizedBox(width: spacing.lg),
@@ -200,7 +200,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         : Icon(
                             Icons.refresh_rounded,
                             color: colors.onSurfaceVariant,
-                            size: 20,
+                            size: AppTokens.iconSize.md,
                           ),
                     padding: EdgeInsets.zero,
                   ),
@@ -239,7 +239,7 @@ class ScheduleClassListCard extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.event_available_outlined,
-                      size: 40,
+                      size: AppTokens.iconSize.xxl,
                       color: colors.primary,
                     ),
                   ),
@@ -294,7 +294,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.calendar_today_rounded,
-                          size: 18,
+                          size: AppTokens.iconSize.sm,
                           color: colors.primary,
                         ),
                       ),
@@ -739,7 +739,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     else
                       Icon(
                         Icons.schedule_rounded,
-                        size: 16,
+                        size: AppTokens.iconSize.sm,
                         color: foreground,
                       ),
                     if (!isLive) SizedBox(width: spacing.xs + 2),
@@ -793,7 +793,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.access_time_rounded,
-                  size: 18,
+                  size: AppTokens.iconSize.sm,
                   color: foreground,
                 ),
               ),
@@ -834,7 +834,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.place_outlined,
-                    size: 18,
+                    size: AppTokens.iconSize.sm,
                     color: foreground,
                   ),
                 ),
@@ -906,7 +906,7 @@ class _ScheduleHeroChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: foreground),
+          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
           SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
@@ -968,7 +968,7 @@ class _ScheduleMetricChip extends StatelessWidget {
             child: Icon(
               icon,
               color: tint,
-              size: 18,
+              size: AppTokens.iconSize.sm,
             ),
           ),
           SizedBox(height: spacing.sm + 2),
@@ -1046,7 +1046,7 @@ class _CompactMetricChip extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 22,
+              size: AppTokens.iconSize.lg,
               color: tint,
             ),
           ),
@@ -1203,7 +1203,7 @@ class ScheduleRow extends StatelessWidget {
                   // Time
                   Icon(
                     Icons.access_time_rounded,
-                    size: 16,
+                    size: AppTokens.iconSize.sm,
                     color: colors.onSurfaceVariant,
                   ),
                   SizedBox(width: spacing.xs + 2),
@@ -1218,7 +1218,7 @@ class ScheduleRow extends StatelessWidget {
                     SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
-                      size: 16,
+                      size: AppTokens.iconSize.sm,
                       color: colors.onSurfaceVariant,
                     ),
                     SizedBox(width: spacing.xs + 2),

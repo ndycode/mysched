@@ -145,7 +145,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
           Icon(
             Icons.chevron_right_rounded,
             color: colors.onSurfaceVariant,
-            size: 24,
+            size: AppTokens.iconSize.lg,
           ),
           SizedBox(width: AppTokens.spacing.lg),
           // Fake Toggle Switch
@@ -171,7 +171,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.check_rounded,
-                      size: 16,
+                      size: AppTokens.iconSize.sm,
                       color: colors.primary,
                     ),
                   ),

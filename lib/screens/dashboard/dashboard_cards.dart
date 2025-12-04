@@ -153,7 +153,7 @@ class _RefreshChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.refresh_rounded, size: 14, color: colors.primary),
+          Icon(Icons.refresh_rounded, size: AppTokens.iconSize.xs, color: colors.primary),
           SizedBox(width: spacing.xs + 2),
           Text(
             label,
@@ -210,7 +210,7 @@ class _CompactMetricChip extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 22,
+              size: AppTokens.iconSize.lg,
               color: tint,
             ),
           ),
@@ -279,7 +279,7 @@ class _ReminderAlertBanner extends StatelessWidget {
                   color: iconBackground,
                   borderRadius: AppTokens.radius.md,
                 ),
-                child: Icon(alert.icon, color: alert.tint, size: 20),
+                child: Icon(alert.icon, color: alert.tint, size: AppTokens.iconSize.md),
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -426,7 +426,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         else
                           Icon(
                             Icons.schedule_rounded,
-                            size: 16,
+                            size: AppTokens.iconSize.sm,
                             color: foreground,
                           ),
                         if (!isLive) SizedBox(width: spacing.xs + 2),
@@ -483,7 +483,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.access_time_rounded,
-                      size: 18,
+                      size: AppTokens.iconSize.sm,
                       color: foreground,
                     ),
                   ),
@@ -527,7 +527,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.place_outlined,
-                        size: 18,
+                        size: AppTokens.iconSize.sm,
                         color: foreground,
                       ),
                     ),
@@ -566,7 +566,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                             : occurrence.item.instructorAvatar,
                         tint: foreground,
                         inverse: true,
-                        size: 26,
+                        size: AppTokens.iconSize.xl,
                       ),
                       SizedBox(width: spacing.xs + 2),
                       Expanded(
@@ -735,7 +735,7 @@ class _UpcomingListTile extends StatelessWidget {
                 children: [
                   Icon(
                     Icons.access_time_rounded,
-                    size: 16,
+                    size: AppTokens.iconSize.sm,
                     color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                   SizedBox(width: spacing.xs + 2),
@@ -751,7 +751,7 @@ class _UpcomingListTile extends StatelessWidget {
                     SizedBox(width: spacing.lg),
                     Icon(
                       Icons.location_on_outlined,
-                      size: 16,
+                      size: AppTokens.iconSize.sm,
                       color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                     SizedBox(width: spacing.xs + 2),
@@ -932,7 +932,7 @@ class _DashboardMetricChip extends StatelessWidget {
                   color: tint.withValues(alpha: 0.1),
                   borderRadius: AppTokens.radius.md,
                 ),
-                child: Icon(icon, size: 20, color: tint),
+                child: Icon(icon, size: AppTokens.iconSize.md, color: tint),
               ),
               const Spacer(),
               if (progress != null)

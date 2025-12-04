@@ -293,7 +293,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                   curve: AppMotionSystem.easeOut,
                   child: IconTheme(
                     data: IconThemeData(
-                      size: 22,
+                      size: AppTokens.iconSize.lg,
                       color: widget.selected ? activeIconColor : inactiveColor,
                     ),
                     child: displayIcon,
@@ -441,7 +441,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   child: Icon(
                     active ? Icons.close : Icons.add,
                     color: onAccent,
-                    size: 32,
+                    size: AppTokens.iconSize.xl + 4,
                   ),
                 ),
               ),
@@ -527,7 +527,7 @@ class _InlineQuickActionButton extends StatelessWidget {
                 child: Icon(
                   active ? Icons.close : Icons.add,
                   color: onColor,
-                  size: 28,
+                  size: AppTokens.iconSize.xl,
                 ),
               ),
             ),

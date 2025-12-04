@@ -230,7 +230,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: 18,
+                            size: AppTokens.iconSize.sm,
                             color: colors.primary,
                           ),
                         ),
@@ -257,7 +257,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                           ),
                           child: Icon(
                             Icons.refresh_rounded,
-                            size: 18,
+                            size: AppTokens.iconSize.sm,
                             color:
                                 colors.onSurfaceVariant.withValues(alpha: 0.9),
                           ),

@@ -102,7 +102,7 @@ void showAppSnackBar(
             shape: BoxShape.circle,
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: accent, size: 18),
+          child: Icon(icon, color: accent, size: AppTokens.iconSize.sm),
         ),
         SizedBox(width: spacing.md),
         Expanded(

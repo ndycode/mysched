@@ -323,7 +323,7 @@ class _Row extends StatelessWidget {
                               IconButton(
                                 icon: Icon(
                                   Icons.edit_outlined,
-                                  size: 18,
+                                  size: AppTokens.iconSize.sm,
                                   color: colors.primary,
                                 ),
                                 onPressed: () => onEdit!(c),

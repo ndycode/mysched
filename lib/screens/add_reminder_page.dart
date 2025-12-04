@@ -516,7 +516,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
               ),
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                size: 18,
+                size: AppTokens.iconSize.sm,
                 color: colors.primary,
               ),
             ),
@@ -746,7 +746,7 @@ class _FieldTile extends StatelessWidget {
                 color: colors.primary.withValues(alpha: 0.16),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: colors.primary, size: 18),
+              child: Icon(icon, color: colors.primary, size: AppTokens.iconSize.sm),
             ),
             SizedBox(width: AppTokens.spacing.md),
             Expanded(
@@ -778,7 +778,7 @@ class _FieldTile extends StatelessWidget {
             SizedBox(width: AppTokens.spacing.sm),
             Icon(
               Icons.chevron_right_rounded,
-              size: 20,
+              size: AppTokens.iconSize.md,
               color: colors.onSurfaceVariant.withValues(alpha: 0.6),
             ),
           ],
@@ -816,7 +816,7 @@ class _SummaryChip extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: colors.primary),
+          Icon(icon, size: AppTokens.iconSize.sm, color: colors.primary),
           SizedBox(width: spacing.sm),
           Flexible(
             child: Text(

@@ -283,7 +283,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.picture_as_pdf_outlined,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.error,
                       ),
                     ),
@@ -320,7 +320,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.table_chart_outlined,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.tertiary,
                       ),
                     ),
@@ -374,7 +374,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.restart_alt_outlined,
-                        size: 20,
+                        size: AppTokens.iconSize.md,
                         color: colors.primary,
                       ),
                     ),
@@ -395,7 +395,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       ],
       icon: Icon(
         Icons.more_vert_rounded,
-        size: 24,
+        size: AppTokens.iconSize.lg,
         color: colors.onSurfaceVariant.withValues(alpha: 0.9),
       ),
     );

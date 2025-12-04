@@ -742,7 +742,7 @@ class _StatusRow extends StatelessWidget {
               color: accent.withValues(alpha: isDark ? 0.22 : 0.12),
               borderRadius: AppTokens.radius.sm,
             ),
-            child: Icon(icon, color: accent, size: 22),
+            child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
           ),
           SizedBox(width: spacing.md),
           Expanded(

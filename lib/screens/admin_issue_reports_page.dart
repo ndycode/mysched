@@ -106,7 +106,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
-          size: 18,
+          size: AppTokens.iconSize.sm,
         ),
       ),
     );
@@ -293,7 +293,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             child: Icon(
               Icons.flag_rounded,
               color: colors.primary,
-              size: 28,
+              size: AppTokens.iconSize.xl,
             ),
           ),
           SizedBox(height: spacing.lg),
@@ -576,7 +576,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 16, color: colors.onSurfaceVariant),
+          Icon(icon, size: AppTokens.iconSize.sm, color: colors.onSurfaceVariant),
           SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,

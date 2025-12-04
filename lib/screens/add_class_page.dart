@@ -147,7 +147,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           value: _ClassMenuAction.save,
           child: Row(
             children: [
-              const Icon(Icons.save_outlined, size: 18),
+              Icon(Icons.save_outlined, size: AppTokens.iconSize.sm),
               SizedBox(width: AppTokens.spacing.md),
               const Text('Save class'),
             ],
@@ -157,7 +157,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           value: _ClassMenuAction.cancel,
           child: Row(
             children: [
-              const Icon(Icons.close_rounded, size: 18),
+              Icon(Icons.close_rounded, size: AppTokens.iconSize.sm),
               SizedBox(width: AppTokens.spacing.md),
               const Text('Cancel'),
             ],
@@ -168,7 +168,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
             value: _ClassMenuAction.autofill,
             child: Row(
               children: [
-                const Icon(Icons.auto_fix_high_rounded, size: 18),
+                Icon(Icons.auto_fix_high_rounded, size: AppTokens.iconSize.sm),
                 SizedBox(width: AppTokens.spacing.md),
                 const Text('Autofill sample'),
               ],
@@ -1383,7 +1383,7 @@ class _AddClassFormState extends State<AddClassForm> {
                                   Icon(
                                     Icons.check_rounded,
                                     color: theme.colorScheme.primary,
-                                    size: 20,
+                                    size: AppTokens.iconSize.md,
                                   ),
                               ],
                             ),
@@ -1460,7 +1460,7 @@ class _TimeField extends StatelessWidget {
                 color: colors.primary.withValues(alpha: 0.16),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: colors.primary, size: 18),
+              child: Icon(icon, color: colors.primary, size: AppTokens.iconSize.sm),
             ),
             SizedBox(width: AppTokens.spacing.md),
             Expanded(
@@ -1492,7 +1492,7 @@ class _TimeField extends StatelessWidget {
             SizedBox(width: AppTokens.spacing.sm),
             Icon(
               Icons.chevron_right_rounded,
-              size: 20,
+              size: AppTokens.iconSize.md,
               color: colors.onSurfaceVariant.withValues(alpha: 0.6),
             ),
           ],
@@ -1563,7 +1563,7 @@ class _ScopeChip extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: colors.primary),
+          Icon(icon, size: AppTokens.iconSize.sm, color: colors.primary),
           SizedBox(width: spacing.sm),
           Flexible(
             child: Text(

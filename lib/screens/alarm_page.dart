@@ -27,7 +27,7 @@ class AlarmPage extends StatelessWidget {
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
-          size: 18,
+          size: AppTokens.iconSize.sm,
         ),
       ),
     );
@@ -160,7 +160,7 @@ class _Bullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Icon(Icons.check_circle_outline,
-              size: 18, color: theme.colorScheme.primary),
+              size: AppTokens.iconSize.sm, color: theme.colorScheme.primary),
           SizedBox(width: AppTokens.spacing.md),
           Expanded(
             child: Text(

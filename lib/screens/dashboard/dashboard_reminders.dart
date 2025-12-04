@@ -92,7 +92,7 @@ class _DashboardReminderCard extends StatelessWidget {
                 child: Icon(
                   Icons.check_circle_outline_rounded,
                   color: colors.primary,
-                  size: 26,
+                  size: AppTokens.iconSize.xl,
                 ),
               ),
               SizedBox(width: spacing.lg),
@@ -327,7 +327,7 @@ class _StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: foreground),
+          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
           SizedBox(width: spacing.xs + 2),
           Text(
             label,
@@ -391,7 +391,7 @@ class _ReminderProgressPill extends StatelessWidget {
             ),
             child: Icon(
               Icons.track_changes_rounded,
-              size: 18,
+              size: AppTokens.iconSize.sm,
               color: headerColor,
             ),
           ),
@@ -536,7 +536,7 @@ class _DashboardReminderTile extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.schedule_rounded,
-                      size: 14,
+                      size: AppTokens.iconSize.xs,
                       color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                     SizedBox(width: spacing.xs + 2),

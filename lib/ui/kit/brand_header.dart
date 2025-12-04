@@ -93,7 +93,7 @@ class BrandHeader extends StatelessWidget {
                           SizedBox(width: AppTokens.spacing.xs),
                           Icon(
                             Icons.expand_more_rounded,
-                            size: 24,
+                            size: AppTokens.iconSize.lg,
                             color: theme.colorScheme.primary,
                           ),
                         ],

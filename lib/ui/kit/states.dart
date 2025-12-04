@@ -349,7 +349,7 @@ class MessageCard extends StatelessWidget {
                   color: tint.withValues(alpha: isDark ? 0.2 : 0.12),
                   borderRadius: AppTokens.radius.md,
                 ),
-                child: Icon(icon, color: tint, size: 22),
+                child: Icon(icon, color: tint, size: AppTokens.iconSize.lg),
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -463,7 +463,7 @@ class InfoBanner extends StatelessWidget {
                 color: tint.withValues(alpha: isDark ? 0.24 : 0.16),
                 borderRadius: AppTokens.radius.sm,
               ),
-              child: Icon(icon, color: tint, size: 18),
+              child: Icon(icon, color: tint, size: AppTokens.iconSize.sm),
             ),
             SizedBox(width: spacing.md),
             Expanded(

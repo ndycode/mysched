@@ -239,7 +239,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     Icon(
                                       Icons.check_rounded,
                                       color: theme.colorScheme.primary,
-                                      size: 20,
+                                      size: AppTokens.iconSize.md,
                                     ),
                                 ],
                               ),
@@ -377,7 +377,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   child: Icon(
                     Icons.settings_rounded,
                     color: colors.primary,
-                    size: 26,
+                    size: AppTokens.iconSize.xl,
                   ),
                 ),
                 SizedBox(width: spacing.lg),
@@ -1251,7 +1251,7 @@ class _SettingsPageState extends State<SettingsPage> {
         borderRadius: AppTokens.radius.sm,
       ),
       alignment: Alignment.center,
-      child: Icon(icon, color: accent, size: 22),
+      child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
     );
   }
 
@@ -1316,7 +1316,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       children: [
                         Icon(
                           pending > 0 ? Icons.cloud_off_rounded : Icons.cloud_done_rounded,
-                          size: 18,
+                          size: AppTokens.iconSize.sm,
                           color: pending > 0 ? colors.secondary : colors.primary,
                         ),
                         SizedBox(width: spacing.sm),
@@ -1421,7 +1421,7 @@ class _SyncRow extends StatelessWidget {
               borderRadius: AppTokens.radius.md,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, color: accent, size: 22),
+            child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
           ),
           SizedBox(width: spacing.md),
           Text(
@@ -1500,7 +1500,7 @@ class _ThemeOption extends StatelessWidget {
                   child: Icon(
                     icon,
                     color: isOutline ? colors.onSurface : onColor,
-                    size: 24,
+                    size: AppTokens.iconSize.lg,
                   ),
                 ),
                 if (selected)
@@ -1519,7 +1519,7 @@ class _ThemeOption extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.check,
-                        size: 10,
+                        size: AppTokens.iconSize.xs - 4,
                         color: colors.onPrimary,
                       ),
                     ),

@@ -194,7 +194,7 @@ class ReminderSummaryCard extends StatelessWidget {
                     ),
                     child: Icon(
                       Icons.task_alt_rounded,
-                      size: 40,
+                      size: AppTokens.iconSize.xxl,
                       color: colors.primary,
                     ),
                   ),
@@ -396,7 +396,7 @@ class ReminderHighlightHero extends StatelessWidget {
                 ),
                 child: Icon(
                   Icons.access_time_rounded,
-                  size: 18,
+                  size: AppTokens.iconSize.sm,
                   color: foreground,
                 ),
               ),
@@ -424,7 +424,7 @@ class ReminderHighlightHero extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.notes_rounded,
-                    size: 18,
+                    size: AppTokens.iconSize.sm,
                     color: foreground,
                   ),
                 ),
@@ -494,7 +494,7 @@ class ReminderHeroChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: foreground),
+          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
           SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
@@ -551,7 +551,7 @@ class ReminderMetricChip extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 22,
+              size: AppTokens.iconSize.lg,
               color: tint,
             ),
           ),
@@ -652,7 +652,7 @@ class ReminderGroupCard extends StatelessWidget {
                             SizedBox(width: AppTokens.spacing.sm),
                             Icon(
                               Icons.check_circle_rounded,
-                              size: 16,
+                              size: AppTokens.iconSize.sm,
                               color: colors.tertiary,
                             ),
                             SizedBox(width: AppTokens.spacing.xs),
@@ -854,7 +854,7 @@ class ReminderRow extends StatelessWidget {
               children: [
                 Icon(
                   Icons.access_time_rounded,
-                  size: 16,
+                  size: AppTokens.iconSize.sm,
                   color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
                 SizedBox(width: spacing.sm),
@@ -869,7 +869,7 @@ class ReminderRow extends StatelessWidget {
                   SizedBox(width: spacing.lg),
                   Icon(
                     Icons.notes_rounded,
-                    size: 16,
+                    size: AppTokens.iconSize.sm,
                     color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                   SizedBox(width: spacing.sm),
@@ -895,7 +895,7 @@ class ReminderRow extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.snooze_rounded,
-                      size: 14,
+                      size: AppTokens.iconSize.xs,
                       color: palette.warning,
                     ),
                     SizedBox(width: spacing.sm),
@@ -1147,7 +1147,7 @@ class ReminderListCard extends StatelessWidget {
                 child: Icon(
                   Icons.event_note_rounded,
                   color: colors.primary,
-                  size: 26,
+                  size: AppTokens.iconSize.xl,
                 ),
               ),
               SizedBox(width: AppTokens.spacing.lg),
@@ -1268,7 +1268,7 @@ class ReminderListCard extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: 18,
+              size: AppTokens.iconSize.sm,
               color: textColor,
             ),
           ),

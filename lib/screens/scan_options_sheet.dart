@@ -85,7 +85,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                               ),
                               child: Icon(
                                 Icons.close_rounded,
-                                size: 18,
+                                size: AppTokens.iconSize.sm,
                                 color: colors.primary,
                               ),
                             ),
@@ -123,7 +123,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                         alignment: Alignment.center,
                         child: Icon(
                           Icons.credit_card,
-                          size: 64,
+                          size: AppTokens.iconSize.display,
                           color:
                               colors.onSurfaceVariant.withValues(alpha: 0.78),
                         ),

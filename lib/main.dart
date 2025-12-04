@@ -154,7 +154,7 @@ class _ConfigErrorApp extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: spacing.xxl),
-                Icon(Icons.cloud_off_rounded, size: 56, color: colors.danger),
+                Icon(Icons.cloud_off_rounded, size: AppTokens.iconSize.display, color: colors.danger),
                 SizedBox(height: spacing.md),
                 Text(
                   'Missing Supabase configuration.',

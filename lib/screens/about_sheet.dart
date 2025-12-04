@@ -103,7 +103,7 @@ class AboutSheet extends StatelessWidget {
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: 18,
+                            size: AppTokens.iconSize.sm,
                             color: colors.primary,
                           ),
                         ),
@@ -469,7 +469,7 @@ class _SimpleBullet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(width: spacing.xs),
-          Icon(Icons.circle, size: 8, color: theme.colorScheme.primary),
+          Icon(Icons.circle, size: AppTokens.iconSize.sm - 8, color: theme.colorScheme.primary),
           SizedBox(width: spacing.sm),
           Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
         ],
@@ -502,7 +502,7 @@ class _FeatureTile extends StatelessWidget {
             borderRadius: AppTokens.radius.sm,
           ),
           padding: spacing.edgeInsetsAll(spacing.md),
-          child: Icon(icon, color: theme.colorScheme.primary, size: 20),
+          child: Icon(icon, color: theme.colorScheme.primary, size: AppTokens.iconSize.md),
         ),
         SizedBox(width: spacing.md),
         Expanded(

@@ -164,7 +164,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                               minHeight: 48,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          SizedBox(width: AppTokens.spacing.md),
                           Expanded(
                             child: SecondaryButton(
                               label: 'Cancel',
@@ -335,7 +335,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildHeader(theme, title, helper),
-          const SizedBox(height: 16),
+          SizedBox(height: AppTokens.spacing.lg),
           Container(
             padding: spacing.edgeInsetsSymmetric(
               horizontal: spacing.lg + spacing.xs / 2,
@@ -369,7 +369,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                       ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: AppTokens.spacing.md),
                 TextFormField(
                   controller: _titleController,
                   decoration: decorationFor('Title', hint: 'e.g. Submit quiz'),
@@ -378,7 +378,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   validator: (value) =>
                       value == null || value.trim().isEmpty ? 'Required' : null,
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: AppTokens.spacing.lg),
                 TextFormField(
                   controller: _notesController,
                   decoration:
@@ -389,7 +389,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: AppTokens.spacing.lg),
           Container(
             padding: spacing.edgeInsetsSymmetric(
               horizontal: spacing.lg + spacing.xs / 2,
@@ -411,7 +411,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   title: 'Reminder time',
                   subtitle: 'We will notify you at this time',
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: AppTokens.spacing.md),
                 Row(
                   children: [
                     Expanded(
@@ -420,10 +420,10 @@ class _AddReminderFormState extends State<AddReminderForm> {
                         value: _dateFormat.format(_selectedDate),
                         icon: Icons.calendar_month_rounded,
                         onTap: _submitting ? null : _pickDate,
-                        fontSize: 16,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: AppTokens.spacing.md),
                     Expanded(
                       child: _FieldTile(
                         label: 'Time',
@@ -435,7 +435,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   ],
                 ),
                 if (_whenError != null) ...[
-                  const SizedBox(height: 10),
+                  SizedBox(height: AppTokens.spacing.md),
                   Text(
                     _whenError!,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -443,7 +443,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                     ),
                   ),
                 ],
-                const SizedBox(height: 14),
+                SizedBox(height: AppTokens.spacing.lg),
                 Row(
                   children: [
                     Expanded(
@@ -452,7 +452,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                         label: _friendlyDateSummary(),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    SizedBox(width: AppTokens.spacing.md),
                     Expanded(
                       child: _SummaryChip(
                         icon: Icons.access_time_filled_rounded,
@@ -465,7 +465,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
             ),
           ),
           if (widget.includeButtons) ...[
-            const SizedBox(height: 20),
+            SizedBox(height: AppTokens.spacing.xl),
             Row(
               children: [
                 Expanded(
@@ -475,7 +475,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                     minHeight: 48,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: PrimaryButton(
                     label: _submitting
@@ -523,7 +523,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
           );
 
     final trailingGap =
-        widget.isSheet ? const SizedBox(width: 48) : const SizedBox(width: 12);
+        widget.isSheet ? SizedBox(width: AppTokens.spacing.quad) : SizedBox(width: AppTokens.spacing.md);
 
     return Column(
       crossAxisAlignment:
@@ -545,7 +545,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
             trailingGap,
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppTokens.spacing.sm),
         Text(
           helper,
           textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
@@ -688,7 +688,7 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         if (subtitle != null) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: AppTokens.spacing.xs),
           Text(
             subtitle!,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -707,14 +707,14 @@ class _FieldTile extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.onTap,
-    this.fontSize = 18,
+    this.fontSize,
   });
 
   final String label;
   final String value;
   final IconData icon;
   final VoidCallback? onTap;
-  final double fontSize;
+  final double? fontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -748,7 +748,7 @@ class _FieldTile extends StatelessWidget {
               alignment: Alignment.center,
               child: Icon(icon, color: colors.primary, size: 18),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: AppTokens.spacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -759,7 +759,7 @@ class _FieldTile extends StatelessWidget {
                       color: colors.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: AppTokens.spacing.xs),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
@@ -767,7 +767,7 @@ class _FieldTile extends StatelessWidget {
                       value,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: fontSize,
+                        fontSize: fontSize ?? AppTokens.typography.subtitle.fontSize,
                       ),
                       maxLines: 1,
                     ),
@@ -775,7 +775,7 @@ class _FieldTile extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: AppTokens.spacing.sm),
             Icon(
               Icons.chevron_right_rounded,
               size: 20,
@@ -817,7 +817,7 @@ class _SummaryChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: colors.primary),
-          const SizedBox(width: 8),
+          SizedBox(width: spacing.sm),
           Flexible(
             child: Text(
               label,

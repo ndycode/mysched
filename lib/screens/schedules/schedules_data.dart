@@ -5,6 +5,9 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../services/schedule_api.dart' as sched;
+import 'package:flutter/material.dart' show Color;
+
+import '../../ui/theme/tokens.dart';
 import '../../utils/schedule_overlap.dart' as schedule_overlap;
 
 enum ScheduleAction { reset, pdf, csv }
@@ -129,6 +132,12 @@ Future<Uint8List> buildSchedulePdf(
 ) async {
   final timestamp = now ?? DateTime.now();
   final stamp = DateFormat('MMMM d, yyyy - h:mm a').format(timestamp);
+
+  // Map design tokens into PDF text styles to keep exports aligned.
+  // We only use sizes/weights/colors that exist in AppTokens.
+  final pdfTypography = _PdfTypography.fromTokens(AppTokens.typography);
+  final pdfColors = _PdfColors.fromPalette(AppTokens.lightColors);
+
   final doc = pw.Document();
   doc.addPage(
     pw.MultiPage(
@@ -141,54 +150,61 @@ Future<Uint8List> buildSchedulePdf(
           return [
             pw.Text(
               'MySched timetable',
-              style: pw.TextStyle(
-                fontSize: 22,
-                fontWeight: pw.FontWeight.bold,
-              ),
+              style: pdfTypography.headline.copyWith(color: pdfColors.onSurface),
             ),
             pw.SizedBox(height: 8),
-            pw.Text('Generated at $stamp'),
+            pw.Text(
+              'Generated at $stamp',
+              style: pdfTypography.body.copyWith(color: pdfColors.muted),
+            ),
             pw.SizedBox(height: 24),
-            pw.Text('No classes scheduled.'),
+            pw.Text(
+              'No classes scheduled.',
+              style: pdfTypography.body.copyWith(color: pdfColors.onSurface),
+            ),
           ];
         }
 
         return [
           pw.Text(
             'MySched timetable',
-            style: pw.TextStyle(
-              fontSize: 22,
-              fontWeight: pw.FontWeight.bold,
-            ),
+            style: pdfTypography.headline.copyWith(color: pdfColors.onSurface),
           ),
           pw.SizedBox(height: 8),
-          pw.Text('Generated at $stamp'),
+          pw.Text(
+            'Generated at $stamp',
+            style: pdfTypography.body.copyWith(color: pdfColors.muted),
+          ),
           pw.SizedBox(height: 24),
           for (final group in groups) ...[
             pw.Text(
               group.label,
-              style: pw.TextStyle(
-                fontSize: 16,
-                fontWeight: pw.FontWeight.bold,
-                color: PdfColors.blue800,
+              style: pdfTypography.title.copyWith(
+                color: pdfColors.accent,
               ),
             ),
             pw.SizedBox(height: 8),
             for (final item in group.items) ...[
               pw.Text(
                 item.title ?? item.code ?? 'Untitled class',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
+                style: pdfTypography.subtitle.copyWith(
+                  color: pdfColors.onSurface,
                 ),
               ),
               pw.Text(
                 '${_formatTime(item.start)} - ${_formatTime(item.end)}',
+                style: pdfTypography.body.copyWith(color: pdfColors.muted),
               ),
               if (item.room != null && item.room!.trim().isNotEmpty)
-                pw.Text('Room: ${item.room}'),
+                pw.Text(
+                  'Room: ${item.room}',
+                  style: pdfTypography.body.copyWith(color: pdfColors.muted),
+                ),
               if (item.instructor != null && item.instructor!.trim().isNotEmpty)
-                pw.Text('Instructor: ${item.instructor}'),
+                pw.Text(
+                  'Instructor: ${item.instructor}',
+                  style: pdfTypography.body.copyWith(color: pdfColors.muted),
+                ),
               pw.SizedBox(height: 12),
             ],
             pw.SizedBox(height: 12),
@@ -198,6 +214,69 @@ Future<Uint8List> buildSchedulePdf(
     ),
   );
   return Uint8List.fromList(await doc.save());
+}
+
+/// Lightweight mapping of Flutter text tokens into pdf.TextStyle.
+class _PdfTypography {
+  const _PdfTypography({
+    required this.headline,
+    required this.title,
+    required this.subtitle,
+    required this.body,
+    required this.caption,
+  });
+
+  final pw.TextStyle headline;
+  final pw.TextStyle title;
+  final pw.TextStyle subtitle;
+  final pw.TextStyle body;
+  final pw.TextStyle caption;
+
+  factory _PdfTypography.fromTokens(AppTypography tokens) {
+    return _PdfTypography(
+      headline: pw.TextStyle(
+        fontSize: tokens.headline.fontSize,
+        fontWeight: pw.FontWeight.bold,
+      ),
+      title: pw.TextStyle(
+        fontSize: tokens.title.fontSize,
+        fontWeight: pw.FontWeight.bold,
+      ),
+      subtitle: pw.TextStyle(
+        fontSize: tokens.subtitle.fontSize,
+        fontWeight: pw.FontWeight.bold,
+      ),
+      body: pw.TextStyle(
+        fontSize: tokens.body.fontSize,
+        fontWeight: pw.FontWeight.normal,
+      ),
+      caption: pw.TextStyle(
+        fontSize: tokens.caption.fontSize,
+        fontWeight: pw.FontWeight.normal,
+      ),
+    );
+  }
+}
+
+class _PdfColors {
+  const _PdfColors({
+    required this.onSurface,
+    required this.muted,
+    required this.accent,
+  });
+
+  final PdfColor onSurface;
+  final PdfColor muted;
+  final PdfColor accent;
+
+  factory _PdfColors.fromPalette(ColorPalette palette) {
+    PdfColor toPdf(Color c) => PdfColor.fromInt(c.toARGB32());
+    return _PdfColors(
+      onSurface: toPdf(palette.onSurface),
+      muted: toPdf(palette.onSurfaceVariant),
+      accent: toPdf(palette.primary),
+    );
+  }
 }
 
 class ScheduleSummary {

@@ -63,8 +63,6 @@ class _DashboardReminderCard extends StatelessWidget {
                     ? 'Everything is complete. Nice work!'
                     : 'Keep tasks ahead of schedule.';
 
-    final isDark = theme.brightness == Brightness.dark;
-
     return CardX(
       padding: spacing.edgeInsetsAll(spacing.xl),
       child: Column(
@@ -106,17 +104,17 @@ class _DashboardReminderCard extends StatelessWidget {
                       'Reminders',
                       style: theme.textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 21,
+                        fontSize: AppTokens.typography.title.fontSize,
                         letterSpacing: -0.5,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
                     Text(
                       subtitle,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
-                        fontSize: 14,
+                        color: colors.onSurfaceVariant,
+                        fontSize: AppTokens.typography.bodySecondary.fontSize,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -174,7 +172,7 @@ class _DashboardReminderCard extends StatelessWidget {
           _ReminderProgressPill(
             label: completionLabel,
             progress: completionProgress,
-            color: isDark ? colors.onSurfaceVariant : const Color(0xFF616161),
+            color: colors.onSurfaceVariant,
           ),
           SizedBox(height: spacing.md),
           if (loading && reminders.isEmpty)
@@ -191,7 +189,7 @@ class _DashboardReminderCard extends StatelessWidget {
                   : 'All reminders are complete. Enjoy the calm!',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: colors.onSurfaceVariant.withValues(alpha: 0.78),
-                fontSize: 16,
+                fontSize: AppTokens.typography.body.fontSize,
               ),
             )
           else ...[
@@ -215,7 +213,7 @@ class _DashboardReminderCard extends StatelessWidget {
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colors.primary,
                       fontWeight: FontWeight.w600,
-                      fontSize: 14,
+                      fontSize: AppTokens.typography.bodySecondary.fontSize,
                     ),
                   ),
                 ),
@@ -334,7 +332,7 @@ class _StatusChip extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+              fontSize: AppTokens.typography.caption.fontSize,
               fontWeight: FontWeight.w600,
               color: foreground,
             ),
@@ -360,7 +358,6 @@ class _ReminderProgressPill extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
     final percent = (progress.clamp(0.0, 1.0) * 100).round();
     
@@ -404,9 +401,9 @@ class _ReminderProgressPill extends StatelessWidget {
               label,
               style: theme.textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.w800,
-                fontSize: 17,
+                fontSize: AppTokens.typography.subtitle.fontSize,
                 letterSpacing: -0.3,
-                color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                color: colors.onSurface,
               ),
             ),
           ),
@@ -423,7 +420,7 @@ class _ReminderProgressPill extends StatelessWidget {
               '$percent%',
               style: theme.textTheme.labelMedium?.copyWith(
                 fontWeight: FontWeight.w700,
-                fontSize: 13,
+                fontSize: AppTokens.typography.caption.fontSize,
                 color: headerColor,
               ),
             ),
@@ -460,17 +457,17 @@ class _DashboardReminderTile extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+          color: colors.outlineVariant,
           width: 0.5,
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.04),
+                  color: colors.shadow.withValues(alpha: 0.04),
                   blurRadius: 6,
                   offset: const Offset(0, 2),
                 ),
@@ -512,11 +509,11 @@ class _DashboardReminderTile extends StatelessWidget {
                   entry.title,
                   style: theme.textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 16,
+                    fontSize: AppTokens.typography.subtitle.fontSize,
                     letterSpacing: -0.2,
                     color: isDone
-                        ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
-                        : (isDark ? colors.onSurface : const Color(0xFF1A1A1A)),
+                        ? colors.onSurfaceVariant
+                        : colors.onSurface,
                     decoration: isDone ? TextDecoration.lineThrough : null,
                   ),
                   maxLines: 2,
@@ -527,7 +524,7 @@ class _DashboardReminderTile extends StatelessWidget {
                   Text(
                     entry.details!,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
+                      fontSize: AppTokens.typography.bodySecondary.fontSize,
                       color: colors.onSurfaceVariant.withValues(alpha: 0.72),
                     ),
                     maxLines: 2,
@@ -548,7 +545,7 @@ class _DashboardReminderTile extends StatelessWidget {
                         dueLabel,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colors.onSurfaceVariant.withValues(alpha: 0.8),
-                          fontSize: 13,
+                          fontSize: AppTokens.typography.caption.fontSize,
                           fontWeight: FontWeight.w500,
                         ),
                         maxLines: 1,

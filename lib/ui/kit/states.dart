@@ -331,7 +331,7 @@ class MessageCard extends StatelessWidget {
       padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
         color: tint.withValues(alpha: isDark ? 0.12 : 0.06),
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: tint.withValues(alpha: isDark ? 0.24 : 0.16),
           width: 1,
@@ -452,7 +452,7 @@ class InfoBanner extends StatelessWidget {
         ),
         decoration: BoxDecoration(
           color: tint.withValues(alpha: isDark ? 0.16 : 0.1),
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: AppTokens.radius.lg,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,

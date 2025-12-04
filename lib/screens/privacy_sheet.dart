@@ -82,7 +82,7 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 48),
+                    SizedBox(width: AppTokens.spacing.quad),
                   ],
                 ),
               ),
@@ -189,22 +189,22 @@ class PrivacySheet extends StatelessWidget {
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
-                            _PrivacyTile(
+                          children: [
+                            const _PrivacyTile(
                               icon: Icons.camera_alt_outlined,
                               title: 'Camera',
                               description:
                                   'Capture your student card for OCR scanning. Images stay on device—only extracted schedule data is saved.',
                             ),
-                            SizedBox(height: 16),
-                            _PrivacyTile(
+                            SizedBox(height: AppTokens.spacing.lg),
+                            const _PrivacyTile(
                               icon: Icons.photo_library_outlined,
                               title: 'Photos (read only)',
                               description:
                                   'Let you pick an existing card image instead of rescanning. Required only on older Android versions.',
                             ),
-                            SizedBox(height: 16),
-                            _PrivacyTile(
+                            SizedBox(height: AppTokens.spacing.lg),
+                            const _PrivacyTile(
                               icon: Icons.notifications_active_outlined,
                               title: 'Notifications',
                               description:
@@ -383,7 +383,7 @@ class _SimpleBullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 4),
+          SizedBox(width: AppTokens.spacing.xs),
           Icon(Icons.circle, size: 8, color: theme.colorScheme.primary),
           SizedBox(width: spacing.sm),
           Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),

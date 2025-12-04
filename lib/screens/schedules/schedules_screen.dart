@@ -260,9 +260,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
         borderRadius: AppTokens.radius.lg,
       ),
       elevation: isDark ? 8 : 12,
-      color: isDark ? colors.surfaceContainerHigh : Colors.white,
+      color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
+      shadowColor: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
       itemBuilder: (context) => [
         PopupMenuItem<ScheduleAction>(
           value: ScheduleAction.pdf,
@@ -290,10 +290,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     SizedBox(width: AppTokens.spacing.md + 2),
                     Text(
                       'Export as PDF',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],
@@ -316,22 +315,21 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF10B981).withValues(alpha: 0.12),
+                        color: colors.tertiary.withValues(alpha: 0.12),
                         borderRadius: AppTokens.radius.sm,
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.table_chart_outlined,
                         size: 20,
-                        color: Color(0xFF10B981),
+                        color: colors.tertiary,
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md + 2),
                     Text(
                       'Export as CSV',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],
@@ -349,9 +347,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
-                  isDark ? colors.outline.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
-                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: isDark ? 0.20 : 0.4),
+                  colors.outline.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -383,10 +381,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     SizedBox(width: AppTokens.spacing.md + 2),
                     Text(
                       'Reset schedules',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],
@@ -633,9 +630,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     horizontal: spacing.xxl,
                     vertical: spacing.quad,
                   ),
-                  backgroundColor: isDark ? colors.surfaceContainerHigh : Colors.white,
-                  borderColor:
-                      isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
+                  borderColor: colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
                   borderRadius: AppTokens.radius.xl,
                   child: Column(
                     children: [
@@ -664,26 +660,24 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         ),
                       ),
                       SizedBox(height: spacing.xxl + spacing.xs),
-                      Text(
-                        'No schedules yet',
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 24,
-                          letterSpacing: -0.5,
-                          color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
-                        ),
-                        textAlign: TextAlign.center,
+                    Text(
+                      'No schedules yet',
+                      style: AppTokens.typography.headline.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.5,
+                        color: colors.onSurface,
                       ),
+                      textAlign: TextAlign.center,
+                    ),
                       SizedBox(height: spacing.md),
-                      Text(
-                        'Get started by adding your first class or scanning your student card using the buttons above',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontSize: 15,
-                          height: 1.5,
-                          color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
-                        ),
-                        textAlign: TextAlign.center,
+                    Text(
+                      'Get started by adding your first class or scanning your student card using the buttons above',
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        height: 1.5,
+                        color: colors.onSurfaceVariant,
                       ),
+                      textAlign: TextAlign.center,
+                    ),
                     ],
                   ),
                 ),

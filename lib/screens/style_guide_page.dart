@@ -65,15 +65,15 @@ class StyleGuidePage extends StatelessWidget {
         subtitle: 'Empty and error displays.',
         decorated: false,
         child: Column(
-          children: const [
-            StateDisplay(
+          children: [
+            const StateDisplay(
               variant: StateVariant.empty,
               title: 'Nothing here yet',
               message: 'Use StateDisplay for empty or loading states.',
               compact: true,
             ),
-            SizedBox(height: 16),
-            StateDisplay(
+            SizedBox(height: AppTokens.spacing.lg),
+            const StateDisplay(
               variant: StateVariant.error,
               title: 'Something went wrong',
               message: 'Actionable error messaging goes here.',

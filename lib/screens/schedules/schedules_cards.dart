@@ -246,19 +246,17 @@ class ScheduleClassListCard extends StatelessWidget {
                   SizedBox(height: spacing.xl),
                   Text(
                     'No classes scheduled',
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: AppTokens.typography.subtitle.copyWith(
                       fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: isDark ? colors.onSurfaceVariant : const Color(0xFF424242),
+                      color: colors.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
                   ),
                   SizedBox(height: spacing.sm),
                   Text(
                     'Add a class or scan your student card to get started.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                    style: AppTokens.typography.bodySecondary.copyWith(
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -610,7 +608,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                   icon: Icons.edit_outlined,
                   value: summary.custom,
                   label: 'Custom',
-                  tint: const Color(0xFFFF9500),
+                  tint: colors.tertiary,
                 ),
               ),
             ],
@@ -811,7 +809,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    SizedBox(height: 2),
+                    SizedBox(height: AppTokens.spacing.xs),
                     Text(
                       dateLabel,
                       style: AppTokens.typography.caption.copyWith(
@@ -981,7 +979,7 @@ class _ScheduleMetricChip extends StatelessWidget {
               color: colors.onSurface,
             ),
           ),
-          SizedBox(height: 2),
+          SizedBox(height: AppTokens.spacing.xs),
           Text(
             label,
             style: AppTokens.typography.caption.copyWith(
@@ -991,11 +989,10 @@ class _ScheduleMetricChip extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),
-          SizedBox(height: 2),
+          SizedBox(height: AppTokens.spacing.xs),
           Text(
             caption,
             style: AppTokens.typography.caption.copyWith(
-              fontSize: 11,
               color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
@@ -1058,7 +1055,6 @@ class _CompactMetricChip extends StatelessWidget {
             '$value',
             style: AppTokens.typography.display.copyWith(
               fontWeight: FontWeight.w800,
-              fontSize: 28,
               height: 1.0,
               color: colors.onSurface,
             ),

@@ -47,11 +47,10 @@ class _DashboardSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   greeting,
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: AppTokens.typography.title.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 20,
                     letterSpacing: -0.3,
-                    color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -159,7 +158,7 @@ class _RefreshChip extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+              fontSize: AppTokens.typography.caption.fontSize,
               fontWeight: FontWeight.w600,
               color: colors.primary,
             ),
@@ -220,18 +219,18 @@ class _CompactMetricChip extends StatelessWidget {
             value,
             style: theme.textTheme.headlineMedium?.copyWith(
               fontWeight: FontWeight.w800,
-              fontSize: 28,
+              fontSize: AppTokens.typography.headline.fontSize,
               height: 1.0,
-              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              color: colors.onSurface,
             ),
           ),
           SizedBox(height: spacing.xs),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+              fontSize: AppTokens.typography.caption.fontSize,
               fontWeight: FontWeight.w600,
-              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+              color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -291,7 +290,7 @@ class _ReminderAlertBanner extends StatelessWidget {
                       alert.title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                        fontSize: AppTokens.typography.title.fontSize,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
@@ -299,7 +298,7 @@ class _ReminderAlertBanner extends StatelessWidget {
                       alert.message,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
-                        fontSize: 16,
+                        fontSize: AppTokens.typography.body.fontSize,
                       ),
                     ),
                   ],
@@ -311,7 +310,7 @@ class _ReminderAlertBanner extends StatelessWidget {
                 style: TextButton.styleFrom(
                   foregroundColor: alert.tint,
                   textStyle: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 16,
+                    fontSize: AppTokens.typography.body.fontSize,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -349,7 +348,7 @@ class _UpcomingHeroTile extends StatelessWidget {
     final dateLabel = DateFormat('EEEE, MMMM d').format(occurrence.start);
     final location = occurrence.item.room.trim();
     final statusLabel = isLive ? 'Live Now' : 'Coming Up';
-    final foreground = Colors.white;
+    final foreground = colors.onPrimary;
 
     // Calculate time until class
     final now = DateTime.now();
@@ -435,7 +434,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                           statusLabel,
                           style: theme.textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            fontSize: AppTokens.typography.caption.fontSize,
                             color: foreground,
                             letterSpacing: 0.3,
                           ),
@@ -449,7 +448,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                       timeUntilText,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: foreground.withValues(alpha: 0.85),
-                        fontSize: 13,
+                        fontSize: AppTokens.typography.caption.fontSize,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -459,16 +458,16 @@ class _UpcomingHeroTile extends StatelessWidget {
               SizedBox(height: spacing.xl),
               
               // Class title
-              Text(
-                subject,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 22,
-                  height: 1.3,
-                  color: foreground,
-                  letterSpacing: -0.5,
+            Text(
+              subject,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w700,
+                fontSize: AppTokens.typography.headline.fontSize,
+                height: 1.3,
+                color: foreground,
+                letterSpacing: -0.5,
                 ),
               ),
               SizedBox(height: spacing.lg + 2),
@@ -498,15 +497,15 @@ class _UpcomingHeroTile extends StatelessWidget {
                           style: theme.textTheme.bodyLarge?.copyWith(
                             color: foreground,
                             fontWeight: FontWeight.w600,
-                            fontSize: 16,
+                            fontSize: AppTokens.typography.body.fontSize,
                           ),
                         ),
-                        SizedBox(height: 2),
+                        SizedBox(height: AppTokens.spacing.xs),
                         Text(
                           dateLabel,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: foreground.withValues(alpha: 0.80),
-                            fontSize: 13,
+                            fontSize: AppTokens.typography.caption.fontSize,
                           ),
                         ),
                       ],
@@ -540,7 +539,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: foreground.withValues(alpha: 0.90),
-                          fontSize: 15,
+                          fontSize: AppTokens.typography.bodySecondary.fontSize,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -571,12 +570,12 @@ class _UpcomingHeroTile extends StatelessWidget {
                       ),
                       SizedBox(width: spacing.xs + 2),
                       Expanded(
-                        child: Text(
+                      child: Text(
                           occurrence.item.instructor,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Colors.white.withValues(alpha: 0.95),
+                            fontSize: AppTokens.typography.bodySecondary.fontSize,
+                            color: colors.onPrimary.withValues(alpha: 0.95),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -639,19 +638,19 @@ class _UpcomingListTile extends StatelessWidget {
         child: Container(
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : Colors.white,
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: (isLive || isNext) && !disabled
                   ? colors.primary.withValues(alpha: 0.30)
-                  : isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5),
+                  : colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
               width: (isLive || isNext) && !disabled ? 1.5 : 0.5,
             ),
             boxShadow: isDark
                 ? null
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: (isLive || isNext) && !disabled ? 0.08 : 0.04),
+                      color: colors.shadow.withValues(alpha: (isLive || isNext) && !disabled ? 0.08 : 0.04),
                       blurRadius: (isLive || isNext) && !disabled ? 12 : 6,
                       offset: const Offset(0, 2),
                     ),
@@ -668,13 +667,13 @@ class _UpcomingListTile extends StatelessWidget {
                       subject,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
                         letterSpacing: -0.2,
                         color: disabled
-                            ? (isDark ? colors.onSurface.withValues(alpha: 0.5) : const Color(0xFFBDBDBD))
+                            ? colors.onSurface.withValues(alpha: 0.5)
                             : (isPast
-                                ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
-                                : (isDark ? colors.onSurface : const Color(0xFF1A1A1A))),
+                                ? colors.onSurfaceVariant
+                                : colors.onSurface),
                         decoration: disabled || isPast ? TextDecoration.lineThrough : null,
                       ),
                       maxLines: 1,
@@ -692,19 +691,19 @@ class _UpcomingListTile extends StatelessWidget {
                         color: isLive
                             ? colors.primary.withValues(alpha: 0.15)
                             : isPast 
-                                ? (isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5))
+                                ? colors.surfaceContainerHighest
                                 : colors.primary.withValues(alpha: 0.08),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
                         isLive ? 'Live' : (isPast ? 'Done' : 'Next'),
                         style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+                          fontSize: AppTokens.typography.caption.fontSize,
                           fontWeight: FontWeight.w700,
                           color: isLive 
                               ? colors.primary 
                               : isPast 
-                                  ? (isDark ? colors.onSurfaceVariant : const Color(0xFF9E9E9E))
+                                  ? colors.onSurfaceVariant
                                   : colors.primary,
                         ),
                       ),
@@ -722,7 +721,7 @@ class _UpcomingListTile extends StatelessWidget {
                       child: Text(
                         'Off',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          fontSize: 12,
+                          fontSize: AppTokens.typography.caption.fontSize,
                           fontWeight: FontWeight.w700,
                           color: colors.error,
                         ),
@@ -737,15 +736,15 @@ class _UpcomingListTile extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: 16,
-                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                   SizedBox(width: spacing.xs + 2),
                   Text(
                     timeRange,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
+                      fontSize: AppTokens.typography.bodySecondary.fontSize,
                       fontWeight: FontWeight.w500,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.85),
                     ),
                   ),
                   if (location.isNotEmpty) ...[
@@ -753,16 +752,16 @@ class _UpcomingListTile extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: 16,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                     SizedBox(width: spacing.xs + 2),
                     Expanded(
                       child: Text(
                         location,
                         style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 14,
+                          fontSize: AppTokens.typography.bodySecondary.fontSize,
                           fontWeight: FontWeight.w500,
-                          color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                          color: colors.onSurfaceVariant.withValues(alpha: 0.85),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -850,7 +849,9 @@ class _InstructorRow extends StatelessWidget {
           child: Text(
             name,
             style: theme.textTheme.bodyMedium?.copyWith(
-              fontSize: dense ? 13 : 14,
+              fontSize: dense
+                  ? AppTokens.typography.caption.fontSize
+                  : AppTokens.typography.bodySecondary.fontSize,
               color: textColor,
               fontWeight: FontWeight.w500,
             ),
@@ -892,19 +893,19 @@ class _DashboardMetricChip extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : Colors.white,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: highlight
               ? tint.withValues(alpha: 0.3)
-              : (isDark ? colors.outline.withValues(alpha: 0.12) : const Color(0xFFE5E5E5)),
+              : colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
           width: highlight ? 1.5 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
             color: highlight
                 ? tint.withValues(alpha: 0.08)
-                : Colors.black.withValues(alpha: isDark ? 0 : 0.03),
+                : colors.shadow.withValues(alpha: isDark ? 0 : 0.03),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -952,8 +953,8 @@ class _DashboardMetricChip extends StatelessWidget {
             value,
             style: theme.textTheme.headlineSmall?.copyWith(
               fontWeight: FontWeight.w800,
-              fontSize: 24,
-              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              fontSize: AppTokens.typography.headline.fontSize,
+              color: colors.onSurface,
               height: 1.0,
             ),
           ),
@@ -961,9 +962,9 @@ class _DashboardMetricChip extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+              color: colors.onSurfaceVariant,
               fontWeight: FontWeight.w600,
-              fontSize: 13,
+              fontSize: AppTokens.typography.caption.fontSize,
             ),
           ),
           if (caption.isNotEmpty) ...[
@@ -972,7 +973,7 @@ class _DashboardMetricChip extends StatelessWidget {
               caption,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: tint,
-                fontSize: 12,
+                fontSize: AppTokens.typography.caption.fontSize,
                 fontWeight: FontWeight.w600,
               ),
             ),

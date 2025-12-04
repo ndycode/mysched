@@ -175,7 +175,6 @@ class _LoginPageState extends State<LoginPage> {
               child: Text(
                 'At least 6 characters.',
                 style: AppTokens.typography.bodySecondary.copyWith(
-                  fontSize: 12,
                   color: colors.onSurfaceVariant,
                 ),
               ),

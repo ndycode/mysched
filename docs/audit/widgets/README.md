@@ -1,27 +1,34 @@
-# Widgets - Audit
+# Widgets Directory Audit
 
 > `lib/widgets/` design system issues
+> **Last Updated**: December 5, 2025
 
 ## Summary
+
 | Category | Count |
 |----------|-------|
-| Colors | 4 |
+| BorderRadius | 0 ✅ |
 | fontSize | 1 |
-| BorderRadius | 0 |
+| SizedBox | 3 |
+| Colors | 0 ✅ |
 
 ---
 
-## schedule_list.dart
+## Colors ✅ COMPLETE
 
-### Colors (4 instances)
-| Line | Current | Notes |
+| File | Line | Before | After |
+|------|------|--------|-------|
+| schedule_list.dart | 238 | `Colors.white` | `colors.onError` |
+
+---
+
+## Remaining Issues (schedule_list.dart)
+
+| Line | Pattern | Value |
 |------|---------|-------|
-| 89 | `Colors.transparent` | ✅ Keep |
-| 225 | `Colors.transparent` | ✅ Keep |
-| 228 | `Colors.transparent` | ✅ Keep |
-| 238 | `Colors.white` | → `colorScheme.onError` (delete icon) |
+| 100 | SizedBox(height:) | 12 |
+| 306 | fontSize | 15 |
+| 313 | SizedBox(width:) | 8 |
+| 333 | SizedBox(height:) | 6 |
 
-### Typography (1 instance)
-| Line | fontSize | Suggested Token |
-|------|----------|-----------------|
-| 306 | 15 | `typography.bodySecondary` |
+> Low priority - only 3 spacing/font issues remaining

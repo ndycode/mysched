@@ -157,9 +157,8 @@ class ReminderSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Reminders overview',
-                  style: theme.textTheme.titleLarge?.copyWith(
+                  style: AppTokens.typography.title.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 20,
                     letterSpacing: -0.3,
                     color: isDark ? colors.onSurface : colors.onSurface,
                   ),
@@ -200,28 +199,26 @@ class ReminderSummaryCard extends StatelessWidget {
                     ),
                   ),
                   SizedBox(height: spacing.xl),
-                  Text(
-                    'All caught up',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 17,
-                      color: isDark ? colors.onSurfaceVariant : const Color(0xFF424242),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
+          Text(
+            'All caught up',
+            style: AppTokens.typography.subtitle.copyWith(
+              fontWeight: FontWeight.w700,
+              color: colors.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+                  SizedBox(height: spacing.sm),
                   Text(
                     'Create a reminder to stay on top of tasks.',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontSize: 14,
-                      color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.8) : const Color(0xFF757575),
+                    style: AppTokens.typography.bodySecondary.copyWith(
+                      color: colors.onSurfaceVariant.withValues(alpha: 0.8),
                     ),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            SizedBox(height: spacing.xl),
           ],
           Row(
             children: [
@@ -369,9 +366,8 @@ class ReminderHighlightHero extends StatelessWidget {
               if (subtitle.isNotEmpty)
                 Text(
                   subtitle,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppTokens.typography.bodySecondary.copyWith(
                     color: foreground.withValues(alpha: 0.85),
-                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -382,9 +378,8 @@ class ReminderHighlightHero extends StatelessWidget {
             title,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
-            style: theme.textTheme.headlineSmall?.copyWith(
+            style: AppTokens.typography.headline.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 22,
               height: 1.3,
               color: foreground,
               letterSpacing: -0.5,
@@ -409,10 +404,9 @@ class ReminderHighlightHero extends StatelessWidget {
               Expanded(
                 child: Text(
                   scheduleWindow,
-                  style: theme.textTheme.bodyLarge?.copyWith(
+                  style: AppTokens.typography.body.copyWith(
                     color: foreground,
                     fontWeight: FontWeight.w600,
-                    fontSize: 16,
                   ),
                 ),
               ),
@@ -440,9 +434,8 @@ class ReminderHighlightHero extends StatelessWidget {
                     details,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.textTheme.bodyLarge?.copyWith(
+                    style: AppTokens.typography.bodySecondary.copyWith(
                       color: foreground.withValues(alpha: 0.90),
-                      fontSize: 15,
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -505,8 +498,7 @@ class ReminderHeroChip extends StatelessWidget {
           SizedBox(width: AppTokens.spacing.xs + 2),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w600,
               color: foreground,
             ),
@@ -566,20 +558,18 @@ class ReminderMetricChip extends StatelessWidget {
           SizedBox(height: spacing.md),
           Text(
             '$value',
-            style: theme.textTheme.headlineMedium?.copyWith(
+            style: AppTokens.typography.display.copyWith(
               fontWeight: FontWeight.w800,
-              fontSize: 28,
               height: 1.0,
-              color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+              color: colors.onSurface,
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: spacing.xs),
           Text(
             label,
-            style: theme.textTheme.bodySmall?.copyWith(
-              fontSize: 12,
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: FontWeight.w600,
-              color: isDark ? colors.onSurfaceVariant : const Color(0xFF757575),
+              color: colors.onSurfaceVariant,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -819,15 +809,14 @@ class ReminderRow extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        entry.title,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                          letterSpacing: -0.2,
-                          color: primaryText,
-                          decoration: !isActive ? TextDecoration.lineThrough : null,
-                        ),
+                    Text(
+                      entry.title,
+                      style: AppTokens.typography.subtitle.copyWith(
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
+                        color: primaryText,
+                        decoration: !isActive ? TextDecoration.lineThrough : null,
+                      ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -866,15 +855,14 @@ class ReminderRow extends StatelessWidget {
                 Icon(
                   Icons.access_time_rounded,
                   size: 16,
-                  color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                  color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
                 SizedBox(width: spacing.sm),
                 Text(
                   timeLabel,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontSize: 14,
+                  style: AppTokens.typography.bodySecondary.copyWith(
                     fontWeight: FontWeight.w500,
-                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.85),
                   ),
                 ),
                 if (details.isNotEmpty) ...[
@@ -882,16 +870,15 @@ class ReminderRow extends StatelessWidget {
                   Icon(
                     Icons.notes_rounded,
                     size: 16,
-                    color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.7) : const Color(0xFF757575),
+                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                   ),
                   SizedBox(width: spacing.sm),
                   Expanded(
                     child: Text(
                       details,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontSize: 14,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.85) : const Color(0xFF616161),
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.85),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -914,10 +901,9 @@ class ReminderRow extends StatelessWidget {
                     SizedBox(width: spacing.sm),
                     Text(
                       'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
-                      style: theme.textTheme.bodySmall?.copyWith(
+                      style: AppTokens.typography.caption.copyWith(
                         color: palette.warning,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -929,7 +915,7 @@ class ReminderRow extends StatelessWidget {
     );
 
     return ClipRRect(
-      borderRadius: AppTokens.radius.circular(14),
+      borderRadius: AppTokens.radius.md,
       child: Slidable(
         key: ValueKey('dismiss-reminder-${entry.id}'),
         endActionPane: ActionPane(
@@ -1152,7 +1138,7 @@ class ReminderListCard extends StatelessWidget {
                       colors.primary.withValues(alpha: 0.10),
                     ],
                   ),
-                  borderRadius: AppTokens.radius.circular(14),
+                  borderRadius: AppTokens.radius.md,
                   border: Border.all(
                     color: colors.primary.withValues(alpha: 0.25),
                     width: 1.5,
@@ -1164,26 +1150,24 @@ class ReminderListCard extends StatelessWidget {
                   size: 26,
                 ),
               ),
-              const SizedBox(width: 16),
+              SizedBox(width: AppTokens.spacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       'Scheduled reminders',
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      style: AppTokens.typography.headline.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 21,
                         letterSpacing: -0.5,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    SizedBox(height: AppTokens.spacing.xs),
                     Text(
                       'Pinned headers keep each group visible.',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
-                        fontSize: 14,
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        color: colors.onSurfaceVariant.withValues(alpha: 0.75),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1192,12 +1176,12 @@ class ReminderListCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: AppTokens.spacing.xxl),
 
           // Groups
           for (var g = 0; g < groups.length; g++) ...[
             _buildGroupHeader(context, groups[g]),
-            const SizedBox(height: 12),
+            SizedBox(height: AppTokens.spacing.md),
             for (var i = 0; i < groups[g].items.length; i++) ...[
               ReminderRow(
                 entry: groups[g].items[i],
@@ -1208,9 +1192,9 @@ class ReminderListCard extends StatelessWidget {
                 onSnooze: () => onSnooze(groups[g].items[i]),
                 showQueuedBadge: queuedIds.contains(groups[g].items[i].id),
               ),
-              if (i != groups[g].items.length - 1) const SizedBox(height: 10),
+              if (i != groups[g].items.length - 1) SizedBox(height: AppTokens.spacing.md),
             ],
-            if (g != groups.length - 1) const SizedBox(height: 20),
+            if (g != groups.length - 1) SizedBox(height: AppTokens.spacing.xl),
           ],
         ],
       ),
@@ -1246,21 +1230,21 @@ class ReminderListCard extends StatelessWidget {
                 colors.primary.withValues(alpha: isDark ? 0.10 : 0.05),
               ]
             : [
-                isDark ? colors.surfaceContainerHighest : const Color(0xFFF5F5F5),
-                isDark ? colors.surfaceContainerHigh : const Color(0xFFFAFAFA),
+                isDark ? colors.surfaceContainerHighest : colors.surfaceContainerHigh,
+                isDark ? colors.surfaceContainerHigh : colors.surfaceContainer,
               ];
 
     final borderColor = isOverdue
         ? colors.error.withValues(alpha: 0.2)
         : isToday
             ? colors.primary.withValues(alpha: 0.2)
-            : (isDark ? colors.outline.withValues(alpha: 0.15) : const Color(0xFFE0E0E0));
+            : colors.outline.withValues(alpha: isDark ? 0.15 : 0.3);
 
     final textColor = isOverdue
         ? colors.error
         : isToday
             ? colors.primary
-            : (isDark ? colors.onSurfaceVariant : const Color(0xFF616161));
+            : colors.onSurfaceVariant;
     final spacing = AppTokens.spacing;
 
     return Container(
@@ -1292,11 +1276,10 @@ class ReminderListCard extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: AppTokens.typography.subtitle.copyWith(
                 fontWeight: FontWeight.w800,
-                fontSize: 17,
                 letterSpacing: -0.3,
-                color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                color: colors.onSurface,
               ),
             ),
           ),
@@ -1311,8 +1294,7 @@ class ReminderListCard extends StatelessWidget {
             ),
             child: Text(
               '$count ${count == 1 ? 'reminder' : 'reminders'}',
-              style: theme.textTheme.bodySmall?.copyWith(
-                fontSize: 13,
+              style: AppTokens.typography.caption.copyWith(
                 fontWeight: FontWeight.w700,
                 color: textColor,
               ),

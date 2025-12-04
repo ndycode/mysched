@@ -194,6 +194,7 @@ class _ClockBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
+    final displayBase = AppTokens.typography.display;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: spacing.sm, vertical: spacing.md),
       decoration: BoxDecoration(
@@ -205,18 +206,12 @@ class _ClockBlock extends StatelessWidget {
         children: [
           Text(
             '3:04',
-            style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                      color: textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: expanded ? 104 : 98,
-                      height: 1.0,
-                    ) ??
-                TextStyle(
-                  color: textPrimary,
-                  fontSize: expanded ? 104 : 98,
-                  fontWeight: FontWeight.w800,
-                  height: 1.0,
-                ),
+            style: displayBase.copyWith(
+              color: textPrimary,
+              fontWeight: FontWeight.w800,
+              fontSize: (displayBase.fontSize ?? 32) * (expanded ? 3.25 : 3.06),
+              height: 1.0,
+            ),
           ),
           SizedBox(height: spacing.xs),
           Text(
@@ -287,13 +282,13 @@ class _ContextCard extends StatelessWidget {
                 label: 'Sound on',
                 textSecondary: textSecondary,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: AppTokens.spacing.md),
               _StatusPill(
                 icon: Icons.vibration_rounded,
                 label: 'Vibrate',
                 textSecondary: textSecondary,
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: AppTokens.spacing.md),
               _StatusPill(
                 icon: Icons.snooze_rounded,
                 label: 'Snooze 5 min',
@@ -333,7 +328,7 @@ class _StatusPill extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 16, color: textSecondary),
-            const SizedBox(width: 6),
+            SizedBox(width: AppTokens.spacing.xs),
             Flexible(
               child: Text(
                 label,
@@ -341,7 +336,7 @@ class _StatusPill extends StatelessWidget {
                 style: TextStyle(
                   color: textSecondary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: AppTokens.typography.caption.fontSize,
                   letterSpacing: 0.1,
                 ),
               ),
@@ -458,17 +453,17 @@ class _ActionButton extends StatelessWidget {
                   style: TextStyle(
                     color: textColor,
                     fontWeight: FontWeight.w800,
-                    fontSize: 17,
+                    fontSize: AppTokens.typography.subtitle.fontSize,
                   ),
                 ),
                 if (secondaryLabel != null) ...[
-                  const SizedBox(height: 2),
+                  SizedBox(height: AppTokens.spacing.xs),
                   Text(
                     secondaryLabel!,
                     style: TextStyle(
                       color: textColor.withValues(alpha: 0.76),
                       fontWeight: FontWeight.w600,
-                      fontSize: 12,
+                      fontSize: AppTokens.typography.caption.fontSize,
                     ),
                   ),
                 ],

@@ -211,9 +211,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         borderRadius: AppTokens.radius.lg,
       ),
       elevation: isDark ? 8 : 12,
-      color: isDark ? colors.surfaceContainerHigh : Colors.white,
+      color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
+      shadowColor: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
       itemBuilder: (context) => [
         PopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.newReminder,
@@ -244,10 +244,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     SizedBox(width: spacing.lg),
                     Text(
                       'New reminder',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],
@@ -287,10 +286,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     SizedBox(width: spacing.lg),
                     Text(
                       _controller.showCompleted ? 'Hide completed' : 'Show completed',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],
@@ -311,9 +309,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
-                  isDark ? colors.outline.withValues(alpha: 0.20) : const Color(0xFFE5E5E5),
-                  (isDark ? colors.outline : const Color(0xFFE5E5E5)).withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: isDark ? 0.20 : 0.4),
+                  colors.outline.withValues(alpha: 0.0),
                 ],
               ),
             ),
@@ -348,10 +346,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     SizedBox(width: spacing.lg),
                     Text(
                       'Reset reminders',
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        fontSize: 15,
+                      style: AppTokens.typography.bodySecondary.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                        color: colors.onSurface,
                       ),
                     ),
                   ],

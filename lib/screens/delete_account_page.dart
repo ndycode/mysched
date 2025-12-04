@@ -206,19 +206,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
-                  : Colors.white,
+                  : colors.surface,
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                color: colors.outlineVariant,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
                   : [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: 0.05),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -250,19 +248,17 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
-                  : Colors.white,
+                  : colors.surface,
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: 0.12)
-                    : const Color(0xFFE5E5E5),
+                color: colors.outlineVariant,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
                   : [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: 0.05),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),

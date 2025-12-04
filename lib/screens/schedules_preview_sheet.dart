@@ -378,7 +378,7 @@ class _ImportHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 48),
+            SizedBox(width: AppTokens.spacing.quad),
           ],
         ),
         SizedBox(height: spacing.xs),
@@ -442,7 +442,7 @@ class _SectionCard extends StatelessWidget {
                   ),
                 ),
                 if (subtitle.isNotEmpty) ...[
-                  const SizedBox(height: 4),
+                  SizedBox(height: spacing.xs),
                   Text(
                     subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
@@ -505,7 +505,7 @@ class _ImportInstructorRow extends StatelessWidget {
           size: 26,
           borderWidth: 1,
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: AppTokens.spacing.sm),
         Expanded(
           child: Text(
             name,
@@ -652,9 +652,8 @@ class _DayToggleCard extends StatelessWidget {
         // Section header matching schedules page
         Text(
           dayLabel,
-          style: theme.textTheme.titleMedium?.copyWith(
+          style: AppTokens.typography.subtitle.copyWith(
             fontWeight: FontWeight.w700,
-            fontSize: 16,
             color: colors.primary,
           ),
         ),
@@ -752,23 +751,21 @@ class _ImportClassTile extends StatelessWidget {
             children: [
               Text(
                 dayLabel,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: AppTokens.typography.bodySecondary.copyWith(
                   fontWeight: FontWeight.w700,
-                  fontSize: 14,
                   color: disabled ? colors.error : colors.primary,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: AppTokens.spacing.xs),
               Text(
                 dateLabel,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontSize: 14,
+                style: AppTokens.typography.bodySecondary.copyWith(
                   color: colors.onSurfaceVariant.withValues(alpha: 0.7),
                 ),
               ),
             ],
           ),
-          const SizedBox(width: 20),
+          SizedBox(width: AppTokens.spacing.xl),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -782,8 +779,7 @@ class _ImportClassTile extends StatelessWidget {
                         entry.title.isEmpty ? 'Untitled class' : entry.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontSize: 16,
+                        style: AppTokens.typography.subtitle.copyWith(
                           fontWeight: FontWeight.w700,
                           decoration: disabled ? TextDecoration.lineThrough : null,
                           color: disabled ? colors.onSurface.withValues(alpha: 0.5) : null,
@@ -812,9 +808,8 @@ class _ImportClassTile extends StatelessWidget {
                             SizedBox(width: spacing.xs - 2),
                             Text(
                               'Next',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 11,
                                 color: colors.primary,
                                 height: 1.3,
                               ),
@@ -848,8 +843,7 @@ class _ImportClassTile extends StatelessWidget {
                       SizedBox(width: spacing.xs),
                       Text(
                         timeLabel,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          fontSize: 14,
+                        style: AppTokens.typography.bodySecondary.copyWith(
                           color: colors.onSurfaceVariant.withValues(alpha: 0.92),
                         ),
                       ),
@@ -871,8 +865,7 @@ class _ImportClassTile extends StatelessWidget {
                           location,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontSize: 14,
+                          style: AppTokens.typography.bodySecondary.copyWith(
                             color: colors.onSurfaceVariant.withValues(alpha: 0.92),
                           ),
                         ),

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../theme/motion.dart';
+import '../theme/tokens.dart';
 
 /// Extension for applying staggered animations to lists.
 /// Optimized for 90-120Hz displays with smooth timing.
@@ -748,23 +749,20 @@ class SkeletonLoader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final colors = theme.colorScheme;
 
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: isDark
-            ? Colors.white.withValues(alpha: 0.08)
-            : Colors.black.withValues(alpha: 0.06),
+        color: colors.onSurface.withValues(alpha: isDark ? 0.08 : 0.06),
         borderRadius: borderRadius ?? BorderRadius.circular(height / 2),
       ),
     )
         .animate(onPlay: (c) => c.repeat())
         .shimmer(
           duration: const Duration(milliseconds: 1200),
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.1)
-              : Colors.black.withValues(alpha: 0.04),
+          color: colors.onSurface.withValues(alpha: isDark ? 0.1 : 0.04),
         );
   }
 }
@@ -853,7 +851,8 @@ class AnimatedWarningIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final warningColor = color ?? Colors.orange;
+    final colors = Theme.of(context).colorScheme;
+    final warningColor = color ?? colors.tertiary;
 
     return Icon(
       Icons.warning_rounded,
@@ -908,10 +907,9 @@ class AnimatedBadge extends StatelessWidget {
       child: Center(
         child: Text(
           displayText,
-          style: theme.textTheme.labelSmall?.copyWith(
+          style: AppTokens.typography.caption.copyWith(
             color: textColor ?? colors.onError,
             fontWeight: FontWeight.bold,
-            fontSize: 11,
           ),
         ),
       ),
@@ -1077,9 +1075,7 @@ class _HoverLiftState extends State<HoverLift> {
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: isDark
-                          ? Colors.black.withValues(alpha: 0.4)
-                          : Colors.black.withValues(alpha: 0.15),
+                      color: theme.colorScheme.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
                       blurRadius: 20,
                       offset: Offset(0, 8 + widget.liftAmount),
                     ),

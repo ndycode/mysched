@@ -303,7 +303,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             _name.isEmpty ? 'Student' : _name,
             style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w700,
-              fontSize: 20,
+              fontSize: AppTokens.typography.title.fontSize,
             ),
             textAlign: TextAlign.center,
           ),

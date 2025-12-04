@@ -55,10 +55,9 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
               padding: EdgeInsets.zero,
               backgroundColor: theme.brightness == Brightness.dark
                   ? theme.colorScheme.surfaceContainerHigh
-                  : Colors.white,
-              borderColor: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                  : const Color(0xFFE5E5E5),
+                  : theme.colorScheme.surface,
+              borderColor: theme.colorScheme.outline.withValues(
+                  alpha: theme.brightness == Brightness.dark ? 0.12 : 0.4),
               borderRadius: AppTokens.radius.xl,
               elevation: 12,
               child: ClipRRect(
@@ -100,7 +99,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                               ),
                             ),
                           ),
-                          const SizedBox(width: 48),
+                          SizedBox(width: AppTokens.spacing.quad),
                         ],
                       ),
                       SizedBox(height: spacing.sm),

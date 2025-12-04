@@ -1,90 +1,87 @@
-# Design System Audit - Master Index
+# Design System Audit - Complete Analysis
 
-> Complete audit of hardcoded values across the MySched project
-> Last updated: December 5, 2024
+> Deep file-by-file analysis of entire lib/
+> **Last Updated**: December 5, 2024
 
-## Project Structure
+## ✅ FULLY MIGRATED
 
-```
-docs/audit/
-├── README.md              ← You are here
-├── screens/               ← lib/screens/
-│   ├── README.md
-│   ├── spacing.md
-│   ├── border_radius.md
-│   ├── colors.md
-│   └── typography.md
-├── ui/                    ← lib/ui/
-│   └── README.md          (complete deep audit)
-├── app/                   ← lib/app/
-│   └── README.md
-└── widgets/               ← lib/widgets/
-    └── README.md
-```
+| Directory | Status |
+|-----------|--------|
+| lib/screens/ | ✅ Complete |
+| lib/ui/kit/ | ✅ Complete |
 
 ---
 
-## Summary by Area
+## 🟡 REMAINING ISSUES
 
-| Area | Radius | Colors | Typography | Spacing |
-|------|--------|--------|------------|---------|
-| `lib/screens/` | 12 | 118+ | 124+ | 128 |
-| `lib/ui/` | 48 | 67 | 18 | 51 |
-| `lib/app/` | 5 | 9 | 9 | - |
-| `lib/widgets/` | 0 | 4 | 1 | - |
-| **Total** | **65** | **198+** | **152** | **179** |
+### lib/app/ (~20 issues)
 
-### lib/ui/ Breakdown
+#### root_nav.dart (7)
+| Line | Type | Value | Notes |
+|------|------|-------|-------|
+| 181, 196, 213, 220, 234 | `Colors.transparent` | ✅ | Modal backgrounds |
+| 281 | `Colors.black.withValues()` | Shadow | Consider `colors.shadow` |
+| 307, 314, 321 | `SizedBox(height: 12)` | spacing | `spacing.md` |
+| 439 | `SizedBox(height: 8)` | spacing | `spacing.sm` |
+| 481 | `BorderRadius.circular(14)` | radius | `radius.md` |
+| 487 | `SizedBox(width: 16)` | spacing | `spacing.lg` |
+| 498 | `SizedBox(height: 4)` | spacing | `spacing.xs` |
+| 541 | `Colors.black.withValues()` | Shadow | Consider `colors.shadow` |
+| 559 | `SizedBox(height: 14)` | spacing | Custom |
 
-| Category | Total | Actionable | Notes |
-|----------|-------|------------|-------|
-| BorderRadius | 48 | 32 | 16 in app_theme.dart |
-| Colors | 67 | ~35 | Many Colors.transparent |
-| fontSize | 26 | 18 | 8 define tokens |
-| SizedBox | 42 | 42 | All need migration |
-| EdgeInsets | 9 | 9 | All need migration |
-
----
-
-## Priority Order
-
-### Phase 1: Quick Wins
-- [x] `lib/screens/` BorderRadius - 12 remaining
-- [ ] `lib/ui/kit/` BorderRadius - 32 remaining
-
-### Phase 2: UI Kit Spacing
-- [ ] SizedBox in detail sheets - 23 instances
-- [ ] SizedBox in navigation - 5 instances
-- [ ] EdgeInsets - 9 instances
-
-### Phase 3: Colors
-- [ ] glass_navigation_bar.dart - 7 instances
-- [ ] containers.dart - 4 instances
-- [ ] snack_bars.dart - 3 instances
-- [ ] auth_shell.dart - 2 instances
-
-### Phase 4: Typography
-- [ ] class_details_sheet.dart - 5 fontSizes
-- [ ] reminder_details_sheet.dart - 4 fontSizes
-- [ ] alarm_preview.dart - 3 fontSizes
+#### bootstrap_gate.dart (15) - Onboarding/Setup
+| Line | Type | Value | Notes |
+|------|------|-------|-------|
+| 266 | `fontSize: 42` | Display text | Splash screen - intentional? |
+| 547 | `BorderRadius.circular(24)` | Dialog | `radius.xl` |
+| 548 | `const Color(0xFFF5F7FA)` | Background | Light-mode fallback |
+| 561, 570 | `fontSize: 20, 14` | Text | `typography.title/bodySecondary` |
+| 615, 625 | `fontSize: 13` | Caption | `typography.caption` |
+| 723 | `Colors.white` | Background | Light-mode fallback |
+| 724 | `BorderRadius.circular(16)` | Card | `radius.lg` |
+| 729 | `Colors.black.withValues()` | Shadow | Could use token |
+| 743 | `BorderRadius.circular(10)` | Badge | `radius.md` |
+| 759, 772 | `fontSize: 15, 13` | Text | `typography.body/caption` |
+| 809 | `const Color(0xFFE8EBF0)` | Background | Light-mode fallback |
+| 816, 818 | `const Color(0xFFFF9500)` | Warning pill | Custom orange |
+| 825 | `BorderRadius.circular(8)` | Pill | `radius.sm` |
+| 831 | `fontSize: 12` | Label | `typography.caption` |
 
 ---
 
-## Top Files to Fix
-
-| File | Radius | Colors | Typography | Spacing | Total |
-|------|--------|--------|------------|---------|-------|
-| class_details_sheet.dart | 9 | 2 | 5 | 17 | **33** |
-| glass_navigation_bar.dart | 6 | 7 | - | 6 | **19** |
-| reminder_details_sheet.dart | 8 | 1 | 4 | 13 | **26** |
-| schedules_cards.dart | - | 10+ | 45+ | 3 | **58+** |
-| settings_screen.dart | 1 | 27 | 18 | 9 | **55** |
+### lib/widgets/schedule_list.dart (4)
+| Line | Type | Value | Notes |
+|------|------|-------|-------|
+| 100 | `SizedBox(height: 12)` | spacing | `spacing.md` |
+| 306 | `fontSize: 15` | Text | `typography.body` |
+| 313 | `SizedBox(width: 8)` | spacing | `spacing.sm` |
+| 333 | `SizedBox(height: 6)` | spacing | `spacing.xs` |
 
 ---
 
-## Not Scanned (No UI Code)
+### lib/ui/kit/ - Intentional const Color() (6)
+These use ternary for dark/light modes:
 
-- `lib/services/` ✅
-- `lib/models/` ✅
-- `lib/utils/` ✅
-- `lib/onboarding/` ✅ (empty)
+| File | Line | Purpose |
+|------|------|---------|
+| screen_shell.dart | 227, 322 | `const Color(0xFF1A1A1A)` light mode text |
+| reminder_details_sheet.dart | 156, 165 | `const Color(0xFF1A1A1A/0xFF757575)` light mode fallback |
+| overlay_sheet.dart | 10, 188 | `const Color(0x4D000000)` barrier default |
+| theme_transition_host.dart | 86, 87 | `const Color(...)` transition scrim |
+
+> These are intentional light-mode fallbacks where colorScheme doesn't have exact equivalents.
+
+---
+
+## Summary
+
+| Category | lib/app/ | lib/widgets/ | Total |
+|----------|----------|--------------|-------|
+| BorderRadius | 5 | 0 | 5 |
+| SizedBox | 7 | 3 | 10 |
+| fontSize | 8 | 1 | 9 |
+| Colors | 3 | 0 | 3 |
+| const Color() | 4 | 0 | 4 |
+| **Total** | **27** | **4** | **31** |
+
+Plus 6 intentional const Colors in ui/kit/ (light-mode fallbacks).

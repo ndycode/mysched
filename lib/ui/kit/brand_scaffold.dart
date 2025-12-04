@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../services/profile_cache.dart';
+import '../theme/tokens.dart';
 import 'brand_header.dart';
 import 'layout.dart';
 
@@ -86,7 +87,7 @@ class _BrandScaffoldState extends State<BrandScaffold> {
     final bodyChildren = widget.builder(context, _profile);
     final listChildren = <Widget>[
       header,
-      const SizedBox(height: 16),
+      SizedBox(height: AppTokens.spacing.lg),
       ...bodyChildren,
     ];
 

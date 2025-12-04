@@ -130,7 +130,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               colors.primary.withValues(alpha: 0.10),
                             ],
                           ),
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius: AppTokens.radius.md,
                           border: Border.all(
                             color: colors.primary.withValues(alpha: 0.25),
                             width: 1.5,
@@ -142,16 +142,15 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                           size: 26,
                         ),
                       ),
-                      const SizedBox(width: 16),
+                      SizedBox(width: AppTokens.spacing.lg),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.entry.title,
-                              style: theme.textTheme.titleLarge?.copyWith(
+                              style: AppTokens.typography.title.copyWith(
                                 fontWeight: FontWeight.w800,
-                                fontSize: 20,
                                 letterSpacing: -0.5,
                                 height: 1.2,
                                 color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
@@ -159,26 +158,25 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(height: 4),
+                            SizedBox(height: AppTokens.spacing.xs),
                             Text(
                               'Reminder details',
-                              style: theme.textTheme.bodyMedium?.copyWith(
+                              style: AppTokens.typography.bodySecondary.copyWith(
                                 color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
-                                fontSize: 14,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      SizedBox(width: AppTokens.spacing.md),
                       PressableScale(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
                             color: colors.onSurface.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: AppTokens.radius.md,
                           ),
                           child: Icon(
                             Icons.close_rounded,
@@ -234,7 +232,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               color: isDark 
                                   ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
                                   : colors.primary.withValues(alpha: 0.04),
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: AppTokens.radius.lg,
                               border: Border.all(
                                 color: isDark 
                                     ? colors.outline.withValues(alpha: 0.12) 
@@ -352,7 +350,7 @@ class _ReminderActions extends StatelessWidget {
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
           ),
         ),
       ),
@@ -364,7 +362,7 @@ class _ReminderActions extends StatelessWidget {
           style: FilledButton.styleFrom(
             minimumSize: const Size.fromHeight(50),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppTokens.radius.md,
             ),
           ),
         ),
@@ -388,7 +386,7 @@ class _ReminderActions extends StatelessWidget {
           foregroundColor: isActive ? colors.onPrimaryContainer : null,
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
           ),
         ),
       ),
@@ -409,7 +407,7 @@ class _ReminderActions extends StatelessWidget {
           foregroundColor: colors.error,
           minimumSize: const Size.fromHeight(50),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: AppTokens.radius.md,
           ),
         ),
       ),
@@ -427,7 +425,7 @@ class _ReminderActions extends StatelessWidget {
     for (var i = 0; i < items.length; i++) {
       result.add(items[i]);
       if (i < items.length - 1) {
-        result.add(const SizedBox(height: 12));
+        result.add(SizedBox(height: AppTokens.spacing.md));
       }
     }
     return result;
@@ -460,7 +458,7 @@ class _InfoChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
+          SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(
@@ -500,33 +498,31 @@ class _DetailRow extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: AppTokens.radius.sm,
           ),
           child: Icon(icon, size: 20, color: colors.primary),
         ),
-        const SizedBox(width: 14),
+        SizedBox(width: AppTokens.spacing.lg),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: theme.textTheme.labelMedium?.copyWith(
+                style: AppTokens.typography.caption.copyWith(
                   color: colors.onSurfaceVariant,
-                  fontSize: 12,
                 ),
               ),
-              const SizedBox(height: 2),
+              SizedBox(height: AppTokens.spacing.xs),
               Text(
                 value,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: AppTokens.typography.subtitle.copyWith(
                   fontWeight: FontWeight.w600,
-                  fontSize: 15,
                   color: colors.onSurface,
                 ),
               ),
               if (helper != null && helper!.isNotEmpty) ...[
-                const SizedBox(height: 4),
+                SizedBox(height: AppTokens.spacing.xs),
                 Text(
                   helper!,
                   style: theme.textTheme.bodySmall?.copyWith(

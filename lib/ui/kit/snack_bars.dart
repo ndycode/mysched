@@ -30,10 +30,10 @@ void showAppSnackBar(
       accent = colors.tertiary;
       background = theme.brightness == Brightness.dark
           ? colors.surfaceContainerHigh
-          : Colors.white;
+          : colors.surface;
       borderColor = theme.brightness == Brightness.dark
           ? colors.outline.withValues(alpha: 0.12)
-          : const Color(0xFFE5E5E5);
+          : colors.outlineVariant;
       contentColor = colors.onSurface;
       badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.check_circle_rounded;
@@ -42,10 +42,10 @@ void showAppSnackBar(
       accent = colors.error;
       background = theme.brightness == Brightness.dark
           ? colors.surfaceContainerHigh
-          : Colors.white;
+          : colors.surface;
       borderColor = theme.brightness == Brightness.dark
           ? colors.outline.withValues(alpha: 0.12)
-          : const Color(0xFFE5E5E5);
+          : colors.outlineVariant;
       contentColor = colors.onSurface;
       badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.error_outline_rounded;
@@ -54,10 +54,10 @@ void showAppSnackBar(
       accent = colors.primary;
       background = theme.brightness == Brightness.dark
           ? colors.surfaceContainerHigh
-          : Colors.white;
+          : colors.surface;
       borderColor = theme.brightness == Brightness.dark
           ? colors.outline.withValues(alpha: 0.12)
-          : const Color(0xFFE5E5E5);
+          : colors.outlineVariant;
       contentColor = colors.onSurface;
       badgeFill = accent.withValues(alpha: 0.12);
       icon = Icons.info_outline_rounded;
@@ -78,7 +78,7 @@ void showAppSnackBar(
       vertical: spacing.lg,
     ),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: AppTokens.radius.xl,
       side: BorderSide(
         color: borderColor,
         width: theme.brightness == Brightness.dark ? 1 : 0.5,

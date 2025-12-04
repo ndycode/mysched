@@ -95,7 +95,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                     color: colors.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: AppTokens.spacing.xs),
                 Text(
                   'No battery use since last full charge',
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -131,7 +131,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                     color: colors.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: AppTokens.spacing.xs),
                 Text(
                   'Enable for real-time updates, disable to save battery',
                   style: theme.textTheme.bodyMedium?.copyWith(
@@ -141,13 +141,13 @@ class BatteryOptimizationDialog extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: AppTokens.spacing.lg),
           Icon(
             Icons.chevron_right_rounded,
             color: colors.onSurfaceVariant,
             size: 24,
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: AppTokens.spacing.lg),
           // Fake Toggle Switch
           Container(
             width: 52,
@@ -216,7 +216,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          SizedBox(width: AppTokens.spacing.lg),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -228,7 +228,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                     color: colors.onSurface,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: AppTokens.spacing.xs),
                 Text(
                   'Allow battery usage in background without restrictions. May use more battery.',
                   style: theme.textTheme.bodyMedium?.copyWith(

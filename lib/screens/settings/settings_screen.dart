@@ -1358,7 +1358,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       expanded: true,
                   ),
                 ),
-                const SizedBox(width: 8),
+                SizedBox(width: AppTokens.spacing.sm),
                 SecondaryButton(
                   label: 'Clear',
                   onPressed: pending > 0 ? () => OfflineQueue.instance.clear() : null,

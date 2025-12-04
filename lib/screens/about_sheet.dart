@@ -64,17 +64,15 @@ class AboutSheet extends StatelessWidget {
           decoration: BoxDecoration(
             color: theme.brightness == Brightness.dark
                 ? theme.colorScheme.surfaceContainerHigh
-                : Colors.white,
+                : theme.colorScheme.surface,
           borderRadius: AppTokens.radius.xl,
             border: Border.all(
-              color: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.outline.withValues(alpha: 0.12)
-                  : const Color(0xFFE5E5E5),
+              color: theme.colorScheme.outlineVariant,
               width: theme.brightness == Brightness.dark ? 1 : 0.5,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.15),
                 blurRadius: 40,
                 offset: const Offset(0, 10),
               ),
@@ -119,7 +117,7 @@ class AboutSheet extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(width: 48),
+                      SizedBox(width: AppTokens.spacing.quad),
                     ],
                   ),
                 ),
@@ -470,7 +468,7 @@ class _SimpleBullet extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(width: 4),
+          SizedBox(width: spacing.xs),
           Icon(Icons.circle, size: 8, color: theme.colorScheme.primary),
           SizedBox(width: spacing.sm),
           Expanded(child: Text(text, style: theme.textTheme.bodyMedium)),
@@ -503,7 +501,7 @@ class _FeatureTile extends StatelessWidget {
             color: theme.colorScheme.primary.withValues(alpha: 0.12),
             borderRadius: AppTokens.radius.sm,
           ),
-          padding: const EdgeInsets.all(10),
+          padding: spacing.edgeInsetsAll(spacing.md),
           child: Icon(icon, color: theme.colorScheme.primary, size: 20),
         ),
         SizedBox(width: spacing.md),

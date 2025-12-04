@@ -88,7 +88,7 @@ class PrimaryButton extends StatelessWidget {
                 vertical: AppTokens.spacing.md,
               ),
           textStyle: baseTextStyle,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
           disabledBackgroundColor: colors.primary.withValues(alpha: 0.75),
           disabledForegroundColor: colors.onPrimary.withValues(alpha: 0.85),
         ),
@@ -184,7 +184,7 @@ class SecondaryButton extends StatelessWidget {
             vertical: AppTokens.spacing.md,
           ),
           textStyle: baseTextStyle,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
           disabledForegroundColor: colors.primary.withValues(alpha: 0.6),
         ),
         child: child,
@@ -269,15 +269,13 @@ class DestructiveButton extends StatelessWidget {
             vertical: AppTokens.spacing.md,
           ),
           textStyle: baseTextStyle,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
           disabledBackgroundColor: colors.error.withValues(alpha: 0.65),
           disabledForegroundColor: colors.onError.withValues(alpha: 0.85),
         ).copyWith(
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return isDark
-                  ? Colors.white.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.08);
+              return colors.onSurface.withValues(alpha: isDark ? 0.12 : 0.08);
             }
             return null;
           }),

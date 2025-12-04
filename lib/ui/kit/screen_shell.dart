@@ -65,7 +65,7 @@ class ScreenShell extends StatelessWidget {
             final maxWidth = constraints.maxWidth >= 840 ? 720.0 : 640.0;
             final children = [
               if (hero != null) hero!,
-              if (hero != null) const SizedBox(height: 20),
+              if (hero != null) SizedBox(height: AppTokens.spacing.xl),
               ..._withSpacing(sections, AppTokens.spacing.lg),
             ];
 
@@ -219,9 +219,8 @@ class ScreenHeroCard extends StatelessWidget {
               children: [
                   Text(
                     title,
-                    style: theme.textTheme.titleLarge?.copyWith(
+                    style: AppTokens.typography.headline.copyWith(
                       fontWeight: FontWeight.w800,
-                      fontSize: 21,
                       letterSpacing: -0.5,
                       color: theme.brightness == Brightness.dark
                           ? theme.colorScheme.onSurface
@@ -232,7 +231,7 @@ class ScreenHeroCard extends StatelessWidget {
                   SizedBox(height: spacing.xs),
                   Text(
                     subtitle!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.bodySecondary.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
@@ -316,7 +315,7 @@ class ScreenSection extends StatelessWidget {
                         title!,
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
-                          fontSize: 17,
+                          fontSize: AppTokens.typography.subtitle.fontSize,
                           letterSpacing: -0.3,
                           color: theme.brightness == Brightness.dark
                               ? theme.colorScheme.onSurface

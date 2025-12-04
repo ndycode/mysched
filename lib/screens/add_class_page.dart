@@ -146,20 +146,20 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
         PopupMenuItem(
           value: _ClassMenuAction.save,
           child: Row(
-            children: const [
-              Icon(Icons.save_outlined, size: 18),
-              SizedBox(width: 12),
-              Text('Save class'),
+            children: [
+              const Icon(Icons.save_outlined, size: 18),
+              SizedBox(width: AppTokens.spacing.md),
+              const Text('Save class'),
             ],
           ),
         ),
         PopupMenuItem(
           value: _ClassMenuAction.cancel,
           child: Row(
-            children: const [
-              Icon(Icons.close_rounded, size: 18),
-              SizedBox(width: 12),
-              Text('Cancel'),
+            children: [
+              const Icon(Icons.close_rounded, size: 18),
+              SizedBox(width: AppTokens.spacing.md),
+              const Text('Cancel'),
             ],
           ),
         ),
@@ -167,10 +167,10 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           PopupMenuItem(
             value: _ClassMenuAction.autofill,
             child: Row(
-              children: const [
-                Icon(Icons.auto_fix_high_rounded, size: 18),
-                SizedBox(width: 12),
-                Text('Autofill sample'),
+              children: [
+                const Icon(Icons.auto_fix_high_rounded, size: 18),
+                SizedBox(width: AppTokens.spacing.md),
+                const Text('Autofill sample'),
               ],
             ),
           ),
@@ -204,7 +204,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
             fontFamily: 'SFProRounded',
             fontWeight: FontWeight.w700,
             color: colors.primary,
-            fontSize: 20,
+            fontSize: AppTokens.typography.title.fontSize,
           ),
         ),
         SizedBox(height: spacing.xl),
@@ -441,14 +441,14 @@ class _RemindersStyleShell extends StatelessWidget {
                       title,
                       style: theme.textTheme.headlineSmall?.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 20,
+                        fontSize: AppTokens.typography.title.fontSize,
                       ),
                     ),
                     SizedBox(height: AppTokens.spacing.xs),
                     Text(
                       DateFormat('EEEE, MMM d').format(DateTime.now()),
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: 16,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
                         color: colors.onSurfaceVariant,
                       ),
                     ),
@@ -484,7 +484,7 @@ class _RemindersStyleShell extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 18),
+          SizedBox(height: AppTokens.spacing.xl),
           child,
         ],
       ),
@@ -904,7 +904,7 @@ class _AddClassFormState extends State<AddClassForm> {
       children: [
         if (banner != null) ...[
           banner,
-          const SizedBox(height: 12),
+          SizedBox(height: AppTokens.spacing.md),
         ],
         DropdownButtonFormField<String?>(
           key: ValueKey<String?>(_selectedInstructorId),
@@ -942,7 +942,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   });
                 },
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: AppTokens.spacing.md),
         TextFormField(
           controller: _instructorText,
           keyboardType: TextInputType.name,
@@ -975,7 +975,7 @@ class _AddClassFormState extends State<AddClassForm> {
             });
           },
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppTokens.spacing.sm),
         Text(
           'Pick from the list or enter a custom instructor name.',
           style: helperStyle,
@@ -998,7 +998,7 @@ class _AddClassFormState extends State<AddClassForm> {
         : const SizedBox.shrink();
 
     final trailingGap =
-        widget.isSheet ? const SizedBox(width: 48) : const SizedBox(width: 12);
+        widget.isSheet ? SizedBox(width: AppTokens.spacing.quad) : SizedBox(width: AppTokens.spacing.md);
 
     return Column(
       crossAxisAlignment:
@@ -1020,7 +1020,7 @@ class _AddClassFormState extends State<AddClassForm> {
             trailingGap,
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppTokens.spacing.sm),
         Text(
           helperText,
           textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
@@ -1073,7 +1073,7 @@ class _AddClassFormState extends State<AddClassForm> {
     if (widget.isSheet) {
       formSections
         ..add(_buildHeader(theme, titleText, helperText))
-        ..add(const SizedBox(height: 16));
+        ..add(SizedBox(height: AppTokens.spacing.lg));
     }
 
     formSections.addAll([
@@ -1119,7 +1119,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   ),
               ],
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: AppTokens.spacing.md),
             TextFormField(
               controller: _title,
               decoration: decorationFor('Class title', hint: 'e.g. Calculus 2'),
@@ -1127,7 +1127,7 @@ class _AddClassFormState extends State<AddClassForm> {
               validator: (value) =>
                   value == null || value.trim().isEmpty ? 'Required' : null,
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: AppTokens.spacing.lg),
             TextFormField(
               controller: _room,
               decoration: decorationFor('Room (optional)'),
@@ -1136,7 +1136,7 @@ class _AddClassFormState extends State<AddClassForm> {
           ],
         ),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: AppTokens.spacing.lg),
       Container(
         padding: spacing.edgeInsetsAll(spacing.xl),
         decoration: BoxDecoration(
@@ -1167,7 +1167,7 @@ class _AddClassFormState extends State<AddClassForm> {
               title: 'Schedule',
               subtitle: 'Tell us when this class usually happens',
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: AppTokens.spacing.md),
             InkWell(
               onTap: _submitting ? null : _pickDay,
               borderRadius: AppTokens.radius.lg,
@@ -1198,7 +1198,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            SizedBox(height: AppTokens.spacing.lg),
             Row(
               children: [
                 Expanded(
@@ -1209,7 +1209,7 @@ class _AddClassFormState extends State<AddClassForm> {
                     onTap: _submitting ? null : _pickStart,
                   ),
                 ),
-                const SizedBox(width: 12),
+                SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: _TimeField(
                     label: 'Ends',
@@ -1220,7 +1220,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 ),
               ],
             ),
-            const SizedBox(height: 14),
+            SizedBox(height: AppTokens.spacing.lg),
             Row(
               children: [
                 Expanded(
@@ -1229,7 +1229,7 @@ class _AddClassFormState extends State<AddClassForm> {
                     label: _scopeLabel(_day),
                   ),
                 ),
-                const SizedBox(width: 10),
+                SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: _ScopeChip(
                     icon: Icons.schedule_rounded,
@@ -1241,7 +1241,7 @@ class _AddClassFormState extends State<AddClassForm> {
           ],
         ),
       ),
-      const SizedBox(height: 16),
+      SizedBox(height: AppTokens.spacing.lg),
       Container(
         padding: spacing.edgeInsetsAll(spacing.xl),
         decoration: BoxDecoration(
@@ -1272,13 +1272,13 @@ class _AddClassFormState extends State<AddClassForm> {
               title: 'Instructor',
               subtitle: 'Optional details to complete your schedule',
             ),
-            const SizedBox(height: 10),
+            SizedBox(height: AppTokens.spacing.md),
             _buildInstructorField(theme, decorationBuilder: decorationFor),
           ],
         ),
       ),
       if (widget.includeButtons) ...[
-        const SizedBox(height: 20),
+        SizedBox(height: AppTokens.spacing.xl),
         Row(
           children: [
             Expanded(
@@ -1297,7 +1297,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 ),
               ),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: AppTokens.spacing.md),
             Expanded(
               child: OutlinedButton(
                 onPressed: _submitting ? null : widget.onCancel,
@@ -1462,7 +1462,7 @@ class _TimeField extends StatelessWidget {
               alignment: Alignment.center,
               child: Icon(icon, color: colors.primary, size: 18),
             ),
-            const SizedBox(width: 12),
+            SizedBox(width: AppTokens.spacing.md),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1473,7 +1473,7 @@ class _TimeField extends StatelessWidget {
                       color: colors.onSurfaceVariant,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  SizedBox(height: AppTokens.spacing.xs),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
@@ -1481,7 +1481,7 @@ class _TimeField extends StatelessWidget {
                       value,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                       maxLines: 1,
                     ),
@@ -1489,7 +1489,7 @@ class _TimeField extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: AppTokens.spacing.sm),
             Icon(
               Icons.chevron_right_rounded,
               size: 20,
@@ -1523,7 +1523,7 @@ class _SectionHeader extends StatelessWidget {
           ),
         ),
         if (subtitle != null) ...[
-          const SizedBox(height: 4),
+          SizedBox(height: AppTokens.spacing.xs),
           Text(
             subtitle!,
             style: theme.textTheme.bodyMedium?.copyWith(
@@ -1564,7 +1564,7 @@ class _ScopeChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 18, color: colors.primary),
-          const SizedBox(width: 8),
+          SizedBox(width: spacing.sm),
           Flexible(
             child: Text(
               label,

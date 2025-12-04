@@ -71,7 +71,7 @@ class HeroAvatar extends StatelessWidget {
                 fontFamily: 'SFProRounded',
                 fontSize: radius,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
                 letterSpacing: 0.2,
               ),
             ),

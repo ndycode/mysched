@@ -301,7 +301,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             'Class issue reports',
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
-              fontSize: 24,
+              fontSize: AppTokens.typography.headline.fontSize,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -452,7 +452,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
                       style: AppTokens.typography.subtitle.copyWith(
                         color: colors.onSurface,
                         fontWeight: FontWeight.w700,
-                        fontSize: 18,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
@@ -577,7 +577,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(icon, size: 16, color: colors.onSurfaceVariant),
-          const SizedBox(width: 6),
+          SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(

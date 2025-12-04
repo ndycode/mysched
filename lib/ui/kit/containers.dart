@@ -237,23 +237,21 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
       case CardVariant.elevated:
         return CardStyle(
           background: backgroundOverride ??
-              (isDark ? colors.surfaceContainerHigh : Colors.white),
+              (isDark ? colors.surfaceContainerHigh : colors.surface),
           border: Border.all(
             color: borderOverride ??
                 (hovered
                     ? colors.primary.withValues(alpha: 0.3)
                     : (isDark
                         ? colors.outline.withValues(alpha: 0.12)
-                        : const Color(0xFFE5E5E5))),
+                        : colors.outlineVariant)),
             width: isDark ? 1 : 0.5,
           ),
           shadows: isDark
               ? []
               : [
                   BoxShadow(
-                    color: hovered
-                        ? Colors.black.withValues(alpha: 0.08)
-                        : Colors.black.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: hovered ? 0.08 : 0.05),
                     blurRadius: hovered ? 16 : 12,
                     offset: hovered ? const Offset(0, 6) : const Offset(0, 4),
                   ),

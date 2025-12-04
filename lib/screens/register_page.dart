@@ -226,7 +226,6 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Text(
                 'At least 8 characters.',
                 style: AppTokens.typography.bodySecondary.copyWith(
-                  fontSize: 12,
                   color: colors.onSurfaceVariant,
                 ),
               ),

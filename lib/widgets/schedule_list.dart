@@ -97,7 +97,7 @@ class ScheduleList extends StatelessWidget {
               color: colors.onSurface,
             ),
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: AppTokens.spacing.md),
           for (var d = 1; d <= 7; d++)
             if (byDay[d]!.isNotEmpty) ...[
               Padding(
@@ -235,7 +235,7 @@ class _Row extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 16),
         color: colors.error,
-        child: const Icon(Icons.delete, color: Colors.white),
+        child: Icon(Icons.delete, color: colors.onError),
       ),
       confirmDismiss: (_) async {
         final ok = await showDialog<bool>(
@@ -303,14 +303,14 @@ class _Row extends StatelessWidget {
                             child: Text(
                               titleOrCode.isEmpty ? 'Class' : titleOrCode,
                               style: textTheme.titleMedium?.copyWith(
-                                fontSize: 15,
+                                fontSize: AppTokens.typography.body.fontSize,
                                 fontWeight: FontWeight.w600,
                                 color: colors.onSurface,
                               ),
                             ),
                           ),
                           if (statusLabel != null) ...[
-                            const SizedBox(width: 8),
+                            SizedBox(width: AppTokens.spacing.sm),
                             StatusChip(
                               icon: statusIcon!,
                               label: statusLabel,
@@ -330,7 +330,7 @@ class _Row extends StatelessWidget {
                               ),
                         ],
                       ),
-                      const SizedBox(height: 6),
+                      SizedBox(height: AppTokens.spacing.xs),
                       Text(
                         _range(c.start, c.end),
                         style: textTheme.bodySmall?.copyWith(color: muted),

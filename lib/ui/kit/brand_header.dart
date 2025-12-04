@@ -63,12 +63,12 @@ class BrandHeader extends StatelessWidget {
           fontFamily: 'SFProRounded',
           fontWeight: FontWeight.w700,
           color: theme.colorScheme.primary,
-          fontSize: 22,
+          fontSize: AppTokens.typography.title.fontSize,
         ) ??
         TextStyle(
           fontFamily: 'SFProRounded',
           fontWeight: FontWeight.w700,
-          fontSize: 22,
+          fontSize: AppTokens.typography.title.fontSize,
           color: theme.colorScheme.primary,
         );
 
@@ -90,7 +90,7 @@ class BrandHeader extends StatelessWidget {
                           radius: avatarRadius,
                         ),
                         if (showChevron) ...[
-                          const SizedBox(width: 6),
+                          SizedBox(width: AppTokens.spacing.xs),
                           Icon(
                             Icons.expand_more_rounded,
                             size: 24,
@@ -228,10 +228,10 @@ class ScreenBrandHeaderSkeleton extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                SkeletonBlock(height: 20, width: 140),
-                SizedBox(height: 8),
-                SkeletonBlock(height: 14, width: 200),
+              children: [
+                const SkeletonBlock(height: 20, width: 140),
+                SizedBox(height: AppTokens.spacing.sm),
+                const SkeletonBlock(height: 14, width: 200),
               ],
             ),
           ),

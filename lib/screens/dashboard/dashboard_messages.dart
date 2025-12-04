@@ -27,8 +27,8 @@ class _DashboardMessageCard extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
 
-    final cardBackground = isDark ? colors.surfaceContainer : Colors.white;
-    final shadowColor = Colors.black.withValues(alpha: isDark ? 0.3 : 0.08);
+    final cardBackground = isDark ? colors.surfaceContainer : colors.surface;
+    final shadowColor = colors.shadow.withValues(alpha: isDark ? 0.3 : 0.08);
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
@@ -71,7 +71,7 @@ class _DashboardMessageCard extends StatelessWidget {
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
-                        fontSize: 18,
+                        fontSize: AppTokens.typography.title.fontSize,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -80,7 +80,7 @@ class _DashboardMessageCard extends StatelessWidget {
                       message,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: colors.onSurfaceVariant.withValues(alpha: 0.8),
-                        fontSize: 15,
+                        fontSize: AppTokens.typography.body.fontSize,
                         height: 1.4,
                       ),
                     ),

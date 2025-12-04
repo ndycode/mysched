@@ -38,13 +38,13 @@ class GlassNavigationBar extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final lightBase =
-        solid ? Colors.white : Colors.white.withValues(alpha: 0.9);
+        solid ? colors.surface : colors.surface.withValues(alpha: 0.9);
     final darkBase = solid
         ? colors.surface
         : colors.surfaceContainerHighest.withValues(alpha: 0.96);
     final background = solidBackground ?? (isDark ? darkBase : lightBase);
     final shadowColor =
-        isDark ? Colors.black.withValues(alpha: 0.42) : const Color(0x1F274362);
+        colors.shadow.withValues(alpha: isDark ? 0.42 : 0.12);
     final blurSigma = solid ? 0.0 : 18.0;
 
     final media = MediaQuery.of(context);
@@ -151,19 +151,19 @@ class GlassNavigationBar extends StatelessWidget {
 
       final insertQuick = showInline && i == insertAfter;
       if (insertQuick) {
-        widgets.add(const SizedBox(width: 10));
+        widgets.add(SizedBox(width: AppTokens.spacing.md));
         widgets.add(
           _InlineQuickActionButton(
             active: quickActionOpen,
             onTap: onQuickAction!,
           ),
         );
-        widgets.add(const SizedBox(width: 10));
+        widgets.add(SizedBox(width: AppTokens.spacing.md));
       }
 
       final addGapAfter = i != count - 1;
       if (addGapAfter) {
-        widgets.add(const SizedBox(width: 6));
+        widgets.add(SizedBox(width: AppTokens.spacing.xs));
       }
     }
 
@@ -251,8 +251,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final activeColor = colors.primary;
-    final inactiveColor =
-        isDark ? colors.onSurface.withValues(alpha: 0.75) : Colors.black54;
+    final inactiveColor = colors.onSurfaceVariant;
     final highlightColor = activeColor.withValues(alpha: isDark ? 0.24 : 0.12);
     final activeIconColor = colors.onPrimary;
     final displayIcon =
@@ -302,7 +301,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            SizedBox(height: AppTokens.spacing.xs),
             AnimatedBuilder(
               animation: _indicatorWidthAnimation,
               builder: (context, _) {
@@ -311,7 +310,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                   width: _indicatorWidthAnimation.value,
                   decoration: BoxDecoration(
                     color: activeColor,
-                    borderRadius: BorderRadius.circular(999),
+                    borderRadius: AppTokens.radius.pill,
                     boxShadow: widget.selected
                         ? [
                             BoxShadow(
@@ -354,9 +353,8 @@ class _FloatingQuickActionButton extends StatelessWidget {
     final bubbleShadow = accent.withValues(alpha: isDark ? 0.28 : 0.22);
     final labelBackground = isDark
         ? colors.surfaceContainerHighest
-        : Colors.white.withValues(alpha: 0.96);
-    final labelShadowBase =
-        isDark ? Colors.black : Colors.black.withValues(alpha: 0.08);
+        : colors.surface.withValues(alpha: 0.96);
+    final labelShadowBase = colors.shadow;
     final labelShadow = labelShadowBase.withValues(alpha: isDark ? 0.5 : 0.18);
     return Column(
       children: [
@@ -370,7 +368,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                 width: 114,
                 height: 44,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(30),
+                  borderRadius: AppTokens.radius.xxxl,
                   border: Border.all(
                     color: accent.withValues(alpha: 0.18),
                     width: 2,
@@ -392,7 +390,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                 width: 88,
                 height: 34,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(22),
+                  borderRadius: AppTokens.radius.xl,
                   border: Border.all(
                     color: accent.withValues(alpha: 0.22),
                     width: 1.4,
@@ -450,7 +448,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: AppTokens.spacing.sm),
         Container(
           padding: EdgeInsets.symmetric(
             horizontal: spacing.md,
@@ -458,7 +456,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             color: labelBackground,
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: AppTokens.radius.pill,
             boxShadow: [
               BoxShadow(
                 color: labelShadow,
@@ -512,7 +510,7 @@ class _InlineQuickActionButton extends StatelessWidget {
               height: 56,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(28),
+                borderRadius: AppTokens.radius.xxl,
                 boxShadow: [
                   BoxShadow(
                     color: color.withValues(alpha: active ? 0.24 : 0.18),

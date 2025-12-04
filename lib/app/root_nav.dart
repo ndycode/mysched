@@ -278,7 +278,7 @@ class _RootNavState extends State<RootNav>
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.18),
+                color: colors.shadow.withValues(alpha: 0.18),
                 blurRadius: 28,
                 offset: const Offset(0, 24),
               ),
@@ -304,21 +304,21 @@ class _RootNavState extends State<RootNav>
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: AppTokens.spacing.md),
               _QuickActionButton(
                 icon: Icons.library_add_outlined,
                 label: 'Add custom class',
                 description: 'Create a class manually.',
                 onTap: _openAddClass,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: AppTokens.spacing.md),
               _QuickActionButton(
                 icon: Icons.alarm_add_outlined,
                 label: 'Add reminder',
                 description: 'Plan an assignment or task.',
                 onTap: _openAddReminder,
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: AppTokens.spacing.md),
               _QuickActionButton(
                 icon: Icons.camera_alt_outlined,
                 label: 'Scan schedule',
@@ -436,7 +436,7 @@ class _RootNavState extends State<RootNav>
             _FabHintBubble(
               onDismiss: _dismissFabHint,
             ),
-          const SizedBox(height: 8),
+          SizedBox(height: AppTokens.spacing.sm),
         ],
       ),
     );
@@ -478,13 +478,13 @@ class _QuickActionButton extends StatelessWidget {
               width: 42,
               height: 42,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: AppTokens.radius.md,
                 color: colors.primary.withValues(alpha: 0.16),
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: colors.primary),
             ),
-            const SizedBox(width: 16),
+            SizedBox(width: AppTokens.spacing.lg),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,7 +495,7 @@ class _QuickActionButton extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: AppTokens.spacing.xs),
                   Text(
                     description,
                     style: theme.textTheme.bodySmall?.copyWith(
@@ -538,7 +538,7 @@ class _FabHintBubble extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: isDark ? 0.28 : 0.16),
+              color: colors.shadow.withValues(alpha: isDark ? 0.28 : 0.16),
               blurRadius: 28,
               offset: const Offset(0, 20),
             ),
@@ -556,7 +556,7 @@ class _FabHintBubble extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 14),
+              SizedBox(height: AppTokens.spacing.md),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(

@@ -128,7 +128,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
               height: AppTokens.componentSize.progressHeight,
               decoration: BoxDecoration(
                 color: theme.colorScheme.outline.withValues(alpha: AppOpacity.divider),
-                borderRadius: AppTokens.radius.circular(2),
+                borderRadius: AppTokens.radius.micro,
               ),
             ),
           ),

@@ -45,7 +45,7 @@ extension StaggeredListAnimation on List<Widget> {
       delay: delay,
       staggerDuration: AppMotionSystem.staggerFast,
       itemDuration: AppMotionSystem.quick,
-      slideOffset: 8,
+      slideOffset: AppTokens.durations.slideOffsetSm,
     );
   }
 
@@ -57,7 +57,7 @@ extension StaggeredListAnimation on List<Widget> {
       delay: delay,
       staggerDuration: AppMotionSystem.staggerSlow,
       itemDuration: AppMotionSystem.slow,
-      slideOffset: 20,
+      slideOffset: AppTokens.durations.slideOffsetMd,
       curve: AppMotionSystem.overshoot,
     );
   }

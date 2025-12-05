@@ -190,6 +190,10 @@ class AppSpacing {
 class AppRadius {
   const AppRadius();
 
+  /// Micro radius for handles and subtle rounding (2)
+  final BorderRadius micro = const BorderRadius.all(Radius.circular(2));
+  /// Micro-plus radius (4)
+  final BorderRadius microPlus = const BorderRadius.all(Radius.circular(4));
   /// Extra-small radius for checkboxes and subtle rounding
   final BorderRadius xs = const BorderRadius.all(Radius.circular(6));
   final BorderRadius sm = const BorderRadius.all(Radius.circular(8));
@@ -342,6 +346,12 @@ class AppDurations {
 
   /// Delay before form submission feedback.
   final Duration submitDelay = const Duration(milliseconds: 500);
+
+  /// Small slide offset for fast/subtle animations (8px)
+  final double slideOffsetSm = 8;
+
+  /// Medium slide offset for dramatic animations (20px)
+  final double slideOffsetMd = 20;
 }
 
 /// Centralized icon size tokens for consistent icon sizing.

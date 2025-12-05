@@ -77,8 +77,8 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
   Widget _buildSlideUpTransition(Animation<double> animation, Widget child) {
     final fadeAnimation = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.5, curve: AppMotionSystem.easeOut),
-      reverseCurve: const Interval(0.5, 1.0, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
+      reverseCurve: const Interval(AppMotionSystem.intervalHalf, 1.0, curve: AppMotionSystem.easeIn),
     );
 
     final slideAnimation = CurvedAnimation(
@@ -94,14 +94,14 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0, 0.05),
+          begin: const Offset(0, AppMotionSystem.slideOffsetSm),
           end: Offset.zero,
         ).animate(slideAnimation),
         child: ScaleTransition(
-          scale: Tween<double>(begin: 0.97, end: 1.0).animate(scaleAnimation),
+          scale: Tween<double>(begin: AppMotionSystem.scalePressInteractive, end: AppMotionSystem.scaleNone).animate(scaleAnimation),
           child: child,
         ),
       ),
@@ -111,7 +111,7 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
   Widget _buildScaleTransition(Animation<double> animation, Widget child) {
     final fadeAnimation = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.4, curve: AppMotionSystem.easeOut),
+      curve: const Interval(0.0, AppMotionSystem.intervalMid, curve: AppMotionSystem.easeOut),
     );
 
     final scaleAnimation = CurvedAnimation(
@@ -121,9 +121,9 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.9, end: 1.0).animate(scaleAnimation),
+        scale: Tween<double>(begin: AppMotionSystem.scalePress, end: AppMotionSystem.scaleNone).animate(scaleAnimation),
         child: child,
       ),
     );
@@ -137,7 +137,7 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
       child: child,
     );
   }
@@ -152,16 +152,16 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
 
     final fadeAnimation = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.3, curve: Curves.easeOut),
+      curve: const Interval(0.0, AppMotionSystem.intervalEarly, curve: AppMotionSystem.easeOut),
     );
 
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0, 1),
+        begin: const Offset(0, AppMotionSystem.slideOffsetFull),
         end: Offset.zero,
       ).animate(slideAnimation),
       child: FadeTransition(
-        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+        opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
         child: child,
       ),
     );

@@ -10,22 +10,24 @@ class InstructorAvatar extends StatelessWidget {
     required this.tint,
     this.avatarUrl,
     this.inverse = false,
-    this.size = 28,
-    this.borderWidth = 1,
+    this.size,
+    this.borderWidth,
   });
 
   final String name;
   final String? avatarUrl;
   final Color tint;
   final bool inverse;
-  final double size;
-  final double borderWidth;
+  final double? size;
+  final double? borderWidth;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final initials = instructorInitials(name);
+    final effectiveSize = size ?? AppTokens.iconSize.xl;
+    final effectiveBorderWidth = borderWidth ?? AppTokens.componentSize.divider;
 
     final background = inverse
         ? colors.onPrimary.withValues(alpha: AppOpacity.darkTint)
@@ -34,12 +36,12 @@ class InstructorAvatar extends StatelessWidget {
         .withValues(alpha: inverse ? AppOpacity.accent : AppOpacity.border);
 
     final fallback = Container(
-      width: size,
-      height: size,
+      width: effectiveSize,
+      height: effectiveSize,
       decoration: BoxDecoration(
         color: background,
-        borderRadius: BorderRadius.circular(size),
-        border: Border.all(color: borderColor, width: borderWidth),
+        borderRadius: BorderRadius.circular(effectiveSize),
+        border: Border.all(color: borderColor, width: effectiveBorderWidth),
       ),
       alignment: Alignment.center,
       child: Text(
@@ -57,13 +59,13 @@ class InstructorAvatar extends StatelessWidget {
     }
 
     // Calculate cache dimensions based on device pixel ratio
-    final cacheSize = (size * MediaQuery.devicePixelRatioOf(context)).toInt();
+    final cacheSize = (effectiveSize * MediaQuery.devicePixelRatioOf(context)).toInt();
 
     return ClipOval(
       child: Image.network(
         url,
-        width: size,
-        height: size,
+        width: effectiveSize,
+        height: effectiveSize,
         fit: BoxFit.cover,
         cacheWidth: cacheSize,
         cacheHeight: cacheSize,

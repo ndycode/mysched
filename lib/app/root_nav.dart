@@ -39,7 +39,6 @@ class _RootNavState extends State<RootNav>
     with SingleTickerProviderStateMixin
     implements RootNavHandle {
   static const _fabHintPrefKey = 'dashboard.fab_hint_seen';
-  static const double _kNavHeight = 10;
   int _idx = 0;
 
   // Single shared API instances for the tabs that need them
@@ -375,7 +374,7 @@ class _RootNavState extends State<RootNav>
               animation: _quickSheetController,
               builder: (context, child) {
                 final viewPadding = MediaQuery.of(context).padding.bottom;
-                final bottomInset = viewPadding + _kNavHeight;
+                final bottomInset = viewPadding + AppTokens.spacing.smMd;
                 const scrimColor = Colors.transparent;
                 return Stack(
                   children: [

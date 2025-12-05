@@ -10,13 +10,14 @@ void showAppSnackBar(
   AppSnackBarType type = AppSnackBarType.info,
   String? actionLabel,
   VoidCallback? onAction,
-  Duration duration = const Duration(seconds: 3),
+  Duration? duration,
   bool replaceQueue = true,
 }) {
   final theme = Theme.of(context);
   final colors = theme.colorScheme;
   final media = MediaQuery.of(context);
   final spacing = AppTokens.spacing;
+  final effectiveDuration = duration ?? AppTokens.durations.snackbarDuration;
 
   late final Color accent;
   late final IconData icon;
@@ -66,7 +67,7 @@ void showAppSnackBar(
 
   final snackBar = SnackBar(
     behavior: SnackBarBehavior.floating,
-    duration: duration,
+    duration: effectiveDuration,
     margin: EdgeInsets.fromLTRB(
       spacing.xl,
       0,
@@ -81,7 +82,7 @@ void showAppSnackBar(
       borderRadius: AppTokens.radius.xl,
       side: BorderSide(
         color: borderColor,
-        width: theme.brightness == Brightness.dark ? 1 : 0.5,
+        width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
       ),
     ),
     backgroundColor: background,

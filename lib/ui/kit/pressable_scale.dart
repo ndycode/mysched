@@ -132,7 +132,7 @@ class _PressableScaleState extends State<PressableScale>
           pressDuration: AppMotionSystem.fast,
           releaseDuration: AppMotionSystem.medium,
           pressCurve: AppMotionSystem.decelerate,
-          releaseCurve: Curves.elasticOut,
+          releaseCurve: AppMotionSystem.elasticOut,
         );
       case PressableVariant.bouncy:
         return _PressableConfig(
@@ -141,7 +141,7 @@ class _PressableScaleState extends State<PressableScale>
           pressDuration: AppMotionSystem.fast,
           releaseDuration: AppMotionSystem.slow,
           pressCurve: AppMotionSystem.decelerate,
-          releaseCurve: Curves.elasticOut,
+          releaseCurve: AppMotionSystem.elasticOut,
         );
     }
   }
@@ -307,7 +307,7 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
         onTapCancel: () => setState(() => _pressed = false),
         child: AnimatedContainer(
           duration: AppTokens.motion.fast,
-          curve: Curves.easeOut,
+          curve: AppMotionSystem.easeOut,
           decoration: BoxDecoration(
             color: resolvedColor,
             borderRadius: radius,
@@ -316,7 +316,7 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
           child: AnimatedScale(
             scale: _pressed && widget.enabled ? AppMotionSystem.scalePressSubtle : AppMotionSystem.scaleNone,
             duration: AppMotionSystem.instant,
-            curve: Curves.easeOut,
+            curve: AppMotionSystem.easeOut,
             child: widget.child,
           ),
         ),
@@ -338,7 +338,7 @@ class AnimatedIconButton extends StatefulWidget {
     this.borderRadius,
     this.tooltip,
     this.rotateOnPress = false,
-    this.rotationAngle = 0.05,
+    this.rotationAngle = AppMotionSystem.rotationTap,
     this.hapticFeedback = true,
   });
 
@@ -380,14 +380,14 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
     );
 
     _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePressDeep).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+      CurvedAnimation(parent: _controller, curve: AppMotionSystem.easeOut),
     );
 
     _rotationAnimation = Tween<double>(
       begin: 0.0,
       end: widget.rotateOnPress ? widget.rotationAngle : 0.0,
     ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+      CurvedAnimation(parent: _controller, curve: AppMotionSystem.easeOut),
     );
   }
 
@@ -500,8 +500,8 @@ class _BouncyTapState extends State<BouncyTap>
     _animation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePress).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.easeInOut,
-        reverseCurve: Curves.elasticOut,
+        curve: AppMotionSystem.easeInOut,
+        reverseCurve: AppMotionSystem.elasticOut,
       ),
     );
   }

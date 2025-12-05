@@ -49,8 +49,8 @@ class _SmoothDialogRoute<T> extends PopupRoute<T> {
   ) {
     final fadeAnimation = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.5, curve: AppMotionSystem.easeOut),
-      reverseCurve: const Interval(0.5, 1.0, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
+      reverseCurve: const Interval(AppMotionSystem.intervalHalf, 1.0, curve: AppMotionSystem.easeIn),
     );
 
     final scaleAnimation = CurvedAnimation(
@@ -60,9 +60,9 @@ class _SmoothDialogRoute<T> extends PopupRoute<T> {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeAnimation),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.92, end: 1.0).animate(scaleAnimation),
+        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: AppMotionSystem.scaleNone).animate(scaleAnimation),
         child: child,
       ),
     );

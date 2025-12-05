@@ -25,7 +25,7 @@ class HintBubble extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: AppTokens.spacing.xxl),
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: colors.surface.withValues(alpha: isDark ? AppOpacity.prominent : 0.96),
+          color: colors.surface.withValues(alpha: isDark ? AppOpacity.prominent : AppOpacity.dense),
           borderRadius: AppTokens.radius.lg,
           border: Border.all(
             color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),

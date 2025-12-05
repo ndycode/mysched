@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/analytics_service.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 typedef ButtonTap = VoidCallback?;
@@ -68,7 +69,7 @@ class PrimaryButton extends StatelessWidget {
 
     final button = AnimatedOpacity(
       duration: AppTokens.motion.fast,
-      opacity: isDisabled ? 0.65 : 1.0,
+      opacity: isDisabled ? AppOpacity.disabledButton : AppMotionSystem.scaleNone,
       child: FilledButton(
         onPressed: isDisabled
             ? null
@@ -160,7 +161,7 @@ class SecondaryButton extends StatelessWidget {
 
     final button = AnimatedOpacity(
       duration: AppTokens.motion.fast,
-      opacity: isDisabled ? 0.6 : 1.0,
+      opacity: isDisabled ? AppOpacity.soft : AppMotionSystem.scaleNone,
       child: OutlinedButton(
         onPressed: isDisabled
             ? null
@@ -248,7 +249,7 @@ class DestructiveButton extends StatelessWidget {
 
     final button = AnimatedOpacity(
       duration: AppTokens.motion.fast,
-      opacity: isDisabled ? 0.65 : 1.0,
+      opacity: isDisabled ? AppOpacity.disabledButton : AppMotionSystem.scaleNone,
       child: FilledButton(
         onPressed: isDisabled
             ? null

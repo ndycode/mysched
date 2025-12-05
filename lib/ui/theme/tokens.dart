@@ -351,6 +351,9 @@ class AppDurations {
   /// Minimum interval between schedule fetches.
   final Duration fetchDebounce = const Duration(seconds: 3);
 
+  /// Default snackbar display duration.
+  final Duration snackbarDuration = const Duration(seconds: 3);
+
   /// Default snooze duration for reminders.
   final Duration defaultSnooze = const Duration(hours: 1);
 
@@ -779,6 +782,9 @@ class AppOpacity {
   /// Soft content and backgrounds (0.60)
   static const double soft = 0.60;
 
+  /// Disabled button opacity (0.65) - for entire button fade
+  static const double disabledButton = 0.65;
+
   /// Skeleton light mode base (0.65)
   static const double skeletonLight = 0.65;
 
@@ -836,6 +842,9 @@ class AppLayout {
 
   /// Maximum width for modal sheets.
   static const double sheetMaxWidth = 520.0;
+
+  /// Minimum height for modal sheets (ensures content visibility).
+  static const double sheetMinHeight = 360.0;
 
   /// Maximum height ratio for modal sheets (78% of screen).
   static const double sheetMaxHeightRatio = 0.78;
@@ -1087,6 +1096,9 @@ class AppShadowOffset {
 
   /// Nav bubble active offset (18)
   static const Offset navBubbleActive = Offset(0, 18);
+
+  /// Nav FAB lift offset (negative to raise above nav bar)
+  static const Offset navFabLift = Offset(0, -4);
 
   /// Slide-in animation offset (subtle upward entry)
   static const Offset slideIn = Offset(0, 0.05);

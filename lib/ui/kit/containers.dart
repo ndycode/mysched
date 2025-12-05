@@ -79,11 +79,11 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
       reverseDuration: AppMotionSystem.quick,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.975).animate(
+    _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePressLight).animate(
       CurvedAnimation(
         parent: _controller,
-        curve: Curves.easeOut,
-        reverseCurve: Curves.easeOutBack,
+        curve: AppMotionSystem.easeOut,
+        reverseCurve: AppMotionSystem.snapBack,
       ),
     );
   }
@@ -246,7 +246,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
                     : (isDark
                         ? colors.outline.withValues(alpha: AppOpacity.overlay)
                         : colors.outlineVariant)),
-            width: isDark ? 1 : 0.5,
+            width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
           ),
           shadows: isDark
               ? []

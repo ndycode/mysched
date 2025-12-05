@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../services/theme_controller.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 class ThemeTransitionHost extends StatefulWidget {
@@ -98,10 +99,10 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
               child: FadeTransition(
                 opacity: ReverseAnimation(_controller),
                 child: ScaleTransition(
-                  scale: Tween<double>(begin: 1.0, end: 0.985)
+                  scale: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePressSubtle)
                       .animate(CurvedAnimation(
                     parent: _controller,
-                    curve: Curves.easeOutCubic,
+                    curve: AppMotionSystem.easeOut,
                   )),
                   child: DecoratedBox(
                     decoration: BoxDecoration(color: overlayColor),

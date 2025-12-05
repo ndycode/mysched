@@ -42,7 +42,7 @@ class PrivacySheet extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: AppLayout.sheetMaxWidth,
-          maxHeight: maxHeight.clamp(360.0, double.infinity),
+          maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
         ),
         child: CardX(
           padding: spacing.edgeInsetsAll(spacing.xl),

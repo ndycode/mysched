@@ -49,7 +49,7 @@ class AboutSheet extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
           maxWidth: AppLayout.sheetMaxWidth,
-          maxHeight: maxHeight.clamp(360.0, double.infinity),
+          maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
         ),
         child: Container(
           decoration: BoxDecoration(
@@ -59,7 +59,7 @@ class AboutSheet extends StatelessWidget {
           borderRadius: AppTokens.radius.xl,
             border: Border.all(
               color: theme.colorScheme.outlineVariant,
-              width: theme.brightness == Brightness.dark ? 1 : 0.5,
+              width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
             ),
             boxShadow: [
               BoxShadow(

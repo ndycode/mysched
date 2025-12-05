@@ -78,8 +78,8 @@ extension StaggeredListAnimation on List<Widget> {
           .animate(delay: itemDelay)
           .fadeIn(duration: itemDuration, curve: AppMotionSystem.easeOut)
           .scale(
-            begin: const Offset(0.85, 0.85),
-            end: const Offset(1.0, 1.0),
+            begin: AppMotionSystem.scaleOffsetEntryDeep,
+            end: AppMotionSystem.scaleOffsetFull,
             duration: itemDuration,
             curve: curve,
           );
@@ -148,8 +148,8 @@ class StaggeredAnimatedList extends StatelessWidget {
               .animate(delay: itemDelay)
               .fadeIn(duration: itemDuration, curve: curve)
               .scale(
-                begin: const Offset(0.9, 0.9),
-                end: const Offset(1.0, 1.0),
+                begin: AppMotionSystem.scaleOffsetDense,
+                end: AppMotionSystem.scaleOffsetFull,
                 duration: itemDuration,
                 curve: AppMotionSystem.overshoot,
               );
@@ -210,7 +210,7 @@ class AnimatedSliverList extends StatelessWidget {
                 curve: AppMotionSystem.easeOut,
               )
               .slideY(
-                begin: 0.05,
+                begin: AppMotionSystem.slideOffsetSm,
                 end: 0,
                 duration: AppMotionSystem.quick,
                 curve: AppMotionSystem.easeOut,
@@ -280,12 +280,12 @@ class BreathingEffect extends StatelessWidget {
           begin: minScale,
           end: maxScale,
           duration: duration,
-          curve: Curves.easeInOut,
+          curve: AppMotionSystem.easeInOut,
         )
         .fadeIn(
           begin: minOpacity,
           duration: duration,
-          curve: Curves.easeInOut,
+          curve: AppMotionSystem.easeInOut,
         );
   }
 }
@@ -431,7 +431,7 @@ class FadeInWidget extends StatelessWidget {
     if (scaleFrom != null) {
       animated = animated.scale(
         begin: Offset(scaleFrom!, scaleFrom!),
-        end: const Offset(1, 1),
+        end: AppMotionSystem.scaleOffsetFull,
         duration: duration,
         curve: AppMotionSystem.overshoot,
       );
@@ -463,7 +463,7 @@ class ScaleInWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return child.animate(delay: delay).scale(
           begin: Offset(beginScale, beginScale),
-          end: const Offset(1, 1),
+          end: AppMotionSystem.scaleOffsetFull,
           duration: duration,
           curve: curve,
         );
@@ -499,14 +499,14 @@ class CardEntranceAnimation extends StatelessWidget {
               curve: AppMotionSystem.easeOut,
             )
             .slideY(
-              begin: 0.06,
+              begin: AppMotionSystem.slideOffsetSmMd,
               end: 0,
               duration: AppMotionSystem.medium,
               curve: AppMotionSystem.easeOut,
             )
             .scale(
-              begin: const Offset(0.97, 0.97),
-              end: const Offset(1, 1),
+              begin: AppMotionSystem.scaleOffsetPressInteractive,
+              end: AppMotionSystem.scaleOffsetFull,
               duration: AppMotionSystem.medium,
               curve: AppMotionSystem.easeOut,
             );
@@ -519,14 +519,14 @@ class CardEntranceAnimation extends StatelessWidget {
               curve: AppMotionSystem.easeOut,
             )
             .slideY(
-              begin: 0.1,
+              begin: AppMotionSystem.slideOffsetMd,
               end: 0,
               duration: AppMotionSystem.slow,
               curve: AppMotionSystem.easeOut,
             )
             .scale(
-              begin: const Offset(0.92, 0.92),
-              end: const Offset(1, 1),
+              begin: AppMotionSystem.scaleOffsetPageTransition,
+              end: AppMotionSystem.scaleOffsetFull,
               duration: AppMotionSystem.slow,
               curve: AppMotionSystem.overshoot,
             );
@@ -539,7 +539,7 @@ class CardEntranceAnimation extends StatelessWidget {
               curve: AppMotionSystem.easeOut,
             )
             .slideY(
-              begin: 0.03,
+              begin: AppMotionSystem.slideOffsetMicro,
               end: 0,
               duration: AppMotionSystem.quick,
               curve: AppMotionSystem.easeOut,
@@ -573,10 +573,10 @@ class PulseAnimation extends StatelessWidget {
     return child
         .animate(onPlay: (controller) => controller.repeat(reverse: true))
         .scale(
-          begin: const Offset(1, 1),
+          begin: AppMotionSystem.scaleOffsetFull,
           end: Offset(scale, scale),
           duration: duration,
-          curve: Curves.easeInOut,
+          curve: AppMotionSystem.easeInOut,
         );
   }
 }
@@ -717,17 +717,17 @@ class AnimatedLoadingIndicator extends StatelessWidget {
     )
         .animate(onPlay: (c) => c.repeat())
         .scaleXY(
-          begin: 0.96,
-          end: 1.0,
+          begin: AppMotionSystem.scaleEntrySubtle,
+          end: AppMotionSystem.scaleNone,
           duration: AppMotionSystem.deliberate,
-          curve: Curves.easeInOut,
+          curve: AppMotionSystem.easeInOut,
         )
         .then()
         .scaleXY(
-          begin: 1.0,
-          end: 0.96,
+          begin: AppMotionSystem.scaleNone,
+          end: AppMotionSystem.scaleEntrySubtle,
           duration: AppMotionSystem.deliberate,
-          curve: Curves.easeInOut,
+          curve: AppMotionSystem.easeInOut,
         );
   }
 }
@@ -794,9 +794,9 @@ class AnimatedCheckmark extends StatelessWidget {
         .animate(delay: delay)
         .scale(
           begin: const Offset(0, 0),
-          end: const Offset(1, 1),
+          end: AppMotionSystem.scaleOffsetFull,
           duration: AppMotionSystem.slow,
-          curve: Curves.elasticOut,
+          curve: AppMotionSystem.elasticOut,
         )
         .fadeIn(duration: AppMotionSystem.quick);
   }
@@ -861,8 +861,8 @@ class AnimatedWarningIndicator extends StatelessWidget {
     )
         .animate(delay: delay)
         .scale(
-          begin: const Offset(0.5, 0.5),
-          end: const Offset(1, 1),
+          begin: AppMotionSystem.scaleOffsetHalf,
+          end: AppMotionSystem.scaleOffsetFull,
           duration: AppMotionSystem.medium,
           curve: AppMotionSystem.overshoot,
         )
@@ -920,10 +920,10 @@ class AnimatedBadge extends StatelessWidget {
     return badge
         .animate()
         .scale(
-          begin: const Offset(0.5, 0.5),
-          end: const Offset(1, 1),
+          begin: AppMotionSystem.scaleOffsetHalf,
+          end: AppMotionSystem.scaleOffsetFull,
           duration: AppMotionSystem.medium,
-          curve: Curves.elasticOut,
+          curve: AppMotionSystem.elasticOut,
         )
         .fadeIn(duration: AppMotionSystem.quick);
   }
@@ -1123,17 +1123,17 @@ class TypingIndicator extends StatelessWidget {
               delay: AppMotionSystem.staggerTyping * index,
             )
             .scaleXY(
-              begin: 0.65,
-              end: 1.0,
+              begin: AppMotionSystem.scaleDotsMin,
+              end: AppMotionSystem.scaleNone,
               duration: AppMotionSystem.medium,
-              curve: Curves.easeInOut,
+              curve: AppMotionSystem.easeInOut,
             )
             .then()
             .scaleXY(
-              begin: 1.0,
-              end: 0.65,
+              begin: AppMotionSystem.scaleNone,
+              end: AppMotionSystem.scaleDotsMin,
               duration: AppMotionSystem.medium,
-              curve: Curves.easeInOut,
+              curve: AppMotionSystem.easeInOut,
             );
       }),
     );

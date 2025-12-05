@@ -104,16 +104,16 @@ class EntityTile extends StatelessWidget {
               color: isHighlighted
                   ? colors.primary.withValues(alpha: AppOpacity.ghost)
                   : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
-              width: isHighlighted ? 1.5 : 0.5,
+              width: isHighlighted ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
             ),
             boxShadow: isDark
                 ? null
                 : [
                     BoxShadow(
                       color: colors.shadow.withValues(
-                        alpha: isHighlighted ? 0.08 : 0.04,
+                        alpha: isHighlighted ? AppOpacity.highlight : AppOpacity.micro,
                       ),
-                      blurRadius: isHighlighted ? 12 : 6,
+                      blurRadius: isHighlighted ? AppTokens.shadow.md : AppTokens.shadow.xs,
                       offset: AppShadowOffset.xs,
                     ),
                   ],

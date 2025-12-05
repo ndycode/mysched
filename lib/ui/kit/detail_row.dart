@@ -21,7 +21,7 @@ class StatusInfoChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final backgroundOpacity =
-        theme.brightness == Brightness.dark ? 0.24 : 0.12;
+        theme.brightness == Brightness.dark ? AppOpacity.shadowBubble : AppOpacity.overlay;
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: AppTokens.spacing.md,

@@ -135,8 +135,23 @@ class AppMotionSystem {
   /// Default scale (no transformation)
   static const double scaleNone = 1.0;
 
-  /// Very subtle press feedback
+  /// Micro hover scale (standard cards)
+  static const double scaleHoverMicro = 1.015;
+
+  /// Small hover scale (interactive cards)
+  static const double scaleHoverSm = 1.02;
+
+  /// Very subtle press feedback (cards, tiles)
   static const double scalePressSubtle = 0.985;
+
+  /// Standard card press scale
+  static const double scalePressCard = 0.98;
+
+  /// Interactive card press scale
+  static const double scalePressInteractive = 0.97;
+
+  /// Light press feedback (interactive containers)
+  static const double scalePressLight = 0.975;
 
   /// Standard press scale
   static const double scalePress = 0.9;
@@ -153,11 +168,95 @@ class AppMotionSystem {
   /// Entry scale subtle
   static const double scaleEntrySubtle = 0.96;
 
+  /// Scale for pulsing/bouncing dots (typing indicator)
+  static const double scaleDotsMin = 0.65;
+
+  /// Page transition entry/exit scale
+  static const double scalePageTransition = 0.92;
+
   /// Exit scale for dismiss animations
   static const double scaleExit = 1.04;
 
+  /// Exit scale for page transition out (zooms out slightly)
+  static const double scaleExitPage = 1.1;
+
   /// Rotation for active toggle (1/8 turn = 45°)
   static const double rotationToggle = 0.125;
+
+  /// Rotation angle for tap feedback (0.05 rad ≈ 3°)
+  static const double rotationTap = 0.05;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SCALE OFFSETS (for flutter_animate's .scale() which uses Offset(x, y))
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Full scale offset (1.0, 1.0) - no transformation
+  static const Offset scaleOffsetFull = Offset(scaleNone, scaleNone);
+
+  /// Entry scale offset (0.95, 0.95) - subtle entrance
+  static const Offset scaleOffsetEntry = Offset(scaleEntry, scaleEntry);
+
+  /// Deep entry scale offset (0.85, 0.85) - pronounced entrance
+  static const Offset scaleOffsetEntryDeep = Offset(0.85, 0.85);
+
+  /// Page transition scale offset (0.92, 0.92)
+  static const Offset scaleOffsetPageTransition = Offset(scalePageTransition, scalePageTransition);
+
+  /// Interactive press scale offset (0.97, 0.97)
+  static const Offset scaleOffsetPressInteractive = Offset(scalePressInteractive, scalePressInteractive);
+
+  /// Half scale offset (0.5, 0.5) - center alignment for animations
+  static const Offset scaleOffsetHalf = Offset(0.5, 0.5);
+
+  /// Dense/compact scale offset (0.9, 0.9)
+  static const Offset scaleOffsetDense = Offset(scalePress, scalePress);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SLIDE OFFSET TOKENS (fractional viewport offsets for slide animations)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Micro slide offset for subtle entrance (3%)
+  static const double slideOffsetMicro = 0.03;
+
+  /// Tiny slide offset for minimal entrance (4%)
+  static const double slideOffsetTiny = 0.04;
+
+  /// Small slide offset for standard entrance (5%)
+  static const double slideOffsetSm = 0.05;
+
+  /// Small-medium slide offset (6%)
+  static const double slideOffsetSmMd = 0.06;
+
+  /// Horizontal slide offset (8%)
+  static const double slideOffsetHorizontal = 0.08;
+
+  /// Medium slide offset for hero entrances (10%)
+  static const double slideOffsetMd = 0.1;
+
+  /// Large slide offset for partial transition (30%)
+  static const double slideOffsetLg = 0.3;
+
+  /// Full slide offset for full-screen transitions (100%)
+  static const double slideOffsetFull = 1.0;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // INTERVAL TIMING TOKENS (stagger points for orchestrated animations)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Early interval end (30% of animation)
+  static const double intervalEarly = 0.3;
+
+  /// Mid-early interval end (35% of animation)
+  static const double intervalMidEarly = 0.35;
+
+  /// Mid interval (40% of animation)
+  static const double intervalMid = 0.4;
+
+  /// Half interval (50% of animation)
+  static const double intervalHalf = 0.5;
+
+  /// Late interval (60% of animation)
+  static const double intervalLate = 0.6;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DIMENSION TOKENS (indicator sizes, widths)
@@ -238,6 +337,9 @@ class AppMotionSystem {
 
   /// Smooth step for state transitions
   static const Curve smoothStep = Cubic(0.4, 0.0, 0.6, 1.0);
+
+  /// Elastic out for bouncy release animations
+  static const Curve elasticOut = Curves.elasticOut;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SCALE VALUES
@@ -324,7 +426,7 @@ class AnimationPresets {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static const ButtonAnimation primaryButton = ButtonAnimation(
-    pressScale: 0.96,
+    pressScale: AppMotionSystem.scaleEntrySubtle,
     pressDuration: Duration(milliseconds: 80),
     releaseDuration: Duration(milliseconds: 200),
     pressCurve: AppMotionSystem.decelerate,
@@ -332,7 +434,7 @@ class AnimationPresets {
   );
 
   static const ButtonAnimation subtleButton = ButtonAnimation(
-    pressScale: 0.985,
+    pressScale: AppMotionSystem.scalePressSubtle,
     pressDuration: Duration(milliseconds: 60),
     releaseDuration: Duration(milliseconds: 150),
     pressCurve: AppMotionSystem.ease,
@@ -340,11 +442,11 @@ class AnimationPresets {
   );
 
   static const ButtonAnimation fabButton = ButtonAnimation(
-    pressScale: 0.90,
+    pressScale: AppMotionSystem.scalePress,
     pressDuration: Duration(milliseconds: 100),
     releaseDuration: Duration(milliseconds: 300),
     pressCurve: AppMotionSystem.decelerate,
-    releaseCurve: Curves.elasticOut,
+    releaseCurve: AppMotionSystem.elasticOut,
   );
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -352,8 +454,8 @@ class AnimationPresets {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static const CardAnimation standardCard = CardAnimation(
-    hoverScale: 1.015,
-    pressScale: 0.98,
+    hoverScale: AppMotionSystem.scaleHoverMicro,
+    pressScale: AppMotionSystem.scalePressCard,
     hoverDuration: Duration(milliseconds: 150),
     pressDuration: Duration(milliseconds: 100),
     hoverCurve: AppMotionSystem.ease,
@@ -361,8 +463,8 @@ class AnimationPresets {
   );
 
   static const CardAnimation interactiveCard = CardAnimation(
-    hoverScale: 1.02,
-    pressScale: 0.97,
+    hoverScale: AppMotionSystem.scaleHoverSm,
+    pressScale: AppMotionSystem.scalePressInteractive,
     hoverDuration: Duration(milliseconds: 200),
     pressDuration: Duration(milliseconds: 80),
     hoverCurve: AppMotionSystem.easeOut,
@@ -376,26 +478,26 @@ class AnimationPresets {
   static const PageAnimation fadeSlide = PageAnimation(
     duration: Duration(milliseconds: 350),
     curve: AppMotionSystem.easeOut,
-    slideOffset: Offset(0.0, 0.05),
+    slideOffset: Offset(0.0, AppMotionSystem.slideOffsetSm),
   );
 
   static const PageAnimation slideUp = PageAnimation(
     duration: Duration(milliseconds: 400),
     curve: AppMotionSystem.easeOut,
-    slideOffset: Offset(0.0, 0.1),
+    slideOffset: Offset(0.0, AppMotionSystem.slideOffsetMd),
   );
 
   static const PageAnimation slideRight = PageAnimation(
     duration: Duration(milliseconds: 350),
     curve: AppMotionSystem.easeOut,
-    slideOffset: Offset(0.08, 0.0),
+    slideOffset: Offset(AppMotionSystem.slideOffsetHorizontal, 0.0),
   );
 
   static const PageAnimation scaleUp = PageAnimation(
     duration: Duration(milliseconds: 400),
     curve: AppMotionSystem.overshoot,
     slideOffset: Offset.zero,
-    scaleStart: 0.95,
+    scaleStart: AppMotionSystem.scaleEntry,
   );
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -416,7 +518,7 @@ class AnimationPresets {
     enterCurve: AppMotionSystem.overshoot,
     exitCurve: AppMotionSystem.easeIn,
     slideOffset: Offset.zero,
-    scaleStart: 0.9,
+    scaleStart: AppMotionSystem.scalePress,
   );
 
   static const ModalAnimation fullscreenSheet = ModalAnimation(

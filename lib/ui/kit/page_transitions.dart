@@ -162,7 +162,7 @@ class _FadeSlideUpTransition extends StatelessWidget {
   Widget build(BuildContext context) {
     final fadeIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.6, curve: AppMotionSystem.easeOut),
+      curve: const Interval(0.0, AppMotionSystem.intervalLate, curve: AppMotionSystem.easeOut),
     );
 
     final slideIn = CurvedAnimation(
@@ -172,7 +172,7 @@ class _FadeSlideUpTransition extends StatelessWidget {
 
     final fadeOut = CurvedAnimation(
       parent: secondaryAnimation,
-      curve: const Interval(0.0, 0.3, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalEarly, curve: AppMotionSystem.easeIn),
     );
 
     final scaleOut = CurvedAnimation(
@@ -181,16 +181,16 @@ class _FadeSlideUpTransition extends StatelessWidget {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0.0, 0.04),
+          begin: const Offset(0.0, AppMotionSystem.slideOffsetTiny),
           end: Offset.zero,
         ).animate(slideIn),
         child: FadeTransition(
-          opacity: Tween<double>(begin: 1.0, end: 0.92).animate(fadeOut),
+          opacity: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePageTransition).animate(fadeOut),
           child: ScaleTransition(
-            scale: Tween<double>(begin: 1.0, end: 0.96).animate(scaleOut),
+            scale: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scaleEntrySubtle).animate(scaleOut),
             child: child,
           ),
         ),
@@ -219,16 +219,16 @@ class _SlideUpTransition extends StatelessWidget {
 
     final fadeIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
     );
 
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(0.0, 1.0),
+        begin: const Offset(0.0, AppMotionSystem.slideOffsetFull),
         end: Offset.zero,
       ).animate(slideIn),
       child: FadeTransition(
-        opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+        opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
         child: child,
       ),
     );
@@ -260,13 +260,13 @@ class _SlideRightTransition extends StatelessWidget {
 
     return SlideTransition(
       position: Tween<Offset>(
-        begin: const Offset(1.0, 0.0),
+        begin: const Offset(AppMotionSystem.slideOffsetFull, 0.0),
         end: Offset.zero,
       ).animate(slideIn),
       child: SlideTransition(
         position: Tween<Offset>(
           begin: Offset.zero,
-          end: const Offset(-0.3, 0.0),
+          end: const Offset(-AppMotionSystem.slideOffsetLg, 0.0),
         ).animate(slideOut),
         child: child,
       ),
@@ -294,13 +294,13 @@ class _ScaleUpTransition extends StatelessWidget {
 
     final fadeIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, 0.5, curve: Curves.easeOut),
+      curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.92, end: 1.0).animate(scaleIn),
+        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: AppMotionSystem.scaleNone).animate(scaleIn),
         child: child,
       ),
     );
@@ -324,7 +324,7 @@ class _FadeTransition extends StatelessWidget {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fade),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fade),
       child: child,
     );
   }
@@ -346,7 +346,7 @@ class _SharedAxisTransition extends StatelessWidget {
     // Entering page
     final fadeIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.3, 1.0, curve: AppMotionSystem.easeOut),
+      curve: const Interval(AppMotionSystem.intervalEarly, 1.0, curve: AppMotionSystem.easeOut),
     );
 
     final slideIn = CurvedAnimation(
@@ -357,7 +357,7 @@ class _SharedAxisTransition extends StatelessWidget {
     // Exiting page (when this page is being covered)
     final fadeOut = CurvedAnimation(
       parent: secondaryAnimation,
-      curve: const Interval(0.0, 0.3, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalEarly, curve: AppMotionSystem.easeIn),
     );
 
     final slideOut = CurvedAnimation(
@@ -366,18 +366,18 @@ class _SharedAxisTransition extends StatelessWidget {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
       child: SlideTransition(
         position: Tween<Offset>(
-          begin: const Offset(0.3, 0.0),
+          begin: const Offset(AppMotionSystem.slideOffsetLg, 0.0),
           end: Offset.zero,
         ).animate(slideIn),
         child: FadeTransition(
-          opacity: Tween<double>(begin: 1.0, end: 0.0).animate(fadeOut),
+          opacity: Tween<double>(begin: AppMotionSystem.scaleNone, end: 0.0).animate(fadeOut),
           child: SlideTransition(
             position: Tween<Offset>(
               begin: Offset.zero,
-              end: const Offset(-0.3, 0.0),
+              end: const Offset(-AppMotionSystem.slideOffsetLg, 0.0),
             ).animate(slideOut),
             child: child,
           ),
@@ -403,33 +403,33 @@ class _FadeThroughTransition extends StatelessWidget {
     // Entering: fade in with scale up
     final fadeIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.35, 1.0, curve: AppMotionSystem.easeOut),
+      curve: const Interval(AppMotionSystem.intervalMidEarly, 1.0, curve: AppMotionSystem.easeOut),
     );
 
     final scaleIn = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.35, 1.0, curve: AppMotionSystem.easeOut),
+      curve: const Interval(AppMotionSystem.intervalMidEarly, 1.0, curve: AppMotionSystem.easeOut),
     );
 
     // Exiting: fade out with scale down
     final fadeOut = CurvedAnimation(
       parent: secondaryAnimation,
-      curve: const Interval(0.0, 0.35, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalMidEarly, curve: AppMotionSystem.easeIn),
     );
 
     final scaleOut = CurvedAnimation(
       parent: secondaryAnimation,
-      curve: const Interval(0.0, 0.35, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalMidEarly, curve: AppMotionSystem.easeIn),
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.92, end: 1.0).animate(scaleIn),
+        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: AppMotionSystem.scaleNone).animate(scaleIn),
         child: FadeTransition(
-          opacity: Tween<double>(begin: 1.0, end: 0.0).animate(fadeOut),
+          opacity: Tween<double>(begin: AppMotionSystem.scaleNone, end: 0.0).animate(fadeOut),
           child: ScaleTransition(
-            scale: Tween<double>(begin: 1.0, end: 1.1).animate(scaleOut),
+            scale: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scaleExitPage).animate(scaleOut),
             child: child,
           ),
         ),

@@ -47,7 +47,7 @@ class _SkeletonBlockState extends State<SkeletonBlock>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final t = Curves.easeInOut.transform(_controller.value);
+        final t = AppMotionSystem.easeInOut.transform(_controller.value);
         final color = Color.lerp(base, highlight, t)!;
         return Container(
           height: widget.height,

@@ -494,7 +494,7 @@ class _InlineQuickActionButton extends StatelessWidget {
       child: Align(
         alignment: Alignment.topCenter,
         child: Transform.translate(
-          offset: const Offset(0, -4),
+          offset: AppShadowOffset.navFabLift,
           child: PressableScale(
             variant: PressableVariant.deep,
             onTap: onTap,

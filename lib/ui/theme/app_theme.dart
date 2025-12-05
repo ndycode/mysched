@@ -254,7 +254,7 @@ class AppTheme {
         borderRadius: AppTokens.radius.sheet,
         side: BorderSide(
           color: scheme.outline.withValues(alpha: AppOpacity.overlay),
-          width: 0.5,
+          width: AppTokens.componentSize.dividerThin,
         ),
       ),
       elevation: 0,

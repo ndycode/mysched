@@ -20,7 +20,7 @@ Color elevatedCardBackground(ThemeData theme, {bool solid = false}) {
 
 Color elevatedCardBorder(ThemeData theme, {bool solid = false}) {
   final colors = theme.colorScheme;
-  final double alpha = theme.brightness == Brightness.dark ? 0.28 : 0.16;
+  final double alpha = theme.brightness == Brightness.dark ? AppOpacity.shadowAction : AppOpacity.statusBg;
   if (solid) {
     return colors.outlineVariant.withValues(alpha: alpha);
   }

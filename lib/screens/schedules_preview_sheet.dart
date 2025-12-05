@@ -145,7 +145,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
@@ -402,7 +402,7 @@ class _SectionCard extends StatelessWidget {
         vertical: spacing.lg + spacing.xs / 2,
       ),
       backgroundColor: colors.surfaceContainerHighest.withValues(
-        alpha: theme.brightness == Brightness.dark ? 0.3 : 0.5,
+        alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.micro,
       ),
       child: Row(
         children: [
@@ -632,7 +632,7 @@ class _DayToggleCard extends StatelessWidget {
               ),
               Container(
                 padding: spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.sm + 2, vertical: spacing.xs + 1),
+                    horizontal: spacing.sm + AppTokens.componentSize.paddingAdjust, vertical: spacing.xs + 1),
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.sm,
@@ -658,7 +658,7 @@ class _DayToggleCard extends StatelessWidget {
             highlight: highlightClassId == entries[i].id,
             onToggle: (value) => onToggle(entries[i].id, value),
           ),
-          if (i != entries.length - 1) SizedBox(height: spacing.sm + 2),
+          if (i != entries.length - 1) SizedBox(height: spacing.sm + AppTokens.componentSize.paddingAdjust),
         ],
       ],
     );
@@ -705,14 +705,14 @@ class _ImportClassTile extends StatelessWidget {
           color: isNext
               ? colors.primary.withValues(alpha: AppOpacity.ghost)
               : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
-          width: isNext ? 1.5 : 0.5,
+          width: isNext ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: isNext ? 0.08 : 0.04),
-                  blurRadius: isNext ? 12 : 6,
+                  color: colors.shadow.withValues(alpha: isNext ? AppOpacity.highlight : AppOpacity.veryFaint),
+                  blurRadius: isNext ? AppTokens.shadow.md : AppTokens.shadow.xs,
                   offset: AppShadowOffset.xs,
                 ),
               ],
@@ -742,7 +742,7 @@ class _ImportClassTile extends StatelessWidget {
               if (isNext)
                 Container(
                   padding: spacing.edgeInsetsSymmetric(
-                      horizontal: spacing.sm + 2, vertical: spacing.xs),
+                      horizontal: spacing.sm + spacing.micro, vertical: spacing.xs),
                   decoration: BoxDecoration(
                     color: colors.primary.withValues(alpha: AppOpacity.highlight),
                     borderRadius: AppTokens.radius.sm,
@@ -756,13 +756,10 @@ class _ImportClassTile extends StatelessWidget {
                   ),
                 )
               else
-                Transform.scale(
-                  scale: 0.85,
-                  child: Switch(
-                    value: !disabled,
-                    onChanged: saving ? null : onToggle,
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  ),
+                Switch(
+                  value: !disabled,
+                  onChanged: saving ? null : onToggle,
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 ),
             ],
           ),
@@ -776,7 +773,7 @@ class _ImportClassTile extends StatelessWidget {
                 size: AppTokens.iconSize.sm,
                 color: colors.onSurfaceVariant,
               ),
-              SizedBox(width: spacing.xs + 2),
+              SizedBox(width: spacing.xs + AppTokens.componentSize.paddingAdjust),
               Text(
                 timeLabel ?? '--',
                 style: AppTokens.typography.bodySecondary.copyWith(
@@ -791,7 +788,7 @@ class _ImportClassTile extends StatelessWidget {
                   size: AppTokens.iconSize.sm,
                   color: colors.onSurfaceVariant,
                 ),
-                SizedBox(width: spacing.xs + 2),
+                SizedBox(width: spacing.xs + AppTokens.componentSize.paddingAdjust),
                 Expanded(
                   child: Text(
                     location,
@@ -807,7 +804,7 @@ class _ImportClassTile extends StatelessWidget {
             ],
           ),
           if (instructor.isNotEmpty) ...[
-            SizedBox(height: spacing.sm + 2),
+            SizedBox(height: spacing.sm + AppTokens.componentSize.paddingAdjust),
             Row(
               children: [
                 if (instructorAvatar.isNotEmpty)

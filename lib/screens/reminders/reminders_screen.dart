@@ -455,11 +455,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                   horizontal: spacing.xxl,
                   vertical: spacing.quad,
                 ),
-                backgroundColor:
-                    isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderColor: colors.outline.withValues(
-                  alpha: isDark ? AppOpacity.overlay : AppOpacity.divider,
-                ),
+                backgroundColor: colors.surface,
+                borderColor: colors.outline.withValues(alpha: AppOpacity.divider),
                 borderRadius: AppTokens.radius.xl,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,

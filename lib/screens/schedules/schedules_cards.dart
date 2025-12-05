@@ -602,6 +602,13 @@ class ScheduleSummaryCard extends StatelessWidget {
           if (highlight != null) ...[
             _ScheduleHighlightHero(highlight: highlight, now: now),
             SizedBox(height: spacing.xl),
+          ] else ...[
+            _EmptyHeroPlaceholder(
+              icon: Icons.calendar_month_outlined,
+              title: 'All caught up',
+              subtitle: 'No upcoming classes in this scope.',
+            ),
+            SizedBox(height: spacing.xl),
           ],
           Row(
             children: [
@@ -894,6 +901,81 @@ class _ScheduleHighlightHero extends StatelessWidget {
               ),
             ),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _EmptyHeroPlaceholder extends StatelessWidget {
+  const _EmptyHeroPlaceholder({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final spacing = AppTokens.spacing;
+    return Container(
+      width: double.infinity,
+      padding: spacing.edgeInsetsAll(spacing.xxxl),
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: AppOpacity.micro),
+        borderRadius: AppTokens.radius.lg,
+        border: Border.all(
+          color: colors.primary.withValues(alpha: AppOpacity.dim),
+          width: AppTokens.componentSize.divider,
+        ),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: spacing.quad + spacing.xxl,
+            height: spacing.quad + spacing.xxl,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  colors.primary.withValues(alpha: AppOpacity.medium),
+                  colors.primary.withValues(alpha: AppOpacity.highlight),
+                ],
+              ),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: colors.primary.withValues(alpha: AppOpacity.accent),
+                width: AppTokens.componentSize.dividerThick,
+              ),
+            ),
+            child: Icon(
+              icon,
+              size: AppTokens.iconSize.xxl,
+              color: colors.primary,
+            ),
+          ),
+          SizedBox(height: spacing.xl),
+          Text(
+            title,
+            style: AppTokens.typography.subtitle.copyWith(
+              fontWeight: AppTokens.fontWeight.bold,
+              color: colors.onSurfaceVariant,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          SizedBox(height: spacing.sm),
+          Text(
+            subtitle,
+            style: AppTokens.typography.bodySecondary.copyWith(
+              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
+            ),
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );

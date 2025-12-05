@@ -640,6 +640,12 @@ class AppOpacity {
   /// Ghost elements and hints (0.30)
   static const double ghost = 0.30;
 
+  /// Row background dark mode (0.30)
+  static const double rowBgDark = 0.30;
+
+  /// Row background light mode (0.50)
+  static const double rowBgLight = 0.50;
+
   /// Field border emphasis (0.32)
   static const double fieldBorder = 0.32;
 
@@ -654,6 +660,12 @@ class AppOpacity {
 
   /// Modal barrier tint (0.45)
   static const double barrier = 0.45;
+
+  /// Shadow for emphasized/next elements (0.12)
+  static const double shadowStrong = 0.12;
+
+  /// Shadow for regular elements (0.06)
+  static const double shadowLight = 0.06;
 
   /// Subtle overlays and shadows (0.50)
   static const double subtle = 0.50;
@@ -834,6 +846,23 @@ class AppLetterSpacing {
   static const double otpCode = 6.0;
 }
 
+/// Semantic color constants for use outside theme context.
+///
+/// Use these for cases where theme colors aren't available or for
+/// fixed-color UI elements like alarm screens and theme previews.
+class AppSemanticColor {
+  const AppSemanticColor._();
+
+  /// Pure white for light text on dark backgrounds.
+  static const Color white = Colors.white;
+
+  /// Pure black for dark text on light backgrounds.
+  static const Color black = Colors.black;
+
+  /// Semi-transparent black for scrim overlays (54% opacity).
+  static const Color scrim = Colors.black54;
+}
+
 /// Centralized modal barrier color tokens.
 ///
 /// Use these for showModalBottomSheet and showDialog barriers.
@@ -962,6 +991,9 @@ class AppScale {
 
   /// Slightly enlarged scale (1.1)
   static const double enlarged = 1.1;
+
+  /// Switch component scale (0.85)
+  static const double switchScale = 0.85;
 
   /// Narrow slidable action extent ratio (0.3 = 30%)
   static const double slideExtentNarrow = 0.3;

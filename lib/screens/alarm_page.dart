@@ -38,7 +38,7 @@ class AlarmPage extends StatelessWidget {
     void showPreviewOverlay() {
       showSmoothDialog<void>(
         context: context,
-        barrierColor: Colors.black.withValues(alpha: AppOpacity.muted),
+        barrierColor: AppSemanticColor.black.withValues(alpha: AppOpacity.muted),
         builder: (_) => Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: spacing.edgeInsetsAll(spacing.lg),

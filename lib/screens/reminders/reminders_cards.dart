@@ -1113,7 +1113,7 @@ class ReminderListCard extends StatelessWidget {
           colors: gradientColors,
         ),
         borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: borderColor, width: 1),
+        border: Border.all(color: borderColor, width: AppTokens.componentSize.divider),
       ),
       child: Row(
         children: [

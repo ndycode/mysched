@@ -279,7 +279,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                   SizedBox(height: spacing.xl),
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxHeight: media.size.height * 0.45,
+                      maxHeight: media.size.height * AppScale.previewHeightRatio,
                     ),
                     child: ClipRRect(
                       borderRadius: AppTokens.radius.lg,

@@ -105,8 +105,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: 52,
-                        width: 52,
+                        height: AppTokens.componentSize.buttonLg,
+                        width: AppTokens.componentSize.buttonLg,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -119,7 +119,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                           borderRadius: AppTokens.radius.md,
                           border: Border.all(
                             color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
-                            width: 1.5,
+                            width: AppTokens.componentSize.dividerThick,
                           ),
                         ),
                         child: Icon(
@@ -223,7 +223,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                 color: isDark 
                                     ? colors.outline.withValues(alpha: AppOpacity.overlay) 
                                     : colors.primary.withValues(alpha: AppOpacity.dim),
-                                width: 1,
+                                width: AppTokens.componentSize.divider,
                               ),
                             ),
                             child: Column(

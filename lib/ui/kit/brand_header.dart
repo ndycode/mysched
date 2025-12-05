@@ -81,7 +81,7 @@ class BrandHeader extends StatelessWidget {
                 child: PressableScale(
                   onTap: onAccountTap,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 2),
+                    padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.micro),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [

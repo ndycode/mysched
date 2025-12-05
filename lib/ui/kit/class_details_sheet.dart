@@ -221,7 +221,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 1.5),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: AppTokens.componentSize.dividerThick),
                       ),
                       contentPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
                     ),
@@ -340,9 +340,9 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                       future: _future,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState != ConnectionState.done) {
-                          return const SizedBox(
-                            height: 200,
-                            child: Center(
+                          return SizedBox(
+                            height: AppTokens.componentSize.previewMd,
+                            child: const Center(
                               child: CircularProgressIndicator(),
                             ),
                           );
@@ -504,7 +504,7 @@ class _ClassDetailsContent extends StatelessWidget {
                       color: isDark 
                           ? colors.outline.withValues(alpha: AppOpacity.overlay) 
                           : colors.primary.withValues(alpha: AppOpacity.dim),
-                      width: 1,
+                      width: AppTokens.componentSize.divider,
                     ),
                   ),
                   child: Column(
@@ -644,7 +644,7 @@ class _InstructorDetail extends StatelessWidget {
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outlineVariant,
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Column(

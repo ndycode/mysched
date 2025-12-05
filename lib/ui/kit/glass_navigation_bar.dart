@@ -56,7 +56,7 @@ class GlassNavigationBar extends StatelessWidget {
     );
     final double baseBottomPadding = shouldFloatFab ? 12.0 : 8.0;
     final double bottomPadding = baseBottomPadding + bottomInset;
-    const horizontalPadding = EdgeInsets.symmetric(horizontal: 16);
+    final horizontalPadding = AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg);
 
     Widget navSurface(Widget child) {
       final padding = basePadding + EdgeInsets.only(bottom: bottomPadding);
@@ -302,7 +302,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
               animation: _indicatorWidthAnimation,
               builder: (context, _) {
                 return Container(
-                  height: 4,
+                  height: AppTokens.componentSize.progressHeight,
                   width: _indicatorWidthAnimation.value,
                   decoration: BoxDecoration(
                     color: activeColor,
@@ -361,13 +361,13 @@ class _FloatingQuickActionButton extends StatelessWidget {
             Positioned(
               bottom: -18,
               child: Container(
-                width: 114,
-                height: 44,
+                width: AppTokens.componentSize.navBubbleLabelWidth,
+                height: AppTokens.componentSize.navBubbleLabelHeight,
                 decoration: BoxDecoration(
                   borderRadius: AppTokens.radius.xxxl,
                   border: Border.all(
                     color: accent.withValues(alpha: AppOpacity.border),
-                    width: 2,
+                    width: AppTokens.componentSize.dividerBold,
                   ),
                   gradient: LinearGradient(
                     colors: [
@@ -383,13 +383,13 @@ class _FloatingQuickActionButton extends StatelessWidget {
             Positioned(
               bottom: -8,
               child: Container(
-                width: 88,
-                height: 34,
+                width: AppTokens.componentSize.navBubbleInnerWidth,
+                height: AppTokens.componentSize.navBubbleInnerHeight,
                 decoration: BoxDecoration(
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
                     color: accent.withValues(alpha: AppOpacity.darkTint),
-                    width: 1.4,
+                    width: AppTokens.componentSize.dividerMedium + 0.2,
                   ),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -416,8 +416,8 @@ class _FloatingQuickActionButton extends StatelessWidget {
               child: AnimatedContainer(
                 duration: AppMotionSystem.quick,
                 curve: AppMotionSystem.easeOut,
-                width: 68,
-                height: 68,
+                width: AppTokens.componentSize.navBubbleSize,
+                height: AppTokens.componentSize.navBubbleSize,
                 decoration: BoxDecoration(
                   color: accent,
                   borderRadius: AppTokens.radius.pill,
@@ -489,8 +489,8 @@ class _InlineQuickActionButton extends StatelessWidget {
     final color = theme.colorScheme.primary;
     final onColor = theme.colorScheme.onPrimary;
     return SizedBox(
-      width: 72,
-      height: 64,
+      width: AppTokens.componentSize.navItemWidth,
+      height: AppTokens.componentSize.navItemHeight,
       child: Align(
         alignment: Alignment.topCenter,
         child: Transform.translate(
@@ -502,8 +502,8 @@ class _InlineQuickActionButton extends StatelessWidget {
             child: AnimatedContainer(
               duration: AppMotionSystem.quick,
               curve: AppMotionSystem.easeOut,
-              width: 56,
-              height: 56,
+              width: AppTokens.componentSize.navFabSize,
+              height: AppTokens.componentSize.navFabSize,
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: AppTokens.radius.xxl,

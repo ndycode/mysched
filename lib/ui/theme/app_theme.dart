@@ -174,7 +174,7 @@ class AppTheme {
           borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.primary,
-            width: 1.5,
+            width: AppTokens.componentSize.dividerThick,
           ),
         ),
         errorBorder: OutlineInputBorder(
@@ -187,7 +187,7 @@ class AppTheme {
           borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
             color: colors.error,
-            width: 1.5,
+            width: AppTokens.componentSize.dividerThick,
           ),
         ),
         labelStyle: AppTokens.typography.bodySecondary.copyWith(

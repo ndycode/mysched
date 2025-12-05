@@ -191,23 +191,15 @@ class _DashboardReminderCard extends StatelessWidget {
             color: colors.onSurfaceVariant,
           ),
           SizedBox(height: spacing.md),
-          if (loading && reminders.isEmpty)
-            Center(
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-                child: const CircularProgressIndicator(strokeWidth: AppInteraction.progressStrokeWidth),
-              ),
-            )
-          else if (display.isEmpty)
-            Text(
-              total == 0
-                  ? 'Create a reminder to stay on top of tasks.'
-                  : 'All reminders are complete. Enjoy the calm!',
-              style: AppTokens.typography.body.copyWith(
-                color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
-              ),
-            )
-          else ...[
+          if (display.isEmpty) ...[
+            _EmptyHeroPlaceholder(
+              icon: Icons.notifications_none_rounded,
+              title: total == 0 ? 'No reminders in this filter' : 'All reminders complete',
+              subtitle: total == 0
+                  ? 'Create or rescope to see reminders here.'
+                  : 'Everything is done. Great work!',
+            ),
+          ] else ...[
             ...display.map((entry) => Padding(
                   padding: spacing.edgeInsetsOnly(bottom: spacing.md),
                   child: _DashboardReminderTile(

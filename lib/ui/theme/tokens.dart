@@ -160,8 +160,14 @@ class AppSpacing {
   /// Small micro spacing for subtle adjustments (4)
   final double microLg = 4;
   final double xs = 4;
+  /// Extra-small plus spacing (6)
+  final double xsPlus = 6;
   final double sm = 8;
+  /// Small-medium spacing (10)
+  final double smMd = 10;
   final double md = 12;
+  /// Medium-large spacing (14)
+  final double mdLg = 14;
   final double lg = 16;
   final double xl = 20;
   final double xxl = 24;
@@ -444,6 +450,33 @@ class AppComponentSize {
   // Crop dialog dimensions
   final double cropDialogMin = 220;
   final double cropDialogMax = 360;
+
+  // Switch toggle dimensions
+  final double switchWidth = 52;
+  final double switchHeight = 32;
+  final double switchThumbSize = 28;
+
+  // Radio button dimensions
+  final double radioOuter = 20;
+  final double radioInner = 10;
+
+  // Navigation bar dimensions
+  final double navBubbleSize = 68;
+  final double navBubbleLabelWidth = 114;
+  final double navBubbleLabelHeight = 44;
+  final double navBubbleInnerWidth = 88;
+  final double navBubbleInnerHeight = 34;
+  final double navItemWidth = 72;
+  final double navItemHeight = 64;
+  final double navFabSize = 56;
+
+  // Alarm preview dimensions
+  final double alarmPreviewMinWidth = 420;
+  final double alarmPreviewMaxWidth = 460;
+  final double alarmPreviewMinHeight = 460;
+  final double alarmPreviewMaxHeight = 560;
+  final double alarmActionHeight = 62;
+  final double alarmPillHeight = 34;
 }
 
 /// Font weight tokens for consistent typography emphasis.
@@ -994,6 +1027,9 @@ class AppScale {
 
   /// Switch component scale (0.85)
   static const double switchScale = 0.85;
+
+  /// Preview image height ratio (0.45 = 45% of screen)
+  static const double previewHeightRatio = 0.45;
 
   /// Narrow slidable action extent ratio (0.3 = 30%)
   static const double slideExtentNarrow = 0.3;

@@ -368,6 +368,34 @@ void main() {
       expect(prefs.getBool('quiet_week_enabled'), isFalse);
       expect(prefs.getBool('alarm_verbose_logging'), isFalse);
     });
+
+    test('re-baselines legacy 10-minute defaults to 5 minutes', () async {
+      SharedPreferences.setMockInitialValues(const {
+        'notifLeadMinutes': 10,
+        'snoozeMinutes': 10,
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      await NotifScheduler.ensurePreferenceMigration(prefs: prefs);
+
+      expect(prefs.getInt('notifLeadMinutes'), 5);
+      expect(prefs.getInt('snoozeMinutes'), 5);
+    });
+
+    test('keeps user-selected 10-minute values after migration', () async {
+      SharedPreferences.setMockInitialValues(const {
+        'notifLeadMinutes': 10,
+        'snoozeMinutes': 10,
+        'lead_minutes_rebased_v2': true,
+        'snooze_minutes_rebased_v2': true,
+      });
+
+      final prefs = await SharedPreferences.getInstance();
+      await NotifScheduler.ensurePreferenceMigration(prefs: prefs);
+
+      expect(prefs.getInt('notifLeadMinutes'), 10);
+      expect(prefs.getInt('snoozeMinutes'), 10);
+    });
   });
 }
 

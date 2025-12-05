@@ -77,8 +77,9 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeSettingsTile(ThemeData theme) {
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: AppTokens.radius.lg,
@@ -113,8 +114,9 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeToggle(ThemeData theme) {
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: AppTokens.radius.lg,
@@ -151,8 +153,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
           SizedBox(width: AppTokens.spacing.lg),
           // Fake Toggle Switch
           Container(
-            width: 52,
-            height: 32,
+            width: AppTokens.componentSize.switchWidth,
+            height: AppTokens.componentSize.switchHeight,
             decoration: BoxDecoration(
               color: colors.primary,
               borderRadius: AppTokens.radius.lg,
@@ -164,8 +166,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
                   top: 2,
                   bottom: 2,
                   child: Container(
-                    width: 28,
-                    height: 28,
+                    width: AppTokens.componentSize.switchThumbSize,
+                    height: AppTokens.componentSize.switchThumbSize,
                     decoration: BoxDecoration(
                       color: colors.onPrimary,
                       shape: BoxShape.circle,
@@ -187,8 +189,9 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeRadio(ThemeData theme) {
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: AppTokens.radius.lg,
@@ -197,19 +200,19 @@ class BatteryOptimizationDialog extends StatelessWidget {
         children: [
           // Fake Radio
           Container(
-            width: 20,
-            height: 20,
+            width: AppTokens.componentSize.radioOuter,
+            height: AppTokens.componentSize.radioOuter,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
                 color: colors.primary,
-                width: 2,
+                width: AppTokens.componentSize.dividerBold,
               ),
             ),
             child: Center(
               child: Container(
-                width: 10,
-                height: 10,
+                width: AppTokens.componentSize.radioInner,
+                height: AppTokens.componentSize.radioInner,
                 decoration: BoxDecoration(
                   color: colors.primary,
                   shape: BoxShape.circle,

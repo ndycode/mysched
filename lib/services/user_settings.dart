@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/constants.dart';
+import 'notif_scheduler.dart';
 
 /// User settings service with persistence and change notifications.
 class UserSettings {
@@ -35,6 +36,7 @@ class UserSettings {
   Future<void> refresh() async {
     final prefs = _prefs ?? await SharedPreferences.getInstance();
     _prefs = prefs;
+    await NotifScheduler.ensurePreferenceMigration(prefs: prefs);
 
     appNotifsEnabled.value = prefs.getBool(AppConstants.keyAppNotifs) ?? true;
     classAlarmsEnabled.value = prefs.getBool(AppConstants.keyClassAlarms) ?? true;

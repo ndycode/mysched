@@ -110,7 +110,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                           color: colors.onSurfaceVariant,
                         ),
                       ),
-                      SizedBox(height: spacing.xl + 4),
+                      SizedBox(height: spacing.xl + AppTokens.componentSize.paddingAdjust * 2),
                       Container(
                         height: AppTokens.componentSize.previewLg,
                         decoration: BoxDecoration(

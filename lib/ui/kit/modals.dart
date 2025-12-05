@@ -320,7 +320,7 @@ class AppModal {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
-                  borderSide: BorderSide(color: colors.primary, width: 1.5),
+                  borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerThick),
                 ),
                 contentPadding: spacing.edgeInsetsAll(spacing.md),
               ),

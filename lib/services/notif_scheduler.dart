@@ -561,21 +561,60 @@ class NotifScheduler {
     int? positiveOrNull(int? value) =>
         value != null && value > 0 ? value : null;
 
-    final lead = sp.getInt(AppConstants.keyLeadMinutes);
-    if (positiveOrNull(lead) == null) {
-      final legacy = positiveOrNull(
-            sp.getInt('default_notif_minutes') ?? sp.getInt('alert_minutes'),
-          ) ??
-          AppConstants.defaultLeadMinutes;
-      await sp.setInt(AppConstants.keyLeadMinutes, legacy);
-      changed = true;
+    const legacyLeadDefault = 10;
+    const legacySnoozeDefault = 10;
+    const leadMigrationKey = 'lead_minutes_rebased_v2';
+    const snoozeMigrationKey = 'snooze_minutes_rebased_v2';
+
+    final storedLead = positiveOrNull(sp.getInt(AppConstants.keyLeadMinutes));
+    final storedSnooze = positiveOrNull(sp.getInt(AppConstants.keySnoozeMinutes));
+
+    if (!(sp.getBool(leadMigrationKey) ?? false)) {
+      final legacyLead = positiveOrNull(
+        sp.getInt('default_notif_minutes') ?? sp.getInt('alert_minutes'),
+      );
+
+      final leadToApply = () {
+        if (storedLead == null) {
+          return legacyLead ?? AppConstants.defaultLeadMinutes;
+        }
+        // Re-baseline legacy default (10m) to the current default for users who
+        // never customized their lead time.
+        if (storedLead == legacyLeadDefault) {
+          return AppConstants.defaultLeadMinutes;
+        }
+        return storedLead;
+      }();
+
+      if (leadToApply != storedLead) {
+        await sp.setInt(AppConstants.keyLeadMinutes, leadToApply);
+        changed = true;
+      }
+
+      await sp.setBool(leadMigrationKey, true);
     }
 
-    final snooze = sp.getInt(AppConstants.keySnoozeMinutes);
-    if (positiveOrNull(snooze) == null) {
-      final legacy = positiveOrNull(sp.getInt('default_snooze_minutes')) ?? AppConstants.defaultSnoozeMinutes;
-      await sp.setInt(AppConstants.keySnoozeMinutes, legacy);
-      changed = true;
+    if (!(sp.getBool(snoozeMigrationKey) ?? false)) {
+      final legacySnooze = positiveOrNull(sp.getInt('default_snooze_minutes'));
+
+      final snoozeToApply = () {
+        if (storedSnooze == null) {
+          return legacySnooze ?? AppConstants.defaultSnoozeMinutes;
+        }
+        // Align legacy default snooze back to the new baseline without
+        // overriding user-chosen values after migration.
+        if (storedSnooze == legacySnoozeDefault) {
+          return AppConstants.defaultSnoozeMinutes;
+        }
+        return storedSnooze;
+      }();
+
+      if (snoozeToApply != storedSnooze) {
+        await sp.setInt(AppConstants.keySnoozeMinutes, snoozeToApply);
+        changed = true;
+      }
+
+      await sp.setBool(snoozeMigrationKey, true);
     }
 
     if (!sp.containsKey(AppConstants.keyQuietWeek)) {

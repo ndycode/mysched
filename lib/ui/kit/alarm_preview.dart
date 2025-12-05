@@ -21,17 +21,18 @@ class AlarmPreviewMock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
-    final maxWidth = expanded ? 460.0 : 420.0;
+    final sizes = AppTokens.componentSize;
+    final maxWidth = expanded ? sizes.alarmPreviewMaxWidth : sizes.alarmPreviewMinWidth;
 
     return ConstrainedBox(
       constraints: BoxConstraints(
-        minHeight: expanded ? 560 : 460,
+        minHeight: expanded ? sizes.alarmPreviewMaxHeight : sizes.alarmPreviewMinHeight,
         maxWidth: maxWidth,
       ),
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: spacing.xl,
-          vertical: spacing.xl + 2,
+          vertical: spacing.xl + spacing.micro,
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -117,7 +118,7 @@ class _Header extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.mdLg, vertical: spacing.smMd),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.pill,
             border: Border.all(color: AppSemanticColor.white.withValues(alpha: AppOpacity.overlay)),
@@ -317,8 +318,8 @@ class _StatusPill extends StatelessWidget {
   Widget build(BuildContext context) {
     return Expanded(
       child: Container(
-        height: 34,
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+        height: AppTokens.componentSize.alarmPillHeight,
+        padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.smMd),
         decoration: BoxDecoration(
           color: AppSemanticColor.white.withValues(alpha: AppOpacity.faint),
           borderRadius: AppTokens.radius.lg,
@@ -422,7 +423,7 @@ class _ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
     return Container(
-      height: 62,
+      height: AppTokens.componentSize.alarmActionHeight,
       padding: EdgeInsets.symmetric(horizontal: spacing.lg),
       decoration: BoxDecoration(
         color: fillColor,

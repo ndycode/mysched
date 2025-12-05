@@ -114,8 +114,11 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
   String? _validateCode(String? value) {
     final trimmed = value?.trim() ?? '';
-    if (trimmed.length != 6) {
+    if (trimmed.isEmpty) {
       return 'Enter the 6-digit code';
+    }
+    if (trimmed.length < 6) {
+      return 'Enter all 6 digits';
     }
     if (!RegExp(r'^\d{6}$').hasMatch(trimmed)) {
       return 'Digits only.';
@@ -246,6 +249,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
 
     final form = Form(
       key: _formKey,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -308,6 +312,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
             textInputAction: TextInputAction.done,
             validator: _validateCode,
             onChanged: (_) {
+              _formKey.currentState?.validate();
               if (_errorText != null) {
                 setState(() => _errorText = null);
               }
@@ -319,13 +324,13 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
             'Codes expire after a few minutes. Enter digits only.',
             style: helperStyle,
           ),
-        SizedBox(height: spacing.xl),
-        PrimaryButton(
-          label: _verifying ? 'Verifying...' : 'Verify email',
-          onPressed:
-              (!_hasEmail || _verifying || _resending) ? null : _verify,
-          minHeight: AppTokens.componentSize.buttonMd,
-        ),
+          SizedBox(height: spacing.xl),
+          PrimaryButton(
+            label: _verifying ? 'Verifying...' : 'Verify email',
+            onPressed:
+                (!_hasEmail || _verifying || _resending) ? null : _verify,
+            minHeight: AppTokens.componentSize.buttonMd,
+          ),
         ],
       ),
     );

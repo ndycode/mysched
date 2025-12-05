@@ -270,7 +270,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
                 (hovered
                     ? colors.primary.withValues(alpha: isDark ? AppOpacity.subtle : AppOpacity.barrier)
                     : colors.outline.withValues(alpha: isDark ? AppOpacity.barrier : AppOpacity.ghost)),
-            width: 1.5,
+            width: AppTokens.componentSize.dividerThick,
           ),
           shadows: const [],
         );

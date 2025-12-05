@@ -899,7 +899,7 @@ class AnimatedBadge extends StatelessWidget {
 
     final Widget badge = Container(
       constraints: BoxConstraints(minWidth: size, minHeight: size),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.xsPlus, vertical: AppTokens.spacing.micro),
       decoration: BoxDecoration(
         color: color ?? colors.error,
         borderRadius: BorderRadius.circular(size / 2),

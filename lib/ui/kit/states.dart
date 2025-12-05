@@ -173,7 +173,7 @@ class StateDisplay extends StatelessWidget {
 
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: compact ? 400 : 600),
+        constraints: BoxConstraints(maxWidth: compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
         child: Padding(
           padding: compact
               ? spacing.edgeInsetsAll(spacing.lg)
@@ -189,7 +189,7 @@ class StateDisplay extends StatelessWidget {
                   borderRadius: BorderRadius.circular(iconSize / 2),
                   border: Border.all(
                     color: tintColor.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.accent),
-                    width: 2,
+                    width: AppTokens.componentSize.dividerBold,
                   ),
                 ),
                 child: Icon(displayIcon, color: tintColor, size: iconInnerSize),
@@ -334,7 +334,7 @@ class MessageCard extends StatelessWidget {
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: tint.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
-          width: 1,
+          width: AppTokens.componentSize.divider,
         ),
       ),
       child: Column(

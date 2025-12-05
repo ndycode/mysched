@@ -424,9 +424,9 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: bubbleShadow,
-                      blurRadius: active ? 36 : 30,
-                      offset: Offset(0, active ? 18 : 16),
-                      spreadRadius: active ? 2 : 0,
+                      blurRadius: active ? AppTokens.shadow.navBubbleActive : AppTokens.shadow.navBubbleInactive,
+                      offset: active ? AppShadowOffset.navBubbleActive : AppShadowOffset.navBubbleInactive,
+                      spreadRadius: active ? AppTokens.shadow.spreadMd : 0,
                     ),
                   ],
                 ),
@@ -510,9 +510,9 @@ class _InlineQuickActionButton extends StatelessWidget {
                 boxShadow: [
                   BoxShadow(
                     color: color.withValues(alpha: active ? 0.24 : 0.18),
-                    blurRadius: active ? 22 : 18,
-                    offset: Offset(0, active ? 12 : 10),
-                    spreadRadius: active ? 1 : 0,
+                    blurRadius: active ? AppTokens.shadow.glow : AppTokens.shadow.action,
+                    offset: active ? AppShadowOffset.navFabActive : AppShadowOffset.navFabInactive,
+                    spreadRadius: active ? AppTokens.shadow.spreadSm : 0,
                   ),
                 ],
               ),

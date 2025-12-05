@@ -162,7 +162,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
       cardContent = ClipRRect(
         borderRadius: radius,
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+          filter: ImageFilter.blur(sigmaX: AppTokens.shadow.backdropBlur, sigmaY: AppTokens.shadow.backdropBlur),
           child: AnimatedContainer(
             duration: AppTokens.motion.fast,
             decoration: BoxDecoration(

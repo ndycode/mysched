@@ -434,6 +434,9 @@ class AppComponentSize {
   final double progressWidth = 40;
   final double progressStroke = 2;
 
+  // RefreshIndicator
+  final double refreshDisplacement = 24;
+
   // Skeleton text block heights (approximate typography heights)
   final double skeletonTextXs = 12;  // caption
   final double skeletonTextSm = 14;  // bodySecondary, label
@@ -531,8 +534,15 @@ class AppShadow {
   final double cardHover = 24;
   /// Hero card blur (26)
   final double hero = 26;
+  /// Nav bubble inactive blur (30)
+  final double navBubbleInactive = 30;
+  /// Nav bubble active blur (36)
+  final double navBubbleActive = 36;
   /// XXL blur for hero cards and modals (40)
   final double xxl = 40;
+
+  /// Backdrop filter blur sigma for glass effects (16)
+  final double backdropBlur = 16;
 
   // ---------------------------------------------------------------------------
   // Material Elevation Values
@@ -1006,6 +1016,18 @@ class AppShadowOffset {
 
   /// Layout body card elevation offset
   static const Offset layout = Offset(0, 28);
+
+  /// Nav FAB inactive offset (10)
+  static const Offset navFabInactive = Offset(0, 10);
+
+  /// Nav FAB active offset (12)
+  static const Offset navFabActive = Offset(0, 12);
+
+  /// Nav bubble inactive offset (16)
+  static const Offset navBubbleInactive = Offset(0, 16);
+
+  /// Nav bubble active offset (18)
+  static const Offset navBubbleActive = Offset(0, 18);
 
   /// Slide-in animation offset (subtle upward entry)
   static const Offset slideIn = Offset(0, 0.05);

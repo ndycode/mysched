@@ -164,7 +164,7 @@ class ScreenShell extends StatelessWidget {
               scrollable = RefreshIndicator(
                 color: refreshColor ?? colors.primary,
                 backgroundColor: Colors.transparent,
-                displacement: 24,
+                displacement: AppTokens.componentSize.refreshDisplacement,
                 onRefresh: onRefresh!,
                 child: scrollable,
               );

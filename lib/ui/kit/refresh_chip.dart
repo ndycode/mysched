@@ -23,14 +23,14 @@ class RefreshChip extends StatelessWidget {
 
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.sm + 2,
-        vertical: spacing.xs + 2,
+        horizontal: spacing.sm + spacing.micro,
+        vertical: spacing.xs + spacing.micro,
       ),
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.28 : 0.12),
+        color: colors.primary.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.overlay),
         borderRadius: AppTokens.radius.pill,
         border: Border.all(
-          color: colors.primary.withValues(alpha: isDark ? 0.4 : 0.24),
+          color: colors.primary.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.shadowBubble),
         ),
       ),
       child: Row(

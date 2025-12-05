@@ -85,7 +85,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
           boxShadow: [
             AppTokens.shadow.modal(
               theme.shadowColor.withValues(
-                alpha: isDark ? 0.32 : 0.18,
+                alpha: isDark ? AppOpacity.fieldBorder : AppOpacity.border,
               ),
             ),
           ],

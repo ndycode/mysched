@@ -414,8 +414,8 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
 
     final bgColor = widget.backgroundColor ??
         (_hovered
-            ? colors.primary.withValues(alpha: 0.12)
-            : colors.primary.withValues(alpha: 0.08));
+            ? colors.primary.withValues(alpha: AppOpacity.overlay)
+            : colors.primary.withValues(alpha: AppOpacity.highlight));
 
     Widget button = MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),

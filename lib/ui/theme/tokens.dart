@@ -366,6 +366,8 @@ class AppComponentSize {
 
   // Avatar sizes
   final double avatarXs = 24;
+  final double avatarXsDense = 26;
+  final double avatarSmDense = 28;
   final double avatarSm = 32;
   final double avatarMd = 36;
   final double avatarLg = 42;
@@ -420,6 +422,20 @@ class AppShadow {
   final double xl = 20;
   /// XXL blur for hero cards and modals (40)
   final double xxl = 40;
+
+  // ---------------------------------------------------------------------------
+  // Material Elevation Values
+  // ---------------------------------------------------------------------------
+
+  /// Dark mode popup elevation (8)
+  final double elevationDark = 8;
+  /// Light mode popup elevation (12)
+  final double elevationLight = 12;
+
+  /// Spread radius for subtle glow effects (1)
+  final double spreadSm = 1;
+  /// Spread radius for active glow effects (2)
+  final double spreadMd = 2;
 
   // ---------------------------------------------------------------------------
   // BoxShadow Factory Methods
@@ -507,14 +523,32 @@ class AppShadow {
 class AppOpacity {
   const AppOpacity._();
 
+  /// Zero opacity - transparent (0.0)
+  static const double transparent = 0.0;
+
+  /// Ultra-micro for barely perceptible hover states (0.02)
+  static const double ultraMicro = 0.02;
+
+  /// Micro tint for barely visible elements (0.04)
+  static const double micro = 0.04;
+
   /// Minimal tint for subtle backgrounds (0.05)
   static const double faint = 0.05;
+
+  /// Very subtle fills (0.06)
+  static const double veryFaint = 0.06;
 
   /// Row highlights and hover states (0.08)
   static const double highlight = 0.08;
 
+  /// Subtle button fills (0.10)
+  static const double dim = 0.10;
+
   /// Surface overlays and subtle fills (0.12)
   static const double overlay = 0.12;
+
+  /// Medium subtle fills (0.15)
+  static const double medium = 0.15;
 
   /// Status chip backgrounds (0.16)
   static const double statusBg = 0.16;
@@ -522,29 +556,77 @@ class AppOpacity {
   /// Dark mode borders and dividers (0.18)
   static const double border = 0.18;
 
+  /// Accent tints and fills (0.20)
+  static const double accent = 0.20;
+
   /// Dark mode elevated tints (0.22)
   static const double darkTint = 0.22;
 
-  /// Ghost elements and hints (0.3)
+  /// Border emphasis and outlines (0.25)
+  static const double borderEmphasis = 0.25;
+
+  /// Ghost elements and hints (0.30)
   static const double ghost = 0.30;
+
+  /// Field border emphasis (0.32)
+  static const double fieldBorder = 0.32;
+
+  /// Switch track and moderate emphasis (0.35)
+  static const double track = 0.35;
 
   /// Disabled state opacity (0.38) - Material standard
   static const double disabled = 0.38;
 
+  /// Light mode borders and dividers (0.40)
+  static const double divider = 0.40;
+
   /// Modal barrier tint (0.45)
   static const double barrier = 0.45;
 
-  /// Subtle overlays and shadows (0.5)
+  /// Subtle overlays and shadows (0.50)
   static const double subtle = 0.50;
 
-  /// Muted text and secondary content (0.7)
+  /// Disabled button content (0.55)
+  static const double buttonDisabled = 0.55;
+
+  /// Soft content and backgrounds (0.60)
+  static const double soft = 0.60;
+
+  /// Skeleton light mode base (0.65)
+  static const double skeletonLight = 0.65;
+
+  /// Muted text and secondary content (0.70)
   static const double muted = 0.70;
 
   /// Glass morphism background (0.72)
   static const double glass = 0.72;
 
+  /// Tertiary content emphasis (0.75)
+  static const double tertiary = 0.75;
+
+  /// Glass card surfaces (0.78)
+  static const double glassCard = 0.78;
+
+  /// Secondary content emphasis (0.80)
+  static const double secondary = 0.80;
+
   /// Near-opaque content (0.85)
   static const double prominent = 0.85;
+
+  /// Frosted glass surfaces (0.88)
+  static const double frosted = 0.88;
+
+  /// High emphasis content (0.90)
+  static const double high = 0.90;
+
+  /// App bar and navigation surfaces (0.92)
+  static const double surface = 0.92;
+
+  /// Near-full opacity (0.95)
+  static const double full = 0.95;
+
+  /// Dense glass surfaces (0.96)
+  static const double dense = 0.96;
 }
 
 /// Centralized layout constraint tokens.
@@ -579,6 +661,23 @@ class AppLayout {
 
   /// Default vertical page padding.
   static const double pagePaddingVertical = 24.0;
+
+  /// List cache extent for performance optimization.
+  static const double listCacheExtent = 800.0;
+
+  /// Responsive breakpoint for wide layouts.
+  static const double wideLayoutBreakpoint = 520.0;
+}
+
+/// Display limits for dashboard previews and lists.
+class AppDisplayLimits {
+  const AppDisplayLimits._();
+
+  /// Maximum reminders to show in dashboard preview.
+  static const int reminderPreviewCount = 3;
+
+  /// Maximum classes to show in dashboard schedule preview.
+  static const int schedulePreviewCount = 5;
 }
 
 /// Centralized interaction tokens for touch/click feedback.
@@ -728,6 +827,9 @@ class AppShadowOffset {
   /// Extra-large elevation offset
   static const Offset xl = Offset(0, 12);
 
+  /// Hero card elevation offset
+  static const Offset hero = Offset(0, 14);
+
   /// Modal/hero elevation offset
   static const Offset xxl = Offset(0, 16);
 
@@ -744,15 +846,21 @@ class AppScale {
   /// Compact scale for dense UI elements (0.8)
   static const double compact = 0.8;
 
+  /// Dense scale for slightly smaller elements (0.85)
+  static const double dense = 0.85;
+
   /// Slightly reduced scale (0.9)
   static const double reduced = 0.9;
 
   /// Default scale (1.0)
   static const double normal = 1.0;
 
+  /// Hover/focus emphasis scale (1.02)
+  static const double hover = 1.02;
+
   /// Slightly enlarged scale (1.1)
   static const double enlarged = 1.1;
 
-  /// Hover/focus emphasis scale (1.02)
-  static const double hover = 1.02;
+  /// Slidable action extent ratio (0.4 = 40%)
+  static const double slideExtent = 0.4;
 }

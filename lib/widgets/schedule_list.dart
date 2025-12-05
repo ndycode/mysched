@@ -230,7 +230,7 @@ class _Row extends StatelessWidget {
         ? colors.primary.withValues(alpha: AppOpacity.highlight)
         : Colors.transparent;
     final border = isActive
-        ? colors.primary.withValues(alpha: 0.24)
+        ? colors.primary.withValues(alpha: AppOpacity.ghost)
         : Colors.transparent;
 
     final spacing = AppTokens.spacing;
@@ -264,7 +264,7 @@ class _Row extends StatelessWidget {
           borderRadius: AppTokens.radius.md,
           border: Border.all(color: border),
         ),
-        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + 2),
+        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + spacing.micro),
         child: Column(
           children: [
             Row(

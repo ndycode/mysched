@@ -63,7 +63,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final highlightIndex = display
         .indexWhere((occ) => occ.end.isAfter(now) || occ.isOngoingAt(now));
     final targetIndex = highlightIndex >= 0 ? highlightIndex : -1;
-    final totalToShow = hasItems ? math.min(display.length, 5) : 0;
+    final totalToShow = hasItems ? math.min(display.length, AppDisplayLimits.schedulePreviewCount) : 0;
     final displaySignature = hasItems
         ? display
             .take(totalToShow)
@@ -75,8 +75,25 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
 
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(
+          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
+          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -91,13 +108,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      colors.primary.withValues(alpha: AppOpacity.statusBg),
-                      colors.primary.withValues(alpha: AppOpacity.overlay),
+                      colors.primary.withValues(alpha: AppOpacity.medium),
+                      colors.primary.withValues(alpha: AppOpacity.dim),
                     ],
                   ),
                   borderRadius: AppTokens.radius.md,
                   border: Border.all(
-                    color: colors.primary.withValues(alpha: AppOpacity.border),
+                    color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
                     width: AppTokens.componentSize.dividerThick,
                   ),
                 ),
@@ -114,7 +131,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   children: [
                     Text(
                       '$scopeLabel overview',
-                      style: AppTokens.typography.headline.copyWith(
+                      style: AppTokens.typography.title.copyWith(
                         fontWeight: FontWeight.w800,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
@@ -298,12 +315,12 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   : Container(
                       key: ValueKey('empty-$selectedScope-$query'),
                       width: double.infinity,
-                      padding: spacing.edgeInsetsAll(spacing.xxxl),
+                      padding: spacing.edgeInsetsAll(spacing.xxl),
                       decoration: BoxDecoration(
-                        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.barrier) : colors.primary.withValues(alpha: AppOpacity.faint),
+                        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.divider) : colors.primary.withValues(alpha: AppOpacity.micro),
                         borderRadius: AppTokens.radius.lg,
                         border: Border.all(
-                          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.primary.withValues(alpha: AppOpacity.overlay),
+                          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.primary.withValues(alpha: AppOpacity.dim),
                           width: AppTokens.componentSize.divider,
                         ),
                       ),
@@ -312,7 +329,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           Container(
                             padding: spacing.edgeInsetsAll(spacing.lg),
                             decoration: BoxDecoration(
-                              color: isDark ? colors.primary.withValues(alpha: AppOpacity.statusBg) : colors.primary.withValues(alpha: AppOpacity.overlay),
+                              color: isDark ? colors.primary.withValues(alpha: AppOpacity.medium) : colors.primary.withValues(alpha: AppOpacity.dim),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -386,13 +403,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                color.withValues(alpha: AppOpacity.overlay),
-                color.withValues(alpha: AppOpacity.highlight),
+                color.withValues(alpha: AppOpacity.dim),
+                color.withValues(alpha: AppOpacity.veryFaint),
               ],
             ),
             borderRadius: AppTokens.radius.md,
             border: Border.all(
-              color: color.withValues(alpha: AppOpacity.border),
+              color: color.withValues(alpha: AppOpacity.accent),
               width: AppTokens.componentSize.divider,
             ),
           ),
@@ -401,7 +418,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: AppOpacity.statusBg),
+                  color: color.withValues(alpha: AppOpacity.medium),
                   borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
@@ -423,7 +440,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
               ),
               Container(
                 padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.md,
+                  horizontal: spacing.sm + spacing.micro,
                   vertical: spacing.xs + spacing.microHalf,
                 ),
                 decoration: BoxDecoration(
@@ -478,7 +495,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
       );
 
       if (i != totalToShow - 1) {
-        widgets.add(SizedBox(height: AppTokens.spacing.md));
+        widgets.add(SizedBox(height: AppTokens.spacing.sm + AppTokens.spacing.micro));
       }
     }
 

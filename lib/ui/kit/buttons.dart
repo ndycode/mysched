@@ -89,8 +89,8 @@ class PrimaryButton extends StatelessWidget {
               ),
           textStyle: baseTextStyle,
           shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-          disabledBackgroundColor: colors.primary.withValues(alpha: 0.75),
-          disabledForegroundColor: colors.onPrimary.withValues(alpha: 0.85),
+          disabledBackgroundColor: colors.primary.withValues(alpha: AppOpacity.muted),
+          disabledForegroundColor: colors.onPrimary.withValues(alpha: AppOpacity.prominent),
         ),
         child: child,
       ),
@@ -176,8 +176,8 @@ class SecondaryButton extends StatelessWidget {
           minimumSize: Size(0, minHeight ?? AppTokens.componentSize.buttonLg),
           side: BorderSide(
             color: isDisabled
-                ? colors.primary.withValues(alpha: 0.25)
-                : colors.primary.withValues(alpha: 0.4),
+                ? colors.primary.withValues(alpha: AppOpacity.ghost)
+                : colors.primary.withValues(alpha: AppOpacity.subtle),
           ),
           padding: AppTokens.spacing.edgeInsetsSymmetric(
             horizontal: AppTokens.spacing.xl,
@@ -185,7 +185,7 @@ class SecondaryButton extends StatelessWidget {
           ),
           textStyle: baseTextStyle,
           shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-          disabledForegroundColor: colors.primary.withValues(alpha: 0.6),
+          disabledForegroundColor: colors.primary.withValues(alpha: AppOpacity.soft),
         ),
         child: child,
       ),
@@ -270,12 +270,12 @@ class DestructiveButton extends StatelessWidget {
           ),
           textStyle: baseTextStyle,
           shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-          disabledBackgroundColor: colors.error.withValues(alpha: 0.65),
-          disabledForegroundColor: colors.onError.withValues(alpha: 0.85),
+          disabledBackgroundColor: colors.error.withValues(alpha: AppOpacity.skeletonLight),
+          disabledForegroundColor: colors.onError.withValues(alpha: AppOpacity.prominent),
         ).copyWith(
           overlayColor: WidgetStateProperty.resolveWith((states) {
             if (states.contains(WidgetState.pressed)) {
-              return colors.onSurface.withValues(alpha: isDark ? 0.12 : 0.08);
+              return colors.onSurface.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.highlight);
             }
             return null;
           }),
@@ -321,7 +321,7 @@ class IconTonalButton extends StatelessWidget {
     final style = FilledButton.styleFrom(
       minimumSize: Size(0, AppTokens.componentSize.buttonLg),
       backgroundColor: isDark
-          ? colors.surface.withValues(alpha: 0.55)
+          ? colors.surface.withValues(alpha: AppOpacity.buttonDisabled)
           : colors.surfaceContainerHighest,
       foregroundColor: colors.onSurface,
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),

@@ -38,10 +38,10 @@ class GlassNavigationBar extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final lightBase =
-        solid ? colors.surface : colors.surface.withValues(alpha: 0.9);
+        solid ? colors.surface : colors.surface.withValues(alpha: AppOpacity.high);
     final darkBase = solid
         ? colors.surface
-        : colors.surfaceContainerHighest.withValues(alpha: 0.96);
+        : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.dense);
     final background = solidBackground ?? (isDark ? darkBase : lightBase);
     final shadowColor =
         colors.shadow.withValues(alpha: isDark ? 0.42 : 0.12);
@@ -314,7 +314,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                     boxShadow: widget.selected
                         ? [
                             BoxShadow(
-                              color: activeColor.withValues(alpha: 0.4),
+                              color: activeColor.withValues(alpha: AppOpacity.divider),
                               blurRadius: 4,
                               spreadRadius: 0.5,
                             ),
@@ -353,7 +353,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
     final bubbleShadow = accent.withValues(alpha: isDark ? 0.28 : 0.22);
     final labelBackground = isDark
         ? colors.surfaceContainerHighest
-        : colors.surface.withValues(alpha: 0.96);
+        : colors.surface.withValues(alpha: AppOpacity.dense);
     final labelShadowBase = colors.shadow;
     final labelShadow = labelShadowBase.withValues(alpha: isDark ? 0.5 : 0.18);
     return Column(
@@ -370,13 +370,13 @@ class _FloatingQuickActionButton extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: AppTokens.radius.xxxl,
                   border: Border.all(
-                    color: accent.withValues(alpha: 0.18),
+                    color: accent.withValues(alpha: AppOpacity.border),
                     width: 2,
                   ),
                   gradient: LinearGradient(
                     colors: [
                       Colors.transparent,
-                      accent.withValues(alpha: 0.08),
+                      accent.withValues(alpha: AppOpacity.highlight),
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -392,7 +392,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
-                    color: accent.withValues(alpha: 0.22),
+                    color: accent.withValues(alpha: AppOpacity.darkTint),
                     width: 1.4,
                   ),
                   gradient: LinearGradient(

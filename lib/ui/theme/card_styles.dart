@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'tokens.dart';
+
 Color elevatedCardBackground(ThemeData theme, {bool solid = false}) {
   final colors = theme.colorScheme;
   if (solid) {
@@ -8,10 +10,10 @@ Color elevatedCardBackground(ThemeData theme, {bool solid = false}) {
         : colors.surface;
   }
   if (theme.brightness == Brightness.dark) {
-    return colors.surfaceContainerHighest.withValues(alpha: 0.78);
+    return colors.surfaceContainerHighest.withValues(alpha: AppOpacity.glassCard);
   }
   return Color.alphaBlend(
-    colors.primary.withValues(alpha: 0.06),
+    colors.primary.withValues(alpha: AppOpacity.veryFaint),
     colors.surface,
   );
 }

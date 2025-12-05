@@ -93,11 +93,11 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
     );
 
     final backButton = IconButton(
-      splashRadius: 22,
+      splashRadius: AppInteraction.splashRadius,
       onPressed: _busy ? null : () => context.pop(),
       icon: CircleAvatar(
-        radius: 16,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        radius: AppInteraction.iconButtonContainerRadius,
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -151,7 +151,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
               style: FilledButton.styleFrom(
                 backgroundColor: colors.error,
                 foregroundColor: colors.onError,
-                minimumSize: const Size.fromHeight(48),
+                minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
                 shape: RoundedRectangleBorder(
                   borderRadius: AppTokens.radius.xl,
                 ),
@@ -200,7 +200,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
                         offset: const Offset(0, 4),
                       ),
@@ -242,7 +242,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
                         offset: const Offset(0, 4),
                       ),

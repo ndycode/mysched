@@ -90,10 +90,10 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     final spacing = AppTokens.spacing;
 
     final backButton = IconButton(
-      splashRadius: 22,
+      splashRadius: AppInteraction.splashRadius,
       onPressed: _saving ? null : () => context.pop(),
       icon: CircleAvatar(
-        radius: 16,
+        radius: AppInteraction.iconButtonContainerRadius,
         backgroundColor: colors.primary.withValues(alpha: 0.12),
         child: Icon(
           Icons.arrow_back_rounded,

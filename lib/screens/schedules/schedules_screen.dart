@@ -16,8 +16,6 @@ import 'schedules_controller.dart';
 import 'schedules_data.dart';
 import 'schedules_messages.dart';
 
-const double _kScheduleBottomSafePadding = 120;
-
 class SchedulesPage extends StatefulWidget {
   SchedulesPage({
     super.key,
@@ -260,10 +258,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.lg,
       ),
-      elevation: isDark ? 8 : 12,
+      elevation: isDark ? AppTokens.shadow.elevationDark : AppTokens.shadow.elevationLight,
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
+      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
       itemBuilder: (context) => [
         PopupMenuItem<ScheduleAction>(
           key: const ValueKey('schedule-export-pdf-item'),
@@ -281,7 +279,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: 0.12),
+                        color: colors.error.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -290,7 +288,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.error,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + 2),
+                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Export as PDF',
@@ -322,7 +320,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.tertiary.withValues(alpha: 0.12),
+                        color: colors.tertiary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -331,7 +329,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.tertiary,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + 2),
+                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Export as CSV',
@@ -356,9 +354,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  colors.outline.withValues(alpha: 0.0),
-                  colors.outline.withValues(alpha: isDark ? 0.20 : 0.4),
-                  colors.outline.withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
+                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
                 ],
               ),
             ),
@@ -379,7 +377,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Container(
                       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: 0.12),
+                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -388,7 +386,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.primary,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + 2),
+                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Reset schedules',
@@ -408,7 +406,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       icon: Icon(
         Icons.more_vert_rounded,
         size: AppTokens.iconSize.lg,
-        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
       ),
     );
   }
@@ -463,7 +461,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
           left: spacing.xl,
           right: spacing.xl,
           top: media.padding.top + spacing.xxxl,
-          bottom: spacing.quad + _kScheduleBottomSafePadding,
+          bottom: spacing.quad + AppLayout.bottomNavSafePadding,
         );
 
         if (_controller.loading && _controller.classes.isEmpty) {
@@ -486,7 +484,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             onRefresh: () => _controller.refresh(),
             refreshColor: colors.primary,
             safeArea: false,
-            cacheExtent: 800,
+            cacheExtent: AppLayout.listCacheExtent,
           );
         }
 
@@ -625,7 +623,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     vertical: spacing.quad,
                   ),
                   backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderColor: colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
+                  borderColor: colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.divider),
                   borderRadius: AppTokens.radius.xl,
                   child: Column(
                     children: [
@@ -637,13 +635,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              colors.primary.withValues(alpha: 0.15),
-                              colors.primary.withValues(alpha: 0.08),
+                              colors.primary.withValues(alpha: AppOpacity.medium),
+                              colors.primary.withValues(alpha: AppOpacity.highlight),
                             ],
                           ),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: colors.primary.withValues(alpha: 0.20),
+                            color: colors.primary.withValues(alpha: AppOpacity.accent),
                             width: AppTokens.componentSize.dividerThick,
                           ),
                         ),
@@ -658,7 +656,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       'No schedules yet',
                       style: AppTokens.typography.headline.copyWith(
                         fontWeight: FontWeight.w700,
-                        letterSpacing: -0.5,
+                        letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),
                       textAlign: TextAlign.center,
@@ -667,7 +665,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Text(
                       'Get started by adding your first class or scanning your student card using the buttons above',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        height: 1.5,
+                        height: AppLineHeight.body,
                         color: colors.onSurfaceVariant,
                       ),
                       textAlign: TextAlign.center,
@@ -698,7 +696,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             onRefresh: () => _controller.refresh(),
             refreshColor: colors.primary,
             safeArea: false,
-            cacheExtent: 800,
+            cacheExtent: AppLayout.listCacheExtent,
             useSlivers: false,
           ),
         );

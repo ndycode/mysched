@@ -38,7 +38,7 @@ class HeroAvatar extends StatelessWidget {
               ],
             ),
       color:
-          hasImage ? theme.colorScheme.primary.withValues(alpha: 0.12) : null,
+          hasImage ? theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay) : null,
       image: hasImage
           ? DecorationImage(
               image: NetworkImage(avatarUrl!),

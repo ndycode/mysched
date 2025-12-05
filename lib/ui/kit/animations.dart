@@ -244,7 +244,7 @@ class ShimmerEffect extends StatelessWidget {
         .animate(onPlay: (controller) => controller.repeat())
         .shimmer(
           duration: duration,
-          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.06),
+          color: Theme.of(context).colorScheme.onSurface.withValues(alpha: AppOpacity.veryFaint),
         );
   }
 }
@@ -336,7 +336,7 @@ class _SmoothRippleState extends State<SmoothRipple>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final color = widget.rippleColor ?? theme.colorScheme.primary.withValues(alpha: 0.12);
+    final color = widget.rippleColor ?? theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay);
     final radius = widget.borderRadius ?? AppTokens.radius.md;
 
     return GestureDetector(

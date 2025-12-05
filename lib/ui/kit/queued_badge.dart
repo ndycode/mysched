@@ -12,9 +12,12 @@ class QueuedBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(
+        horizontal: AppTokens.spacing.sm,
+        vertical: AppTokens.spacing.xs,
+      ),
       decoration: BoxDecoration(
-        color: colors.secondary.withValues(alpha: 0.14),
+        color: colors.secondary.withValues(alpha: AppOpacity.statusBg),
         borderRadius: AppTokens.radius.pill,
       ),
       child: Text(

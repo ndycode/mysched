@@ -185,10 +185,10 @@ class StateDisplay extends StatelessWidget {
                 width: iconSize,
                 height: iconSize,
                 decoration: BoxDecoration(
-                  color: tintColor.withValues(alpha: isDark ? 0.18 : 0.12),
+                  color: tintColor.withValues(alpha: isDark ? AppOpacity.border : AppOpacity.overlay),
                   borderRadius: BorderRadius.circular(iconSize / 2),
                   border: Border.all(
-                    color: tintColor.withValues(alpha: isDark ? 0.28 : 0.2),
+                    color: tintColor.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.accent),
                     width: 2,
                   ),
                 ),
@@ -330,10 +330,10 @@ class MessageCard extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: isDark ? 0.12 : 0.06),
+        color: tint.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.veryFaint),
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: tint.withValues(alpha: isDark ? 0.24 : 0.16),
+          color: tint.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
           width: 1,
         ),
       ),
@@ -346,7 +346,7 @@ class MessageCard extends StatelessWidget {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.md),
                 decoration: BoxDecoration(
-                  color: tint.withValues(alpha: isDark ? 0.2 : 0.12),
+                  color: tint.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.overlay),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Icon(icon, color: tint, size: AppTokens.iconSize.lg),
@@ -451,7 +451,7 @@ class InfoBanner extends StatelessWidget {
           vertical: spacing.md,
         ),
         decoration: BoxDecoration(
-          color: tint.withValues(alpha: isDark ? 0.16 : 0.1),
+          color: tint.withValues(alpha: isDark ? AppOpacity.statusBg : AppOpacity.dim),
           borderRadius: AppTokens.radius.lg,
         ),
         child: Row(
@@ -460,7 +460,7 @@ class InfoBanner extends StatelessWidget {
             Container(
               padding: spacing.edgeInsetsAll(spacing.sm),
               decoration: BoxDecoration(
-                color: tint.withValues(alpha: isDark ? 0.24 : 0.16),
+                color: tint.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
                 borderRadius: AppTokens.radius.sm,
               ),
               child: Icon(icon, color: tint, size: AppTokens.iconSize.sm),

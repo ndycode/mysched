@@ -48,7 +48,7 @@ class InstructorRow extends StatelessWidget {
             width: size,
             height: size,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.15),
+              color: colors.primary.withValues(alpha: AppOpacity.medium),
               shape: BoxShape.circle,
             ),
             child: Center(

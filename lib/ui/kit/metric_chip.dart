@@ -51,13 +51,13 @@ class MetricChip extends StatelessWidget {
       return Container(
         padding: spacing.edgeInsetsSymmetric(
           horizontal: spacing.md,
-          vertical: spacing.sm + 2,
+          vertical: spacing.sm + spacing.micro,
         ),
         decoration: BoxDecoration(
-          color: accent.withValues(alpha: isDark ? 0.20 : 0.12),
+          color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
           borderRadius: AppTokens.radius.md,
           border: Border.all(
-            color: accent.withValues(alpha: 0.20),
+            color: accent.withValues(alpha: AppOpacity.medium),
             width: AppTokens.componentSize.divider,
           ),
         ),
@@ -68,7 +68,7 @@ class MetricChip extends StatelessWidget {
               height: AppTokens.componentSize.avatarSm,
               width: AppTokens.componentSize.avatarSm,
               decoration: BoxDecoration(
-                color: accent.withValues(alpha: isDark ? 0.20 : 0.12),
+                color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
                 borderRadius: AppTokens.radius.sm,
               ),
               child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
@@ -82,7 +82,7 @@ class MetricChip extends StatelessWidget {
                   value,
                   style: AppTokens.typography.subtitle.copyWith(
                     fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
+                    letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
                 ),
@@ -102,14 +102,14 @@ class MetricChip extends StatelessWidget {
 
     // Card-style layout for larger displays
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.md + 2),
+      padding: spacing.edgeInsetsAll(spacing.md + spacing.micro),
       decoration: BoxDecoration(
         color: isDark 
-            ? accent.withValues(alpha: 0.12) 
-            : accent.withValues(alpha: 0.08),
+            ? accent.withValues(alpha: AppOpacity.dim) 
+            : accent.withValues(alpha: AppOpacity.veryFaint),
         borderRadius: AppTokens.radius.md,
         border: Border.all(
-          color: accent.withValues(alpha: 0.20),
+          color: accent.withValues(alpha: AppOpacity.medium),
           width: AppTokens.componentSize.divider,
         ),
       ),
@@ -121,13 +121,13 @@ class MetricChip extends StatelessWidget {
             height: AppTokens.componentSize.avatarSm,
             width: AppTokens.componentSize.avatarSm,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: isDark ? 0.20 : 0.12),
+              color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
               borderRadius: AppTokens.radius.sm,
             ),
             alignment: Alignment.center,
             child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
           ),
-          SizedBox(height: spacing.sm + 2),
+          SizedBox(height: spacing.sm + spacing.micro),
           Text(
             value,
             style: displayStyle

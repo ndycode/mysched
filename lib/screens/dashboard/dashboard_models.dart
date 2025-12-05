@@ -91,14 +91,12 @@ class _DashboardSummaryData {
     if (totalMinutes == 0) return '0m';
     final hours = totalMinutes ~/ 60;
     final minutes = totalMinutes % 60;
-    final parts = <String>[];
+    // When hours >= 1, only show hours (no minutes)
     if (hours > 0) {
-      parts.add('${hours}h');
+      return '${hours}h';
     }
-    if (minutes > 0) {
-      parts.add('${minutes}m');
-    }
-    return parts.join(' ');
+    // Only show minutes when no full hours
+    return '${minutes}m';
   }
 }
 

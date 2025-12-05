@@ -38,11 +38,11 @@ class _SkeletonBlockState extends State<SkeletonBlock>
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final base = isDark
-        ? colors.surfaceContainerHighest.withValues(alpha: 0.5)
-        : colors.surfaceContainerHighest.withValues(alpha: 0.65);
+        ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle)
+        : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.skeletonLight);
     final highlight = isDark
-        ? colors.onSurfaceVariant.withValues(alpha: 0.18)
-        : colors.onSurfaceVariant.withValues(alpha: 0.08);
+        ? colors.onSurfaceVariant.withValues(alpha: AppOpacity.border)
+        : colors.onSurfaceVariant.withValues(alpha: AppOpacity.highlight);
 
     return AnimatedBuilder(
       animation: _controller,
@@ -106,11 +106,11 @@ class SkeletonCard extends StatelessWidget {
       padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
         color: isDark
-            ? colors.surfaceContainerHigh.withValues(alpha: 0.5)
+            ? colors.surfaceContainerHigh.withValues(alpha: AppOpacity.subtle)
             : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: colors.outline.withValues(alpha: isDark ? 0.15 : 0.1),
+          color: colors.outline.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
         ),
       ),
       child: Column(
@@ -174,11 +174,11 @@ class SkeletonDashboardCard extends StatelessWidget {
       padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
         color: isDark
-            ? colors.surfaceContainerHigh.withValues(alpha: 0.5)
+            ? colors.surfaceContainerHigh.withValues(alpha: AppOpacity.subtle)
             : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: colors.outline.withValues(alpha: isDark ? 0.15 : 0.1),
+          color: colors.outline.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
         ),
       ),
       child: Column(
@@ -269,10 +269,10 @@ class _SkeletonMetric extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md),
       decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: isDark ? 0.12 : 0.06),
+        color: colors.primary.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.veryFaint),
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: colors.primary.withValues(alpha: isDark ? 0.2 : 0.1),
+          color: colors.primary.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.dim),
         ),
       ),
       child: Column(
@@ -320,10 +320,10 @@ class SkeletonListTile extends StatelessWidget {
         vertical: spacing.md,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHigh.withValues(alpha: isDark ? 0.4 : 0.6),
+        color: colors.surfaceContainerHigh.withValues(alpha: isDark ? AppOpacity.divider : 0.6),
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: colors.outline.withValues(alpha: isDark ? 0.12 : 0.08),
+          color: colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.highlight),
         ),
       ),
       child: Row(

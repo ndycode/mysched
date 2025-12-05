@@ -114,13 +114,13 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              colors.primary.withValues(alpha: 0.15),
-                              colors.primary.withValues(alpha: 0.10),
+                              colors.primary.withValues(alpha: AppOpacity.medium),
+                              colors.primary.withValues(alpha: AppOpacity.dim),
                             ],
                           ),
                           borderRadius: AppTokens.radius.md,
                           border: Border.all(
-                            color: colors.primary.withValues(alpha: 0.25),
+                            color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
                             width: 1.5,
                           ),
                         ),
@@ -218,13 +218,13 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             padding: EdgeInsets.all(AppTokens.spacing.xl),
                             decoration: BoxDecoration(
                               color: isDark 
-                                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
-                                  : colors.primary.withValues(alpha: 0.04),
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) 
+                                  : colors.primary.withValues(alpha: AppOpacity.micro),
                               borderRadius: AppTokens.radius.lg,
                               border: Border.all(
                                 color: isDark 
-                                    ? colors.outline.withValues(alpha: 0.12) 
-                                    : colors.primary.withValues(alpha: 0.10),
+                                    ? colors.outline.withValues(alpha: AppOpacity.overlay) 
+                                    : colors.primary.withValues(alpha: AppOpacity.dim),
                                 width: 1,
                               ),
                             ),
@@ -242,8 +242,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                     child: Divider(
                                       height: AppTokens.componentSize.divider,
                                       color: isDark 
-                                          ? colors.outline.withValues(alpha: 0.15) 
-                                          : colors.primary.withValues(alpha: 0.10),
+                                          ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                                          : colors.primary.withValues(alpha: AppOpacity.dim),
                                     ),
                                   ),
                                   DetailRow(
@@ -259,8 +259,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                     child: Divider(
                                       height: AppTokens.componentSize.divider,
                                       color: isDark 
-                                          ? colors.outline.withValues(alpha: 0.15) 
-                                          : colors.primary.withValues(alpha: 0.10),
+                                          ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                                          : colors.primary.withValues(alpha: AppOpacity.dim),
                                     ),
                                   ),
                                   DetailRow(

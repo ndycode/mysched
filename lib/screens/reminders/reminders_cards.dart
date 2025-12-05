@@ -146,7 +146,7 @@ class ReminderSummaryCard extends StatelessWidget {
       padding: spacing.edgeInsetsAll(spacing.xl),
       backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
       borderColor:
-          isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+          isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
       borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -159,7 +159,7 @@ class ReminderSummaryCard extends StatelessWidget {
                   'Reminders overview',
                   style: AppTokens.typography.title.copyWith(
                     fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
+                    letterSpacing: AppLetterSpacing.snug,
                     color: isDark ? colors.onSurface : colors.onSurface,
                   ),
                 ),
@@ -177,10 +177,10 @@ class ReminderSummaryCard extends StatelessWidget {
               width: double.infinity,
               padding: spacing.edgeInsetsAll(spacing.xxxl),
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.4) : colors.primary.withValues(alpha: 0.04),
+                color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.divider) : colors.primary.withValues(alpha: AppOpacity.micro),
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.primary.withValues(alpha: 0.10),
+                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.primary.withValues(alpha: AppOpacity.dim),
                   width: AppTokens.componentSize.divider,
                 ),
               ),
@@ -189,7 +189,7 @@ class ReminderSummaryCard extends StatelessWidget {
                   Container(
                     padding: spacing.edgeInsetsAll(spacing.lg),
                     decoration: BoxDecoration(
-                      color: isDark ? colors.primary.withValues(alpha: 0.15) : colors.primary.withValues(alpha: 0.10),
+                      color: isDark ? colors.primary.withValues(alpha: AppOpacity.medium) : colors.primary.withValues(alpha: AppOpacity.dim),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -211,7 +211,7 @@ class ReminderSummaryCard extends StatelessWidget {
                   Text(
                     'Create a reminder to stay on top of tasks.',
                     style: AppTokens.typography.bodySecondary.copyWith(
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -322,9 +322,9 @@ class ReminderHighlightHero extends StatelessWidget {
     final baseColor = colors.primary;
     final gradient = [
       baseColor,
-      baseColor.withValues(alpha: 0.85),
+      baseColor.withValues(alpha: AppOpacity.prominent),
     ];
-    final shadowColor = baseColor.withValues(alpha: 0.3);
+    final shadowColor = baseColor.withValues(alpha: AppOpacity.ghost);
     final foreground = colors.onPrimary;
     final scheduleWindow = DateFormat("EEE, MMM d 'at' h:mm a")
         .format(target)
@@ -362,7 +362,7 @@ class ReminderHighlightHero extends StatelessWidget {
               ReminderHeroChip(
                 icon: labelIcon,
                 label: label,
-                background: foreground.withValues(alpha: 0.20),
+                background: foreground.withValues(alpha: AppOpacity.accent),
                 foreground: foreground,
               ),
               SizedBox(width: spacing.md),
@@ -370,7 +370,7 @@ class ReminderHighlightHero extends StatelessWidget {
                 Text(
                   subtitle,
                   style: AppTokens.typography.bodySecondary.copyWith(
-                    color: foreground.withValues(alpha: 0.85),
+                    color: foreground.withValues(alpha: AppOpacity.prominent),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -385,7 +385,7 @@ class ReminderHighlightHero extends StatelessWidget {
               fontWeight: FontWeight.w700,
               height: 1.3,
               color: foreground,
-              letterSpacing: -0.5,
+              letterSpacing: AppLetterSpacing.tight,
             ),
           ),
           SizedBox(height: spacing.lg + spacing.xs),
@@ -394,7 +394,7 @@ class ReminderHighlightHero extends StatelessWidget {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: 0.15),
+                  color: foreground.withValues(alpha: AppOpacity.medium),
                   borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
@@ -422,7 +422,7 @@ class ReminderHighlightHero extends StatelessWidget {
                 Container(
                   padding: spacing.edgeInsetsAll(spacing.sm),
                   decoration: BoxDecoration(
-                    color: foreground.withValues(alpha: 0.15),
+                    color: foreground.withValues(alpha: AppOpacity.medium),
                     borderRadius: AppTokens.radius.sm,
                   ),
                   child: Icon(
@@ -438,7 +438,7 @@ class ReminderHighlightHero extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTokens.typography.bodySecondary.copyWith(
-                      color: foreground.withValues(alpha: 0.90),
+                      color: foreground.withValues(alpha: AppOpacity.high),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -492,7 +492,7 @@ class ReminderHeroChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.pill,
-        border: Border.all(color: foreground.withValues(alpha: 0.25)),
+        border: Border.all(color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -939,7 +939,7 @@ class ReminderListCard extends StatelessWidget {
       padding: spacing.edgeInsetsAll(spacing.xl),
       backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
       borderColor:
-          isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+          isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
       borderRadius: AppTokens.radius.xl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,13 +956,13 @@ class ReminderListCard extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      colors.primary.withValues(alpha: 0.15),
-                      colors.primary.withValues(alpha: 0.10),
+                      colors.primary.withValues(alpha: AppOpacity.medium),
+                      colors.primary.withValues(alpha: AppOpacity.dim),
                     ],
                   ),
                   borderRadius: AppTokens.radius.md,
                   border: Border.all(
-                    color: colors.primary.withValues(alpha: 0.25),
+                    color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
                     width: 1.5,
                   ),
                 ),
@@ -981,7 +981,7 @@ class ReminderListCard extends StatelessWidget {
                       'Scheduled reminders',
                       style: AppTokens.typography.headline.copyWith(
                         fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
+                        letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),
                     ),
@@ -989,7 +989,7 @@ class ReminderListCard extends StatelessWidget {
                     Text(
                       'Pinned headers keep each group visible.',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.75),
+                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.tertiary),
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1057,10 +1057,10 @@ class ReminderListCard extends StatelessWidget {
               ];
 
     final borderColor = isOverdue
-        ? colors.error.withValues(alpha: 0.2)
+        ? colors.error.withValues(alpha: AppOpacity.accent)
         : isToday
-            ? colors.primary.withValues(alpha: 0.2)
-            : colors.outline.withValues(alpha: isDark ? 0.15 : 0.3);
+            ? colors.primary.withValues(alpha: AppOpacity.accent)
+            : colors.outline.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.ghost);
 
     final textColor = isOverdue
         ? colors.error
@@ -1085,7 +1085,7 @@ class ReminderListCard extends StatelessWidget {
           Container(
             padding: spacing.edgeInsetsAll(spacing.sm),
             decoration: BoxDecoration(
-              color: baseColor.withValues(alpha: 0.15),
+              color: baseColor.withValues(alpha: AppOpacity.medium),
               borderRadius: AppTokens.radius.md,
             ),
             child: Icon(
@@ -1100,7 +1100,7 @@ class ReminderListCard extends StatelessWidget {
               label,
               style: AppTokens.typography.subtitle.copyWith(
                 fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
+                letterSpacing: AppLetterSpacing.snug,
                 color: colors.onSurface,
               ),
             ),
@@ -1111,7 +1111,7 @@ class ReminderListCard extends StatelessWidget {
               vertical: spacing.sm,
             ),
             decoration: BoxDecoration(
-              color: baseColor.withValues(alpha: 0.12),
+              color: baseColor.withValues(alpha: AppOpacity.overlay),
               borderRadius: AppTokens.radius.sm,
             ),
             child: Text(

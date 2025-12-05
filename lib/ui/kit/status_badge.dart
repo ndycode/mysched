@@ -46,11 +46,11 @@ class StatusBadge extends StatelessWidget {
 
     final (backgroundColor, foregroundColor) = switch (variant) {
       StatusBadgeVariant.live => (
-          colors.primary.withValues(alpha: 0.15),
+          colors.primary.withValues(alpha: AppOpacity.medium),
           colors.primary,
         ),
       StatusBadgeVariant.next => (
-          colors.primary.withValues(alpha: 0.08),
+          colors.primary.withValues(alpha: AppOpacity.highlight),
           colors.primary,
         ),
       StatusBadgeVariant.done => (
@@ -58,11 +58,11 @@ class StatusBadge extends StatelessWidget {
           colors.onSurfaceVariant,
         ),
       StatusBadgeVariant.overdue => (
-          colors.error.withValues(alpha: 0.12),
+          colors.error.withValues(alpha: AppOpacity.overlay),
           colors.error,
         ),
       StatusBadgeVariant.snoozed => (
-          palette.warning.withValues(alpha: 0.12),
+          palette.warning.withValues(alpha: AppOpacity.overlay),
           palette.warning,
         ),
     };

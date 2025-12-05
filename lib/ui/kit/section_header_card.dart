@@ -53,13 +53,13 @@ class SectionHeaderCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            accent.withValues(alpha: 0.10),
-            accent.withValues(alpha: 0.06),
+            accent.withValues(alpha: AppOpacity.dim),
+            accent.withValues(alpha: AppOpacity.veryFaint),
           ],
         ),
         borderRadius: AppTokens.radius.md,
         border: Border.all(
-          color: accent.withValues(alpha: 0.20),
+          color: accent.withValues(alpha: AppOpacity.accent),
           width: AppTokens.componentSize.divider,
         ),
       ),
@@ -68,7 +68,7 @@ class SectionHeaderCard extends StatelessWidget {
           Container(
             padding: spacing.edgeInsetsAll(spacing.sm),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.15),
+              color: accent.withValues(alpha: AppOpacity.medium),
               borderRadius: AppTokens.radius.sm,
             ),
             child: Icon(
@@ -83,7 +83,7 @@ class SectionHeaderCard extends StatelessWidget {
               label,
               style: AppTokens.typography.subtitle.copyWith(
                 fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
+                letterSpacing: AppLetterSpacing.snug,
                 color: colors.onSurface,
               ),
             ),
@@ -94,7 +94,7 @@ class SectionHeaderCard extends StatelessWidget {
               vertical: spacing.xs + 1,
             ),
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.12),
+              color: accent.withValues(alpha: AppOpacity.overlay),
               borderRadius: AppTokens.radius.sm,
             ),
             child: Text(

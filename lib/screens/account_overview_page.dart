@@ -28,7 +28,6 @@ class AccountOverviewPage extends StatefulWidget {
 class _AccountOverviewPageState extends State<AccountOverviewPage>
     with RouteAware {
   final _auth = AuthService.instance;
-  static const double _kBottomNavSafePadding = 120;
 
   String _name = '';
   String _sid = '';
@@ -172,7 +171,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     final media = MediaQuery.of(context);
 
     final backButton = IconButton(
-      splashRadius: 22,
+      splashRadius: AppInteraction.splashRadius,
       onPressed: _busy
           ? null
           : () {
@@ -181,8 +180,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
               }
             },
       icon: CircleAvatar(
-        radius: 16,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        radius: AppInteraction.iconButtonContainerRadius,
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -236,7 +235,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         spacing.xl,
         media.padding.top + spacing.xxxl,
         spacing.xl,
-        spacing.quad + _kBottomNavSafePadding,
+        spacing.quad + AppLayout.bottomNavSafePadding,
       ),
       safeArea: false,
     );
@@ -254,14 +253,14 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             children: [
               CircleAvatar(
                 radius: 56,
-                backgroundColor: colors.primary.withValues(alpha: 0.12),
+                backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
                 backgroundImage:
                     _avatar == null ? null : NetworkImage(_avatar!),
                 child: _avatar == null
                     ? Icon(
                         Icons.person_rounded,
                         size: AppTokens.iconSize.xxl + 8,
-                        color: colors.onSurface.withValues(alpha: 0.5),
+                        color: colors.onSurface.withValues(alpha: AppOpacity.subtle),
                       )
                     : null,
               ),
@@ -274,7 +273,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     borderRadius: AppTokens.radius.xxxl,
                     boxShadow: [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.2),
+                        color: colors.shadow.withValues(alpha: AppOpacity.accent),
                         blurRadius: 14,
                         offset: const Offset(0, 6),
                       ),

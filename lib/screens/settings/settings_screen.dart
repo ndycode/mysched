@@ -29,7 +29,6 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late final SettingsController _controller;
-  static const double _kBottomNavSafePadding = 120;
   bool _adminSnackShown = false;
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
@@ -416,7 +415,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
@@ -441,7 +440,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
@@ -466,7 +465,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
@@ -491,7 +490,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? 1 : 0.5,
                 ),
                 boxShadow: isDark
@@ -520,7 +519,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: isDark ? colors.surfaceContainerHigh : colors.surface,
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                     width: isDark ? 1 : 0.5,
                   ),
                   boxShadow: isDark
@@ -550,7 +549,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   color: isDark ? colors.surfaceContainerHigh : colors.surface,
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outline,
+                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                     width: isDark ? 1 : 0.5,
                   ),
                   boxShadow: isDark
@@ -647,7 +646,7 @@ class _SettingsPageState extends State<SettingsPage> {
             left: spacing.xl,
             right: spacing.xl,
             top: media.padding.top + spacing.xxxl,
-            bottom: spacing.quad + _kBottomNavSafePadding,
+            bottom: spacing.quad + AppLayout.bottomNavSafePadding,
           ),
           safeArea: false,
         );
@@ -785,9 +784,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     SizedBox(height: spacing.xs),
                     SliderTheme(
                       data: SliderThemeData(
-                        trackHeight: 4,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                        trackHeight: AppSlider.trackHeight,
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: AppSlider.thumbRadius),
+                        overlayShape: const RoundSliderOverlayShape(overlayRadius: AppSlider.overlayRadius),
                       ),
                       child: Slider(
                         value: _controller.alarmVolume.toDouble(),
@@ -1151,7 +1150,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final bg = isUnknown
         ? colors.surfaceContainerHighest
         : isOk
-            ? colors.primary.withValues(alpha: 0.16)
+            ? colors.primary.withValues(alpha: AppOpacity.statusBg)
             : colors.errorContainer;
     final fg = isUnknown
         ? colors.onSurfaceVariant
@@ -1247,7 +1246,7 @@ class _SettingsPageState extends State<SettingsPage> {
       height: AppTokens.componentSize.avatarLg,
       width: AppTokens.componentSize.avatarLg,
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.15),
+        color: accent.withValues(alpha: AppOpacity.medium),
         borderRadius: AppTokens.radius.sm,
       ),
       alignment: Alignment.center,
@@ -1334,7 +1333,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           Container(
                             padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: spacing.sm, vertical: spacing.xs),
                             decoration: BoxDecoration(
-                              color: colors.error.withValues(alpha: 0.12),
+                              color: colors.error.withValues(alpha: AppOpacity.overlay),
                               borderRadius: AppTokens.radius.pill,
                             ),
                             child: Text(
@@ -1417,7 +1416,7 @@ class _SyncRow extends StatelessWidget {
             height: AppTokens.componentSize.avatarLg,
             width: AppTokens.componentSize.avatarLg,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: 0.15),
+              color: accent.withValues(alpha: AppOpacity.medium),
               borderRadius: AppTokens.radius.md,
             ),
             alignment: Alignment.center,
@@ -1487,9 +1486,9 @@ class _ThemeOption extends StatelessWidget {
                 color: selected
                     ? colors.primary
                     : (isOutline
-                        ? colors.outline.withValues(alpha: 0.3)
+                        ? colors.outline.withValues(alpha: AppOpacity.ghost)
                         : (showBorder
-                            ? colors.outline.withValues(alpha: 0.1)
+                            ? colors.outline.withValues(alpha: AppOpacity.dim)
                             : (borderColor ?? Colors.transparent))),
                 width: selected ? 2 : 1,
               ),

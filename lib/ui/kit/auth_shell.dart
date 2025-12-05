@@ -42,7 +42,7 @@ class AuthShell extends StatelessWidget {
               style: AppTokens.typography.subtitle.copyWith(
                 color: colors.primary,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.2,
+                letterSpacing: AppLetterSpacing.normal,
               ),
             ),
             SizedBox(height: spacing.sm),
@@ -87,13 +87,13 @@ class AuthShell extends StatelessWidget {
         borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outlineVariant,
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.15),
+            color: colors.shadow.withValues(alpha: AppOpacity.medium),
             blurRadius: 40,
             offset: const Offset(0, 10),
           ),

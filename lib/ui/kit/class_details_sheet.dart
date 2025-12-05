@@ -210,14 +210,14 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                     decoration: InputDecoration(
                       hintText: 'Example: Time conflict, instructor mismatch...',
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                       border: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
                         borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
+                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: AppOpacity.subtle)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
@@ -499,13 +499,13 @@ class _ClassDetailsContent extends StatelessWidget {
                   padding: EdgeInsets.all(AppTokens.spacing.xl),
                   decoration: BoxDecoration(
                     color: isDark 
-                        ? colors.surfaceContainerHighest.withValues(alpha: 0.3) 
-                        : colors.primary.withValues(alpha: 0.04),
+                        ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) 
+                        : colors.primary.withValues(alpha: AppOpacity.micro),
                     borderRadius: AppTokens.radius.lg,
                     border: Border.all(
                       color: isDark 
-                          ? colors.outline.withValues(alpha: 0.12) 
-                          : colors.primary.withValues(alpha: 0.10),
+                          ? colors.outline.withValues(alpha: AppOpacity.overlay) 
+                          : colors.primary.withValues(alpha: AppOpacity.dim),
                       width: 1,
                     ),
                   ),
@@ -522,8 +522,8 @@ class _ClassDetailsContent extends StatelessWidget {
                         child: Divider(
                           height: AppTokens.componentSize.divider,
                           color: isDark 
-                              ? colors.outline.withValues(alpha: 0.15) 
-                              : colors.primary.withValues(alpha: 0.10),
+                              ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                              : colors.primary.withValues(alpha: AppOpacity.dim),
                         ),
                       ),
                       DetailRow(
@@ -538,8 +538,8 @@ class _ClassDetailsContent extends StatelessWidget {
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark 
-                                ? colors.outline.withValues(alpha: 0.15) 
-                                : colors.primary.withValues(alpha: 0.10),
+                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                                : colors.primary.withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
@@ -555,8 +555,8 @@ class _ClassDetailsContent extends StatelessWidget {
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark 
-                                ? colors.outline.withValues(alpha: 0.15) 
-                                : colors.primary.withValues(alpha: 0.10),
+                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                                : colors.primary.withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
@@ -575,8 +575,8 @@ class _ClassDetailsContent extends StatelessWidget {
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark 
-                                ? colors.outline.withValues(alpha: 0.15) 
-                                : colors.primary.withValues(alpha: 0.10),
+                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
+                                : colors.primary.withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
@@ -642,10 +642,10 @@ class _InstructorDetail extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppTokens.spacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: 0.3) : colors.surface,
+        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) : colors.surface,
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: 0.12) : colors.outlineVariant,
+          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outlineVariant,
           width: 1,
         ),
       ),

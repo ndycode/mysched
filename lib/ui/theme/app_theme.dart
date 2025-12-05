@@ -48,8 +48,8 @@ class AppTheme {
         },
       ),
       scaffoldBackgroundColor: Colors.transparent,
-      splashColor: colors.primary.withValues(alpha: 0.08),
-      highlightColor: colors.primary.withValues(alpha: 0.04),
+      splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+      highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
       textTheme: _buildTextTheme(base.textTheme, colors),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
@@ -63,17 +63,17 @@ class AppTheme {
         iconTheme: IconThemeData(color: colors.onSurface),
       ),
       cardTheme: CardThemeData(
-        color: colors.surface.withValues(alpha: 0.92),
+        color: colors.surface.withValues(alpha: AppOpacity.surface),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: AppTokens.radius.lg,
         ),
-        shadowColor: colors.outline.withValues(alpha: 0.25),
+        shadowColor: colors.outline.withValues(alpha: AppOpacity.borderEmphasis),
       ),
       dividerTheme: DividerThemeData(
-        color: colors.outline.withValues(alpha: 0.6),
+        color: colors.outline.withValues(alpha: AppOpacity.soft),
         thickness: 1,
         space: AppTokens.spacing.lg,
       ),
@@ -90,7 +90,7 @@ class AppTheme {
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonLg),
           foregroundColor: colors.onPrimary,
           backgroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
@@ -107,7 +107,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonLg),
           foregroundColor: colors.onPrimary,
           backgroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
@@ -124,7 +124,7 @@ class AppTheme {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonLg),
           foregroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
@@ -134,12 +134,12 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: AppTokens.radius.button,
           ),
-          side: BorderSide(color: colors.primary.withValues(alpha: 0.4)),
+          side: BorderSide(color: colors.primary.withValues(alpha: AppOpacity.divider)),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          minimumSize: const Size.fromHeight(52),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonLg),
           foregroundColor: colors.primary,
           textStyle: AppTokens.typography.label,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
@@ -153,7 +153,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colors.surfaceContainerHigh.withValues(alpha: 0.5),
+        fillColor: colors.surfaceContainerHigh.withValues(alpha: AppOpacity.subtle),
         contentPadding: AppTokens.spacing.edgeInsetsSymmetric(
           horizontal: AppTokens.spacing.xl,
           vertical: AppTokens.spacing.lg,
@@ -161,13 +161,13 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
-            color: colors.outline.withValues(alpha: 0.2),
+            color: colors.outline.withValues(alpha: AppOpacity.accent),
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
-            color: colors.outline.withValues(alpha: 0.2),
+            color: colors.outline.withValues(alpha: AppOpacity.accent),
           ),
         ),
         focusedBorder: OutlineInputBorder(
@@ -180,7 +180,7 @@ class AppTheme {
         errorBorder: OutlineInputBorder(
           borderRadius: AppTokens.radius.lg,
           borderSide: BorderSide(
-            color: colors.error.withValues(alpha: 0.5),
+            color: colors.error.withValues(alpha: AppOpacity.subtle),
           ),
         ),
         focusedErrorBorder: OutlineInputBorder(
@@ -194,7 +194,7 @@ class AppTheme {
           color: colors.onSurfaceVariant,
         ),
         hintStyle: AppTokens.typography.bodySecondary.copyWith(
-          color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+          color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
         ),
         errorStyle: AppTokens.typography.caption.copyWith(
           color: colors.error,
@@ -253,7 +253,7 @@ class AppTheme {
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.sheet,
         side: BorderSide(
-          color: scheme.outline.withValues(alpha: 0.12),
+          color: scheme.outline.withValues(alpha: AppOpacity.overlay),
           width: 0.5,
         ),
       ),
@@ -321,7 +321,7 @@ class AppTheme {
       onTertiaryContainer: palette.onSurfaceVariant,
       error: palette.danger,
       onError: Colors.white,
-      errorContainer: palette.danger.withValues(alpha: 0.15),
+      errorContainer: palette.danger.withValues(alpha: AppOpacity.medium),
       onErrorContainer: palette.danger,
       surface: palette.surface,
       onSurface: palette.onSurface,
@@ -334,7 +334,7 @@ class AppTheme {
       surfaceContainerHighest: palette.surfaceVariant,
       onSurfaceVariant: palette.onSurfaceVariant,
       outline: palette.outline,
-      outlineVariant: palette.outline.withValues(alpha: 0.6),
+      outlineVariant: palette.outline.withValues(alpha: AppOpacity.soft),
       shadow: Colors.black,
       scrim: Colors.black54,
       inverseSurface: palette.onSurface,

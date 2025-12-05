@@ -93,8 +93,8 @@ class EntityTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
-        splashColor: colors.primary.withValues(alpha: 0.05),
-        highlightColor: colors.primary.withValues(alpha: 0.02),
+        splashColor: colors.primary.withValues(alpha: AppOpacity.faint),
+        highlightColor: colors.primary.withValues(alpha: AppOpacity.ultraMicro),
         child: Container(
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
@@ -102,8 +102,8 @@ class EntityTile extends StatelessWidget {
             borderRadius: radius,
             border: Border.all(
               color: isHighlighted
-                  ? colors.primary.withValues(alpha: 0.30)
-                  : colors.outline.withValues(alpha: isDark ? 0.12 : 0.5),
+                  ? colors.primary.withValues(alpha: AppOpacity.ghost)
+                  : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
               width: isHighlighted ? 1.5 : 0.5,
             ),
             boxShadow: isDark
@@ -135,7 +135,7 @@ class EntityTile extends StatelessWidget {
                           title,
                           style: AppTokens.typography.subtitle.copyWith(
                             fontWeight: FontWeight.w700,
-                            letterSpacing: -0.2,
+                            letterSpacing: AppLetterSpacing.compact,
                             color: isActive
                                 ? colors.onSurface
                                 : colors.onSurfaceVariant,
@@ -169,7 +169,7 @@ class EntityTile extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: AppTokens.typography.bodySecondary.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.72),
+                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.glass),
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,

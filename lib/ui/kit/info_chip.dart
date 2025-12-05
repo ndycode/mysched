@@ -31,10 +31,10 @@ class InfoChip extends StatelessWidget {
         vertical: spacing.sm + spacing.xs / 2,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+        color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.track),
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.35),
+          color: colors.outlineVariant.withValues(alpha: AppOpacity.track),
         ),
       ),
       child: Row(

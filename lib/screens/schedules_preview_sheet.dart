@@ -131,8 +131,8 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 520,
-            maxHeight: media.size.height * 0.78,
+            maxWidth: AppLayout.sheetMaxWidth,
+            maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
@@ -143,13 +143,13 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
                   blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
@@ -233,7 +233,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                       ),
                       border: Border(
                         top: BorderSide(
-                          color: borderColor.withValues(alpha: 0.5),
+                          color: borderColor.withValues(alpha: AppOpacity.subtle),
                           width: AppTokens.componentSize.divider,
                         ),
                       ),
@@ -344,7 +344,7 @@ class _ImportHeader extends StatelessWidget {
               child: Container(
                 padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.08),
+                  color: colors.primary.withValues(alpha: AppOpacity.highlight),
                   borderRadius: AppTokens.radius.xl,
                 ),
                 child: Icon(
@@ -410,7 +410,7 @@ class _SectionCard extends StatelessWidget {
             width: AppTokens.componentSize.avatarXxl,
             height: AppTokens.componentSize.avatarXxl,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: 0.15),
+              color: colors.primary.withValues(alpha: AppOpacity.medium),
               borderRadius: AppTokens.radius.lg,
             ),
             child: Icon(icon, color: colors.primary),
@@ -595,13 +595,13 @@ class _DayToggleCard extends StatelessWidget {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                colors.primary.withValues(alpha: 0.10),
-                colors.primary.withValues(alpha: 0.06),
+                colors.primary.withValues(alpha: AppOpacity.dim),
+                colors.primary.withValues(alpha: AppOpacity.veryFaint),
               ],
             ),
             borderRadius: AppTokens.radius.md,
             border: Border.all(
-              color: colors.primary.withValues(alpha: 0.20),
+              color: colors.primary.withValues(alpha: AppOpacity.accent),
               width: AppTokens.componentSize.divider,
             ),
           ),
@@ -610,7 +610,7 @@ class _DayToggleCard extends StatelessWidget {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.sm),
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.15),
+                  color: colors.primary.withValues(alpha: AppOpacity.medium),
                   borderRadius: AppTokens.radius.sm,
                 ),
                 child: Icon(
@@ -625,7 +625,7 @@ class _DayToggleCard extends StatelessWidget {
                   dayLabel,
                   style: AppTokens.typography.subtitle.copyWith(
                     fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
+                    letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
                 ),
@@ -634,7 +634,7 @@ class _DayToggleCard extends StatelessWidget {
                 padding: spacing.edgeInsetsSymmetric(
                     horizontal: spacing.sm + 2, vertical: spacing.xs + 1),
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
+                  color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.sm,
                 ),
                 child: Text(
@@ -703,8 +703,8 @@ class _ImportClassTile extends StatelessWidget {
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: isNext
-              ? colors.primary.withValues(alpha: 0.30)
-              : colors.outline.withValues(alpha: isDark ? 0.12 : 0.5),
+              ? colors.primary.withValues(alpha: AppOpacity.ghost)
+              : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
           width: isNext ? 1.5 : 0.5,
         ),
         boxShadow: isDark
@@ -728,7 +728,7 @@ class _ImportClassTile extends StatelessWidget {
                   subject,
                   style: AppTokens.typography.subtitle.copyWith(
                     fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
+                    letterSpacing: AppLetterSpacing.compact,
                     color:
                         disabled ? colors.onSurfaceVariant : colors.onSurface,
                     decoration: disabled ? TextDecoration.lineThrough : null,
@@ -744,7 +744,7 @@ class _ImportClassTile extends StatelessWidget {
                   padding: spacing.edgeInsetsSymmetric(
                       horizontal: spacing.sm + 2, vertical: spacing.xs),
                   decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: 0.08),
+                    color: colors.primary.withValues(alpha: AppOpacity.highlight),
                     borderRadius: AppTokens.radius.sm,
                   ),
                   child: Text(
@@ -827,7 +827,7 @@ class _ImportClassTile extends StatelessWidget {
                     width: AppTokens.componentSize.badgeLg,
                     height: AppTokens.componentSize.badgeLg,
                     decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: 0.15),
+                      color: colors.primary.withValues(alpha: AppOpacity.medium),
                       shape: BoxShape.circle,
                     ),
                     child: Center(

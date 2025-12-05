@@ -56,7 +56,7 @@ class InfoTile extends StatelessWidget {
         // Compact container style (for feature tiles)
         iconWidget = Container(
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.12),
+            color: accent.withValues(alpha: AppOpacity.overlay),
             borderRadius: AppTokens.radius.sm,
           ),
           padding: spacing.edgeInsetsAll(spacing.md),
@@ -68,7 +68,7 @@ class InfoTile extends StatelessWidget {
           width: AppTokens.componentSize.avatarLg,
           height: AppTokens.componentSize.avatarLg,
           decoration: BoxDecoration(
-            color: accent.withValues(alpha: 0.15),
+            color: accent.withValues(alpha: AppOpacity.medium),
             borderRadius: AppTokens.radius.sm,
           ),
           alignment: Alignment.center,

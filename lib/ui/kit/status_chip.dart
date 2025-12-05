@@ -23,13 +23,13 @@ class StatusChip extends StatelessWidget {
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md - 2,
-        vertical: compact ? spacing.xs + 1 : spacing.xs + 2,
+        horizontal: spacing.md - spacing.micro,
+        vertical: compact ? spacing.xs + spacing.micro : spacing.xs + spacing.micro,
       ),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.pill,
-        border: Border.all(color: foreground.withValues(alpha: 0.25)),
+        border: Border.all(color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

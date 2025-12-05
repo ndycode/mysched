@@ -339,7 +339,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
         title: _isEmailChange ? 'Confirm your new email' : 'Verify your email',
         subtitle: heroSubtitle,
         trailing: IconButton(
-          splashRadius: 22,
+          splashRadius: AppInteraction.splashRadius,
           onPressed: _verifying
               ? null
               : () {
@@ -350,7 +350,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                   }
                 },
           icon: CircleAvatar(
-            radius: 16,
+            radius: AppInteraction.iconButtonContainerRadius,
             backgroundColor: colors.primary.withValues(alpha: 0.12),
             child: Icon(Icons.close_rounded, color: colors.primary, size: AppTokens.iconSize.sm),
           ),
@@ -387,7 +387,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                         ? null
                         : _resend,
                 style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(48),
+                  minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
                 ),
                 child: Text(resendLabel),
               ),

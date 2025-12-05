@@ -9,8 +9,6 @@ import '../utils/nav.dart';
 class AlarmPage extends StatelessWidget {
   const AlarmPage({super.key});
 
-  static const double _kBottomNavSafePadding = 120;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -19,10 +17,10 @@ class AlarmPage extends StatelessWidget {
     final media = MediaQuery.of(context);
 
     final backButton = IconButton(
-      splashRadius: 22,
+      splashRadius: AppInteraction.splashRadius,
       onPressed: () => Navigator.of(context).maybePop(),
       icon: CircleAvatar(
-        radius: 16,
+        radius: AppInteraction.iconButtonContainerRadius,
         backgroundColor: colors.primary.withValues(alpha: 0.12),
         child: Icon(
           Icons.arrow_back_rounded,
@@ -139,7 +137,7 @@ class AlarmPage extends StatelessWidget {
         spacing.xl,
         media.padding.top + spacing.xxxl,
         spacing.xl,
-        spacing.quad + _kBottomNavSafePadding,
+        spacing.quad + AppLayout.bottomNavSafePadding,
       ),
       safeArea: false,
     );

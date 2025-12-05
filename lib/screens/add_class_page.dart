@@ -203,7 +203,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           showChevron: false,
           loading: !_profileHydrated,
           height: AppTokens.componentSize.listItemSm,
-          avatarRadius: 20,
+          avatarRadius: AppTokens.spacing.xl,
           textStyle: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'SFProRounded',
             fontWeight: FontWeight.w700,
@@ -1289,7 +1289,7 @@ class _AddClassFormState extends State<AddClassForm> {
               child: FilledButton(
                 onPressed: _submitting ? null : _save,
                 style: FilledButton.styleFrom(
-                  minimumSize: const Size.fromHeight(46),
+                  minimumSize: Size.fromHeight(AppTokens.componentSize.buttonSm),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppTokens.radius.xl,
                   ),
@@ -1306,7 +1306,7 @@ class _AddClassFormState extends State<AddClassForm> {
               child: OutlinedButton(
                 onPressed: _submitting ? null : widget.onCancel,
                 style: OutlinedButton.styleFrom(
-                  minimumSize: const Size.fromHeight(46),
+                  minimumSize: Size.fromHeight(AppTokens.componentSize.buttonSm),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppTokens.radius.xl,
                   ),

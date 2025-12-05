@@ -46,8 +46,8 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 520,
-            maxHeight: media.size.height * 0.78,
+            maxWidth: AppLayout.sheetMaxWidth,
+            maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),

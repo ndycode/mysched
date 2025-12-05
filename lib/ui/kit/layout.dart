@@ -96,7 +96,7 @@ class AppBarX extends StatelessWidget implements PreferredSizeWidget {
   final double elevation;
 
   @override
-  Size get preferredSize => const Size.fromHeight(56);
+  Size get preferredSize => Size.fromHeight(AppTokens.componentSize.listItemMd);
 
   @override
   Widget build(BuildContext context) {
@@ -156,12 +156,12 @@ class PageBody extends StatelessWidget {
     Widget buildAligned(Alignment alignment) {
       final colors = Theme.of(context).colorScheme;
       final decoration = BoxDecoration(
-        color: colors.surface.withValues(alpha: 0.88),
+        color: colors.surface.withValues(alpha: AppOpacity.frosted),
         borderRadius: AppTokens.radius.xl,
-        border: Border.all(color: colors.outline.withValues(alpha: 0.3)),
+        border: Border.all(color: colors.outline.withValues(alpha: AppOpacity.ghost)),
         boxShadow: [
           BoxShadow(
-            color: colors.outline.withValues(alpha: 0.18),
+            color: colors.outline.withValues(alpha: AppOpacity.border),
             blurRadius: 32,
             offset: const Offset(0, 28),
           ),

@@ -145,7 +145,7 @@ class _Header extends StatelessWidget {
                 style: TextStyle(
                   color: textSecondary,
                   fontWeight: FontWeight.w700,
-                  letterSpacing: 0.2,
+                  letterSpacing: AppLetterSpacing.wide,
                 ),
               ),
             ],
@@ -160,7 +160,7 @@ class _Header extends StatelessWidget {
               style: TextStyle(
                 color: accent,
                 fontWeight: FontWeight.w700,
-                letterSpacing: 0.4,
+                letterSpacing: AppLetterSpacing.widest,
               ),
             ),
             SizedBox(height: spacing.xs),
@@ -337,7 +337,7 @@ class _StatusPill extends StatelessWidget {
                   color: textSecondary,
                   fontWeight: FontWeight.w600,
                   fontSize: AppTokens.typography.caption.fontSize,
-                  letterSpacing: 0.1,
+                  letterSpacing: AppLetterSpacing.relaxed,
                 ),
               ),
             ),

@@ -28,10 +28,10 @@ class InstructorAvatar extends StatelessWidget {
     final initials = instructorInitials(name);
 
     final background = inverse
-        ? colors.onPrimary.withValues(alpha: 0.22)
+        ? colors.onPrimary.withValues(alpha: AppOpacity.darkTint)
         : tint.withValues(alpha: AppOpacity.statusBg);
     final borderColor = (inverse ? colors.onPrimary : tint)
-        .withValues(alpha: inverse ? 0.2 : AppOpacity.border);
+        .withValues(alpha: inverse ? AppOpacity.accent : AppOpacity.border);
 
     final fallback = Container(
       width: size,

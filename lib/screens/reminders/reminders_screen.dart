@@ -30,7 +30,6 @@ class RemindersPage extends StatefulWidget {
 }
 
 class RemindersPageState extends State<RemindersPage> with RouteAware {
-  static const double _bottomNavSafePadding = 120;
   late final RemindersController _controller;
   PageRoute<dynamic>? _routeSubscription;
 
@@ -377,7 +376,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           left: spacing.xl,
           right: spacing.xl,
           top: media.padding.top + spacing.xxxl,
-          bottom: spacing.quad + _bottomNavSafePadding,
+          bottom: spacing.quad + AppLayout.bottomNavSafePadding,
         );
 
         if (_controller.loading) {

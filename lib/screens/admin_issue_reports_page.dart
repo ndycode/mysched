@@ -16,7 +16,6 @@ class ClassIssueReportsPage extends StatefulWidget {
 
 class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   late final AdminReportsController _controller;
-  static const double _kBottomNavSafePadding = 120;
 
   static const List<String> _filters = <String>[
     'all',
@@ -98,10 +97,10 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final media = MediaQuery.of(context);
 
     final backButton = IconButton(
-      splashRadius: 22,
+      splashRadius: AppInteraction.splashRadius,
       onPressed: () => Navigator.of(context).maybePop(),
       icon: CircleAvatar(
-        radius: 16,
+        radius: AppInteraction.iconButtonContainerRadius,
         backgroundColor: colors.primary.withValues(alpha: 0.12),
         child: Icon(
           Icons.arrow_back_rounded,
@@ -141,7 +140,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               spacing.xl,
               media.padding.top + spacing.xxxl,
               spacing.xl,
-              spacing.quad + _kBottomNavSafePadding,
+              spacing.quad + AppLayout.bottomNavSafePadding,
             ),
             onRefresh: _controller.loadReports,
             refreshColor: colors.primary,
@@ -236,7 +235,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             spacing.xl,
             media.padding.top + spacing.xxxl,
             spacing.xl,
-            spacing.quad + _kBottomNavSafePadding,
+            spacing.quad + AppLayout.bottomNavSafePadding,
           ),
           onRefresh: _controller.loadReports,
           refreshColor: colors.primary,

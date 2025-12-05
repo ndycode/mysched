@@ -213,7 +213,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
           ),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: 520,
+              maxWidth: AppLayout.sheetMaxWidth,
             ),
             child: CardX(
               padding: spacing.edgeInsetsAll(spacing.xl),

@@ -731,14 +731,16 @@ class DashboardScreenState extends State<DashboardScreen>
           left: spacing.xl,
           right: spacing.xl,
           top: media.padding.top + spacing.xxxl,
-          bottom: spacing.xl,
+          bottom: spacing.quad + AppLayout.bottomNavSafePadding,
         ),
         safeArea: false,
+        cacheExtent: AppLayout.listCacheExtent,
       );
     }
 
     final spacing = AppTokens.spacing;
     final topInset = MediaQuery.of(context).padding.top;
+    final colors = Theme.of(context).colorScheme;
 
     return ValueListenableBuilder<DateTime>(
       valueListenable: _nowTick,
@@ -794,11 +796,13 @@ class DashboardScreenState extends State<DashboardScreen>
             left: spacing.xl,
             right: spacing.xl,
             top: topInset + spacing.xxxl,
-            bottom: spacing.xl,
+            bottom: spacing.quad + AppLayout.bottomNavSafePadding,
           ),
           safeArea: false,
           onRefresh: _refreshAll,
-          refreshColor: Theme.of(context).colorScheme.primary,
+          refreshColor: colors.primary,
+          cacheExtent: AppLayout.listCacheExtent,
+          useSlivers: false,
         );
       },
     );
@@ -856,7 +860,6 @@ class DashboardScreenState extends State<DashboardScreen>
         onViewSchedule: _openSchedules,
       ),
     );
-    addSpacing(AppTokens.spacing.xxl);
 
     if (_scheduleError != null) {
       addSection(
@@ -872,7 +875,6 @@ class DashboardScreenState extends State<DashboardScreen>
           tintColor: Theme.of(context).colorScheme.primary,
         ),
       );
-      addSpacing(AppTokens.spacing.lg);
     }
 
 
@@ -898,7 +900,6 @@ class DashboardScreenState extends State<DashboardScreen>
         onViewDetails: _openClassDetails,
       ),
     );
-    addSpacing(AppTokens.spacing.xxl);
 
     addSection(
       (_) => _DashboardReminderCard(
@@ -917,8 +918,6 @@ class DashboardScreenState extends State<DashboardScreen>
         },
       ),
     );
-
-    addSpacing(AppTokens.spacing.quad + AppLayout.bottomNavSafePadding);
 
     return sections;
   }

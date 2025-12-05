@@ -78,7 +78,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 520,
+            maxWidth: AppLayout.sheetMaxWidth,
             maxHeight: media.size.height * 0.85,
           ),
           child: Container(

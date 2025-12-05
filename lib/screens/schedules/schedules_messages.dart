@@ -41,16 +41,16 @@ class ScheduleMessageCard extends StatelessWidget {
             : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: colors.outline.withValues(alpha: theme.brightness == Brightness.dark ? 0.12 : 0.4),
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          color: colors.outline.withValues(alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
+          width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: theme.brightness == Brightness.dark
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: 0.05),
+                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
                   blurRadius: AppTokens.shadow.md,
-                  offset: const Offset(0, 4),
+                  offset: AppShadowOffset.sm,
                 ),
               ],
       ),
@@ -120,12 +120,12 @@ class OfflineBanner extends StatelessWidget {
         : 'You are viewing your saved schedule from '
             '${DateFormat('MMM d - h:mm a').format(lastSynced!)}.';
     return Container(
-      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg + 2),
+      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg + AppTokens.spacing.micro),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHigh,
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: colors.outlineVariant.withValues(alpha: 0.3),
+          color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
         ),
       ),
       child: Row(

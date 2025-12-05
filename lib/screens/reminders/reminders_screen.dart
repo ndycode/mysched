@@ -193,10 +193,22 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.lg,
       ),
-      elevation: isDark ? AppTokens.shadow.sm : AppTokens.shadow.md,
+      elevation: isDark ? AppTokens.shadow.elevationDark : AppTokens.shadow.elevationLight,
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.medium),
+      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
+      padding: EdgeInsets.zero,
+      icon: SizedBox(
+        width: AppTokens.componentSize.buttonXs,
+        height: AppTokens.componentSize.buttonXs,
+        child: Center(
+          child: Icon(
+            Icons.more_vert_rounded,
+            size: AppTokens.iconSize.md,
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ),
       itemBuilder: (context) => [
         PopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.newReminder,
@@ -224,12 +236,14 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.primary,
                       ),
                     ),
-                    SizedBox(width: spacing.lg),
-                    Text(
-                      'New reminder',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: AppTokens.fontWeight.medium,
-                        color: colors.onSurface,
+                    SizedBox(width: spacing.md + spacing.micro),
+                    Flexible(
+                      child: Text(
+                        'New reminder',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: AppTokens.fontWeight.medium,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -266,12 +280,14 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.secondary,
                       ),
                     ),
-                    SizedBox(width: spacing.lg),
-                    Text(
-                      _controller.showCompleted ? 'Hide completed' : 'Show completed',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: AppTokens.fontWeight.medium,
-                        color: colors.onSurface,
+                    SizedBox(width: spacing.md + spacing.micro),
+                    Flexible(
+                      child: Text(
+                        _controller.showCompleted ? 'Hide completed' : 'Show completed',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: AppTokens.fontWeight.medium,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -284,7 +300,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           enabled: false,
           height: AppTokens.componentSize.divider,
           padding: spacing.edgeInsetsSymmetric(
-            horizontal: spacing.lg,
+            horizontal: spacing.md,
             vertical: spacing.sm,
           ),
           child: Container(
@@ -326,12 +342,14 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                         color: colors.error,
                       ),
                     ),
-                    SizedBox(width: spacing.lg),
-                    Text(
-                      'Reset reminders',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: AppTokens.fontWeight.medium,
-                        color: colors.onSurface,
+                    SizedBox(width: spacing.md + spacing.micro),
+                    Flexible(
+                      child: Text(
+                        'Reset reminders',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: AppTokens.fontWeight.medium,
+                          color: colors.onSurface,
+                        ),
                       ),
                     ),
                   ],
@@ -341,11 +359,6 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           ),
         ),
       ],
-      icon: Icon(
-        Icons.more_vert_rounded,
-        size: AppTokens.iconSize.lg,
-        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
-      ),
     );
   }
 
@@ -362,6 +375,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
         final media = MediaQuery.of(context);
+        final isDark = theme.brightness == Brightness.dark;
 
         final spacing = AppTokens.spacing;
         final hero = ScreenBrandHeader(
@@ -450,14 +464,19 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           sections.add(
             ScreenSection(
               decorated: false,
-              child: CardX(
+              child: Container(
                 padding: spacing.edgeInsetsSymmetric(
                   horizontal: spacing.xxl,
                   vertical: spacing.quad,
                 ),
-                backgroundColor: colors.surface,
-                borderColor: colors.outline.withValues(alpha: AppOpacity.divider),
-                borderRadius: AppTokens.radius.xl,
+                decoration: BoxDecoration(
+                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
+                  borderRadius: AppTokens.radius.xl,
+                  border: Border.all(
+                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline.withValues(alpha: AppOpacity.divider),
+                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [

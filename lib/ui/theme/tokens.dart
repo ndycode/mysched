@@ -11,6 +11,7 @@ export 'tokens/shadows.dart';
 export 'tokens/sizing.dart';
 export 'tokens/spacing.dart';
 export 'tokens/typography.dart';
+export 'tokens/urgency.dart';
 
 // Import for use in AppTokens wrapper class
 import 'tokens/motion.dart';

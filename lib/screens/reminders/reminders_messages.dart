@@ -11,6 +11,8 @@ class ReminderMessageCard extends StatelessWidget {
     required this.message,
     this.primaryLabel,
     this.onPrimary,
+    this.secondaryLabel,
+    this.onSecondary,
   });
 
   final IconData icon;
@@ -18,28 +20,31 @@ class ReminderMessageCard extends StatelessWidget {
   final String message;
   final String? primaryLabel;
   final VoidCallback? onPrimary;
+  final String? secondaryLabel;
+  final VoidCallback? onSecondary;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: colors.outlineVariant,
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
+          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
         ),
-        boxShadow: theme.brightness == Brightness.dark
+        boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -48,33 +53,72 @@ class ReminderMessageCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: colors.primary),
-              SizedBox(width: AppTokens.spacing.md),
+              Container(
+                height: AppTokens.componentSize.listItemSm,
+                width: AppTokens.componentSize.listItemSm,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                  borderRadius: AppTokens.radius.lg,
+                ),
+                child: Icon(
+                  icon,
+                  size: AppTokens.iconSize.lg,
+                  color: colors.primary,
+                ),
+              ),
+              SizedBox(width: spacing.lg),
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTokens.typography.title.copyWith(
+                        fontWeight: AppTokens.fontWeight.extraBold,
+                        letterSpacing: AppLetterSpacing.tight,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: spacing.xs),
+                    Text(
+                      message,
+                      style: AppTokens.typography.body.copyWith(
+                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                        height: AppLineHeight.relaxed,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: AppTokens.spacing.sm),
-          Text(
-            message,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-          if (primaryLabel != null) ...[
-            SizedBox(height: AppTokens.spacing.lg),
-            PrimaryButton(
-              label: primaryLabel!,
-              onPressed: onPrimary,
-              minHeight: AppTokens.componentSize.buttonMd,
-              expanded: true,
+          if (primaryLabel != null || secondaryLabel != null) ...[
+            SizedBox(height: spacing.lg),
+            Row(
+              children: [
+                if (primaryLabel != null)
+                  Expanded(
+                    child: PrimaryButton(
+                      label: primaryLabel!,
+                      onPressed: onPrimary,
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      expanded: true,
+                    ),
+                  ),
+                if (primaryLabel != null && secondaryLabel != null)
+                  SizedBox(width: spacing.md),
+                if (secondaryLabel != null)
+                  Expanded(
+                    child: SecondaryButton(
+                      label: secondaryLabel!,
+                      onPressed: onSecondary,
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      expanded: true,
+                    ),
+                  ),
+              ],
             ),
           ],
         ],

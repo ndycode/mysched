@@ -1059,9 +1059,16 @@ class ScheduleRow extends StatelessWidget {
     final location = (item.room ?? '').trim();
     final instructor = (item.instructor ?? '').trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
-    final isLive = now.isAfter(nextStart) && now.isBefore(nextEnd);
-    final isNext = !isLive && nextStart.difference(now).inMinutes < 60;
     final isHidden = !item.enabled;
+
+    // Calculate urgency level using global tokens
+    final urgency = AppUrgency.calculate(
+      startTime: nextStart,
+      now: now,
+      endTime: nextEnd,
+    );
+    final isLive = urgency == UrgencyLevel.live;
+    final isNext = urgency == UrgencyLevel.imminent;
 
     final timeFormat = DateFormat('h:mm a');
     final timeRange = '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
@@ -1096,7 +1103,7 @@ class ScheduleRow extends StatelessWidget {
       title: subject,
       isActive: !isHidden,
       isStrikethrough: isHidden,
-      isHighlighted: isLive,
+      isHighlighted: AppUrgency.shouldHighlight(urgency),
       metadata: metadata,
       badge: badge,
       trailing: trailing,
@@ -1113,58 +1120,57 @@ class ScheduleRow extends StatelessWidget {
       return child;
     }
 
-    return ClipRRect(
-      borderRadius: AppTokens.radius.lg,
-      child: Slidable(
-        key: ValueKey('dismiss-class-${item.id}'),
-        endActionPane: ActionPane(
-          motion: const DrawerMotion(),
-          extentRatio: AppScale.slideExtent,
-          children: [
-            CustomSlidableAction(
-              onPressed: (context) async {
-                final confirm = await AppModal.showConfirmDialog(
-                  context: context,
-                  title: 'Delete custom class?',
-                  message: 'This class will be removed from your schedules and reminders.',
-                  confirmLabel: 'Delete',
-                  isDanger: true,
-                );
-                if (confirm == true) {
-                  onDelete!();
-                }
-              },
-              backgroundColor: Colors.transparent,
-              foregroundColor: colors.onError,
-              child: Container(
-                margin: EdgeInsets.only(left: AppTokens.spacing.sm),
-                decoration: BoxDecoration(
-                  color: colors.error,
-                  borderRadius: AppTokens.radius.lg,
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Icon(Icons.delete_outline_rounded, color: colors.onError),
-                    SizedBox(height: AppTokens.spacing.xs),
-                    Text(
-                      'Delete',
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.labelMedium?.copyWith(
-                        color: colors.onError,
-                        fontWeight: AppTokens.fontWeight.semiBold,
-                      ),
-                      overflow: TextOverflow.ellipsis,
+    return Slidable(
+      key: ValueKey('dismiss-class-${item.id}'),
+      endActionPane: ActionPane(
+        motion: const DrawerMotion(),
+        extentRatio: AppScale.slideExtent,
+        children: [
+          CustomSlidableAction(
+            autoClose: true,
+            padding: EdgeInsets.zero,
+            onPressed: (context) async {
+              final confirm = await AppModal.showConfirmDialog(
+                context: context,
+                title: 'Delete custom class?',
+                message: 'This class will be removed from your schedules and reminders.',
+                confirmLabel: 'Delete',
+                isDanger: true,
+              );
+              if (confirm == true) {
+                onDelete!();
+              }
+            },
+            backgroundColor: Colors.transparent,
+            foregroundColor: colors.onError,
+            child: Container(
+              margin: EdgeInsets.only(left: AppTokens.spacing.sm),
+              decoration: BoxDecoration(
+                color: colors.error,
+                borderRadius: AppTokens.radius.lg,
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(Icons.delete_outline_rounded, color: colors.onError),
+                  SizedBox(height: AppTokens.spacing.xs),
+                  Text(
+                    'Delete',
+                    textAlign: TextAlign.center,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: colors.onError,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                     ),
-                  ],
-                ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-        child: child,
+          ),
+        ],
       ),
+      child: child,
     );
   }
 }

@@ -52,23 +52,23 @@
 | border width (dark) | `componentSize.divider` | 1px |
 | border width (light) | `componentSize.dividerThin` | 0.5px |
 | border alpha (dark) | `AppOpacity.overlay` | 0.12 |
-| shadow alpha | `AppOpacity.faint` | 0.06 |
+| shadow alpha | `AppOpacity.faint` | 0.05 |
 | blurRadius | `shadow.md` | 12px |
 | offset | `AppShadowOffset.sm` | (0, 4) |
 
 ### Header
 | Property | Token | Px Value |
-|----------|-------|----------|
-| title font | `typography.title` | 18px |
+|----------|-------|---------|
+| title font | `typography.title` | 20px |
 | title weight | `fontWeight.bold` | w700 |
 | letterSpacing | `AppLetterSpacing.snug` | -0.01 |
 | title→hero gap | `spacing.xl` | 20px |
 
 ### Refresh Button
 | Property | Token | Px Value |
-|----------|-------|----------|
-| height | `componentSize.buttonXs` | 32px |
-| size min | `componentSize.buttonXs` | 32px |
+|----------|-------|---------|
+| height | `componentSize.buttonXs` | 36px |
+| size min | `componentSize.buttonXs` | 36px |
 | borderRadius | `radius.md` | 12px |
 | icon size | `iconSize.md` | 20px |
 
@@ -96,7 +96,7 @@
 | borderRadius | `radius.lg` | 16px |
 | gradient end alpha | `AppOpacity.prominent` | 0.85 |
 | shadow alpha | `AppOpacity.ghost` | 0.30 |
-| blurRadius | `shadow.xl` | 24px |
+| blurRadius | `shadow.xl` | 20px |
 | offset | `AppShadowOffset.lg` | (0, 12) |
 
 ### Status Badge
@@ -106,23 +106,23 @@
 | padding v | `spacing.sm - spacing.micro` | 6px |
 | borderRadius | `radius.pill` | 9999px |
 | bg alpha | `AppOpacity.border` | 0.18 |
-| font | `typography.caption` | 11px |
+| font | `typography.caption` | 12px |
 | fontWeight | `fontWeight.semiBold` | w600 |
 | letterSpacing | `AppLetterSpacing.wider` | 0.04 |
 
 ### Live Dot
 | Property | Token | Px Value |
-|----------|-------|----------|
-| size | `componentSize.badgeSm` | 6px |
+|----------|-------|---------|
+| size | `componentSize.badgeSm` | 8px |
 | margin right | `spacing.sm` | 8px |
 | shadow blur | `shadow.xs` | 4px |
 | shadow spread | `componentSize.divider` | 1px |
-| subtitle alpha | `AppOpacity.subtle` | 0.45 |
+| subtitle alpha | `AppOpacity.subtle` | 0.50 |
 
 ### Title
 | Property | Token | Specs |
 |----------|-------|-------|
-| font | `typography.headline` | 22px |
+| font | `typography.headline` | 26px |
 | fontWeight | `fontWeight.bold` | w700 |
 | lineHeight | `AppLineHeight.compact` | 1.2 |
 | letterSpacing | `AppLetterSpacing.tight` | -0.03 |
@@ -158,15 +158,15 @@
 ## _EmptyHeroPlaceholder (Lines 441-514)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xxxl` | 32px |
 | borderRadius | `radius.lg` | 16px |
-| bg alpha | `AppOpacity.micro` | 0.03 |
-| border alpha | `AppOpacity.dim` | 0.08 |
+| bg alpha | `AppOpacity.micro` | 0.04 |
+| border alpha | `AppOpacity.dim` | 0.10 |
 | border width | `componentSize.divider` | 1px |
-| circle size | `spacing.emptyStateSize` | 104px |
+| circle size | `spacing.emptyStateSize` | 64px |
 | gradient start alpha | `AppOpacity.medium` | 0.15 |
-| gradient end alpha | `AppOpacity.highlight` | 0.16 |
+| gradient end alpha | `AppOpacity.highlight` | 0.08 |
 | circle border alpha | `AppOpacity.accent` | 0.20 |
 | circle border width | `componentSize.dividerThick` | 1.5px |
 | icon size | `iconSize.xxl` | 32px |
@@ -189,34 +189,34 @@
 | border normal alpha (light) | `AppOpacity.barrier` | 0.40 |
 | border highlight width | `componentSize.dividerThick` | 1.5px |
 | border normal width | `componentSize.dividerThin` | 0.5px |
-| splash alpha | `AppOpacity.faint` | 0.06 |
+| splash alpha | `AppOpacity.faint` | 0.05 |
 
 ### Shadow
 | Property | Token | Px Value |
-|----------|-------|----------|
-| highlight shadow alpha | `AppOpacity.highlight` | 0.16 |
-| normal shadow alpha | `AppOpacity.faint` | 0.06 |
+|----------|-------|---------|
+| highlight shadow alpha | `AppOpacity.highlight` | 0.08 |
+| normal shadow alpha | `AppOpacity.faint` | 0.05 |
 | highlight blur | `shadow.md` | 12px |
-| normal blur | `shadow.sm` | 8px |
+| normal blur | `shadow.sm` | 6px |
 | offset | `AppShadowOffset.xs` | (0, 2) |
 
 ### Title Row
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | trailing width | `componentSize.buttonMd` | 48px |
-| trailing height | `componentSize.listItemSm` | 24px |
+| trailing height | `componentSize.listItemSm` | 48px |
 | switch scale | `AppScale.dense` | 0.85 |
 | title→trailing gap | `spacing.md` | 12px |
 | fontWeight | `fontWeight.bold` | w700 |
 | letterSpacing | `AppLetterSpacing.compact` | -0.01 |
-| disabled alpha | `AppOpacity.subtle` | 0.45 |
+| disabled alpha | `AppOpacity.subtle` | 0.50 |
 
 ### Time/Location Row
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | title→time gap | `spacing.md` | 12px |
 | icon size | `iconSize.sm` | 16px |
-| icon alpha | `AppOpacity.muted` | 0.55 |
+| icon alpha | `AppOpacity.muted` | 0.70 |
 | icon→text gap | `spacing.xsPlus` | 6px |
 | text alpha | `AppOpacity.prominent` | 0.85 |
 | time→location gap | `spacing.lg` | 16px |
@@ -233,13 +233,13 @@
 ## _InstructorRow (Lines 709-768)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | avatar (dense) | `iconSize.md` | 20px |
 | avatar (normal) | `iconSize.lg` | 24px |
 | avatar→name gap | `spacing.xsPlus` | 6px |
 | border width (inverse) | `componentSize.divider` | 1px |
-| font (dense) | `typography.caption` | 11px |
-| font (normal) | `typography.bodySecondary` | 13px |
+| font (dense) | `typography.caption` | 12px |
+| font (normal) | `typography.bodySecondary` | 14px |
 | fontWeight | `fontWeight.medium` | w500 |
 | inverse alpha | `AppOpacity.prominent` | 0.85 |
 
@@ -248,11 +248,11 @@
 ## _StatusPill (Lines 770-802)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding h | `spacing.sm` | 8px |
 | padding v | `spacing.xs` | 4px |
 | borderRadius | `radius.pill` | 9999px |
-| font | `typography.caption` | 11px |
+| font | `typography.caption` | 12px |
 | fontWeight | `fontWeight.semiBold` | w600 |
 
 ---
@@ -263,36 +263,36 @@
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xl` | 20px |
 | borderRadius | `radius.xl` | 24px |
 | border width (dark) | `componentSize.divider` | 1px |
 | border width (light) | `componentSize.dividerThin` | 0.5px |
 | border alpha (dark) | `AppOpacity.overlay` | 0.12 |
-| shadow alpha | `AppOpacity.veryFaint` | 0.04 |
+| shadow alpha | `AppOpacity.veryFaint` | 0.06 |
 | blurRadius | `shadow.lg` | 16px |
 | offset | `AppShadowOffset.sm` | (0, 4) |
 
 ### Header
 | Property | Token | Px Value |
-|----------|-------|----------|
-| icon container size | `componentSize.avatarXl` | 56px |
+|----------|-------|---------|
+| icon container size | `componentSize.avatarXl` | 48px |
 | icon container radius | `radius.md` | 12px |
 | icon container border | `componentSize.dividerThick` | 1.5px |
 | gradient start alpha | `AppOpacity.medium` | 0.15 |
-| gradient end alpha | `AppOpacity.dim` | 0.08 |
+| gradient end alpha | `AppOpacity.dim` | 0.10 |
 | border alpha | `AppOpacity.borderEmphasis` | 0.25 |
 | icon size | `iconSize.xl` | 28px |
 | icon→text gap | `spacing.lg` | 16px |
 | title→subtitle gap | `spacing.xs` | 4px |
-| title font | `typography.title` | 18px |
+| title font | `typography.title` | 20px |
 | title weight | `fontWeight.extraBold` | w800 |
 | letterSpacing | `AppLetterSpacing.tight` | -0.03 |
 
 ### Refresh Button
 | Property | Token | Px Value |
-|----------|-------|----------|
-| height/width | `componentSize.buttonXs` | 32px |
+|----------|-------|---------|
+| height/width | `componentSize.buttonXs` | 36px |
 | borderRadius | `radius.md` | 12px |
 | icon size | `iconSize.md` | 20px |
 | spinner size | `componentSize.badgeMd` | 16px |
@@ -341,11 +341,11 @@
 | count badge padding h | `spacing.smMd` | 10px |
 | count badge padding v | `spacing.xsHalf` | 6px |
 | count badge bg alpha | `AppOpacity.overlay` | 0.12 |
-| gradient start alpha | `AppOpacity.dim` | 0.08 |
-| gradient end alpha | `AppOpacity.veryFaint` | 0.04 |
+| gradient start alpha | `AppOpacity.dim` | 0.10 |
+| gradient end alpha | `AppOpacity.veryFaint` | 0.06 |
 | border alpha | `AppOpacity.accent` | 0.20 |
 | border width | `componentSize.divider` | 1px |
-| title font | `typography.subtitle` | 15px |
+| title font | `typography.subtitle` | 16px |
 | title weight | `fontWeight.extraBold` | w800 |
 | letterSpacing | `AppLetterSpacing.snug` | -0.01 |
 
@@ -363,21 +363,21 @@
 
 ### Empty State
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xxl` | 24px |
 | borderRadius | `radius.lg` | 16px |
-| bg alpha (dark) | `AppOpacity.divider` | 0.25 |
-| bg alpha (light) | `AppOpacity.micro` | 0.03 |
+| bg alpha (dark) | `AppOpacity.divider` | 0.40 |
+| bg alpha (light) | `AppOpacity.micro` | 0.04 |
 | border alpha (dark) | `AppOpacity.overlay` | 0.12 |
-| border alpha (light) | `AppOpacity.dim` | 0.08 |
+| border alpha (light) | `AppOpacity.dim` | 0.10 |
 | border width | `componentSize.divider` | 1px |
 | icon container padding | `spacing.lg` | 16px |
 | icon container bg alpha (dark) | `AppOpacity.medium` | 0.15 |
-| icon container bg alpha (light) | `AppOpacity.dim` | 0.08 |
+| icon container bg alpha (light) | `AppOpacity.dim` | 0.10 |
 | icon size | `iconSize.xxl` | 32px |
 | icon→title gap | `spacing.xl` | 20px |
 | title→subtitle gap | `spacing.sm` | 8px |
-| title font | `typography.subtitle` | 15px |
+| title font | `typography.subtitle` | 16px |
 | title weight | `fontWeight.bold` | w700 |
 
 ---
@@ -463,12 +463,12 @@ Uses `EntityTile` kit component with:
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.md` | 12px |
 | borderRadius | `radius.md` | 12px |
 | border width | `componentSize.divider` | 1px |
-| gradient start alpha | `AppOpacity.dim` | 0.08 |
-| gradient end alpha | `AppOpacity.veryFaint` | 0.04 |
+| gradient start alpha | `AppOpacity.dim` | 0.10 |
+| gradient end alpha | `AppOpacity.veryFaint` | 0.06 |
 | border alpha | `AppOpacity.accent` | 0.20 |
 
 ### Icon Box
@@ -482,18 +482,18 @@ Uses `EntityTile` kit component with:
 
 ### Percentage Badge
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding h | `spacing.smMd` | 10px |
 | padding v | `spacing.xsPlus` | 6px |
 | borderRadius | `radius.sm` | 8px |
 | bg alpha | `AppOpacity.overlay` | 0.12 |
-| font | `typography.caption` | 11px |
+| font | `typography.caption` | 12px |
 | fontWeight | `fontWeight.bold` | w700 |
 
 ### Title
 | Property | Token | Specs |
 |----------|-------|-------|
-| font | `typography.subtitle` | 15px |
+| font | `typography.subtitle` | 16px |
 | fontWeight | `fontWeight.extraBold` | w800 |
 | letterSpacing | `AppLetterSpacing.snug` | -0.01 |
 
@@ -503,42 +503,42 @@ Uses `EntityTile` kit component with:
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.lg` | 16px |
 | borderRadius | `radius.lg` | 16px |
 | border width | `componentSize.dividerThin` | 0.5px |
-| shadow alpha | `AppOpacity.faint` | 0.06 |
-| blurRadius | `shadow.sm` | 8px |
+| shadow alpha | `AppOpacity.faint` | 0.05 |
+| blurRadius | `shadow.sm` | 6px |
 | offset | `AppShadowOffset.xs` | (0, 2) |
 
 ### Checkbox
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | container size | `componentSize.badgeLg` | 24px |
 | scale | `AppScale.enlarged` | 1.2 |
 | shape borderRadius | `radius.sm` | 8px |
 | border width | `componentSize.dividerThick` | 1.5px |
-| border alpha | `AppOpacity.subtle` | 0.45 |
+| border alpha | `AppOpacity.subtle` | 0.50 |
 | checkbox→content gap | `spacing.md` | 12px |
 
 ### Title
 | Property | Token | Specs |
 |----------|-------|-------|
-| font | `typography.subtitle` | 15px |
+| font | `typography.subtitle` | 16px |
 | fontWeight | `fontWeight.bold` | w700 |
 | letterSpacing | `AppLetterSpacing.compact` | -0.01 |
 | title→details gap | `spacing.xsPlus` | 6px |
-| details alpha | `AppOpacity.muted` | 0.55 |
+| details alpha | `AppOpacity.muted` | 0.70 |
 
 ### Due Row
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | details→due gap | `spacing.md` | 12px |
 | icon size | `iconSize.xs` | 14px |
-| icon alpha | `AppOpacity.muted` | 0.55 |
+| icon alpha | `AppOpacity.muted` | 0.70 |
 | icon→text gap | `spacing.xsPlus` | 6px |
 | text alpha | `AppOpacity.prominent` | 0.85 |
-| font | `typography.caption` | 11px |
+| font | `typography.caption` | 12px |
 | fontWeight | `fontWeight.medium` | w500 |
 
 ### Loading Spinner
@@ -555,10 +555,10 @@ Uses `EntityTile` kit component with:
 ## _DashboardMessageCard
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xxl` | 24px |
 | borderRadius | `radius.xl` | 24px |
-| icon bg alpha | `AppOpacity.highlight` | 0.16 |
+| icon bg alpha | `AppOpacity.highlight` | 0.08 |
 | icon box radius | `radius.md` | 12px |
 | icon box padding | `spacing.md` | 12px |
 | icon size | `iconSize.lg` | 24px |
@@ -589,22 +589,22 @@ Uses `EntityTile` kit component with:
 | `xxl` | 24 |
 | `xxxl` | 32 |
 | `quad` | 40 |
-| `emptyStateSize` | 104 |
+| `emptyStateSize` | 64 |
 
 ## Component Sizes (px)
 | Token | Value |
 |-------|-------|
-| `avatarXl` | 56 |
+| `avatarXl` | 48 |
 | `avatarSmDense` | 28 |
-| `avatarXsDense` | 22 |
-| `buttonXs` | 32 |
+| `avatarXsDense` | 26 |
+| `buttonXs` | 36 |
 | `buttonMd` | 48 |
-| `buttonLg` | 56 |
-| `badgeSm` | 6 |
+| `buttonLg` | 52 |
+| `badgeSm` | 8 |
 | `badgeMd` | 16 |
 | `badgeLg` | 24 |
-| `listItemSm` | 24 |
-| `listItemMd` | 44 |
+| `listItemSm` | 48 |
+| `listItemMd` | 56 |
 | `dividerThin` | 0.5 |
 | `divider` | 1 |
 | `dividerMedium` | 1.25 |
@@ -624,10 +624,10 @@ Uses `EntityTile` kit component with:
 | Token | Value |
 |-------|-------|
 | `xs` | 4 |
-| `sm` | 8 |
+| `sm` | 6 |
 | `md` | 12 |
 | `lg` | 16 |
-| `xl` | 24 |
+| `xl` | 20 |
 
 ## Shadow Offsets
 | Token | Value |
@@ -651,20 +651,21 @@ Uses `EntityTile` kit component with:
 | `prominent` | 0.85 |
 | `secondary` | 0.80 |
 | `high` | 0.90 |
-| `muted` | 0.55 |
-| `subtle` | 0.45 |
-| `barrier` | 0.40 |
+| `muted` | 0.70 |
+| `subtle` | 0.50 |
+| `barrier` | 0.45 |
+| `divider` | 0.40 |
 | `ghost` | 0.30 |
-| `divider` | 0.25 |
 | `accent` | 0.20 |
 | `border` | 0.18 |
-| `highlight` | 0.16 |
+| `statusBg` | 0.16 |
 | `medium` | 0.15 |
 | `overlay` | 0.12 |
-| `dim` | 0.08 |
-| `faint` | 0.06 |
-| `veryFaint` | 0.04 |
-| `micro` | 0.03 |
+| `dim` | 0.10 |
+| `highlight` | 0.08 |
+| `veryFaint` | 0.06 |
+| `faint` | 0.05 |
+| `micro` | 0.04 |
 
 ---
 

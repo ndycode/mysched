@@ -30,26 +30,24 @@ class ScheduleMessageCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final cardBackground = elevatedCardBackground(theme);
-    final borderColor = elevatedCardBorder(theme);
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xl),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : colors.surface,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: colors.outline.withValues(alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
-          width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
+          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
         ),
-        boxShadow: theme.brightness == Brightness.dark
+        boxShadow: isDark
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -58,45 +56,71 @@ class ScheduleMessageCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(icon, color: colors.primary),
-              SizedBox(width: AppTokens.spacing.md),
+              Container(
+                height: AppTokens.componentSize.listItemSm,
+                width: AppTokens.componentSize.listItemSm,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                  borderRadius: AppTokens.radius.lg,
+                ),
+                child: Icon(
+                  icon,
+                  size: AppTokens.iconSize.lg,
+                  color: colors.primary,
+                ),
+              ),
+              SizedBox(width: spacing.lg),
               Expanded(
-                child: Text(
-                  title,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTokens.typography.title.copyWith(
+                        fontWeight: AppTokens.fontWeight.extraBold,
+                        letterSpacing: AppLetterSpacing.tight,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    SizedBox(height: spacing.xs),
+                    Text(
+                      message,
+                      style: AppTokens.typography.body.copyWith(
+                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                        height: AppLineHeight.relaxed,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: AppTokens.spacing.sm),
-          Text(
-            message,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
-            ),
-          ),
           if (primaryLabel != null || secondaryLabel != null) ...[
-            SizedBox(height: AppTokens.spacing.lg),
+            SizedBox(height: spacing.lg),
             Row(
               children: [
-                if (primaryLabel != null) ...[
-                  PrimaryButton(
-                    label: primaryLabel!,
-                    onPressed: onPrimary,
-                    minHeight: AppTokens.componentSize.buttonMd,
+                if (primaryLabel != null)
+                  Expanded(
+                    child: PrimaryButton(
+                      label: primaryLabel!,
+                      onPressed: onPrimary,
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      expanded: true,
+                    ),
                   ),
-                ],
-                if (secondaryLabel != null) ...[
-                  if (primaryLabel != null) SizedBox(width: AppTokens.spacing.md),
-                  SecondaryButton(
-                    label: secondaryLabel!,
-                    onPressed: onSecondary,
-                    minHeight: AppTokens.componentSize.buttonMd,
+                if (primaryLabel != null && secondaryLabel != null)
+                  SizedBox(width: spacing.md),
+                if (secondaryLabel != null)
+                  Expanded(
+                    child: SecondaryButton(
+                      label: secondaryLabel!,
+                      onPressed: onSecondary,
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      expanded: true,
+                    ),
                   ),
-                ],
               ],
             ),
           ],

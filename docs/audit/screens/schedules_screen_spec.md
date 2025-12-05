@@ -44,17 +44,17 @@
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | borderRadius | `radius.lg` | 16px |
-| elevation (dark) | `shadow.elevationDark` | 4 |
-| elevation (light) | `shadow.elevationLight` | 1 |
-| shadow alpha (dark) | `AppOpacity.divider` | 0.25 |
+| elevation (dark) | `shadow.elevationDark` | 8 |
+| elevation (light) | `shadow.elevationLight` | 12 |
+| shadow alpha (dark) | `AppOpacity.divider` | 0.40 |
 | shadow alpha (light) | `AppOpacity.medium` | 0.15 |
 
 ### Icon Button
 | Property | Token | Px Value |
-|----------|-------|----------|
-| width/height | `componentSize.buttonXs` | 32px |
+|----------|-------|---------|
+| width/height | `componentSize.buttonXs` | 36px |
 | icon size | `iconSize.md` | 20px |
 
 ### Menu Items
@@ -67,17 +67,17 @@
 | icon bg alpha | `AppOpacity.overlay` | 0.12 |
 | icon size | `iconSize.md` | 20px |
 | icon→text gap | `spacing.md + spacing.micro` | 14px |
-| font | `typography.bodySecondary` | 13px |
+| font | `typography.bodySecondary` | 14px |
 | fontWeight | `fontWeight.medium` | w500 |
 
 ### Divider
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | height | `componentSize.divider` | 1px |
 | padding h | `spacing.md` | 12px |
 | padding v | `spacing.sm` | 8px |
 | gradient alpha (dark) | `AppOpacity.accent` | 0.20 |
-| gradient alpha (light) | `AppOpacity.divider` | 0.25 |
+| gradient alpha (light) | `AppOpacity.divider` | 0.40 |
 
 ---
 
@@ -95,7 +95,7 @@
 ### Icon Circle
 | Property | Token | Px Value |
 |----------|-------|----------|
-| size | `spacing.emptyStateSize` | 104px |
+| size | `spacing.emptyStateSize` | 64px |
 | icon size | `spacing.quad` | 40px |
 | gradient start alpha | `AppOpacity.medium` | 0.15 |
 | gradient end alpha | `AppOpacity.highlight` | 0.16 |
@@ -160,12 +160,12 @@
 
 ### Day Header
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.md` | 12px |
 | borderRadius | `radius.md` | 12px |
 | border width | `componentSize.divider` | 1px |
 | gradient start alpha | `AppOpacity.dim` | 0.10 |
-| gradient end alpha | `AppOpacity.veryFaint` | 0.05 |
+| gradient end alpha | `AppOpacity.veryFaint` | 0.06 |
 | border alpha | `AppOpacity.accent` | 0.20 |
 | icon container padding | `spacing.sm` | 8px |
 | icon container radius | `radius.sm` | 8px |
@@ -192,12 +192,12 @@
 ## ScheduleGroupCard (Lines 448-524)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xl` | 20px |
 | borderRadius | `radius.xl` | 24px |
 | blurRadius | `shadow.lg` | 16px |
 | offset | `AppShadowOffset.hero` | (0, 8) |
-| shadow alpha | `AppOpacity.highlight` | 0.16 |
+| shadow alpha | `AppOpacity.highlight` | 0.08 |
 | header→list gap | `spacing.md + spacing.micro` | 14px |
 | row gap | `spacing.sm + spacing.micro` | 10px |
 
@@ -207,14 +207,14 @@
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xxl` | 24px |
 | borderRadius | `radius.xl` | 24px |
 | border width (dark) | `componentSize.divider` | 1px |
 | border width (light) | `componentSize.dividerThin` | 0.5px |
 | blurRadius | `shadow.md` | 12px |
 | offset | `AppShadowOffset.sm` | (0, 4) |
-| shadow alpha | `AppOpacity.faint` | 0.06 |
+| shadow alpha | `AppOpacity.faint` | 0.05 |
 
 ### Menu Button
 | Property | Token | Px Value |
@@ -242,12 +242,12 @@
 
 ### Status Badge
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding horizontal | `spacing.md` | 12px |
 | padding vertical | `spacing.sm - spacing.micro` | 6px |
 | borderRadius | `radius.pill` | 9999px |
 | bg alpha | `AppOpacity.border` | 0.18 |
-| live dot size | `componentSize.badgeSm` | 6px |
+| live dot size | `componentSize.badgeSm` | 8px |
 | dot shadow blur | `shadow.xs` | 4px |
 | dot shadow spread | `componentSize.divider` | 1px |
 | icon size | `iconSize.sm` | 16px |
@@ -257,7 +257,7 @@
 ### Title
 | Property | Token | Specs |
 |----------|-------|-------|
-| font | `typography.headline` | 22px |
+| font | `typography.headline` | 26px |
 | fontWeight | `fontWeight.bold` | w700 |
 | lineHeight | `AppLineHeight.compact` | 1.2 |
 | letterSpacing | `AppLetterSpacing.tight` | -0.03 |
@@ -286,15 +286,15 @@
 ## _EmptyHeroPlaceholder (Lines 910-982)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xxxl` | 32px |
-| bg alpha | `AppOpacity.micro` | 0.03 |
+| bg alpha | `AppOpacity.micro` | 0.04 |
 | borderRadius | `radius.lg` | 16px |
 | border alpha | `AppOpacity.dim` | 0.10 |
 | border width | `componentSize.divider` | 1px |
 | icon container | `spacing.quad + spacing.xxl` | 64px |
 | gradient start alpha | `AppOpacity.medium` | 0.15 |
-| gradient end alpha | `AppOpacity.highlight` | 0.16 |
+| gradient end alpha | `AppOpacity.highlight` | 0.08 |
 | icon border alpha | `AppOpacity.accent` | 0.20 |
 | icon border width | `componentSize.dividerThick` | 1.5px |
 | icon size | `iconSize.xxl` | 32px |
@@ -337,8 +337,8 @@
 ## _ScheduleInstructorRow (Lines 1172-1221)
 
 | Property | Token | Px Value |
-|----------|-------|----------|
-| avatar (dense) | `componentSize.avatarXsDense` | 22px |
+|----------|-------|---------|
+| avatar (dense) | `componentSize.avatarXsDense` | 26px |
 | avatar (normal) | `componentSize.avatarSmDense` | 28px |
 | name gap (dense) | `spacing.xs + spacing.micro` | 6px |
 | name gap (normal) | `spacing.sm` | 8px |
@@ -350,7 +350,7 @@
 
 | Property | Token | Value |
 |----------|-------|-------|
-| height | `componentSize.listItemMd` | 44px |
+| height | `componentSize.listItemMd` | 56px |
 
 ---
 
@@ -360,26 +360,37 @@
 
 ### Container
 | Property | Token | Px Value |
-|----------|-------|----------|
+|----------|-------|---------|
 | padding | `spacing.xl` | 20px |
 | borderRadius | `radius.xl` | 24px |
 | border width (dark) | `componentSize.divider` | 1px |
 | border width (light) | `componentSize.dividerThin` | 0.5px |
 | border alpha (dark) | `AppOpacity.overlay` | 0.12 |
-| border alpha (light) | `AppOpacity.divider` | 0.25 |
-| shadow alpha | `AppOpacity.faint` | 0.06 |
-| blurRadius | `shadow.md` | 12px |
+| shadow alpha | `AppOpacity.veryFaint` | 0.06 |
+| blurRadius | `shadow.lg` | 16px |
 | offset | `AppShadowOffset.sm` | (0, 4) |
+
+### Icon Container
+| Property | Token | Px Value |
+|----------|-------|---------|
+| size | `componentSize.listItemSm` | 48px |
+| borderRadius | `radius.lg` | 16px |
+| bg alpha | `AppOpacity.overlay` | 0.12 |
+| icon size | `iconSize.lg` | 24px |
+| icon→content gap | `spacing.lg` | 16px |
 
 ### Content
 | Property | Token | Px Value |
 |----------|-------|----------|
-| icon→title gap | `spacing.md` | 12px |
-| title→message gap | `spacing.sm` | 8px |
+| title font | `typography.title` | 20px |
+| title weight | `fontWeight.extraBold` | w800 |
+| letterSpacing | `AppLetterSpacing.tight` | -0.03 |
+| title→message gap | `spacing.xs` | 4px |
+| message alpha | `AppOpacity.prominent` | 0.85 |
+| lineHeight | `AppLineHeight.relaxed` | 1.6 |
 | message→buttons gap | `spacing.lg` | 16px |
 | button gap | `spacing.md` | 12px |
 | button height | `componentSize.buttonMd` | 48px |
-| fontWeight | `fontWeight.bold` | w700 |
 
 ---
 
@@ -415,22 +426,22 @@
 | `xxlPlus` | 28 |
 | `xxxl` | 32 |
 | `quad` | 40 |
-| `emptyStateSize` | 104 |
+| `emptyStateSize` | 64 |
 
 ## Component Sizes (px)
 | Token | Value |
 |-------|-------|
 | `avatarXl` | 48 |
 | `avatarSmDense` | 28 |
-| `avatarXsDense` | 22 |
-| `buttonXs` | 32/36 |
+| `avatarXsDense` | 26 |
+| `buttonXs` | 36 |
 | `buttonMd` | 48 |
-| `badgeSm` | 6 |
+| `badgeSm` | 8 |
 | `badgeMd` | 16 |
-| `listItemMd` | 44 |
+| `listItemMd` | 56 |
 | `dividerThin` | 0.5 |
 | `divider` | 1 |
-| `dividerMedium` | 1.25 |
+| `dividerMedium` | 1.2 |
 | `dividerThick` | 1.5 |
 
 ## Icon Sizes (px)
@@ -447,7 +458,7 @@
 | Token | Value |
 |-------|-------|
 | `xs` | 4 |
-| `sm` | 8 |
+| `sm` | 6 |
 | `md` | 12 |
 | `lg` | 16 |
 | `xl` | 20 |
@@ -463,8 +474,8 @@
 ## Elevation Values
 | Token | Value |
 |-------|-------|
-| `elevationLight` | 1 |
-| `elevationDark` | 4 |
+| `elevationLight` | 12 |
+| `elevationDark` | 8 |
 
 ## Scale Values
 | Token | Value |
@@ -479,21 +490,22 @@
 | `prominent` | 0.85 |
 | `secondary` | 0.80 |
 | `high` | 0.90 |
-| `muted` | 0.55 |
-| `subtle` | 0.45 |
-| `barrier` | 0.40 |
+| `muted` | 0.70 |
+| `subtle` | 0.50 |
+| `barrier` | 0.45 |
+| `divider` | 0.40 |
 | `ghost` | 0.30 |
-| `divider` | 0.25 |
 | `borderEmphasis` | 0.25 |
 | `accent` | 0.20 |
 | `border` | 0.18 |
-| `highlight` | 0.16 |
+| `statusBg` | 0.16 |
 | `medium` | 0.15 |
 | `overlay` | 0.12 |
 | `dim` | 0.10 |
-| `faint` | 0.06 |
-| `veryFaint` | 0.04/0.05 |
-| `micro` | 0.03 |
+| `highlight` | 0.08 |
+| `veryFaint` | 0.06 |
+| `faint` | 0.05 |
+| `micro` | 0.04 |
 | `transparent` | 0.00 |
 
 ---

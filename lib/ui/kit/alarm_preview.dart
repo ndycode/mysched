@@ -42,7 +42,7 @@ class AlarmPreviewMock extends StatelessWidget {
           borderRadius: AppTokens.radius.xxxl,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.46),
+              color: Colors.black.withValues(alpha: AppOpacity.barrier),
               blurRadius: 26,
               spreadRadius: 10,
               offset: const Offset(0, 22),
@@ -120,16 +120,16 @@ class _Header extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.pill,
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            border: Border.all(color: Colors.white.withValues(alpha: AppOpacity.overlay)),
             gradient: LinearGradient(
               colors: [
-                Colors.white.withValues(alpha: 0.04),
-                Colors.white.withValues(alpha: 0.02),
+                Colors.white.withValues(alpha: AppOpacity.faint),
+                Colors.white.withValues(alpha: AppOpacity.faint),
               ],
             ),
             boxShadow: [
               BoxShadow(
-                color: accent.withValues(alpha: 0.18),
+                color: accent.withValues(alpha: AppOpacity.border),
                 blurRadius: 22,
                 spreadRadius: 2,
               ),
@@ -199,8 +199,8 @@ class _ClockBlock extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: spacing.sm, vertical: spacing.md),
       decoration: BoxDecoration(
         borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
-        color: Colors.white.withValues(alpha: 0.02),
+        border: Border.all(color: Colors.white.withValues(alpha: AppOpacity.faint)),
+        color: Colors.white.withValues(alpha: AppOpacity.faint),
       ),
       child: Column(
         children: [
@@ -251,8 +251,8 @@ class _ContextCard extends StatelessWidget {
       padding: EdgeInsets.all(spacing.lg),
       decoration: BoxDecoration(
         borderRadius: AppTokens.radius.xl,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-        color: Colors.white.withValues(alpha: 0.04),
+        border: Border.all(color: Colors.white.withValues(alpha: AppOpacity.faint)),
+        color: Colors.white.withValues(alpha: AppOpacity.faint),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,9 +320,9 @@ class _StatusPill extends StatelessWidget {
         height: 34,
         padding: const EdgeInsets.symmetric(horizontal: 10),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.05),
+          color: Colors.white.withValues(alpha: AppOpacity.faint),
           borderRadius: AppTokens.radius.lg,
-          border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+          border: Border.all(color: Colors.white.withValues(alpha: AppOpacity.faint)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -379,18 +379,18 @@ class _Actions extends StatelessWidget {
         _ActionButton(
           label: 'Snooze 5 min',
           icon: Icons.snooze_rounded,
-          fillColor: accent.withValues(alpha: 0.18),
+          fillColor: accent.withValues(alpha: AppOpacity.border),
           textColor: textPrimary,
-          borderColor: accentDim.withValues(alpha: 0.55),
+          borderColor: accentDim.withValues(alpha: AppOpacity.subtle),
           secondaryLabel: '3 of 5 left',
         ),
         SizedBox(height: spacing.sm),
         _ActionButton(
           label: 'View reminders',
           icon: Icons.event_note_rounded,
-          fillColor: Colors.white.withValues(alpha: 0.04),
+          fillColor: Colors.white.withValues(alpha: AppOpacity.faint),
           textColor: textSecondary,
-          borderColor: Colors.white.withValues(alpha: 0.06),
+          borderColor: Colors.white.withValues(alpha: AppOpacity.faint),
           trailing: Icon(Icons.chevron_right_rounded,
               color: textSecondary, size: AppTokens.iconSize.md),
         ),
@@ -433,7 +433,7 @@ class _ActionButton extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
+            color: Colors.black.withValues(alpha: AppOpacity.border),
             blurRadius: 18,
             offset: const Offset(0, 10),
           ),
@@ -461,7 +461,7 @@ class _ActionButton extends StatelessWidget {
                   Text(
                     secondaryLabel!,
                     style: TextStyle(
-                      color: textColor.withValues(alpha: 0.76),
+                      color: textColor.withValues(alpha: AppOpacity.muted),
                       fontWeight: FontWeight.w600,
                       fontSize: AppTokens.typography.caption.fontSize,
                     ),

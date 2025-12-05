@@ -424,7 +424,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                 height: 68,
                 decoration: BoxDecoration(
                   color: accent,
-                  borderRadius: BorderRadius.circular(34),
+                  borderRadius: AppTokens.radius.pill,
                   boxShadow: [
                     BoxShadow(
                       color: bubbleShadow,

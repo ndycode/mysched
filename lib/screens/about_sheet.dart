@@ -13,7 +13,7 @@ class AboutSheet extends StatelessWidget {
       context: context,
       alignment: Alignment.center,
       barrierDismissible: true,
-      barrierTint: Colors.black.withValues(alpha: 0.45),
+      barrierTint: AppBarrier.medium,
       padding: EdgeInsets.fromLTRB(
         AppTokens.spacing.xxl,
         media.padding.top + AppTokens.spacing.xxxl,
@@ -48,7 +48,7 @@ class AboutSheet extends StatelessWidget {
       color: Colors.transparent,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: 520,
+          maxWidth: AppLayout.sheetMaxWidth,
           maxHeight: maxHeight.clamp(360.0, double.infinity),
         ),
         child: Container(

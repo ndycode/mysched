@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../ui/theme/tokens.dart';
 import '../utils/instructor_utils.dart';
 
 class InstructorAvatar extends StatelessWidget {
@@ -28,9 +29,9 @@ class InstructorAvatar extends StatelessWidget {
 
     final background = inverse
         ? colors.onPrimary.withValues(alpha: 0.22)
-        : tint.withValues(alpha: 0.15);
+        : tint.withValues(alpha: AppOpacity.statusBg);
     final borderColor = (inverse ? colors.onPrimary : tint)
-        .withValues(alpha: inverse ? 0.2 : 0.18);
+        .withValues(alpha: inverse ? 0.2 : AppOpacity.border);
 
     final fallback = Container(
       width: size,
@@ -45,7 +46,7 @@ class InstructorAvatar extends StatelessWidget {
         initials,
         style: theme.textTheme.labelSmall?.copyWith(
           fontWeight: FontWeight.w700,
-          color: inverse ? colors.onPrimary : tint.withValues(alpha: 0.9),
+          color: inverse ? colors.onPrimary : tint.withValues(alpha: AppOpacity.prominent),
         ),
       ),
     );

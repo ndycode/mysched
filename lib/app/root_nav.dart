@@ -264,23 +264,23 @@ class _RootNavState extends State<RootNav>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: AppLayout.pagePaddingHorizontal),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 520),
+        constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
         child: Container(
           width: double.infinity,
-          margin: const EdgeInsets.only(bottom: 16),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          margin: EdgeInsets.only(bottom: AppTokens.spacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: AppLayout.pagePaddingHorizontal, vertical: AppLayout.pagePaddingHorizontal),
           decoration: BoxDecoration(
             color: colors.surface,
             borderRadius: AppTokens.radius.xl,
             border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: 0.3),
+              color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
             ),
             boxShadow: [
               BoxShadow(
-                color: colors.shadow.withValues(alpha: 0.18),
-                blurRadius: 28,
+                color: colors.shadow.withValues(alpha: AppOpacity.border),
+                blurRadius: AppTokens.shadow.xxl,
                 offset: const Offset(0, 24),
               ),
             ],
@@ -306,21 +306,21 @@ class _RootNavState extends State<RootNav>
                 ],
               ),
               SizedBox(height: AppTokens.spacing.md),
-              _QuickActionButton(
+              QuickActionTile(
                 icon: Icons.library_add_outlined,
                 label: 'Add custom class',
                 description: 'Create a class manually.',
                 onTap: _openAddClass,
               ),
               SizedBox(height: AppTokens.spacing.md),
-              _QuickActionButton(
+              QuickActionTile(
                 icon: Icons.alarm_add_outlined,
                 label: 'Add reminder',
                 description: 'Plan an assignment or task.',
                 onTap: _openAddReminder,
               ),
               SizedBox(height: AppTokens.spacing.md),
-              _QuickActionButton(
+              QuickActionTile(
                 icon: Icons.camera_alt_outlined,
                 label: 'Scan schedule',
                 description: 'Import from your student card.',
@@ -434,7 +434,8 @@ class _RootNavState extends State<RootNav>
         mainAxisSize: MainAxisSize.min,
         children: [
           if (_fabHintVisible)
-            _FabHintBubble(
+            HintBubble(
+              message: "Need something fast? Use the plus button to add reminders, classes, or scan schedules.",
               onDismiss: _dismissFabHint,
             ),
           SizedBox(height: AppTokens.spacing.sm),
@@ -444,131 +445,4 @@ class _RootNavState extends State<RootNav>
   }
 }
 
-class _QuickActionButton extends StatelessWidget {
-  const _QuickActionButton({
-    required this.icon,
-    required this.label,
-    required this.description,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String description;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppTokens.radius.lg,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        decoration: BoxDecoration(
-          color: colors.surfaceContainerHigh,
-          borderRadius: AppTokens.radius.lg,
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.28),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                borderRadius: AppTokens.radius.md,
-                color: colors.primary.withValues(alpha: 0.16),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: colors.primary),
-            ),
-            SizedBox(width: AppTokens.spacing.lg),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  SizedBox(height: AppTokens.spacing.xs),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.6),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _FabHintBubble extends StatelessWidget {
-  const _FabHintBubble({required this.onDismiss});
-
-  final VoidCallback onDismiss;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.surface.withValues(alpha: isDark ? 0.9 : 0.96),
-          borderRadius: AppTokens.radius.lg,
-          border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.28),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.shadow.withValues(alpha: isDark ? 0.28 : 0.16),
-              blurRadius: 28,
-              offset: const Offset(0, 20),
-            ),
-          ],
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "Need something fast? Use the plus button to add reminders, classes, or scan schedules.",
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              SizedBox(height: AppTokens.spacing.md),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: onDismiss,
-                  child: const Text('Got it'),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+// _QuickActionButton and _FabHintBubble removed - using global QuickActionTile and HintBubble from kit.dart

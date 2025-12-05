@@ -36,7 +36,6 @@ part 'dashboard_messages.dart';
 
 // Use AppTokens.lightColors.muted / mutedSecondary for themed access
 const _kDashboardScopePref = 'dashboard.scope.selected';
-const double _kBottomNavSafePadding = 120;
 
 typedef _DashboardSectionBuilder = Widget Function(BuildContext context);
 
@@ -919,7 +918,7 @@ class DashboardScreenState extends State<DashboardScreen>
       ),
     );
 
-    addSpacing(AppTokens.spacing.quad + _kBottomNavSafePadding);
+    addSpacing(AppTokens.spacing.quad + AppLayout.bottomNavSafePadding);
 
     return sections;
   }

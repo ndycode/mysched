@@ -1,0 +1,89 @@
+import 'package:flutter/material.dart';
+
+import '../theme/tokens.dart';
+
+/// A reusable action tile for quick action menus.
+///
+/// Displays an icon in a colored container, label, description, and chevron.
+class QuickActionTile extends StatelessWidget {
+  const QuickActionTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.description,
+    required this.onTap,
+    this.iconColor,
+  });
+
+  final IconData icon;
+  final String label;
+  final String description;
+  final VoidCallback onTap;
+
+  /// Override the icon color (defaults to primary).
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final accent = iconColor ?? colors.primary;
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppTokens.radius.lg,
+      child: Container(
+        padding: EdgeInsets.symmetric(
+          horizontal: AppTokens.spacing.lg + AppTokens.spacing.micro,
+          vertical: AppTokens.spacing.md + AppTokens.spacing.micro,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerHigh,
+          borderRadius: AppTokens.radius.lg,
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: AppTokens.componentSize.avatarLg,
+              height: AppTokens.componentSize.avatarLg,
+              decoration: BoxDecoration(
+                borderRadius: AppTokens.radius.md,
+                color: accent.withValues(alpha: AppOpacity.statusBg),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon, color: accent),
+            ),
+            SizedBox(width: AppTokens.spacing.lg),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: AppTokens.spacing.xs),
+                  Text(
+                    description,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.subtle),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

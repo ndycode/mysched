@@ -32,10 +32,10 @@ void showAppSnackBar(
           ? colors.surfaceContainerHigh
           : colors.surface;
       borderColor = theme.brightness == Brightness.dark
-          ? colors.outline.withValues(alpha: 0.12)
+          ? colors.outline.withValues(alpha: AppOpacity.overlay)
           : colors.outlineVariant;
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.12);
+      badgeFill = accent.withValues(alpha: AppOpacity.overlay);
       icon = Icons.check_circle_rounded;
       break;
     case AppSnackBarType.error:
@@ -44,10 +44,10 @@ void showAppSnackBar(
           ? colors.surfaceContainerHigh
           : colors.surface;
       borderColor = theme.brightness == Brightness.dark
-          ? colors.outline.withValues(alpha: 0.12)
+          ? colors.outline.withValues(alpha: AppOpacity.overlay)
           : colors.outlineVariant;
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.12);
+      badgeFill = accent.withValues(alpha: AppOpacity.overlay);
       icon = Icons.error_outline_rounded;
       break;
     case AppSnackBarType.info:
@@ -56,10 +56,10 @@ void showAppSnackBar(
           ? colors.surfaceContainerHigh
           : colors.surface;
       borderColor = theme.brightness == Brightness.dark
-          ? colors.outline.withValues(alpha: 0.12)
+          ? colors.outline.withValues(alpha: AppOpacity.overlay)
           : colors.outlineVariant;
       contentColor = colors.onSurface;
-      badgeFill = accent.withValues(alpha: 0.12);
+      badgeFill = accent.withValues(alpha: AppOpacity.overlay);
       icon = Icons.info_outline_rounded;
       break;
   }
@@ -71,7 +71,7 @@ void showAppSnackBar(
       spacing.xl,
       0,
       spacing.xl,
-      media.padding.bottom + 10,
+      media.padding.bottom + spacing.sm,
     ),
     padding: EdgeInsets.symmetric(
       horizontal: spacing.xl,
@@ -95,8 +95,8 @@ void showAppSnackBar(
     content: Row(
       children: [
         Container(
-          width: 36,
-          height: 36,
+          width: AppTokens.componentSize.avatarMd,
+          height: AppTokens.componentSize.avatarMd,
           decoration: BoxDecoration(
             color: badgeFill,
             shape: BoxShape.circle,

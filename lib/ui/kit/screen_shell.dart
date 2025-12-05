@@ -48,9 +48,9 @@ class ScreenShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final contentPadding = padding ??
         EdgeInsets.fromLTRB(
-          20,
+          AppLayout.pagePaddingHorizontal,
           MediaQuery.of(context).padding.top + AppTokens.spacing.xxxl,
-          20,
+          AppLayout.pagePaddingHorizontal,
           AppTokens.spacing.quad,
         );
 
@@ -62,7 +62,9 @@ class ScreenShell extends StatelessWidget {
       body: AppBackground(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final maxWidth = constraints.maxWidth >= 840 ? 720.0 : 640.0;
+            final maxWidth = constraints.maxWidth >= AppLayout.contentMaxWidthExtraWide 
+                ? AppLayout.contentMaxWidthWide 
+                : AppLayout.contentMaxWidth;
             final children = [
               if (hero != null) hero!,
               if (hero != null) SizedBox(height: AppTokens.spacing.xl),
@@ -221,10 +223,10 @@ class ScreenHeroCard extends StatelessWidget {
                     title,
                     style: AppTokens.typography.headline.copyWith(
                       fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
+                      letterSpacing: AppLetterSpacing.tight,
                       color: theme.brightness == Brightness.dark
                           ? theme.colorScheme.onSurface
-                          : const Color(0xFF1A1A1A),
+                          : theme.colorScheme.onSurface,
                     ),
                   ),
                 if (subtitle != null) ...[
@@ -316,7 +318,7 @@ class ScreenSection extends StatelessWidget {
                         style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: AppTokens.typography.subtitle.fontSize,
-                          letterSpacing: -0.3,
+                          letterSpacing: AppLetterSpacing.snug,
                           color: theme.brightness == Brightness.dark
                               ? theme.colorScheme.onSurface
                               : const Color(0xFF1A1A1A),

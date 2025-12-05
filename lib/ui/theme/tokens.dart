@@ -152,6 +152,12 @@ class AppSpacing {
   const AppSpacing();
 
   final double none = 0;
+  /// Half-micro spacing for pixel-perfect fine-tuning (1)
+  final double microHalf = 1;
+  /// Micro spacing for pixel-perfect fine-tuning (2)
+  final double micro = 2;
+  /// Small micro spacing for subtle adjustments (4)
+  final double microLg = 4;
   final double xs = 4;
   final double sm = 8;
   final double md = 12;
@@ -376,9 +382,12 @@ class AppComponentSize {
   final double listItemMd = 56;
   final double listItemLg = 64;
 
-  // Divider thickness
+  // Divider/border thickness
   final double divider = 1;
-  final double dividerThick = 2;
+  final double dividerThin = 0.5;
+  final double dividerMedium = 1.2;
+  final double dividerThick = 1.5;
+  final double dividerBold = 2;
 
   // Button heights
   final double buttonSm = 44;
@@ -395,7 +404,7 @@ class AppComponentSize {
   final double progressWidth = 40;
 }
 
-/// Shadow blur radius presets for consistent elevation effects.
+/// Shadow blur radius presets and BoxShadow factories for consistent elevation effects.
 class AppShadow {
   const AppShadow();
 
@@ -411,4 +420,339 @@ class AppShadow {
   final double xl = 20;
   /// XXL blur for hero cards and modals (40)
   final double xxl = 40;
+
+  // ---------------------------------------------------------------------------
+  // BoxShadow Factory Methods
+  // ---------------------------------------------------------------------------
+
+  /// Subtle elevation for chips, badges, and inline elements.
+  BoxShadow elevation1(Color color) => BoxShadow(
+        color: color,
+        blurRadius: xs,
+        offset: const Offset(0, 2),
+      );
+
+  /// Light elevation for list tiles and small cards.
+  BoxShadow elevation2(Color color) => BoxShadow(
+        color: color,
+        blurRadius: sm,
+        offset: const Offset(0, 4),
+      );
+
+  /// Standard elevation for cards and containers.
+  BoxShadow elevation3(Color color) => BoxShadow(
+        color: color,
+        blurRadius: md,
+        offset: const Offset(0, 6),
+      );
+
+  /// Elevated cards with prominent shadow.
+  BoxShadow elevation4(Color color) => BoxShadow(
+        color: color,
+        blurRadius: lg,
+        offset: const Offset(0, 8),
+      );
+
+  /// High elevation for modals and sheets.
+  BoxShadow elevation5(Color color) => BoxShadow(
+        color: color,
+        blurRadius: xl,
+        offset: const Offset(0, 12),
+      );
+
+  /// Maximum elevation for floating action buttons and hero elements.
+  BoxShadow elevation6(Color color) => BoxShadow(
+        color: color,
+        blurRadius: xxl,
+        offset: const Offset(0, 16),
+      );
+
+  /// Card shadow with customizable blur and offset.
+  BoxShadow card(Color color, {double blur = 12, Offset offset = const Offset(0, 4)}) =>
+      BoxShadow(color: color, blurRadius: blur, offset: offset);
+
+  /// Modal/sheet shadow with high elevation.
+  BoxShadow modal(Color color, {bool isDark = false}) => BoxShadow(
+        color: color,
+        blurRadius: 24,
+        offset: const Offset(0, 18),
+      );
+
+  /// Navigation bar shadow.
+  BoxShadow navBar(Color color) => BoxShadow(
+        color: color,
+        blurRadius: 30,
+        offset: const Offset(0, 16),
+      );
+
+  /// FAB/quick action button shadow with spread.
+  BoxShadow fab(Color color, {bool active = false}) => BoxShadow(
+        color: color,
+        blurRadius: active ? 36 : 30,
+        offset: Offset(0, active ? 18 : 16),
+        spreadRadius: active ? 2 : 0,
+      );
+
+  /// Hint bubble shadow.
+  BoxShadow bubble(Color color) => BoxShadow(
+        color: color,
+        blurRadius: 28,
+        offset: const Offset(0, 20),
+      );
+}
+
+/// Centralized opacity tokens for consistent transparency values.
+///
+/// Use these instead of raw alpha values like `.withValues(alpha: 0.12)`.
+class AppOpacity {
+  const AppOpacity._();
+
+  /// Minimal tint for subtle backgrounds (0.05)
+  static const double faint = 0.05;
+
+  /// Row highlights and hover states (0.08)
+  static const double highlight = 0.08;
+
+  /// Surface overlays and subtle fills (0.12)
+  static const double overlay = 0.12;
+
+  /// Status chip backgrounds (0.16)
+  static const double statusBg = 0.16;
+
+  /// Dark mode borders and dividers (0.18)
+  static const double border = 0.18;
+
+  /// Dark mode elevated tints (0.22)
+  static const double darkTint = 0.22;
+
+  /// Ghost elements and hints (0.3)
+  static const double ghost = 0.30;
+
+  /// Disabled state opacity (0.38) - Material standard
+  static const double disabled = 0.38;
+
+  /// Modal barrier tint (0.45)
+  static const double barrier = 0.45;
+
+  /// Subtle overlays and shadows (0.5)
+  static const double subtle = 0.50;
+
+  /// Muted text and secondary content (0.7)
+  static const double muted = 0.70;
+
+  /// Glass morphism background (0.72)
+  static const double glass = 0.72;
+
+  /// Near-opaque content (0.85)
+  static const double prominent = 0.85;
+}
+
+/// Centralized layout constraint tokens.
+///
+/// Use these for consistent sheet widths, safe padding, and content constraints.
+class AppLayout {
+  const AppLayout._();
+
+  /// Bottom navigation safe padding (accounts for nav bar + FAB).
+  static const double bottomNavSafePadding = 120.0;
+
+  /// Maximum width for modal sheets.
+  static const double sheetMaxWidth = 520.0;
+
+  /// Maximum height ratio for modal sheets (78% of screen).
+  static const double sheetMaxHeightRatio = 0.78;
+
+  /// Maximum width for dialogs.
+  static const double dialogMaxWidth = 400.0;
+
+  /// Maximum width for main content areas.
+  static const double contentMaxWidth = 600.0;
+
+  /// Wide content max width for tablets/desktop.
+  static const double contentMaxWidthWide = 720.0;
+
+  /// Extra wide content for large displays.
+  static const double contentMaxWidthExtraWide = 840.0;
+
+  /// Default horizontal page padding.
+  static const double pagePaddingHorizontal = 20.0;
+
+  /// Default vertical page padding.
+  static const double pagePaddingVertical = 24.0;
+}
+
+/// Centralized interaction tokens for touch/click feedback.
+///
+/// Use these for splash radii, icon button containers, and loader sizes.
+class AppInteraction {
+  const AppInteraction._();
+
+  /// Splash radius for IconButton and InkWell.
+  static const double splashRadius = 22.0;
+
+  /// CircleAvatar radius for icon button containers.
+  static const double iconButtonContainerRadius = 16.0;
+
+  /// Standard progress indicator stroke width.
+  static const double progressStrokeWidth = 2.0;
+
+  /// Large progress indicator stroke width.
+  static const double progressStrokeWidthLarge = 2.5;
+
+  /// Standard loader/spinner size.
+  static const double loaderSize = 18.0;
+
+  /// Large loader/spinner size.
+  static const double loaderSizeLarge = 24.0;
+
+  /// Small loader/spinner size.
+  static const double loaderSizeSmall = 14.0;
+}
+
+/// Centralized slider control tokens.
+class AppSlider {
+  const AppSlider._();
+
+  /// Slider track height.
+  static const double trackHeight = 4.0;
+
+  /// Slider thumb radius.
+  static const double thumbRadius = 8.0;
+
+  /// Slider overlay radius (touch target).
+  static const double overlayRadius = 16.0;
+}
+
+/// Centralized letter spacing tokens for typography.
+///
+/// Use these instead of raw letter spacing values.
+class AppLetterSpacing {
+  const AppLetterSpacing._();
+
+  /// Tight spacing for large headings (-0.5)
+  static const double tight = -0.5;
+
+  /// Snug spacing for titles (-0.3)
+  static const double snug = -0.3;
+
+  /// Slightly tight spacing (-0.2)
+  static const double compact = -0.2;
+
+  /// Normal/default spacing (0.0)
+  static const double normal = 0.0;
+
+  /// Slightly wide spacing (0.1)
+  static const double relaxed = 0.1;
+
+  /// Wide spacing for captions (0.2)
+  static const double wide = 0.2;
+
+  /// Wider spacing for labels (0.3)
+  static const double wider = 0.3;
+
+  /// Maximum spacing for all-caps (0.4)
+  static const double widest = 0.4;
+}
+
+/// Centralized modal barrier color tokens.
+///
+/// Use these for showModalBottomSheet and showDialog barriers.
+class AppBarrier {
+  const AppBarrier._();
+
+  /// Light barrier (30% black) for subtle overlays.
+  static const Color light = Color(0x4D000000);
+
+  /// Medium barrier (45% black) for standard sheets.
+  static const Color medium = Color(0x73000000);
+
+  /// Heavy barrier (54% black) for prominent modals.
+  static const Color heavy = Color(0x8A000000);
+}
+
+/// Centralized line height tokens for text styling.
+///
+/// Use these instead of raw height values in TextStyle.
+class AppLineHeight {
+  const AppLineHeight._();
+
+  /// Tight line height for display text (1.1)
+  static const double tight = 1.1;
+
+  /// Display line height (1.12)
+  static const double display = 1.12;
+
+  /// Headline line height (1.2)
+  static const double headline = 1.2;
+
+  /// Title line height (1.28)
+  static const double title = 1.28;
+
+  /// Compact line height for UI labels (1.3)
+  static const double compact = 1.3;
+
+  /// Caption line height (1.35)
+  static const double caption = 1.35;
+
+  /// Subtitle/label line height (1.36)
+  static const double subtitle = 1.36;
+
+  /// Relaxed line height (1.4)
+  static const double relaxed = 1.4;
+
+  /// Body secondary line height (1.45)
+  static const double bodySecondary = 1.45;
+
+  /// Body text line height (1.5)
+  static const double body = 1.5;
+}
+
+/// Centralized shadow offset tokens.
+///
+/// Use these for consistent BoxShadow offsets.
+class AppShadowOffset {
+  const AppShadowOffset._();
+
+  /// Minimal elevation offset
+  static const Offset xs = Offset(0, 2);
+
+  /// Small elevation offset
+  static const Offset sm = Offset(0, 4);
+
+  /// Medium elevation offset
+  static const Offset md = Offset(0, 6);
+
+  /// Large elevation offset
+  static const Offset lg = Offset(0, 8);
+
+  /// Extra-large elevation offset
+  static const Offset xl = Offset(0, 12);
+
+  /// Modal/hero elevation offset
+  static const Offset xxl = Offset(0, 16);
+
+  /// Slide-in animation offset (subtle upward entry)
+  static const Offset slideIn = Offset(0, 0.05);
+}
+
+/// Centralized transform scale tokens.
+///
+/// Use these for consistent Transform.scale values.
+class AppScale {
+  const AppScale._();
+
+  /// Compact scale for dense UI elements (0.8)
+  static const double compact = 0.8;
+
+  /// Slightly reduced scale (0.9)
+  static const double reduced = 0.9;
+
+  /// Default scale (1.0)
+  static const double normal = 1.0;
+
+  /// Slightly enlarged scale (1.1)
+  static const double enlarged = 1.1;
+
+  /// Hover/focus emphasis scale (1.02)
+  static const double hover = 1.02;
 }

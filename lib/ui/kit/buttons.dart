@@ -44,12 +44,12 @@ class PrimaryButton extends StatelessWidget {
     Widget? leadingWidget;
     if (loading) {
       leadingWidget = SizedBox(
-        width: 18,
-        height: 18,
+        width: AppInteraction.loaderSize,
+        height: AppInteraction.loaderSize,
         child: CircularProgressIndicator(
-          strokeWidth: 2.5,
+          strokeWidth: AppInteraction.progressStrokeWidthLarge,
           valueColor: AlwaysStoppedAnimation<Color>(
-            colors.onPrimary.withValues(alpha: 0.85),
+            colors.onPrimary.withValues(alpha: AppOpacity.prominent),
           ),
         ),
       );
@@ -81,7 +81,7 @@ class PrimaryButton extends StatelessWidget {
                 onPressed?.call();
               },
         style: FilledButton.styleFrom(
-          minimumSize: Size.fromHeight(minHeight ?? 52),
+          minimumSize: Size.fromHeight(minHeight ?? AppTokens.componentSize.buttonLg),
           padding: padding ??
               AppTokens.spacing.edgeInsetsSymmetric(
                 horizontal: AppTokens.spacing.xl,
@@ -136,12 +136,12 @@ class SecondaryButton extends StatelessWidget {
     Widget? leadingWidget;
     if (loading) {
       leadingWidget = SizedBox(
-        width: 18,
-        height: 18,
+        width: AppInteraction.loaderSize,
+        height: AppInteraction.loaderSize,
         child: CircularProgressIndicator(
-          strokeWidth: 2.5,
+          strokeWidth: AppInteraction.progressStrokeWidthLarge,
           valueColor: AlwaysStoppedAnimation<Color>(
-            colors.primary.withValues(alpha: 0.7),
+            colors.primary.withValues(alpha: AppOpacity.muted),
           ),
         ),
       );
@@ -173,7 +173,7 @@ class SecondaryButton extends StatelessWidget {
                 onPressed?.call();
               },
         style: OutlinedButton.styleFrom(
-          minimumSize: Size(0, minHeight ?? 52),
+          minimumSize: Size(0, minHeight ?? AppTokens.componentSize.buttonLg),
           side: BorderSide(
             color: isDisabled
                 ? colors.primary.withValues(alpha: 0.25)
@@ -226,12 +226,12 @@ class DestructiveButton extends StatelessWidget {
     Widget? leadingWidget;
     if (loading) {
       leadingWidget = SizedBox(
-        width: 18,
-        height: 18,
+        width: AppInteraction.loaderSize,
+        height: AppInteraction.loaderSize,
         child: CircularProgressIndicator(
-          strokeWidth: 2.5,
+          strokeWidth: AppInteraction.progressStrokeWidthLarge,
           valueColor: AlwaysStoppedAnimation<Color>(
-            colors.onError.withValues(alpha: 0.85),
+            colors.onError.withValues(alpha: AppOpacity.prominent),
           ),
         ),
       );
@@ -261,7 +261,7 @@ class DestructiveButton extends StatelessWidget {
                 onPressed?.call();
               },
         style: FilledButton.styleFrom(
-          minimumSize: Size.fromHeight(minHeight ?? 52),
+          minimumSize: Size.fromHeight(minHeight ?? AppTokens.componentSize.buttonLg),
           backgroundColor: colors.error,
           foregroundColor: colors.onError,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
@@ -319,7 +319,7 @@ class IconTonalButton extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final baseTextStyle = textStyle ?? AppTokens.typography.label;
     final style = FilledButton.styleFrom(
-      minimumSize: const Size(0, 52),
+      minimumSize: Size(0, AppTokens.componentSize.buttonLg),
       backgroundColor: isDark
           ? colors.surface.withValues(alpha: 0.55)
           : colors.surfaceContainerHighest,

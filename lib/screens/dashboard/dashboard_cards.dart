@@ -49,7 +49,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                   greeting,
                   style: AppTokens.typography.title.copyWith(
                     fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
+                    letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
                 ),
@@ -182,15 +182,15 @@ class _UpcomingHeroTile extends StatelessWidget {
               end: Alignment.bottomRight,
               colors: [
                 colors.primary,
-                colors.primary.withValues(alpha: 0.85),
+                colors.primary.withValues(alpha: AppOpacity.prominent),
               ],
             ),
             borderRadius: AppTokens.radius.lg,
             boxShadow: [
               BoxShadow(
-                color: colors.primary.withValues(alpha: 0.3),
+                color: colors.primary.withValues(alpha: AppOpacity.ghost),
                 blurRadius: AppTokens.shadow.xl,
-                offset: const Offset(0, 8),
+                offset: AppShadowOffset.lg,
               ),
             ],
           ),
@@ -206,7 +206,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                       vertical: spacing.sm,
                     ),
                     decoration: BoxDecoration(
-                      color: foreground.withValues(alpha: 0.20),
+                      color: foreground.withValues(alpha: AppOpacity.border),
                       borderRadius: AppTokens.radius.pill,
                     ),
                     child: Row(
@@ -222,9 +222,9 @@ class _UpcomingHeroTile extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: foreground.withValues(alpha: 0.5),
-                                  blurRadius: 4,
-                                  spreadRadius: 1,
+                                  color: foreground.withValues(alpha: AppOpacity.subtle),
+                                  blurRadius: AppTokens.shadow.xs,
+                                  spreadRadius: AppTokens.componentSize.divider,
                                 ),
                               ],
                             ),
@@ -235,25 +235,25 @@ class _UpcomingHeroTile extends StatelessWidget {
                             size: AppTokens.iconSize.sm,
                             color: foreground,
                           ),
-                        if (!isLive) SizedBox(width: spacing.xs + 2),
+                        if (!isLive) SizedBox(width: spacing.xs + spacing.micro),
                         Text(
                           statusLabel,
                           style: theme.textTheme.labelLarge?.copyWith(
                             fontWeight: FontWeight.w600,
                             fontSize: AppTokens.typography.caption.fontSize,
                             color: foreground,
-                            letterSpacing: 0.3,
+                            letterSpacing: AppLetterSpacing.wider,
                           ),
                         ),
                       ],
                     ),
                   ),
                   if (timeUntilText.isNotEmpty) ...[
-                    SizedBox(width: spacing.sm + 2),
+                    SizedBox(width: spacing.sm + spacing.micro),
                     Text(
                       timeUntilText,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: foreground.withValues(alpha: 0.85),
+                        color: foreground.withValues(alpha: AppOpacity.prominent),
                         fontSize: AppTokens.typography.caption.fontSize,
                         fontWeight: FontWeight.w500,
                       ),
@@ -271,12 +271,12 @@ class _UpcomingHeroTile extends StatelessWidget {
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w700,
                 fontSize: AppTokens.typography.headline.fontSize,
-                height: 1.3,
+                height: AppLineHeight.compact,
                 color: foreground,
-                letterSpacing: -0.5,
+                letterSpacing: AppLetterSpacing.tight,
                 ),
               ),
-              SizedBox(height: spacing.lg + 2),
+              SizedBox(height: spacing.lg + spacing.micro),
               
               // Time
               Row(
@@ -284,7 +284,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   Container(
                     padding: spacing.edgeInsetsAll(spacing.sm),
                     decoration: BoxDecoration(
-                      color: foreground.withValues(alpha: 0.15),
+                      color: foreground.withValues(alpha: AppOpacity.statusBg),
                       borderRadius: AppTokens.radius.sm,
                     ),
                     child: Icon(
@@ -310,7 +310,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         Text(
                           dateLabel,
                           style: theme.textTheme.bodyMedium?.copyWith(
-                            color: foreground.withValues(alpha: 0.80),
+                            color: foreground.withValues(alpha: AppOpacity.prominent),
                             fontSize: AppTokens.typography.caption.fontSize,
                           ),
                         ),
@@ -319,7 +319,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: spacing.md + 2),
+              SizedBox(height: spacing.md + spacing.micro),
               
               // Location
               if (location.isNotEmpty) ...[
@@ -328,7 +328,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: foreground.withValues(alpha: 0.15),
+                        color: foreground.withValues(alpha: AppOpacity.statusBg),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -344,7 +344,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: theme.textTheme.bodyLarge?.copyWith(
-                          color: foreground.withValues(alpha: 0.90),
+                          color: foreground.withValues(alpha: AppOpacity.prominent),
                           fontSize: AppTokens.typography.bodySecondary.fontSize,
                           fontWeight: FontWeight.w500,
                         ),
@@ -360,7 +360,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   Container(
                     padding: spacing.edgeInsetsAll(spacing.md),
                     decoration: BoxDecoration(
-                      color: foreground.withValues(alpha: 0.12),
+                      color: foreground.withValues(alpha: AppOpacity.overlay),
                       borderRadius: AppTokens.radius.md,
                     ),
                     child: Row(
@@ -374,14 +374,14 @@ class _UpcomingHeroTile extends StatelessWidget {
                         inverse: true,
                         size: AppTokens.iconSize.xl,
                       ),
-                      SizedBox(width: spacing.xs + 2),
+                      SizedBox(width: spacing.xs + spacing.micro),
                       Expanded(
                       child: Text(
                           occurrence.item.instructor,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.w600,
                             fontSize: AppTokens.typography.bodySecondary.fontSize,
-                            color: colors.onPrimary.withValues(alpha: 0.95),
+                            color: colors.onPrimary.withValues(alpha: AppOpacity.prominent),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -439,8 +439,8 @@ class _UpcomingListTile extends StatelessWidget {
       child: InkWell(
         onTap: () => onViewDetails(occurrence.item),
         borderRadius: AppTokens.radius.md,
-        splashColor: colors.primary.withValues(alpha: 0.05),
-        highlightColor: colors.primary.withValues(alpha: 0.02),
+        splashColor: colors.primary.withValues(alpha: AppOpacity.faint),
+        highlightColor: colors.primary.withValues(alpha: AppOpacity.faint),
         child: Container(
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
@@ -448,17 +448,17 @@ class _UpcomingListTile extends StatelessWidget {
             borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: (isLive || isNext) && !disabled
-                  ? colors.primary.withValues(alpha: 0.30)
-                  : colors.outline.withValues(alpha: isDark ? 0.12 : 0.4),
-              width: (isLive || isNext) && !disabled ? 1.5 : 0.5,
+                  ? colors.primary.withValues(alpha: AppOpacity.ghost)
+                  : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.barrier),
+              width: (isLive || isNext) && !disabled ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
             ),
             boxShadow: isDark
                 ? null
                 : [
                     BoxShadow(
-                      color: colors.shadow.withValues(alpha: (isLive || isNext) && !disabled ? 0.08 : 0.04),
-                      blurRadius: (isLive || isNext) && !disabled ? 12 : 6,
-                      offset: const Offset(0, 2),
+                      color: colors.shadow.withValues(alpha: (isLive || isNext) && !disabled ? AppOpacity.highlight : AppOpacity.faint),
+                      blurRadius: (isLive || isNext) && !disabled ? AppTokens.shadow.md : AppTokens.shadow.sm,
+                      offset: AppShadowOffset.xs,
                     ),
                   ],
           ),
@@ -474,9 +474,9 @@ class _UpcomingListTile extends StatelessWidget {
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: AppTokens.typography.subtitle.fontSize,
-                        letterSpacing: -0.2,
+                        letterSpacing: AppLetterSpacing.compact,
                         color: disabled
-                            ? colors.onSurface.withValues(alpha: 0.5)
+                            ? colors.onSurface.withValues(alpha: AppOpacity.subtle)
                             : (isPast
                                 ? colors.onSurfaceVariant
                                 : colors.onSurface),
@@ -495,10 +495,10 @@ class _UpcomingListTile extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: isLive
-                            ? colors.primary.withValues(alpha: 0.15)
+                            ? colors.primary.withValues(alpha: AppOpacity.statusBg)
                             : isPast 
                                 ? colors.surfaceContainerHighest
-                                : colors.primary.withValues(alpha: 0.08),
+                                : colors.primary.withValues(alpha: AppOpacity.highlight),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
@@ -521,7 +521,7 @@ class _UpcomingListTile extends StatelessWidget {
                         vertical: spacing.xs,
                       ),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: 0.1),
+                        color: colors.error.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Text(
@@ -542,15 +542,15 @@ class _UpcomingListTile extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
                   ),
-                  SizedBox(width: spacing.xs + 2),
+                  SizedBox(width: spacing.xs + spacing.micro),
                   Text(
                     timeRange,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       fontSize: AppTokens.typography.bodySecondary.fontSize,
                       fontWeight: FontWeight.w500,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.85),
+                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
                     ),
                   ),
                   if (location.isNotEmpty) ...[
@@ -558,16 +558,16 @@ class _UpcomingListTile extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: AppTokens.iconSize.sm,
-                      color: colors.onSurfaceVariant.withValues(alpha: 0.7),
+                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
                     ),
-                    SizedBox(width: spacing.xs + 2),
+                    SizedBox(width: spacing.xs + spacing.micro),
                     Expanded(
                       child: Text(
                         location,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           fontSize: AppTokens.typography.bodySecondary.fontSize,
                           fontWeight: FontWeight.w500,
-                          color: colors.onSurfaceVariant.withValues(alpha: 0.85),
+                          color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -578,7 +578,7 @@ class _UpcomingListTile extends StatelessWidget {
                   SizedBox(
                     height: AppTokens.componentSize.badgeLg,
                     child: Transform.scale(
-                      scale: 0.8,
+                      scale: AppScale.compact,
                       alignment: Alignment.centerRight,
                       child: Switch(
                         value: enabled,
@@ -590,7 +590,7 @@ class _UpcomingListTile extends StatelessWidget {
                 ],
               ),
               if (instructor.isNotEmpty) ...[
-                SizedBox(height: spacing.sm + 2),
+                SizedBox(height: spacing.sm + spacing.micro),
                 _InstructorRow(
                   name: instructor,
                   avatarUrl: occurrence.item.instructorAvatar,
@@ -627,30 +627,30 @@ class _InstructorRow extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final textColor = inverse ? tint : colors.onSurfaceVariant;
-    final iconColor = inverse ? tint.withValues(alpha: 0.8) : tint;
+    final iconColor = inverse ? tint.withValues(alpha: AppOpacity.prominent) : tint;
 
     return Row(
       children: [
         if (avatarUrl != null && avatarUrl!.isNotEmpty)
           Container(
-            width: dense ? 20 : 24,
-            height: dense ? 20 : 24,
+            width: dense ? AppTokens.iconSize.md : AppTokens.iconSize.lg,
+            height: dense ? AppTokens.iconSize.md : AppTokens.iconSize.lg,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               image: DecorationImage(
                 image: NetworkImage(avatarUrl!),
                 fit: BoxFit.cover,
               ),
-              border: inverse ? Border.all(color: tint, width: 1) : null,
+              border: inverse ? Border.all(color: tint, width: AppTokens.componentSize.divider) : null,
             ),
           )
         else
           Icon(
             Icons.account_circle_rounded,
-            size: dense ? 20 : 24,
+            size: dense ? AppTokens.iconSize.md : AppTokens.iconSize.lg,
             color: iconColor,
           ),
-        SizedBox(width: spacing.xs + 2),
+        SizedBox(width: spacing.xs + spacing.micro),
         Expanded(
           child: Text(
             name,

@@ -263,7 +263,7 @@ class _SplashContentState extends State<_SplashContent>
                   AppConstants.appName,
                   style: AppTokens.typography.brand.copyWith(
                     color: colors.brand,
-                    letterSpacing: -0.5,
+                    letterSpacing: AppLetterSpacing.tight,
                   ),
                 ),
                 SizedBox(height: spacing.sm),
@@ -278,12 +278,12 @@ class _SplashContentState extends State<_SplashContent>
                 SizedBox(height: spacing.xxxl),
                 // Minimalist Loader (Apple style)
                 SizedBox(
-                  width: 24,
-                  height: 24,
+                  width: AppInteraction.loaderSizeLarge,
+                  height: AppInteraction.loaderSizeLarge,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: colors.brand.withValues(alpha: 0.8),
-                    backgroundColor: colors.brand.withValues(alpha: 0.1),
+                    strokeWidth: AppInteraction.progressStrokeWidthLarge,
+                    color: colors.brand.withValues(alpha: AppOpacity.prominent),
+                    backgroundColor: colors.brand.withValues(alpha: AppOpacity.overlay),
                   ),
                 ),
               ],
@@ -320,7 +320,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
-    final badgeColor = widget.accent.withValues(alpha: isDark ? 0.28 : 0.14);
+    final badgeColor = widget.accent.withValues(alpha: isDark ? 0.28 : AppOpacity.statusBg);
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
@@ -333,8 +333,8 @@ class _PermissionDialogState extends State<_PermissionDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            height: 52,
-            width: 52,
+            height: AppTokens.componentSize.avatarXl,
+            width: AppTokens.componentSize.avatarXl,
             decoration: BoxDecoration(
               color: badgeColor,
               borderRadius: AppTokens.radius.lg,
@@ -547,7 +547,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
       backgroundColor: isDark ? colors.surface : colors.surfaceContainerLowest,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg),
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: AppLayout.dialogMaxWidth),
         padding: spacing.edgeInsetsAll(spacing.xxl),
         child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -570,7 +570,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             ),
           ),
           SizedBox(height: spacing.xxl),
-          _StatusRow(
+          StatusRow(
             icon: Icons.alarm_on_rounded,
             label: 'Exact alarms',
             description: 'Required for time-sensitive reminders.',
@@ -578,7 +578,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             onTap: _busy ? null : _openExactAlarms,
           ),
           SizedBox(height: spacing.sm),
-          _StatusRow(
+          StatusRow(
             icon: Icons.notifications_active_outlined,
             label: 'Notifications',
             description: 'Backup alert if full-screen alarms are blocked.',
@@ -586,7 +586,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             onTap: _busy ? null : _requestNotifications,
           ),
           SizedBox(height: spacing.md),
-          _StatusRow(
+          StatusRow(
             icon: Icons.battery_alert_rounded,
             label: 'Battery optimization (recommended)',
             description: 'Set MySched to Unrestricted so alarms are not killed.',
@@ -599,10 +599,10 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             Row(
               children: [
                 SizedBox(
-                  width: 14,
-                  height: 14,
+                  width: AppInteraction.loaderSizeSmall,
+                  height: AppInteraction.loaderSizeSmall,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: AppInteraction.progressStrokeWidth,
                     valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                   ),
                 ),
@@ -631,7 +631,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               child: PrimaryButton(
                 label: 'Continue',
                 expanded: true,
-                minHeight: 52,
+                minHeight: AppTokens.componentSize.buttonLg,
                 onPressed: _busy
                     ? null
                     : () {
@@ -646,7 +646,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               child: PrimaryButton(
                 label: 'Open settings',
                 expanded: true,
-                minHeight: 52,
+                minHeight: AppTokens.componentSize.buttonLg,
                 onPressed: _busy
                     ? null
                     : () {
@@ -664,7 +664,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               child: PrimaryButton(
                 label: 'Next',
                 expanded: true,
-                minHeight: 52,
+                minHeight: AppTokens.componentSize.buttonLg,
                 onPressed: _busy
                     ? null
                     : () async {
@@ -691,147 +691,4 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
   }
 }
 
-class _StatusRow extends StatelessWidget {
-  const _StatusRow({
-    required this.icon,
-    required this.label,
-    required this.description,
-    required this.status,
-    this.optional = false,
-    this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final String description;
-  final bool? status;
-  final bool optional;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    final isDark = theme.brightness == Brightness.dark;
-    final accent = colors.primary;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.md),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.lg,
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: 0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            height: 40,
-            width: 40,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: isDark ? 0.22 : 0.12),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
-          ),
-          SizedBox(width: spacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        label,
-                        style: AppTokens.typography.subtitle.copyWith(
-                          color: colors.onSurface,
-                          fontSize: AppTokens.typography.body.fontSize,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                    _StatusPill(status: status, optional: optional),
-                  ],
-                ),
-                SizedBox(height: spacing.xs),
-                Text(
-                  description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    fontSize: AppTokens.typography.caption.fontSize,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.status, required this.optional});
-
-  final bool? status;
-  final bool optional;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final isOk = status == true;
-    final isUnknown = status == null;
-    final label = isUnknown
-        ? 'Unknown'
-        : isOk
-            ? 'Allowed'
-            : optional
-                ? 'Recommended'
-                : 'Action needed';
-    
-    Color bg;
-    Color fg;
-    
-    if (isUnknown) {
-      bg = isDark ? colors.surfaceContainerHighest : colors.surfaceContainerHigh;
-      fg = colors.onSurfaceVariant;
-    } else if (isOk) {
-      bg = colors.primary.withValues(alpha: isDark ? 0.20 : 0.12);
-      fg = colors.primary;
-    } else {
-      bg = optional 
-          ? (isDark ? AppTokens.lightColors.warning.withValues(alpha: 0.20) : AppTokens.lightColors.warning.withValues(alpha: 0.12))
-          : colors.errorContainer;
-      fg = optional ? AppTokens.lightColors.warning : colors.error;
-    }
-    
-    final spacing = AppTokens.spacing;
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.md, vertical: spacing.xs + 2),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: AppTokens.radius.sm,
-      ),
-      child: Text(
-        label,
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: fg,
-          fontSize: AppTokens.typography.caption.fontSize,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
-  }
-}
+// _StatusRow and _StatusPill removed - using global StatusRow from kit.dart

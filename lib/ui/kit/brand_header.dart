@@ -60,13 +60,13 @@ class BrandHeader extends StatelessWidget {
     final theme = Theme.of(context);
     final style = textStyle ??
         theme.textTheme.titleLarge?.copyWith(
-          fontFamily: 'SFProRounded',
+          fontFamily: AppTypography.primaryFont,
           fontWeight: FontWeight.w700,
           color: theme.colorScheme.primary,
           fontSize: AppTokens.typography.title.fontSize,
         ) ??
         TextStyle(
-          fontFamily: 'SFProRounded',
+          fontFamily: AppTypography.primaryFont,
           fontWeight: FontWeight.w700,
           fontSize: AppTokens.typography.title.fontSize,
           color: theme.colorScheme.primary,

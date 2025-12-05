@@ -311,7 +311,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final isDark = theme.brightness == Brightness.dark;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 520),
+      constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
       child: Container(
         decoration: BoxDecoration(
           color: cardBackground,
@@ -355,7 +355,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              _HeaderRow(
+                              SheetHeaderRow(
                                 title: 'Error',
                                 subtitle: 'Class details',
                                 icon: Icons.error_outline_rounded,
@@ -408,98 +408,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
   }
 }
 
-class _HeaderRow extends StatelessWidget {
-  const _HeaderRow({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-    required this.onClose,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          height: 52,
-          width: 52,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                colors.primary.withValues(alpha: 0.15),
-                colors.primary.withValues(alpha: 0.10),
-              ],
-            ),
-            borderRadius: AppTokens.radius.md,
-            border: Border.all(
-              color: colors.primary.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-          ),
-          child: Icon(
-            icon,
-            color: colors.primary,
-            size: AppTokens.iconSize.xl,
-          ),
-        ),
-        SizedBox(width: AppTokens.spacing.lg),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTokens.typography.title.copyWith(
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                  height: 1.2,
-                  color: colors.onSurface,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              SizedBox(height: AppTokens.spacing.xs),
-              Text(
-                subtitle,
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(width: AppTokens.spacing.md),
-        PressableScale(
-          onTap: onClose,
-          child: Container(
-            padding: EdgeInsets.all(AppTokens.spacing.sm),
-            decoration: BoxDecoration(
-              color: colors.onSurface.withValues(alpha: 0.05),
-              borderRadius: AppTokens.radius.md,
-            ),
-            child: Icon(
-              Icons.close_rounded,
-              size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+// _HeaderRow removed - using global SheetHeaderRow from kit.dart
 
 class _ClassDetailsContent extends StatelessWidget {
   const _ClassDetailsContent({
@@ -552,7 +461,7 @@ class _ClassDetailsContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       mainAxisSize: MainAxisSize.min,
       children: [
-        _HeaderRow(
+        SheetHeaderRow(
           title: details.title,
           subtitle: 'Class details',
           icon: Icons.class_rounded,
@@ -570,13 +479,13 @@ class _ClassDetailsContent extends StatelessWidget {
                   spacing: 8,
                   runSpacing: 8,
                   children: [
-                    _InfoChip(
+                    StatusInfoChip(
                       icon: details.isCustom ? Icons.edit_note_rounded : Icons.cloud_sync_rounded,
                       label: details.isCustom ? 'Custom class' : 'Synced class',
                       color: details.isCustom ? colors.primary : colors.tertiary,
                     ),
                     if (!details.enabled)
-                      _InfoChip(
+                      StatusInfoChip(
                         icon: Icons.pause_circle_outline_rounded,
                         label: 'Disabled',
                         color: colors.outline,
@@ -602,79 +511,79 @@ class _ClassDetailsContent extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-                      _DetailRow(
+                      DetailRow(
                         icon: Icons.access_time_rounded,
                         label: 'Schedule',
                         value: scheduleValue,
-                        isPremium: true,
+                        accentIcon: true,
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                         child: Divider(
-                          height: 1,
+                          height: AppTokens.componentSize.divider,
                           color: isDark 
                               ? colors.outline.withValues(alpha: 0.15) 
                               : colors.primary.withValues(alpha: 0.10),
                         ),
                       ),
-                      _DetailRow(
+                      DetailRow(
                         icon: Icons.place_outlined,
                         label: 'Room',
                         value: details.room ?? 'No room assigned',
-                        isPremium: true,
+                        accentIcon: true,
                       ),
                       if (details.units != null) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                           child: Divider(
-                            height: 1,
+                            height: AppTokens.componentSize.divider,
                             color: isDark 
                                 ? colors.outline.withValues(alpha: 0.15) 
                                 : colors.primary.withValues(alpha: 0.10),
                           ),
                         ),
-                        _DetailRow(
+                        DetailRow(
                           icon: Icons.calculate_outlined,
                           label: 'Units',
                           value: details.units.toString(),
-                          isPremium: true,
+                          accentIcon: true,
                         ),
                       ],
                       if (sectionValue != null || details.sectionName != null) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                           child: Divider(
-                            height: 1,
+                            height: AppTokens.componentSize.divider,
                             color: isDark 
                                 ? colors.outline.withValues(alpha: 0.15) 
                                 : colors.primary.withValues(alpha: 0.10),
                           ),
                         ),
-                        _DetailRow(
+                        DetailRow(
                           icon: Icons.class_outlined,
                           label: 'Section',
                           value: sectionValue ?? details.sectionName ?? 'Section',
                           helper: sectionValue != null && details.sectionName != null
                               ? details.sectionName
                               : null,
-                          isPremium: true,
+                          accentIcon: true,
                         ),
                       ],
                       if (details.createdAt != null) ...[
                         Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                           child: Divider(
-                            height: 1,
+                            height: AppTokens.componentSize.divider,
                             color: isDark 
                                 ? colors.outline.withValues(alpha: 0.15) 
                                 : colors.primary.withValues(alpha: 0.10),
                           ),
                         ),
-                        _DetailRow(
+                        DetailRow(
                           icon: Icons.history_edu_outlined,
                           label: details.isCustom ? 'Added on' : 'Created',
                           value: _formatDate(details.createdAt!),
-                          isPremium: true,
+                          accentIcon: true,
                         ),
                       ],
                     ],
@@ -793,116 +702,7 @@ class _InstructorDetail extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final backgroundOpacity = theme.brightness == Brightness.dark ? 0.24 : 0.12;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: backgroundOpacity),
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: color),
-          SizedBox(width: AppTokens.spacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.helper,
-    this.isPremium = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String? helper;
-  final bool isPremium;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.all(AppTokens.spacing.sm),
-          decoration: BoxDecoration(
-            color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          child: Icon(
-            icon, 
-            size: AppTokens.iconSize.md, 
-            color: colors.primary,
-          ),
-        ),
-        SizedBox(width: AppTokens.spacing.lg),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: AppTokens.typography.caption.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              SizedBox(height: AppTokens.spacing.xs),
-              Text(
-                value,
-                style: AppTokens.typography.subtitle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurface,
-                ),
-              ),
-              if (helper != null && helper!.isNotEmpty) ...[
-                SizedBox(height: AppTokens.spacing.xs),
-                Text(
-                  helper!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
+// _InfoChip and _DetailRow removed - using global StatusInfoChip and DetailRow from kit.dart
 
 int _minutesFor(String raw) {
   final value = raw.trim().toLowerCase().replaceAll('.', '');
@@ -980,12 +780,12 @@ class _ClassDetailActions extends StatelessWidget {
 
     if (onEdit != null) {
       children.add(
-        FilledButton.icon(
+      FilledButton.icon(
           onPressed: onEdit,
           icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
           label: const Text('Edit custom class'),
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
             shape: RoundedRectangleBorder(
               borderRadius: AppTokens.radius.md,
             ),
@@ -1004,17 +804,17 @@ class _ClassDetailActions extends StatelessWidget {
           onPressed: toggleBusy ? null : onToggle,
           icon: toggleBusy
               ? SizedBox(
-                  width: 18,
-                  height: 18,
+                  width: AppInteraction.loaderSize,
+                  height: AppInteraction.loaderSize,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: AppInteraction.progressStrokeWidth,
                     valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                   ),
                 )
               : Icon(icon, size: AppTokens.iconSize.md),
           label: Text(label),
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
             shape: RoundedRectangleBorder(
               borderRadius: AppTokens.radius.md,
             ),
@@ -1031,10 +831,10 @@ class _ClassDetailActions extends StatelessWidget {
           onPressed: reportBusy ? null : onReport,
           icon: reportBusy
               ? SizedBox(
-                  width: 18,
-                  height: 18,
+                  width: AppInteraction.loaderSize,
+                  height: AppInteraction.loaderSize,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: AppInteraction.progressStrokeWidth,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Theme.of(context).colorScheme.primary,
                     ),
@@ -1045,7 +845,7 @@ class _ClassDetailActions extends StatelessWidget {
             reportBusy ? 'Sending report...' : 'Report schedule issue',
           ),
           style: TextButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
             shape: RoundedRectangleBorder(
               borderRadius: AppTokens.radius.md,
             ),
@@ -1059,10 +859,10 @@ class _ClassDetailActions extends StatelessWidget {
           onPressed: deleteBusy ? null : onDelete,
           icon: deleteBusy
               ? SizedBox(
-                  width: 18,
-                  height: 18,
+                  width: AppInteraction.loaderSize,
+                  height: AppInteraction.loaderSize,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: AppInteraction.progressStrokeWidth,
                     valueColor: AlwaysStoppedAnimation<Color>(colors.error),
                   ),
                 )
@@ -1070,7 +870,7 @@ class _ClassDetailActions extends StatelessWidget {
           label: const Text('Delete class'),
           style: TextButton.styleFrom(
             foregroundColor: colors.error,
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
             shape: RoundedRectangleBorder(
               borderRadius: AppTokens.radius.md,
             ),

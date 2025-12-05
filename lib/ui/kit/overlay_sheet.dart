@@ -8,9 +8,10 @@ class OverlaySheetRoute<T> extends PageRoute<T> {
   OverlaySheetRoute({
     required this.builder,
     bool barrierDismissible = false,
-    Color barrierTint = const Color(0x4D000000),
-    EdgeInsets padding =
-        const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+    Color barrierTint = AppBarrier.light,
+    EdgeInsets padding = const EdgeInsets.symmetric(
+        horizontal: AppLayout.pagePaddingHorizontal,
+        vertical: AppLayout.pagePaddingVertical),
     Alignment alignment = Alignment.bottomCenter,
     this.transitionDuration = AppMotionSystem.medium,
     this.reverseTransitionDuration = AppMotionSystem.quick,
@@ -186,8 +187,10 @@ Future<T?> showOverlaySheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = false,
-  Color barrierTint = const Color(0x4D000000),
-  EdgeInsets padding = const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+  Color barrierTint = AppBarrier.light,
+  EdgeInsets padding = const EdgeInsets.symmetric(
+      horizontal: AppLayout.pagePaddingHorizontal,
+      vertical: AppLayout.pagePaddingVertical),
   Alignment alignment = Alignment.bottomCenter,
   bool dimBackground = false,
   SheetTransitionVariant variant = SheetTransitionVariant.slideUp,
@@ -243,7 +246,7 @@ Future<T?> showSmoothBottomSheet<T>({
         ),
     clipBehavior: clipBehavior,
     constraints: constraints,
-    barrierColor: barrierColor ?? Colors.black54,
+    barrierColor: barrierColor ?? AppBarrier.heavy,
     useSafeArea: useSafeArea,
     transitionAnimationController: AnimationController(
       vsync: Navigator.of(context),

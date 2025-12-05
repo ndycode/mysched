@@ -111,8 +111,8 @@ class ScheduleList extends StatelessWidget {
                 child: Text(
                   _dayLabel(d),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.7),
-                    letterSpacing: 0.4,
+                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                    letterSpacing: AppLetterSpacing.widest,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -164,7 +164,7 @@ class _Row extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final textTheme = theme.textTheme;
-    final muted = colors.onSurfaceVariant.withValues(alpha: 0.7);
+    final muted = colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted);
     final title = (c.title ?? '').trim();
     final code = (c.code ?? '').trim();
     final room = (c.room ?? '').trim();
@@ -209,12 +209,12 @@ class _Row extends StatelessWidget {
       statusLabel = 'Done';
       statusIcon = Icons.check_rounded;
       statusForeground = colors.tertiary;
-      statusBackground = colors.tertiary.withValues(alpha: 0.16);
+      statusBackground = colors.tertiary.withValues(alpha: AppOpacity.statusBg);
     } else if (isOngoing) {
       statusLabel = 'In progress';
       statusIcon = Icons.play_arrow_rounded;
       statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.16);
+      statusBackground = colors.primary.withValues(alpha: AppOpacity.statusBg);
     } else if (isActive && !isPast) {
       // If it's the active class but not ongoing (so it must be next), show "Next"
       // Wait, the requirement is just "blue thing" (highlight).
@@ -223,11 +223,11 @@ class _Row extends StatelessWidget {
       statusLabel = 'Next';
       statusIcon = Icons.arrow_forward_rounded;
       statusForeground = colors.primary;
-      statusBackground = colors.primary.withValues(alpha: 0.12);
+      statusBackground = colors.primary.withValues(alpha: AppOpacity.overlay);
     }
 
     final background = isActive
-        ? colors.primary.withValues(alpha: 0.08)
+        ? colors.primary.withValues(alpha: AppOpacity.highlight)
         : Colors.transparent;
     final border = isActive
         ? colors.primary.withValues(alpha: 0.24)
@@ -289,8 +289,8 @@ class _Row extends StatelessWidget {
                                   (states) => colors.primary.withValues(
                                       alpha:
                                           states.contains(WidgetState.selected)
-                                              ? 0.35
-                                              : 0.18),
+                                              ? AppOpacity.ghost
+                                              : AppOpacity.border),
                                 ),
                               ),
                             ),
@@ -348,8 +348,8 @@ class _Row extends StatelessWidget {
                     trackColor: WidgetStateProperty.resolveWith(
                       (states) => colors.primary.withValues(
                           alpha: states.contains(WidgetState.selected)
-                              ? 0.35
-                              : 0.18),
+                              ? AppOpacity.ghost
+                              : AppOpacity.border),
                     ),
                   ),
               ],
@@ -358,8 +358,8 @@ class _Row extends StatelessWidget {
               Padding(
                 padding: spacing.edgeInsetsSymmetric(vertical: spacing.md),
                 child: Divider(
-                  height: 1,
-                  color: colors.outline.withValues(alpha: 0.25),
+                  height: AppTokens.componentSize.divider,
+                  color: colors.outline.withValues(alpha: AppOpacity.ghost),
                 ),
               ),
           ],

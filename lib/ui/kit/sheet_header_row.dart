@@ -1,0 +1,106 @@
+import 'package:flutter/material.dart';
+
+import '../theme/tokens.dart';
+import 'pressable_scale.dart';
+
+/// A reusable header row for sheets and dialogs.
+///
+/// Displays an icon in a gradient container, title, subtitle, and close button.
+class SheetHeaderRow extends StatelessWidget {
+  const SheetHeaderRow({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onClose,
+    this.iconColor,
+  });
+
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onClose;
+
+  /// Override the icon color (defaults to primary).
+  final Color? iconColor;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final accent = iconColor ?? colors.primary;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          height: AppTokens.componentSize.avatarXl,
+          width: AppTokens.componentSize.avatarXl,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                accent.withValues(alpha: AppOpacity.statusBg),
+                accent.withValues(alpha: AppOpacity.overlay),
+              ],
+            ),
+            borderRadius: AppTokens.radius.md,
+            border: Border.all(
+              color: accent.withValues(alpha: AppOpacity.ghost),
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            icon,
+            color: accent,
+            size: AppTokens.iconSize.xl,
+          ),
+        ),
+        SizedBox(width: AppTokens.spacing.lg),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: AppTokens.typography.title.copyWith(
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: AppLetterSpacing.tight,
+                  height: 1.2,
+                  color: colors.onSurface,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(height: AppTokens.spacing.xs),
+              Text(
+                subtitle,
+                style: AppTokens.typography.bodySecondary.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: AppTokens.spacing.md),
+        PressableScale(
+          onTap: onClose,
+          child: Container(
+            padding: EdgeInsets.all(AppTokens.spacing.sm),
+            decoration: BoxDecoration(
+              color: colors.onSurface.withValues(alpha: AppOpacity.faint),
+              borderRadius: AppTokens.radius.md,
+            ),
+            child: Icon(
+              Icons.close_rounded,
+              size: AppTokens.iconSize.md,
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

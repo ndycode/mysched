@@ -11,7 +11,7 @@ class _SmoothDialogRoute<T> extends PopupRoute<T> {
     this.barrierLabel,
     Color? barrierColor,
     Duration? transitionDuration,
-  })  : _barrierColor = barrierColor ?? Colors.black54,
+  })  : _barrierColor = barrierColor ?? AppBarrier.heavy,
         _transitionDuration = transitionDuration ?? AppMotionSystem.medium;
 
   final WidgetBuilder builder;
@@ -309,14 +309,14 @@ class AppModal {
               decoration: InputDecoration(
                 hintText: hintText,
                 filled: true,
-                fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                fillColor: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                 border: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
                   borderSide: BorderSide(color: colors.outline),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
-                  borderSide: BorderSide(color: colors.outline.withValues(alpha: 0.5)),
+                  borderSide: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.subtle)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,

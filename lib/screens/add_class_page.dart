@@ -189,7 +189,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
     final spacing = AppTokens.spacing;
 
     final menuButton = _buildMenuButton(
-      iconColor: colors.onSurfaceVariant.withValues(alpha: 0.9),
+      iconColor: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
     );
 
     final hero = Column(
@@ -302,7 +302,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
       child: Center(
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            maxWidth: 520,
+            maxWidth: AppLayout.sheetMaxWidth,
             maxHeight: media.size.height * 0.85,
           ),
           child: Container(
@@ -314,13 +314,13 @@ class _AddClassSheetState extends State<AddClassSheet> {
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.statusBg),
                   blurRadius: AppTokens.shadow.xxl,
                   offset: const Offset(0, 10),
                 ),
@@ -360,7 +360,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                         border: Border(
                           top: BorderSide(
                             color: theme.colorScheme.outlineVariant
-                                .withValues(alpha: 0.3),
+                                .withValues(alpha: AppOpacity.ghost),
                           ),
                         ),
                       ),
@@ -469,13 +469,13 @@ class _RemindersStyleShell extends StatelessWidget {
           Container(
             padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
             decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest.withValues(alpha: 0.4),
+              color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.barrier),
               borderRadius: AppTokens.radius.lg,
             ),
             child: Row(
               children: [
                 Icon(Icons.class_outlined,
-                    color: colors.onSurfaceVariant.withValues(alpha: 0.8)),
+                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent)),
                 SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: Text(

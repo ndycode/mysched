@@ -242,9 +242,9 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
           border: Border.all(
             color: borderOverride ??
                 (hovered
-                    ? colors.primary.withValues(alpha: 0.3)
+                    ? colors.primary.withValues(alpha: AppOpacity.ghost)
                     : (isDark
-                        ? colors.outline.withValues(alpha: 0.12)
+                        ? colors.outline.withValues(alpha: AppOpacity.overlay)
                         : colors.outlineVariant)),
             width: isDark ? 1 : 0.5,
           ),
@@ -252,7 +252,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
               ? []
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: hovered ? 0.08 : 0.05),
+                    color: colors.shadow.withValues(alpha: hovered ? AppOpacity.highlight : AppOpacity.faint),
                     blurRadius: hovered ? 16 : 12,
                     offset: hovered ? const Offset(0, 6) : const Offset(0, 4),
                   ),
@@ -263,13 +263,13 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
         return CardStyle(
           background: backgroundOverride ??
               (hovered
-                  ? colors.primary.withValues(alpha: isDark ? 0.06 : 0.03)
+                  ? colors.primary.withValues(alpha: isDark ? AppOpacity.faint : AppOpacity.faint)
                   : Colors.transparent),
           border: Border.all(
             color: borderOverride ??
                 (hovered
-                    ? colors.primary.withValues(alpha: isDark ? 0.5 : 0.4)
-                    : colors.outline.withValues(alpha: isDark ? 0.4 : 0.3)),
+                    ? colors.primary.withValues(alpha: isDark ? AppOpacity.subtle : AppOpacity.barrier)
+                    : colors.outline.withValues(alpha: isDark ? AppOpacity.barrier : AppOpacity.ghost)),
             width: 1.5,
           ),
           shadows: const [],
@@ -280,8 +280,8 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
           background: backgroundOverride ??
               (hovered
                   ? (isDark
-                      ? colors.primary.withValues(alpha: 0.12)
-                      : colors.primary.withValues(alpha: 0.06))
+                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                      : colors.primary.withValues(alpha: AppOpacity.faint))
                   : (isDark
                       ? colors.surfaceContainerHighest
                       : colors.surfaceContainerHigh)),
@@ -293,21 +293,21 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
         return CardStyle(
           background: backgroundOverride ??
               (isDark
-                  ? colors.surface.withValues(alpha: hovered ? 0.78 : 0.72)
-                  : colors.surface.withValues(alpha: hovered ? 0.92 : 0.85)),
+                  ? colors.surface.withValues(alpha: hovered ? AppOpacity.muted : AppOpacity.glass)
+                  : colors.surface.withValues(alpha: hovered ? AppOpacity.prominent : AppOpacity.prominent)),
           border: Border.all(
             color: borderOverride ??
                 (hovered
-                    ? colors.primary.withValues(alpha: 0.25)
+                    ? colors.primary.withValues(alpha: AppOpacity.ghost)
                     : (isDark
-                        ? colors.outline.withValues(alpha: 0.2)
-                        : colors.outline.withValues(alpha: 0.15))),
+                        ? colors.outline.withValues(alpha: AppOpacity.darkTint)
+                        : colors.outline.withValues(alpha: AppOpacity.statusBg))),
           ),
           shadows: [
             BoxShadow(
               color: hovered
-                  ? colors.primary.withValues(alpha: isDark ? 0.2 : 0.1)
-                  : colors.shadow.withValues(alpha: isDark ? 0.3 : 0.1),
+                  ? colors.primary.withValues(alpha: isDark ? AppOpacity.darkTint : AppOpacity.overlay)
+                  : colors.shadow.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.overlay),
               blurRadius: 24 + hoverShadowBoost,
               offset: const Offset(0, 8),
             ),
@@ -321,7 +321,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
           border: null,
           shadows: [
             BoxShadow(
-              color: accent.withValues(alpha: isDark ? (hovered ? 0.4 : 0.32) : (hovered ? 0.28 : 0.22)),
+              color: accent.withValues(alpha: isDark ? (hovered ? AppOpacity.barrier : AppOpacity.ghost) : (hovered ? AppOpacity.ghost : AppOpacity.darkTint)),
               blurRadius: 24 + hoverShadowBoost,
               offset: Offset(0, 16 + (hovered ? 2 : 0)),
             ),
@@ -330,8 +330,8 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              accent.withValues(alpha: isDark ? 0.85 : 0.95),
-              accent.withValues(alpha: isDark ? 0.65 : 0.7),
+              accent.withValues(alpha: isDark ? AppOpacity.prominent : AppOpacity.prominent),
+              accent.withValues(alpha: isDark ? AppOpacity.muted : AppOpacity.muted),
             ],
           ),
         );

@@ -28,7 +28,7 @@ class _DashboardMessageCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     final cardBackground = isDark ? colors.surfaceContainer : colors.surface;
-    final shadowColor = colors.shadow.withValues(alpha: isDark ? 0.3 : 0.08);
+    final shadowColor = colors.shadow.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.highlight);
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
@@ -39,7 +39,7 @@ class _DashboardMessageCard extends StatelessWidget {
           BoxShadow(
             color: shadowColor,
             blurRadius: AppTokens.shadow.lg,
-            offset: const Offset(0, 4),
+            offset: AppShadowOffset.sm,
           ),
         ],
       ),
@@ -53,7 +53,7 @@ class _DashboardMessageCard extends StatelessWidget {
                 height: AppTokens.componentSize.listItemSm,
                 width: AppTokens.componentSize.listItemSm,
                 decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: 0.12),
+                  color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.lg,
                 ),
                 child: Icon(
@@ -62,7 +62,7 @@ class _DashboardMessageCard extends StatelessWidget {
                   color: colors.primary,
                 ),
               ),
-              SizedBox(width: spacing.md + 4),
+              SizedBox(width: spacing.md + spacing.microLg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,16 +72,16 @@ class _DashboardMessageCard extends StatelessWidget {
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: AppTokens.typography.title.fontSize,
-                        letterSpacing: -0.5,
+                        letterSpacing: AppLetterSpacing.tight,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
                     Text(
                       message,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: 0.8),
+                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
                         fontSize: AppTokens.typography.body.fontSize,
-                        height: 1.4,
+                        height: AppLineHeight.relaxed,
                       ),
                     ),
                   ],

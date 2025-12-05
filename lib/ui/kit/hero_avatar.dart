@@ -46,13 +46,13 @@ class HeroAvatar extends StatelessWidget {
             )
           : null,
       border: Border.all(
-        color: theme.colorScheme.primary.withValues(alpha: 0.45),
-        width: 2,
+        color: theme.colorScheme.primary.withValues(alpha: AppOpacity.barrier),
+        width: AppTokens.componentSize.dividerThick,
       ),
       boxShadow: [
         BoxShadow(
-          color: theme.colorScheme.primary.withValues(alpha: 0.16),
-          blurRadius: 20,
+          color: theme.colorScheme.primary.withValues(alpha: AppOpacity.statusBg),
+          blurRadius: AppTokens.shadow.xl,
           offset: const Offset(0, 12),
         ),
       ],
@@ -68,11 +68,11 @@ class HeroAvatar extends StatelessWidget {
           : Text(
               fallbackLetter,
               style: TextStyle(
-                fontFamily: 'SFProRounded',
+                fontFamily: AppTypography.primaryFont,
                 fontSize: radius,
                 fontWeight: FontWeight.w700,
                 color: theme.colorScheme.onPrimary,
-                letterSpacing: 0.2,
+                letterSpacing: AppLetterSpacing.wide,
               ),
             ),
     );

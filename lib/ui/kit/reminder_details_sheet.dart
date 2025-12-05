@@ -72,11 +72,11 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * 0.78;
+    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 520),
+      constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
       child: Container(
         decoration: BoxDecoration(
           color: cardBackground,
@@ -139,9 +139,9 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               widget.entry.title,
                               style: AppTokens.typography.title.copyWith(
                                 fontWeight: FontWeight.w800,
-                                letterSpacing: -0.5,
+                                letterSpacing: AppLetterSpacing.tight,
                                 height: 1.2,
-                                color: isDark ? colors.onSurface : const Color(0xFF1A1A1A),
+                                color: isDark ? colors.onSurface : colors.onSurface,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
@@ -150,7 +150,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             Text(
                               'Reminder details',
                               style: AppTokens.typography.bodySecondary.copyWith(
-                                color: isDark ? colors.onSurfaceVariant.withValues(alpha: 0.75) : const Color(0xFF757575),
+                                color: isDark ? colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted) : colors.onSurfaceVariant,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -163,7 +163,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                         child: Container(
                           padding: EdgeInsets.all(AppTokens.spacing.sm),
                           decoration: BoxDecoration(
-                            color: colors.onSurface.withValues(alpha: 0.05),
+                            color: colors.onSurface.withValues(alpha: AppOpacity.faint),
                             borderRadius: AppTokens.radius.md,
                           ),
                           child: Icon(
@@ -188,7 +188,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             spacing: 8,
                             runSpacing: 8,
                             children: [
-                              _InfoChip(
+                              StatusInfoChip(
                                 icon: widget.isActive
                                     ? Icons.pending_actions_rounded
                                     : Icons.check_circle_outline_rounded,
@@ -198,13 +198,13 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                     : colors.tertiary,
                               ),
                               if (widget.entry.isOverdue)
-                                _InfoChip(
+                                StatusInfoChip(
                                   icon: Icons.error_outline_rounded,
                                   label: 'Overdue',
                                   color: colors.error,
                                 ),
                               if (widget.entry.isSnoozed)
-                                _InfoChip(
+                                StatusInfoChip(
                                   icon: Icons.snooze_rounded,
                                   label: 'Snoozed',
                                   color: colors.secondary,
@@ -230,45 +230,45 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             ),
                             child: Column(
                               children: [
-                                _DetailRow(
+                                DetailRow(
                                   icon: Icons.event_rounded,
                                   label: 'Due date',
                                   value: DateFormat.yMMMMd().add_jm().format(widget.entry.dueAt),
-                                  isPremium: true,
+                                  accentIcon: true,
                                 ),
                                 if (widget.entry.details != null && widget.entry.details!.isNotEmpty) ...[
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                                     child: Divider(
-                                      height: 1,
+                                      height: AppTokens.componentSize.divider,
                                       color: isDark 
                                           ? colors.outline.withValues(alpha: 0.15) 
                                           : colors.primary.withValues(alpha: 0.10),
                                     ),
                                   ),
-                                  _DetailRow(
+                                  DetailRow(
                                     icon: Icons.notes_rounded,
                                     label: 'Details',
                                     value: widget.entry.details!,
-                                    isPremium: true,
+                                    accentIcon: true,
                                   ),
                                 ],
                                 if (widget.entry.snoozeUntil != null) ...[
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 16),
+                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
                                     child: Divider(
-                                      height: 1,
+                                      height: AppTokens.componentSize.divider,
                                       color: isDark 
                                           ? colors.outline.withValues(alpha: 0.15) 
                                           : colors.primary.withValues(alpha: 0.10),
                                     ),
                                   ),
-                                  _DetailRow(
+                                  DetailRow(
                                     icon: Icons.notifications_paused_outlined,
                                     label: 'Snoozed until',
                                     value: DateFormat.yMMMMd().add_jm().format(widget.entry.snoozeUntil!),
                                     helper: 'You won\'t receive notifications until this time.',
-                                    isPremium: true,
+                                    accentIcon: true,
                                   ),
                                 ],
                               ],
@@ -336,7 +336,7 @@ class _ReminderActions extends StatelessWidget {
         icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
         label: const Text('Edit'),
         style: FilledButton.styleFrom(
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
           shape: RoundedRectangleBorder(
             borderRadius: AppTokens.radius.md,
           ),
@@ -348,7 +348,7 @@ class _ReminderActions extends StatelessWidget {
           icon: Icon(Icons.snooze_rounded, size: AppTokens.iconSize.sm),
           label: const Text('Snooze'),
           style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(50),
+            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
             shape: RoundedRectangleBorder(
               borderRadius: AppTokens.radius.md,
             ),
@@ -358,10 +358,10 @@ class _ReminderActions extends StatelessWidget {
         onPressed: toggleBusy ? null : onToggle,
         icon: toggleBusy
             ? SizedBox(
-                width: 18,
-                height: 18,
+                width: AppInteraction.loaderSize,
+                height: AppInteraction.loaderSize,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: AppInteraction.progressStrokeWidth,
                   valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                 ),
               )
@@ -372,7 +372,7 @@ class _ReminderActions extends StatelessWidget {
         style: FilledButton.styleFrom(
           backgroundColor: isActive ? colors.primaryContainer : null,
           foregroundColor: isActive ? colors.onPrimaryContainer : null,
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
           shape: RoundedRectangleBorder(
             borderRadius: AppTokens.radius.md,
           ),
@@ -382,10 +382,10 @@ class _ReminderActions extends StatelessWidget {
         onPressed: deleteBusy ? null : onDelete,
         icon: deleteBusy
             ? SizedBox(
-                width: 18,
-                height: 18,
+                width: AppInteraction.loaderSize,
+                height: AppInteraction.loaderSize,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: AppInteraction.progressStrokeWidth,
                   valueColor: AlwaysStoppedAnimation<Color>(colors.error),
                 ),
               )
@@ -393,7 +393,7 @@ class _ReminderActions extends StatelessWidget {
         label: const Text('Delete reminder'),
         style: TextButton.styleFrom(
           foregroundColor: colors.error,
-          minimumSize: const Size.fromHeight(50),
+          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
           shape: RoundedRectangleBorder(
             borderRadius: AppTokens.radius.md,
           ),
@@ -420,108 +420,4 @@ class _ReminderActions extends StatelessWidget {
   }
 }
 
-class _InfoChip extends StatelessWidget {
-  const _InfoChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
-
-  final IconData icon;
-  final String label;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final backgroundOpacity = theme.brightness == Brightness.dark ? 0.24 : 0.12;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: backgroundOpacity),
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(color: color.withValues(alpha: 0.4)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: color),
-          SizedBox(width: AppTokens.spacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _DetailRow extends StatelessWidget {
-  const _DetailRow({
-    required this.icon,
-    required this.label,
-    required this.value,
-    this.helper,
-    this.isPremium = false,
-  });
-
-  final IconData icon;
-  final String label;
-  final String value;
-  final String? helper;
-  final bool isPremium;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: EdgeInsets.all(AppTokens.spacing.sm),
-          decoration: BoxDecoration(
-            color: isPremium ? colors.primary.withValues(alpha: 0.1) : Colors.transparent,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          child: Icon(icon, size: AppTokens.iconSize.md, color: colors.primary),
-        ),
-        SizedBox(width: AppTokens.spacing.lg),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: AppTokens.typography.caption.copyWith(
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              SizedBox(height: AppTokens.spacing.xs),
-              Text(
-                value,
-                style: AppTokens.typography.subtitle.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color: colors.onSurface,
-                ),
-              ),
-              if (helper != null && helper!.isNotEmpty) ...[
-                SizedBox(height: AppTokens.spacing.xs),
-                Text(
-                  helper!,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
+// _InfoChip and _DetailRow removed - using global StatusInfoChip and DetailRow from kit.dart

@@ -70,7 +70,13 @@ class _BrandScaffoldState extends State<BrandScaffold> {
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
     final padding =
-        widget.padding ?? EdgeInsets.fromLTRB(20, topInset + 24, 20, 24);
+        widget.padding ??
+            EdgeInsets.fromLTRB(
+              AppTokens.spacing.xl,
+              topInset + AppTokens.spacing.xxl,
+              AppTokens.spacing.xl,
+              AppTokens.spacing.xxl,
+            );
     final physics = widget.physics ??
         (Theme.of(context).platform == TargetPlatform.iOS
             ? const BouncingScrollPhysics(

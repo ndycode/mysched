@@ -44,8 +44,8 @@ class GlassNavigationBar extends StatelessWidget {
         : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.dense);
     final background = solidBackground ?? (isDark ? darkBase : lightBase);
     final shadowColor =
-        colors.shadow.withValues(alpha: isDark ? 0.42 : 0.12);
-    final blurSigma = solid ? 0.0 : 18.0;
+        colors.shadow.withValues(alpha: isDark ? AppOpacity.shadowDark : AppOpacity.shadowStrong);
+    final blurSigma = solid ? 0.0 : AppTokens.shadow.action;
 
     final media = MediaQuery.of(context);
     final bottomInset = media.padding.bottom;
@@ -54,7 +54,7 @@ class GlassNavigationBar extends StatelessWidget {
       horizontal: AppTokens.spacing.lg,
       vertical: AppTokens.spacing.md,
     );
-    final double baseBottomPadding = shouldFloatFab ? 12.0 : 8.0;
+    final double baseBottomPadding = shouldFloatFab ? AppTokens.spacing.md : AppTokens.spacing.sm;
     final double bottomPadding = baseBottomPadding + bottomInset;
     final horizontalPadding = AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg);
 
@@ -248,7 +248,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
     final isDark = theme.brightness == Brightness.dark;
     final activeColor = colors.primary;
     final inactiveColor = colors.onSurfaceVariant;
-    final highlightColor = activeColor.withValues(alpha: isDark ? 0.24 : 0.12);
+    final highlightColor = activeColor.withValues(alpha: isDark ? AppOpacity.shadowBubble : AppOpacity.overlay);
     final activeIconColor = colors.onPrimary;
     final displayIcon =
         widget.selected ? widget.selectedIcon ?? widget.icon : widget.icon;
@@ -272,7 +272,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                 color: widget.selected
                     ? highlightColor
                     : (_hovered
-                        ? activeColor.withValues(alpha: isDark ? 0.08 : 0.05)
+                        ? activeColor.withValues(alpha: isDark ? AppOpacity.highlight : AppOpacity.faint)
                         : Colors.transparent),
                 borderRadius: AppTokens.radius.lg,
               ),
@@ -346,12 +346,12 @@ class _FloatingQuickActionButton extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final accent = colors.primary;
     final onAccent = colors.onPrimary;
-    final bubbleShadow = accent.withValues(alpha: isDark ? 0.28 : 0.22);
+    final bubbleShadow = accent.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.darkTint);
     final labelBackground = isDark
         ? colors.surfaceContainerHighest
         : colors.surface.withValues(alpha: AppOpacity.dense);
     final labelShadowBase = colors.shadow;
-    final labelShadow = labelShadowBase.withValues(alpha: isDark ? 0.5 : 0.18);
+    final labelShadow = labelShadowBase.withValues(alpha: isDark ? AppOpacity.subtle : AppOpacity.border);
     return Column(
       children: [
         Stack(
@@ -395,8 +395,8 @@ class _FloatingQuickActionButton extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      labelBackground.withValues(alpha: isDark ? 0.9 : 0.98),
-                      labelBackground.withValues(alpha: isDark ? 0.65 : 0.86),
+                      labelBackground.withValues(alpha: isDark ? AppOpacity.high : AppOpacity.solid),
+                      labelBackground.withValues(alpha: isDark ? AppOpacity.skeletonLight : AppOpacity.labelGradient),
                     ],
                   ),
                   boxShadow: [
@@ -509,7 +509,7 @@ class _InlineQuickActionButton extends StatelessWidget {
                 borderRadius: AppTokens.radius.xxl,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withValues(alpha: active ? 0.24 : 0.18),
+                    color: color.withValues(alpha: active ? AppOpacity.shadowBubble : AppOpacity.border),
                     blurRadius: active ? AppTokens.shadow.glow : AppTokens.shadow.action,
                     offset: active ? AppShadowOffset.navFabActive : AppShadowOffset.navFabInactive,
                     spreadRadius: active ? AppTokens.shadow.spreadSm : 0,

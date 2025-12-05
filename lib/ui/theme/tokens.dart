@@ -687,8 +687,14 @@ class AppOpacity {
   /// Dark mode elevated tints (0.22)
   static const double darkTint = 0.22;
 
+  /// Nav/bubble shadow in dark mode (0.24)
+  static const double shadowBubble = 0.24;
+
   /// Border emphasis and outlines (0.25)
   static const double borderEmphasis = 0.25;
+
+  /// Shadow for nav/action buttons (0.28)
+  static const double shadowAction = 0.28;
 
   /// Ghost elements and hints (0.30)
   static const double ghost = 0.30;
@@ -710,6 +716,9 @@ class AppOpacity {
 
   /// Light mode borders and dividers (0.40)
   static const double divider = 0.40;
+
+  /// Dark mode shadow opacity (0.42)
+  static const double shadowDark = 0.42;
 
   /// Modal barrier tint (0.45)
   static const double barrier = 0.45;
@@ -750,6 +759,9 @@ class AppOpacity {
   /// Near-opaque content (0.85)
   static const double prominent = 0.85;
 
+  /// Label gradient end (0.86)
+  static const double labelGradient = 0.86;
+
   /// Frosted glass surfaces (0.88)
   static const double frosted = 0.88;
 
@@ -764,6 +776,12 @@ class AppOpacity {
 
   /// Dense glass surfaces (0.96)
   static const double dense = 0.96;
+
+  /// Almost opaque surfaces (0.98)
+  static const double solid = 0.98;
+
+  /// Fully opaque (1.0)
+  static const double opaque = 1.0;
 }
 
 /// Centralized layout constraint tokens.

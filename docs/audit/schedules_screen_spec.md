@@ -1,13 +1,132 @@
 # Schedules Screen - Full Spec Audit
-*Last Updated: 2025-12-06 01:10*
+*Last Updated: 2025-12-06*
 
-## File: `schedules_cards.dart` (1,267 lines)
+## Files Overview
+- `schedules_screen.dart` (714 lines) - Main screen orchestration
+- `schedules_cards.dart` (1,267 lines) - Summary, hero, list, row components
+- `schedules_controller.dart` (380 lines) - State management (no UI)
+- `schedules_data.dart` (372 lines) - Data models (no UI)
+- `schedules_messages.dart` (148 lines) - Message cards, banners
+
+**Total: ~2,881 lines (2,129 UI lines)**
 
 ---
 
-# ScheduleClassListCard (Lines 14-362)
+# schedules_screen.dart (Lines 1-714)
 
-## Container
+## ScreenShell Padding
+| Property | Token | Px Value |
+|----------|-------|----------|
+| left | `spacing.xl` | 20px |
+| right | `spacing.xl` | 20px |
+| top | `media.padding.top + spacing.xxxl` | safe + 32px |
+| bottom | `spacing.quad + AppLayout.bottomNavSafePadding` | 40px + safe |
+| cacheExtent | `AppLayout.listCacheExtent` | 500px |
+
+## Overlay Sheet Padding (Lines 108-121, 187-202)
+| Property | Token | Px Value |
+|----------|-------|----------|
+| left | `spacing.xl` | 20px |
+| right | `spacing.xl` | 20px |
+| top | `media.padding.top + spacing.xxl` | safe + 24px |
+| bottom | `media.padding.bottom + spacing.xxl` | safe + 24px |
+
+## Loading Skeleton (Lines 474-496)
+| Property | Token | Px Value |
+|----------|-------|----------|
+| skeleton gap | `spacing.lg` | 16px |
+| skeleton line count | 2 | - |
+| skeleton item count | 3 | - |
+
+---
+
+## PopupMenuButton (Lines 250-419)
+
+### Container
+| Property | Token | Px Value |
+|----------|-------|----------|
+| borderRadius | `radius.lg` | 16px |
+| elevation (dark) | `shadow.elevationDark` | 4 |
+| elevation (light) | `shadow.elevationLight` | 1 |
+| shadow alpha (dark) | `AppOpacity.divider` | 0.25 |
+| shadow alpha (light) | `AppOpacity.medium` | 0.15 |
+
+### Icon Button
+| Property | Token | Px Value |
+|----------|-------|----------|
+| width/height | `componentSize.buttonXs` | 32px |
+| icon size | `iconSize.md` | 20px |
+
+### Menu Items
+| Property | Token | Px Value |
+|----------|-------|----------|
+| padding h | `spacing.lg` | 16px |
+| padding v | `spacing.md` | 12px |
+| icon container padding | `spacing.sm` | 8px |
+| icon container radius | `radius.sm` | 8px |
+| icon bg alpha | `AppOpacity.overlay` | 0.12 |
+| icon size | `iconSize.md` | 20px |
+| icon→text gap | `spacing.md + spacing.micro` | 14px |
+| font | `typography.bodySecondary` | 13px |
+| fontWeight | `fontWeight.medium` | w500 |
+
+### Divider
+| Property | Token | Px Value |
+|----------|-------|----------|
+| height | `componentSize.divider` | 1px |
+| padding h | `spacing.md` | 12px |
+| padding v | `spacing.sm` | 8px |
+| gradient alpha (dark) | `AppOpacity.accent` | 0.20 |
+| gradient alpha (light) | `AppOpacity.divider` | 0.25 |
+
+---
+
+## Empty State Card (Lines 622-685)
+
+### Container
+| Property | Token | Px Value |
+|----------|-------|----------|
+| padding h | `spacing.xxl` | 24px |
+| padding v | `spacing.quad` | 40px |
+| borderRadius | `radius.xl` | 24px |
+| border alpha (dark) | `AppOpacity.overlay` | 0.12 |
+| border alpha (light) | `AppOpacity.divider` | 0.25 |
+
+### Icon Circle
+| Property | Token | Px Value |
+|----------|-------|----------|
+| size | `spacing.emptyStateSize` | 104px |
+| icon size | `spacing.quad` | 40px |
+| gradient start alpha | `AppOpacity.medium` | 0.15 |
+| gradient end alpha | `AppOpacity.highlight` | 0.16 |
+| border alpha | `AppOpacity.accent` | 0.20 |
+| border width | `componentSize.dividerThick` | 1.5px |
+
+### Text
+| Property | Token | Specs |
+|----------|-------|-------|
+| title font | `typography.headline` | 22px |
+| title weight | `fontWeight.bold` | w700 |
+| title letterSpacing | `AppLetterSpacing.tight` | -0.03 |
+| title→body gap | `spacing.md` | 12px |
+| body font | `typography.bodySecondary` | 13px |
+| body lineHeight | `AppLineHeight.body` | 1.5 |
+| circle→title gap | `spacing.xxlPlus` | 28px |
+
+---
+
+## Bottom Spacing (Lines 617-621)
+| Property | Token | Px Value |
+|----------|-------|----------|
+| height | `spacing.quad + media.padding.bottom + spacing.xl` | 40 + safe + 20px |
+
+---
+
+# schedules_cards.dart (Lines 1-1267)
+
+## ScheduleClassListCard (Lines 14-362)
+
+### Container
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.xl` | 20px |
@@ -19,7 +138,7 @@
 | offset | `AppShadowOffset.sm` | (0, 4) |
 | shadow alpha | `AppOpacity.veryFaint` | 0.05 |
 
-## Header Icon Container
+### Header Icon Container
 | Property | Token | Px Value |
 |----------|-------|----------|
 | size | `componentSize.avatarXl` | 48px |
@@ -31,7 +150,7 @@
 | icon size | `iconSize.xl` | 28px |
 | gap to text | `spacing.lg` | 16px |
 
-## Refresh Button
+### Refresh Button
 | Property | Token | Px Value |
 |----------|-------|----------|
 | height/width | `componentSize.buttonXs` | 36px |
@@ -39,7 +158,7 @@
 | spinner size | `componentSize.badgeMd` | 16px |
 | borderRadius | `radius.md` | 12px |
 
-## Day Header
+### Day Header
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.md` | 12px |
@@ -56,7 +175,7 @@
 | badge padding v | `spacing.xs + spacing.microHalf` | 5px |
 | badge bg alpha | `AppOpacity.overlay` | 0.12 |
 
-## Empty State
+### Empty State
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.xxl` | 24px |
@@ -70,7 +189,7 @@
 
 ---
 
-# ScheduleGroupCard (Lines 448-524)
+## ScheduleGroupCard (Lines 448-524)
 
 | Property | Token | Px Value |
 |----------|-------|----------|
@@ -84,9 +203,9 @@
 
 ---
 
-# ScheduleSummaryCard (Lines 527-673)
+## ScheduleSummaryCard (Lines 527-673)
 
-## Container
+### Container
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.xxl` | 24px |
@@ -97,21 +216,21 @@
 | offset | `AppShadowOffset.sm` | (0, 4) |
 | shadow alpha | `AppOpacity.faint` | 0.06 |
 
-## Menu Button
+### Menu Button
 | Property | Token | Px Value |
 |----------|-------|----------|
 | size | `componentSize.buttonXs` | 36px |
 
-## Button Heights
+### Button Heights
 | Property | Token | Px Value |
 |----------|-------|----------|
 | Add/Scan buttons | `componentSize.buttonMd` | 48px |
 
 ---
 
-# _ScheduleHighlightHero (Lines 676-907)
+## _ScheduleHighlightHero (Lines 676-907)
 
-## Container
+### Container
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.xxl` | 24px |
@@ -121,7 +240,7 @@
 | offset | `AppShadowOffset.lg` | (0, 12) |
 | shadow alpha | `AppOpacity.ghost` | 0.30 |
 
-## Status Badge
+### Status Badge
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding horizontal | `spacing.md` | 12px |
@@ -135,7 +254,7 @@
 | fontWeight | `fontWeight.semiBold` | w600 |
 | letterSpacing | `AppLetterSpacing.wider` | 0.04 |
 
-## Title
+### Title
 | Property | Token | Specs |
 |----------|-------|-------|
 | font | `typography.headline` | 22px |
@@ -143,7 +262,7 @@
 | lineHeight | `AppLineHeight.compact` | 1.2 |
 | letterSpacing | `AppLetterSpacing.tight` | -0.03 |
 
-## Time/Location Rows
+### Time/Location Rows
 | Property | Token | Px Value |
 |----------|-------|----------|
 | icon container padding | `spacing.sm` | 8px |
@@ -155,7 +274,7 @@
 | location text alpha | `AppOpacity.high` | 0.90 |
 | date alpha | `AppOpacity.secondary` | 0.80 |
 
-## Instructor Row
+### Instructor Row
 | Property | Token | Px Value |
 |----------|-------|----------|
 | padding | `spacing.md` | 12px |
@@ -164,7 +283,7 @@
 
 ---
 
-# _EmptyHeroPlaceholder (Lines 910-982)
+## _EmptyHeroPlaceholder (Lines 910-982)
 
 | Property | Token | Px Value |
 |----------|-------|----------|
@@ -185,7 +304,7 @@
 
 ---
 
-# _ScheduleHeroChip (Lines 985-1026)
+## _ScheduleHeroChip (Lines 985-1026)
 
 | Property | Token | Px Value |
 |----------|-------|----------|
@@ -198,14 +317,14 @@
 
 ---
 
-# ScheduleRow (Lines 1030-1169)
+## ScheduleRow (Lines 1030-1169)
 
-## Switch
+### Switch
 | Property | Token | Value |
 |----------|-------|-------|
 | scale | `AppScale.dense` | 0.85 |
 
-## Slidable Delete
+### Slidable Delete
 | Property | Token | Px Value |
 |----------|-------|----------|
 | extentRatio | `AppScale.slideExtent` | 0.25 |
@@ -215,7 +334,7 @@
 
 ---
 
-# _ScheduleInstructorRow (Lines 1172-1221)
+## _ScheduleInstructorRow (Lines 1172-1221)
 
 | Property | Token | Px Value |
 |----------|-------|----------|
@@ -227,11 +346,51 @@
 
 ---
 
-# _PinnedHeaderDelegate (Lines 1224-1266)
+## _PinnedHeaderDelegate (Lines 1224-1266)
 
 | Property | Token | Value |
 |----------|-------|-------|
 | height | `componentSize.listItemMd` | 44px |
+
+---
+
+# schedules_messages.dart (Lines 1-148)
+
+## ScheduleMessageCard (Lines 9-107)
+
+### Container
+| Property | Token | Px Value |
+|----------|-------|----------|
+| padding | `spacing.xl` | 20px |
+| borderRadius | `radius.xl` | 24px |
+| border width (dark) | `componentSize.divider` | 1px |
+| border width (light) | `componentSize.dividerThin` | 0.5px |
+| border alpha (dark) | `AppOpacity.overlay` | 0.12 |
+| border alpha (light) | `AppOpacity.divider` | 0.25 |
+| shadow alpha | `AppOpacity.faint` | 0.06 |
+| blurRadius | `shadow.md` | 12px |
+| offset | `AppShadowOffset.sm` | (0, 4) |
+
+### Content
+| Property | Token | Px Value |
+|----------|-------|----------|
+| icon→title gap | `spacing.md` | 12px |
+| title→message gap | `spacing.sm` | 8px |
+| message→buttons gap | `spacing.lg` | 16px |
+| button gap | `spacing.md` | 12px |
+| button height | `componentSize.buttonMd` | 48px |
+| fontWeight | `fontWeight.bold` | w700 |
+
+---
+
+## OfflineBanner (Lines 109-147)
+
+| Property | Token | Px Value |
+|----------|-------|----------|
+| padding | `spacing.lg + spacing.micro` | 18px |
+| borderRadius | `radius.lg` | 16px |
+| border alpha | `AppOpacity.ghost` | 0.30 |
+| icon→text gap | `spacing.md` | 12px |
 
 ---
 
@@ -243,13 +402,20 @@
 | `micro` | 2 |
 | `microHalf` | 1 |
 | `xs` | 4 |
+| `xsPlus` | 6 |
+| `xsHalf` | 6 |
 | `sm` | 8 |
+| `smMd` | 10 |
 | `md` | 12 |
+| `mdLg` | 14 |
 | `lg` | 16 |
+| `lgPlus` | 18 |
 | `xl` | 20 |
 | `xxl` | 24 |
+| `xxlPlus` | 28 |
 | `xxxl` | 32 |
 | `quad` | 40 |
+| `emptyStateSize` | 104 |
 
 ## Component Sizes (px)
 | Token | Value |
@@ -257,13 +423,14 @@
 | `avatarXl` | 48 |
 | `avatarSmDense` | 28 |
 | `avatarXsDense` | 22 |
-| `buttonXs` | 36 |
+| `buttonXs` | 32/36 |
 | `buttonMd` | 48 |
 | `badgeSm` | 6 |
 | `badgeMd` | 16 |
 | `listItemMd` | 44 |
 | `dividerThin` | 0.5 |
 | `divider` | 1 |
+| `dividerMedium` | 1.25 |
 | `dividerThick` | 1.5 |
 
 ## Icon Sizes (px)
@@ -293,13 +460,43 @@
 | `hero` | (0, 8) |
 | `lg` | (0, 12) |
 
+## Elevation Values
+| Token | Value |
+|-------|-------|
+| `elevationLight` | 1 |
+| `elevationDark` | 4 |
+
 ## Scale Values
 | Token | Value |
 |-------|-------|
 | `dense` | 0.85 |
 | `slideExtent` | 0.25 |
 
+## Opacity Values
+| Token | Value |
+|-------|-------|
+| `full` | 0.95 |
+| `prominent` | 0.85 |
+| `secondary` | 0.80 |
+| `high` | 0.90 |
+| `muted` | 0.55 |
+| `subtle` | 0.45 |
+| `barrier` | 0.40 |
+| `ghost` | 0.30 |
+| `divider` | 0.25 |
+| `borderEmphasis` | 0.25 |
+| `accent` | 0.20 |
+| `border` | 0.18 |
+| `highlight` | 0.16 |
+| `medium` | 0.15 |
+| `overlay` | 0.12 |
+| `dim` | 0.10 |
+| `faint` | 0.06 |
+| `veryFaint` | 0.04/0.05 |
+| `micro` | 0.03 |
+| `transparent` | 0.00 |
+
 ---
 
 # ✅ STATUS: 100% TOKENIZED
-All 1,267 lines in schedules_cards.dart use design tokens.
+All ~2,129 UI lines across 3 schedules UI files fully use design tokens.

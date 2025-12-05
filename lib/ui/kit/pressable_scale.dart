@@ -119,7 +119,7 @@ class _PressableScaleState extends State<PressableScale>
       case PressableVariant.subtle:
         return _PressableConfig(
           scale: AppMotionSystem.pressScaleSubtle,
-          opacity: 0.92,
+          opacity: AppMotionSystem.hoverOpacity,
           pressDuration: AppMotionSystem.micro,
           releaseDuration: AppMotionSystem.fast,
           pressCurve: AppMotionSystem.ease,
@@ -128,7 +128,7 @@ class _PressableScaleState extends State<PressableScale>
       case PressableVariant.deep:
         return _PressableConfig(
           scale: AppMotionSystem.pressScaleDeep,
-          opacity: 0.8,
+          opacity: AppOpacity.secondary,
           pressDuration: AppMotionSystem.fast,
           releaseDuration: AppMotionSystem.medium,
           pressCurve: AppMotionSystem.decelerate,
@@ -136,8 +136,8 @@ class _PressableScaleState extends State<PressableScale>
         );
       case PressableVariant.bouncy:
         return _PressableConfig(
-          scale: 0.9,
-          opacity: 0.9,
+          scale: AppOpacity.high,
+          opacity: AppOpacity.high,
           pressDuration: AppMotionSystem.fast,
           releaseDuration: AppMotionSystem.slow,
           pressCurve: AppMotionSystem.decelerate,
@@ -280,9 +280,9 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
 
     final bgColor = widget.backgroundColor ?? Colors.transparent;
     final hoverBg = widget.hoverColor ??
-        colors.primary.withValues(alpha: theme.brightness == Brightness.dark ? 0.08 : 0.05);
+        colors.primary.withValues(alpha: theme.brightness == Brightness.dark ? AppOpacity.highlight : AppOpacity.faint);
     final pressedBg = widget.pressedColor ??
-        colors.primary.withValues(alpha: theme.brightness == Brightness.dark ? 0.14 : 0.10);
+        colors.primary.withValues(alpha: theme.brightness == Brightness.dark ? AppOpacity.pressed : AppOpacity.dim);
 
     Color resolvedColor;
     if (_pressed && widget.enabled) {

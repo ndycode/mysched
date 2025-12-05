@@ -672,6 +672,9 @@ class AppOpacity {
   /// Surface overlays and subtle fills (0.12)
   static const double overlay = 0.12;
 
+  /// Pressed state hover effect (0.14)
+  static const double pressed = 0.14;
+
   /// Medium subtle fills (0.15)
   static const double medium = 0.15;
 

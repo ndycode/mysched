@@ -39,7 +39,7 @@ Future<bool> ensureScanConsent(BuildContext context) async {
         title: Text(
           'Before you scan',
           style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: AppTokens.fontWeight.bold,
             color: colors.onSurface,
           ),
         ),
@@ -71,7 +71,7 @@ Future<bool> ensureScanConsent(BuildContext context) async {
             Text(
               'Do you want to continue scanning?',
               style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
                 color: colors.onSurface,
               ),
             ),

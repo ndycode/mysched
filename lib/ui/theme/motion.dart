@@ -122,6 +122,12 @@ class AppMotionSystem {
   /// Long animations: loading states, continuous feedback
   static const Duration long = Duration(milliseconds: 800);
 
+  /// Extended animations: shimmer effects, looping indicators
+  static const Duration extended = Duration(milliseconds: 1200);
+
+  /// Prolonged animations: breathing effects, slow pulses
+  static const Duration prolonged = Duration(milliseconds: 1500);
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SPRING PHYSICS (natural, responsive feel)
   // ═══════════════════════════════════════════════════════════════════════════

@@ -101,7 +101,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       onPressed: () => Navigator.of(context).maybePop(),
       icon: CircleAvatar(
         radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -250,9 +250,9 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final spacing = AppTokens.spacing;
     final bool isDark = theme.brightness == Brightness.dark;
     final Color background = isDark
-        ? colors.primary.withValues(alpha: 0.18)
+        ? colors.primary.withValues(alpha: AppOpacity.border)
         : Color.alphaBlend(
-            colors.primary.withValues(alpha: 0.12),
+            colors.primary.withValues(alpha: AppOpacity.overlay),
             colors.surface,
           );
 
@@ -267,15 +267,15 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.05),
+            color: colors.shadow.withValues(alpha: AppOpacity.faint),
             blurRadius: AppTokens.shadow.md,
-            offset: const Offset(0, 4),
+            offset: AppShadowOffset.sm,
           ),
         ],
       ),
@@ -286,7 +286,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             height: AppTokens.componentSize.listItemSm,
             width: AppTokens.componentSize.listItemSm,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.32 : 0.18),
+              color: colors.primary.withValues(alpha: isDark ? AppOpacity.fieldBorder : AppOpacity.border),
               borderRadius: AppTokens.radius.lg,
             ),
             child: Icon(
@@ -301,7 +301,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
               fontSize: AppTokens.typography.headline.fontSize,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.sm),
@@ -325,7 +325,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               badgeText,
               style: theme.textTheme.labelMedium?.copyWith(
                 color: colors.onSurface,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
           ),
@@ -349,11 +349,11 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             if (!active || value == _controller.filter) return;
             _controller.setFilter(value);
           },
-          selectedColor: colors.primary.withValues(alpha: 0.16),
+          selectedColor: colors.primary.withValues(alpha: AppOpacity.statusBg),
           backgroundColor: colors.surface,
           labelStyle: theme.textTheme.bodyMedium?.copyWith(
             color: selected ? colors.primary : colors.onSurfaceVariant,
-            fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+            fontWeight: selected ? AppTokens.fontWeight.semiBold : AppTokens.fontWeight.medium,
           ),
         ),
       );
@@ -368,7 +368,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
@@ -424,15 +424,15 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: 0.12)
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
           width: theme.brightness == Brightness.dark ? 1 : 0.5,
         ),
         boxShadow: [
           BoxShadow(
-            color: colors.shadow.withValues(alpha: 0.05),
+            color: colors.shadow.withValues(alpha: AppOpacity.faint),
             blurRadius: AppTokens.shadow.md,
-            offset: const Offset(0, 4),
+            offset: AppShadowOffset.sm,
           ),
         ],
       ),
@@ -450,17 +450,17 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
                       report.title ?? 'Class #${report.classId}',
                       style: AppTokens.typography.subtitle.copyWith(
                         color: colors.onSurface,
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                         fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
                     Container(
                       decoration: BoxDecoration(
-                        color: statusColor.withValues(alpha: 0.15),
+                        color: statusColor.withValues(alpha: AppOpacity.medium),
                         borderRadius: AppTokens.radius.md,
                         border: Border.all(
-                          color: statusColor.withValues(alpha: 0.4),
+                          color: statusColor.withValues(alpha: AppOpacity.divider),
                         ),
                       ),
                       padding: AppTokens.spacing.edgeInsetsSymmetric(
@@ -471,7 +471,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
                         statusLabel,
                         style: theme.textTheme.labelMedium?.copyWith(
                           color: statusColor,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                         ),
                       ),
                     ),
@@ -500,7 +500,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               scheduleLabel,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
           ],
@@ -518,7 +518,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               'Reporter note',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: colors.onSurface,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
             SizedBox(height: spacing.xs),
@@ -536,7 +536,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               'Resolution note',
               style: theme.textTheme.labelLarge?.copyWith(
                 color: colors.onSurface,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
             SizedBox(height: spacing.xs),
@@ -544,7 +544,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
               report.resolutionNote!.trim(),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: colors.onSurfaceVariant,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
           ],
@@ -569,7 +569,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         vertical: spacing.xs + spacing.xs / 2,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(alpha: 0.35),
+        color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.track),
         borderRadius: AppTokens.radius.md,
       ),
       child: Row(
@@ -581,7 +581,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             label,
             style: theme.textTheme.labelMedium?.copyWith(
               color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
         ],
@@ -730,7 +730,7 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
       title: Text(
         'Add a resolution note',
         style: AppTokens.typography.title.copyWith(
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           color: colors.onSurface,
         ),
       ),
@@ -761,14 +761,14 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
                 hintText:
                     'Example: Updated instructor to Prof. Cruz and corrected time slot.',
                 filled: true,
-                fillColor: colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                fillColor: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                 border: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
                   borderSide: BorderSide(color: colors.outline),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
-                  borderSide: BorderSide(color: colors.outline.withValues(alpha: 0.5)),
+                  borderSide: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.subtle)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,

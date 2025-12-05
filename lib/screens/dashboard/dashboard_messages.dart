@@ -73,7 +73,7 @@ class _DashboardMessageCard extends StatelessWidget {
                     Text(
                       title,
                       style: AppTokens.typography.title.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppTokens.fontWeight.extraBold,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),

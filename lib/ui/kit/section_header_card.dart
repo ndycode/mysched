@@ -82,7 +82,7 @@ class SectionHeaderCard extends StatelessWidget {
             child: Text(
               label,
               style: AppTokens.typography.subtitle.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: AppTokens.fontWeight.extraBold,
                 letterSpacing: AppLetterSpacing.snug,
                 color: colors.onSurface,
               ),
@@ -100,7 +100,7 @@ class SectionHeaderCard extends StatelessWidget {
             child: Text(
               countText,
               style: AppTokens.typography.caption.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
                 color: accent,
               ),
             ),

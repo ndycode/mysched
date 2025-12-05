@@ -187,7 +187,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
               title: Text(
                 'Report a schedule issue',
                 style: AppTokens.typography.title.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,
                 ),
               ),
@@ -318,12 +318,10 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
           borderRadius: AppTokens.radius.xl,
           border: Border.all(color: borderColor),
           boxShadow: [
-            BoxShadow(
-              color: theme.shadowColor.withValues(
+            AppTokens.shadow.bubble(
+              theme.shadowColor.withValues(
                 alpha: isDark ? 0.35 : 0.18,
               ),
-              blurRadius: 28,
-              offset: const Offset(0, 20),
             ),
           ],
         ),
@@ -656,7 +654,7 @@ class _InstructorDetail extends StatelessWidget {
             'Instructor',
             style: theme.textTheme.labelMedium?.copyWith(
               color: colors.onSurfaceVariant,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
           SizedBox(height: AppTokens.spacing.md),
@@ -677,7 +675,7 @@ class _InstructorDetail extends StatelessWidget {
                     Text(
                       name,
                       style: AppTokens.typography.subtitle.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
                     if (details.instructorEmail != null &&
@@ -687,7 +685,7 @@ class _InstructorDetail extends StatelessWidget {
                         details.instructorEmail!,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: colors.primary,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                         ),
                       ),
                     ],

@@ -1,7 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ import 'services/reminder_scope_store.dart';
 import 'services/offline_queue.dart';
 import 'services/connection_monitor.dart';
 import 'services/data_sync.dart';
-import 'services/widget_service.dart';
 import 'ui/kit/theme_transition_host.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/theme/tokens.dart';
@@ -48,11 +46,6 @@ Future<void> main() async {
     await NavigationChannel.instance.init();
     await DataSync.instance.init();
     await ThemeController.instance.init();
-    // Initialize and update home screen widget
-    if (Platform.isAndroid) {
-      await WidgetService.initialize();
-      await WidgetService.updateWidgets();
-    }
     runApp(const MySchedApp());
   }, (error, stack) {
     TelemetryService.instance.logError(
@@ -160,7 +153,7 @@ class _ConfigErrorApp extends StatelessWidget {
                   'Missing Supabase configuration.',
                   textAlign: TextAlign.center,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppTokens.fontWeight.semiBold,
                   ),
                 ),
                 SizedBox(height: spacing.sm),

@@ -99,7 +99,7 @@ class ScheduleList extends StatelessWidget {
           Text(
             title,
             style: theme.textTheme.headlineSmall?.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
               color: colors.onSurface,
             ),
           ),
@@ -113,7 +113,7 @@ class ScheduleList extends StatelessWidget {
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
                     letterSpacing: AppLetterSpacing.widest,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppTokens.fontWeight.semiBold,
                   ),
                 ),
               ),
@@ -299,7 +299,7 @@ class _Row extends StatelessWidget {
                               titleOrCode.isEmpty ? 'Class' : titleOrCode,
                               style: textTheme.titleMedium?.copyWith(
                                 fontSize: AppTokens.typography.body.fontSize,
-                                fontWeight: FontWeight.w600,
+                                fontWeight: AppTokens.fontWeight.semiBold,
                                 color: colors.onSurface,
                               ),
                             ),

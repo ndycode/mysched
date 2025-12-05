@@ -193,10 +193,10 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.lg,
       ),
-      elevation: isDark ? 8 : 12,
+      elevation: isDark ? AppTokens.shadow.sm : AppTokens.shadow.md,
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
+      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.medium),
       itemBuilder: (context) => [
         PopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.newReminder,
@@ -215,7 +215,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: 0.12),
+                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -228,7 +228,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Text(
                       'New reminder',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                         color: colors.onSurface,
                       ),
                     ),
@@ -255,7 +255,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.secondary.withValues(alpha: 0.12),
+                        color: colors.secondary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -270,7 +270,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Text(
                       _controller.showCompleted ? 'Hide completed' : 'Show completed',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                         color: colors.onSurface,
                       ),
                     ),
@@ -292,9 +292,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  colors.outline.withValues(alpha: 0.0),
-                  colors.outline.withValues(alpha: isDark ? 0.20 : 0.4),
-                  colors.outline.withValues(alpha: 0.0),
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
+                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
                 ],
               ),
             ),
@@ -317,7 +317,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: 0.12),
+                        color: colors.error.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -330,7 +330,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Text(
                       'Reset reminders',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                         color: colors.onSurface,
                       ),
                     ),
@@ -344,7 +344,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
       icon: Icon(
         Icons.more_vert_rounded,
         size: AppTokens.iconSize.lg,
-        color: colors.onSurfaceVariant.withValues(alpha: 0.9),
+        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
       ),
     );
   }
@@ -399,7 +399,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             onRefresh: () => _controller.refresh(),
             refreshColor: colors.primary,
             safeArea: false,
-            cacheExtent: 800,
+            cacheExtent: AppLayout.listCacheExtent,
           );
         }
 
@@ -502,7 +502,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             onRefresh: () => _controller.refresh(),
             refreshColor: colors.primary,
             safeArea: false,
-            cacheExtent: 800,
+            cacheExtent: AppLayout.listCacheExtent,
             useSlivers: false,
           ),
         );

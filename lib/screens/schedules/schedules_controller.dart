@@ -14,13 +14,8 @@ import '../../services/share_service.dart';
 import '../../services/telemetry_service.dart';
 import '../../services/user_scope.dart';
 import '../../services/data_sync.dart';
-import '../../services/widget_service.dart';
-import '../../ui/theme/motion.dart';
-import '../../utils/app_log.dart';
 import '../../utils/schedule_overlap.dart' as schedule_overlap;
 import 'schedules_data.dart';
-
-const _scope = 'SchedulesController';
 
 class SchedulesController extends ChangeNotifier {
   SchedulesController({
@@ -210,12 +205,7 @@ class SchedulesController extends ChangeNotifier {
       _retrySuggested = false;
       _lastFetchedAt = DateTime.now();
       notifyListeners();
-      // Update home screen widget after a short delay to ensure data is persisted
-      if (Platform.isAndroid) {
-        AppLog.debug(_scope, 'Triggering widget update after schedule load');
-        await Future.delayed(AppMotionSystem.medium);
-        unawaited(WidgetService.updateWidgets());
-      }
+      // Widgets removed: no widget update
     } catch (error, stack) {
       List<sched.ClassItem>? offline;
       if (uid != null) {
@@ -277,11 +267,7 @@ class SchedulesController extends ChangeNotifier {
       await _api.setClassEnabled(item, enable);
       _applyClassEnabled(item.id, enable);
       await NotifScheduler.resync(api: _api);
-      // Update home screen widget
-      if (Platform.isAndroid) {
-        AppLog.debug(_scope, 'Triggering widget update after class toggle');
-        unawaited(WidgetService.updateWidgets());
-      }
+      // Widgets removed: no widget update
     } catch (error) {
       onError(enable
           ? 'Unable to enable class. Try again.'

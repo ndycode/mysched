@@ -81,7 +81,7 @@ class MetricChip extends StatelessWidget {
                 Text(
                   value,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppTokens.fontWeight.extraBold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
@@ -89,7 +89,7 @@ class MetricChip extends StatelessWidget {
                 Text(
                   label,
                   style: AppTokens.typography.caption.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppTokens.fontWeight.medium,
                     color: colors.onSurfaceVariant,
                   ),
                 ),
@@ -132,12 +132,12 @@ class MetricChip extends StatelessWidget {
             value,
             style: displayStyle
                 ? AppTokens.typography.display.copyWith(
-                    fontWeight: FontWeight.w800,
-                    height: 1.0,
+                    fontWeight: AppTokens.fontWeight.extraBold,
+                    height: AppLineHeight.single,
                     color: colors.onSurface,
                   )
                 : AppTokens.typography.headline.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     color: colors.onSurface,
                   ),
           ),
@@ -145,7 +145,7 @@ class MetricChip extends StatelessWidget {
           Text(
             label,
             style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w500,
+              fontWeight: AppTokens.fontWeight.medium,
               color: colors.onSurfaceVariant,
             ),
             maxLines: 1,

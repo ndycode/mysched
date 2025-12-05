@@ -222,7 +222,7 @@ class ScreenHeroCard extends StatelessWidget {
                   Text(
                     title,
                     style: AppTokens.typography.headline.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: AppTokens.fontWeight.extraBold,
                       letterSpacing: AppLetterSpacing.tight,
                       color: theme.brightness == Brightness.dark
                           ? theme.colorScheme.onSurface
@@ -235,7 +235,7 @@ class ScreenHeroCard extends StatelessWidget {
                     subtitle!,
                     style: AppTokens.typography.bodySecondary.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: AppTokens.fontWeight.medium,
                     ),
                   ),
                 ],
@@ -316,12 +316,10 @@ class ScreenSection extends StatelessWidget {
                       Text(
                         title!,
                         style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: AppTokens.fontWeight.extraBold,
                           fontSize: AppTokens.typography.subtitle.fontSize,
                           letterSpacing: AppLetterSpacing.snug,
-                          color: theme.brightness == Brightness.dark
-                              ? theme.colorScheme.onSurface
-                              : const Color(0xFF1A1A1A),
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                     if (subtitle != null) ...[
@@ -330,7 +328,7 @@ class ScreenSection extends StatelessWidget {
                         subtitle!,
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                         ),
                       ),
                     ],

@@ -75,11 +75,7 @@ class GlassNavigationBar extends StatelessWidget {
               color: background,
               borderRadius: AppTokens.radius.xxl,
               boxShadow: [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: 30,
-                  offset: const Offset(0, 16),
-                ),
+                AppTokens.shadow.navBar(shadowColor),
               ],
             ),
             child: child,
@@ -315,8 +311,8 @@ class _GlassNavItemState extends State<_GlassNavItem>
                         ? [
                             BoxShadow(
                               color: activeColor.withValues(alpha: AppOpacity.divider),
-                              blurRadius: 4,
-                              spreadRadius: 0.5,
+                              blurRadius: AppTokens.shadow.xs,
+                              spreadRadius: AppTokens.shadow.spreadXs,
                             ),
                           ]
                         : [],
@@ -406,8 +402,8 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   boxShadow: [
                     BoxShadow(
                       color: labelShadow,
-                      blurRadius: 14,
-                      offset: const Offset(0, 8),
+                      blurRadius: AppTokens.shadow.lg,
+                      offset: AppShadowOffset.lg,
                     ),
                   ],
                 ),
@@ -460,15 +456,15 @@ class _FloatingQuickActionButton extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: labelShadow,
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+                blurRadius: AppTokens.shadow.md,
+                offset: AppShadowOffset.md,
               ),
             ],
           ),
           child: Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
               color: accent,
             ),
           ),

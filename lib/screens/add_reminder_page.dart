@@ -90,15 +90,15 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: 0.12)
+                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
                 width: theme.brightness == Brightness.dark ? 1 : 0.5,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: 0.15),
+                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
                   blurRadius: AppTokens.shadow.xxl,
-                  offset: const Offset(0, 10),
+                  offset: AppShadowOffset.modal,
                 ),
               ],
             ),
@@ -136,7 +136,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                         border: Border(
                           top: BorderSide(
                             color: theme.colorScheme.outlineVariant
-                                .withValues(alpha: 0.3),
+                                .withValues(alpha: AppOpacity.ghost),
                           ),
                         ),
                       ),
@@ -301,9 +301,9 @@ class _AddReminderFormState extends State<AddReminderForm> {
         ? 'Create a reminder and we will notify you before it is due.'
         : 'Update the reminder details. We will refresh upcoming alerts.';
     final fieldFill = isDark
-        ? colors.surfaceContainerHighest.withValues(alpha: 0.85)
+        ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.prominent)
         : colors.surfaceContainerHigh;
-    final fieldBorder = colors.outlineVariant.withValues(alpha: 0.32);
+    final fieldBorder = colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
     final spacing = AppTokens.spacing;
 
     InputDecoration decorationFor(String label, {String? hint}) =>
@@ -343,11 +343,11 @@ class _AddReminderFormState extends State<AddReminderForm> {
             ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
               borderRadius: AppTokens.radius.lg,
               border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: 0.2),
+                color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
               ),
             ),
             child: Column(
@@ -397,11 +397,11 @@ class _AddReminderFormState extends State<AddReminderForm> {
             ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                  : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
               borderRadius: AppTokens.radius.lg,
               border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: 0.2),
+                color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
               ),
             ),
             child: Column(
@@ -511,7 +511,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
             child: Container(
               padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
               decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: 0.08),
+                color: colors.primary.withValues(alpha: AppOpacity.highlight),
                 borderRadius: AppTokens.radius.xl,
               ),
               child: Icon(
@@ -537,7 +537,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                 title,
                 textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
                 style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   color: colors.onSurface,
                 ),
               ),

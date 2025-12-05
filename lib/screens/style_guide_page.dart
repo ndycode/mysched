@@ -46,7 +46,7 @@ class StyleGuidePage extends StatelessWidget {
               Text(
                 'CardX title',
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppTokens.fontWeight.bold,
                     ),
               ),
               SizedBox(height: spacing.sm),
@@ -92,7 +92,7 @@ class StyleGuidePage extends StatelessWidget {
             Text(
               'AppTokens.spacing',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                   ),
             ),
             SizedBox(height: spacing.sm),

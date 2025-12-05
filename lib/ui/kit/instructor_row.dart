@@ -55,7 +55,7 @@ class InstructorRow extends StatelessWidget {
               child: Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                 style: AppTokens.typography.caption.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                   color: colors.primary,
                 ),
               ),
@@ -66,7 +66,7 @@ class InstructorRow extends StatelessWidget {
           child: Text(
             name,
             style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w500,
+              fontWeight: AppTokens.fontWeight.medium,
               color: colors.onSurfaceVariant,
             ),
             maxLines: 1,

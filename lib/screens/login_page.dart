@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/constants.dart';
 import '../app/routes.dart';
 import '../services/auth_service.dart';
 import '../services/reminder_scope_store.dart';
@@ -49,8 +50,8 @@ class _LoginPageState extends State<LoginPage> {
     if (value == null || value.isEmpty) {
       return 'Enter your password';
     }
-    if (value.length < 6) {
-      return 'Password must be at least 6 characters';
+    if (value.length < AppConstants.minPasswordLengthLogin) {
+      return 'Password must be at least ${AppConstants.minPasswordLengthLogin} characters';
     }
     return null;
   }
@@ -125,14 +126,14 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.md),
                 decoration: BoxDecoration(
-                  color: colors.error.withValues(alpha: 0.08),
+                  color: colors.error.withValues(alpha: AppOpacity.highlight),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Text(
                   _globalError!,
                   style: AppTokens.typography.body.copyWith(
                     color: colors.error,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppTokens.fontWeight.semiBold,
                   ),
                 ),
               ),
@@ -173,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'At least 6 characters.',
+                'At least ${AppConstants.minPasswordLengthLogin} characters.',
                 style: AppTokens.typography.bodySecondary.copyWith(
                   color: colors.onSurfaceVariant,
                 ),

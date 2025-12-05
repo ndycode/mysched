@@ -128,7 +128,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
       onPressed: _saving ? null : () => context.pop(),
       icon: CircleAvatar(
         radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -192,7 +192,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                 _errorText!,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.error,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
             ],
@@ -226,15 +226,15 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: colors.outlineVariant,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
-                        offset: const Offset(0, 4),
+                        offset: AppShadowOffset.sm,
                       ),
                     ],
             ),

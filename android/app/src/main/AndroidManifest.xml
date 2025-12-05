@@ -74,18 +74,6 @@
             android:name=".HeadsUpReceiver"
             android:exported="false" />
 
-        <!-- MySched Home Screen Widget -->
-        <receiver
-            android:name=".widget.MySchedWidgetProvider"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-            </intent-filter>
-            <meta-data
-                android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
-        </receiver>
-
         <!-- Flutter embedding -->
         <meta-data
             android:name="flutterEmbedding"

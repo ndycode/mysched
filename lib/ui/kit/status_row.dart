@@ -76,7 +76,7 @@ class StatusRow extends StatelessWidget {
                           style: AppTokens.typography.subtitle.copyWith(
                             color: colors.onSurface,
                             fontSize: AppTokens.typography.body.fontSize,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppTokens.fontWeight.semiBold,
                           ),
                         ),
                       ),
@@ -158,7 +158,7 @@ class _StatusPill extends StatelessWidget {
         style: theme.textTheme.labelSmall?.copyWith(
           color: fg,
           fontSize: AppTokens.typography.caption.fontSize,
-          fontWeight: FontWeight.w600,
+          fontWeight: AppTokens.fontWeight.semiBold,
         ),
       ),
     );

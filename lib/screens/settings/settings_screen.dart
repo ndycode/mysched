@@ -173,7 +173,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
@@ -194,7 +194,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Text(
                       title,
                       style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
                   ),
@@ -227,7 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     child: Text(
                                       displayLabel,
                                       style: theme.textTheme.bodyLarge?.copyWith(
-                                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                                        fontWeight: isSelected ? AppTokens.fontWeight.semiBold : AppTokens.fontWeight.regular,
                                         color: isSelected 
                                             ? theme.colorScheme.primary 
                                             : theme.colorScheme.onSurface,
@@ -257,7 +257,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         SecondaryButton(
                           label: 'Cancel',
                           onPressed: () => Navigator.of(context).pop(),
-                          minHeight: 40,
+                          minHeight: AppTokens.componentSize.buttonMd,
                           expanded: false,
                         ),
                       ],
@@ -370,7 +370,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     borderRadius: AppTokens.radius.md,
                     border: Border.all(
                       color: colors.primary.withValues(alpha: AppOpacity.ghost),
-                      width: 1.5,
+                      width: AppTokens.componentSize.dividerThick,
                     ),
                   ),
                   child: Icon(
@@ -387,7 +387,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text(
                         'Settings',
                         style: AppTokens.typography.headline.copyWith(
-                          fontWeight: FontWeight.w700,
+                          fontWeight: AppTokens.fontWeight.bold,
                           letterSpacing: AppLetterSpacing.tight,
                           color: colors.onSurface,
                         ),
@@ -396,7 +396,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text(
                         'Control alarms, notifications, and app styling.',
                         style: AppTokens.typography.body.copyWith(
-                          height: 1.4,
+                          height: AppTypography.bodyLineHeight - 0.1,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
@@ -416,7 +416,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -441,7 +441,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -466,7 +466,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -491,7 +491,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -520,7 +520,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
                     color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                    width: isDark ? 1 : 0.5,
+                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                   ),
                   boxShadow: isDark
                       ? null
@@ -550,7 +550,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
                     color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                    width: isDark ? 1 : 0.5,
+                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                   ),
                   boxShadow: isDark
                       ? null
@@ -593,7 +593,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -621,7 +621,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? 1 : 0.5,
+                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: isDark
                     ? null
@@ -706,7 +706,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 'Quiet week is on. Alarm reminders are paused until you turn it off.',
                 style: theme.textTheme.bodySmall?.copyWith(
                   color: colors.primary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
             ),
@@ -768,7 +768,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           'Alarm volume',
                           style: AppTokens.typography.subtitle.copyWith(
                             color: colors.onSurface,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppTokens.fontWeight.semiBold,
                           ),
                         ),
                         const Spacer(),
@@ -776,7 +776,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           '${_controller.alarmVolume}%',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: colors.primary,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppTokens.fontWeight.bold,
                           ),
                         ),
                       ],
@@ -961,7 +961,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       width: AppTokens.componentSize.badgeMd,
                       height: AppTokens.componentSize.badgeMd,
                       child: CircularProgressIndicator(
-                        strokeWidth: 2,
+                        strokeWidth: AppTokens.spacing.micro,
                         valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                       ),
                     )
@@ -1102,7 +1102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title,
                     style: AppTokens.typography.subtitle.copyWith(
                       color: colors.onSurface,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                     ),
                   ),
                   SizedBox(height: spacing.xs),
@@ -1126,10 +1126,9 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
               trackColor: WidgetStateProperty.resolveWith(
                 (states) => states.contains(WidgetState.selected)
-                    ? accent.withValues(alpha: 0.35)
+                    ? accent.withValues(alpha: AppOpacity.track)
                     : null,
               ),
-              splashRadius: 0,
             ),
           ],
         ),
@@ -1167,7 +1166,7 @@ class _SettingsPageState extends State<SettingsPage> {
         label,
         style: theme.textTheme.labelMedium?.copyWith(
           color: fg,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
         ),
       ),
     );
@@ -1199,7 +1198,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 title,
                 style: AppTokens.typography.subtitle.copyWith(
                   color: colors.onSurface,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
               if (description != null) ...[
@@ -1325,7 +1324,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               : 'No queued changes',
                           style: theme.textTheme.labelMedium?.copyWith(
                             color: colors.onSurface,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: AppTokens.fontWeight.semiBold,
                           ),
                         ),
                         if (pending >= 100) ...[
@@ -1340,7 +1339,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               'Queue full',
                               style: theme.textTheme.labelSmall?.copyWith(
                                 color: colors.error,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: AppTokens.fontWeight.bold,
                               ),
                             ),
                           ),
@@ -1353,7 +1352,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: SecondaryButton(
                       label: 'Process queue',
                       onPressed: () => OfflineQueue.instance.processQueue(),
-                      minHeight: 40,
+                      minHeight: AppTokens.componentSize.buttonMd,
                       expanded: true,
                   ),
                 ),
@@ -1361,7 +1360,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SecondaryButton(
                   label: 'Clear',
                   onPressed: pending > 0 ? () => OfflineQueue.instance.clear() : null,
-                  minHeight: 40,
+                  minHeight: AppTokens.componentSize.buttonMd,
                   expanded: false,
                 ),
               ],
@@ -1427,7 +1426,7 @@ class _SyncRow extends StatelessWidget {
             label,
             style: AppTokens.typography.subtitle.copyWith(
               color: colors.onSurface,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
           const Spacer(),
@@ -1490,7 +1489,7 @@ class _ThemeOption extends StatelessWidget {
                         : (showBorder
                             ? colors.outline.withValues(alpha: AppOpacity.dim)
                             : (borderColor ?? Colors.transparent))),
-                width: selected ? 2 : 1,
+                width: selected ? AppTokens.spacing.micro : AppTokens.componentSize.divider,
               ),
             ),
             child: Stack(
@@ -1504,8 +1503,8 @@ class _ThemeOption extends StatelessWidget {
                 ),
                 if (selected)
                   Positioned(
-                    top: 4,
-                    right: 4,
+                    top: AppTokens.spacing.xs,
+                    right: AppTokens.spacing.xs,
                     child: Container(
                       padding: EdgeInsets.all(spacing.xs / 2),
                       decoration: BoxDecoration(
@@ -1513,12 +1512,12 @@ class _ThemeOption extends StatelessWidget {
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: isOutline ? colors.surface : color,
-                          width: 1.5,
+                          width: AppTokens.componentSize.dividerThick,
                         ),
                       ),
                       child: Icon(
                         Icons.check,
-                        size: AppTokens.iconSize.xs - 4,
+                        size: AppTokens.iconSize.xs - AppTokens.spacing.xs,
                         color: colors.onPrimary,
                       ),
                     ),
@@ -1530,7 +1529,7 @@ class _ThemeOption extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              fontWeight: selected ? AppTokens.fontWeight.bold : AppTokens.fontWeight.medium,
               color: selected ? colors.primary : colors.onSurface,
             ),
           ),

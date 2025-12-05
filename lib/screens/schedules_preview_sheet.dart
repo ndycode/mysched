@@ -151,7 +151,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
                   blurRadius: AppTokens.shadow.xxl,
-                  offset: const Offset(0, 10),
+                  offset: AppShadowOffset.modal,
                 ),
               ],
             ),
@@ -249,7 +249,7 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                                     width: AppTokens.componentSize.badgeMd,
                                     height: AppTokens.componentSize.badgeMd,
                                     child: CircularProgressIndicator(
-                                      strokeWidth: 2,
+                                      strokeWidth: AppTokens.componentSize.progressStroke,
                                       valueColor: AlwaysStoppedAnimation<Color>(
                                         colors.onPrimary,
                                       ),
@@ -423,7 +423,7 @@ class _SectionCard extends StatelessWidget {
                 Text(
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                   ),
                 ),
                 if (subtitle.isNotEmpty) ...[
@@ -624,7 +624,7 @@ class _DayToggleCard extends StatelessWidget {
                 child: Text(
                   dayLabel,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppTokens.fontWeight.extraBold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
@@ -640,7 +640,7 @@ class _DayToggleCard extends StatelessWidget {
                 child: Text(
                   '${entries.length} ${entries.length == 1 ? 'class' : 'classes'}',
                   style: AppTokens.typography.caption.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     color: colors.primary,
                   ),
                 ),
@@ -713,7 +713,7 @@ class _ImportClassTile extends StatelessWidget {
                 BoxShadow(
                   color: colors.shadow.withValues(alpha: isNext ? 0.08 : 0.04),
                   blurRadius: isNext ? 12 : 6,
-                  offset: const Offset(0, 2),
+                  offset: AppShadowOffset.xs,
                 ),
               ],
       ),
@@ -727,7 +727,7 @@ class _ImportClassTile extends StatelessWidget {
                 child: Text(
                   subject,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     letterSpacing: AppLetterSpacing.compact,
                     color:
                         disabled ? colors.onSurfaceVariant : colors.onSurface,
@@ -750,7 +750,7 @@ class _ImportClassTile extends StatelessWidget {
                   child: Text(
                     'Next',
                     style: AppTokens.typography.caption.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppTokens.fontWeight.bold,
                       color: colors.primary,
                     ),
                   ),
@@ -780,7 +780,7 @@ class _ImportClassTile extends StatelessWidget {
               Text(
                 timeLabel ?? '--',
                 style: AppTokens.typography.bodySecondary.copyWith(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppTokens.fontWeight.medium,
                   color: colors.onSurfaceVariant,
                 ),
               ),
@@ -796,7 +796,7 @@ class _ImportClassTile extends StatelessWidget {
                   child: Text(
                     location,
                     style: AppTokens.typography.bodySecondary.copyWith(
-                      fontWeight: FontWeight.w500,
+                      fontWeight: AppTokens.fontWeight.medium,
                       color: colors.onSurfaceVariant,
                     ),
                     maxLines: 1,
@@ -834,7 +834,7 @@ class _ImportClassTile extends StatelessWidget {
                       child: Text(
                         instructor[0].toUpperCase(),
                         style: AppTokens.typography.caption.copyWith(
-                          fontWeight: FontWeight.w600,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                           color: colors.primary,
                         ),
                       ),
@@ -845,7 +845,7 @@ class _ImportClassTile extends StatelessWidget {
                   child: Text(
                     instructor,
                     style: AppTokens.typography.caption.copyWith(
-                      fontWeight: FontWeight.w500,
+                      fontWeight: AppTokens.fontWeight.medium,
                       color: colors.onSurfaceVariant,
                     ),
                     maxLines: 1,

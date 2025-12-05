@@ -854,6 +854,7 @@ class DashboardScreenState extends State<DashboardScreen>
         reminderAlert: reminderAlert,
         scopeMessage: scopeMessage,
         refreshLabel: refreshLabel,
+        onRefresh: _refreshAll,
         onReviewReminders: _openReminders,
         onViewDetails: _openClassDetails,
         onToggleEnabled: _applyClassEnabled,

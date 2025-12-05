@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/constants.dart';
 import '../services/auth_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
@@ -45,7 +46,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       return 'New password must be different.';
     }
     if (message.contains('weak_password')) {
-      return 'Password must be at least 8 characters.';
+      return 'Password must be at least ${AppConstants.minPasswordLength} characters.';
     }
     return 'Something went wrong. Please try again.';
   }
@@ -94,7 +95,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       onPressed: _saving ? null : () => context.pop(),
       icon: CircleAvatar(
         radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -124,11 +125,11 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               label: 'New password',
               controller: _next,
               obscureText: _hideNext,
-              helper: 'At least 8 characters.',
+              helper: 'At least ${AppConstants.minPasswordLength} characters.',
               onToggle: () => setState(() => _hideNext = !_hideNext),
               validator: (value) {
-                if (value == null || value.length < 8) {
-                  return 'Password must be at least 8 characters';
+                if (value == null || value.length < AppConstants.minPasswordLength) {
+                  return 'Password must be at least ${AppConstants.minPasswordLength} characters';
                 }
                 return null;
               },
@@ -152,7 +153,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                 _errorText!,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.error,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
             ],
@@ -174,7 +175,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
       sections: [
         ScreenSection(
           title: 'New password',
-          subtitle: 'At least 8 characters with letters, numbers, or symbols.',
+          subtitle: 'At least ${AppConstants.minPasswordLength} characters with letters, numbers, or symbols.',
           decorated: false,
           child: Container(
             padding: spacing.edgeInsetsAll(spacing.xl),
@@ -185,15 +186,15 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: colors.outlineVariant,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: 0.05),
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
-                        offset: const Offset(0, 4),
+                        offset: AppShadowOffset.sm,
                       ),
                     ],
             ),

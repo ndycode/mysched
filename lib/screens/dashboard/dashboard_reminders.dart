@@ -121,7 +121,7 @@ class _DashboardReminderCard extends StatelessWidget {
                     Text(
                       'Reminders',
                       style: AppTokens.typography.title.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppTokens.fontWeight.extraBold,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),
@@ -131,7 +131,7 @@ class _DashboardReminderCard extends StatelessWidget {
                       subtitle,
                       style: AppTokens.typography.bodySecondary.copyWith(
                         color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
                   ],
@@ -227,7 +227,7 @@ class _DashboardReminderCard extends StatelessWidget {
                     '${pending.length - display.length == 1 ? '' : 's'}',
                     style: AppTokens.typography.bodySecondary.copyWith(
                       color: colors.primary,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                     ),
                   ),
                 ),
@@ -368,7 +368,7 @@ class _ReminderProgressPill extends StatelessWidget {
             child: Text(
               label,
               style: AppTokens.typography.subtitle.copyWith(
-                fontWeight: FontWeight.w800,
+                fontWeight: AppTokens.fontWeight.extraBold,
                 letterSpacing: AppLetterSpacing.snug,
                 color: colors.onSurface,
               ),
@@ -386,7 +386,7 @@ class _ReminderProgressPill extends StatelessWidget {
             child: Text(
               '$percent%',
               style: AppTokens.typography.caption.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
                 color: headerColor,
               ),
             ),
@@ -474,7 +474,7 @@ class _DashboardReminderTile extends StatelessWidget {
                 Text(
                   entry.title,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     letterSpacing: AppLetterSpacing.compact,
                     color: isDone
                         ? colors.onSurfaceVariant
@@ -509,7 +509,7 @@ class _DashboardReminderTile extends StatelessWidget {
                         dueLabel,
                         style: AppTokens.typography.caption.copyWith(
                           color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

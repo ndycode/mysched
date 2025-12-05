@@ -80,7 +80,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                             child: Container(
                               padding: spacing.edgeInsetsAll(spacing.sm),
                               decoration: BoxDecoration(
-                                color: colors.primary.withValues(alpha: 0.08),
+                                color: colors.primary.withValues(alpha: AppOpacity.highlight),
                                 borderRadius: AppTokens.radius.xl,
                               ),
                               child: Icon(
@@ -114,10 +114,10 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                       Container(
                         height: AppTokens.componentSize.previewLg,
                         decoration: BoxDecoration(
-                          color: colors.surfaceContainerHighest.withValues(alpha: 0.3),
+                          color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost),
                           borderRadius: AppTokens.radius.lg,
                           border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: 0.2),
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                           ),
                         ),
                         alignment: Alignment.center,
@@ -125,7 +125,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                           Icons.credit_card,
                           size: AppTokens.iconSize.display,
                           color:
-                              colors.onSurfaceVariant.withValues(alpha: 0.78),
+                              colors.onSurfaceVariant.withValues(alpha: AppOpacity.glassCard),
                         ),
                       ),
                       SizedBox(height: spacing.xxl),

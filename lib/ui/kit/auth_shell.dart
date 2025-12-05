@@ -41,7 +41,7 @@ class AuthShell extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTokens.typography.subtitle.copyWith(
                 color: colors.primary,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
                 letterSpacing: AppLetterSpacing.normal,
               ),
             ),
@@ -50,7 +50,7 @@ class AuthShell extends StatelessWidget {
               title,
               textAlign: TextAlign.center,
               style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     color: colors.onSurface,
                   ) ??
                   AppTokens.typography.headline
@@ -62,7 +62,7 @@ class AuthShell extends StatelessWidget {
               textAlign: TextAlign.center,
               style: textTheme.bodyMedium?.copyWith(
                     color: colors.onSurfaceVariant,
-                    height: 1.5,
+                    height: AppTypography.bodyLineHeight,
                   ) ??
                   AppTokens.typography.body.copyWith(
                     color: colors.onSurfaceVariant,
@@ -94,8 +94,8 @@ class AuthShell extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colors.shadow.withValues(alpha: AppOpacity.medium),
-            blurRadius: 40,
-            offset: const Offset(0, 10),
+            blurRadius: AppTokens.shadow.xxl,
+            offset: AppShadowOffset.modal,
           ),
         ],
       ),
@@ -113,7 +113,7 @@ class AuthShell extends StatelessWidget {
       ),
     );
 
-    const maxWidth = 520.0;
+    const maxWidth = AppLayout.sheetMaxWidth;
     final physics = theme.platform == TargetPlatform.iOS
         ? const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics(),
@@ -127,7 +127,7 @@ class AuthShell extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        elevation: 0.5,
+        elevation: AppTokens.componentSize.dividerThin,
         scrolledUnderElevation: 0,
         backgroundColor: colors.surface,
         title: null,

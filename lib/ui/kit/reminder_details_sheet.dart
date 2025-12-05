@@ -83,12 +83,10 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
           borderRadius: AppTokens.radius.xl,
           border: Border.all(color: borderColor),
           boxShadow: [
-            BoxShadow(
-              color: theme.shadowColor.withValues(
+            AppTokens.shadow.modal(
+              theme.shadowColor.withValues(
                 alpha: isDark ? 0.32 : 0.18,
               ),
-              blurRadius: 24,
-              offset: const Offset(0, 18),
             ),
           ],
         ),
@@ -138,9 +136,9 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             Text(
                               widget.entry.title,
                               style: AppTokens.typography.title.copyWith(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: AppTokens.fontWeight.extraBold,
                                 letterSpacing: AppLetterSpacing.tight,
-                                height: 1.2,
+                                height: AppLineHeight.headline,
                                 color: isDark ? colors.onSurface : colors.onSurface,
                               ),
                               maxLines: 2,
@@ -151,7 +149,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               'Reminder details',
                               style: AppTokens.typography.bodySecondary.copyWith(
                                 color: isDark ? colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted) : colors.onSurfaceVariant,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: AppTokens.fontWeight.medium,
                               ),
                             ),
                           ],

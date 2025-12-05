@@ -92,11 +92,11 @@ class InfoTile extends StatelessWidget {
                 title,
                 style: iconInContainer
                     ? AppTokens.typography.subtitle.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                         color: colors.onSurface,
                       )
                     : theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                       ),
               ),
               if (subtitle != null) ...[

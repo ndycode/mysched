@@ -281,7 +281,7 @@ class _RootNavState extends State<RootNav>
               BoxShadow(
                 color: colors.shadow.withValues(alpha: AppOpacity.border),
                 blurRadius: AppTokens.shadow.xxl,
-                offset: const Offset(0, 24),
+                offset: AppShadowOffset.panel,
               ),
             ],
           ),
@@ -295,7 +295,7 @@ class _RootNavState extends State<RootNav>
                     child: Text(
                       'Quick actions',
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
                   ),

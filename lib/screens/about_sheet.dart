@@ -63,9 +63,9 @@ class AboutSheet extends StatelessWidget {
             ),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.shadow.withValues(alpha: 0.15),
+                color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
                 blurRadius: AppTokens.shadow.xxl,
-                offset: const Offset(0, 10),
+                offset: AppShadowOffset.modal,
               ),
             ],
           ),
@@ -89,7 +89,7 @@ class AboutSheet extends StatelessWidget {
                         child: Container(
                           padding: EdgeInsets.all(AppTokens.spacing.sm),
                           decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.08),
+                            color: colors.primary.withValues(alpha: AppOpacity.highlight),
                             borderRadius: AppTokens.radius.xl,
                           ),
                           child: Icon(
@@ -129,11 +129,11 @@ class AboutSheet extends StatelessWidget {
                               padding: spacing.edgeInsetsAll(spacing.md),
                               decoration: BoxDecoration(
                                 color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                                 borderRadius: AppTokens.radius.lg,
                                 border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                                 ),
                               ),
                               child: Column(
@@ -142,7 +142,7 @@ class AboutSheet extends StatelessWidget {
                                   Text(
                                     'Built for ICI students',
                                     style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: AppTokens.fontWeight.bold,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
@@ -157,8 +157,8 @@ class AboutSheet extends StatelessWidget {
                             Text(
                               'FEATURE HIGHLIGHTS',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w600,
+                                letterSpacing: AppLetterSpacing.sectionHeader,
+                                fontWeight: AppTokens.fontWeight.semiBold,
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -167,11 +167,11 @@ class AboutSheet extends StatelessWidget {
                               padding: spacing.edgeInsetsAll(spacing.md),
                               decoration: BoxDecoration(
                                 color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                                 borderRadius: AppTokens.radius.lg,
                                 border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                                 ),
                               ),
                               child: Column(
@@ -210,8 +210,8 @@ class AboutSheet extends StatelessWidget {
                             Text(
                               'HOW IT WORKS',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w600,
+                                letterSpacing: AppLetterSpacing.sectionHeader,
+                                fontWeight: AppTokens.fontWeight.semiBold,
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -220,11 +220,11 @@ class AboutSheet extends StatelessWidget {
                               padding: spacing.edgeInsetsAll(spacing.md),
                               decoration: BoxDecoration(
                                 color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                                 borderRadius: AppTokens.radius.lg,
                                 border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                                 ),
                               ),
                               child: Column(
@@ -233,7 +233,7 @@ class AboutSheet extends StatelessWidget {
                                   Text(
                                     'How it works',
                                     style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: AppTokens.fontWeight.bold,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
@@ -256,8 +256,8 @@ class AboutSheet extends StatelessWidget {
                             Text(
                               'TRUST & SAFETY',
                               style: theme.textTheme.labelSmall?.copyWith(
-                                letterSpacing: 1.2,
-                                fontWeight: FontWeight.w600,
+                                letterSpacing: AppLetterSpacing.sectionHeader,
+                                fontWeight: AppTokens.fontWeight.semiBold,
                                 color: colors.onSurfaceVariant,
                               ),
                             ),
@@ -266,11 +266,11 @@ class AboutSheet extends StatelessWidget {
                               padding: spacing.edgeInsetsAll(spacing.md),
                               decoration: BoxDecoration(
                                 color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                                 borderRadius: AppTokens.radius.lg,
                                 border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                                 ),
                               ),
                               child: Column(
@@ -279,7 +279,7 @@ class AboutSheet extends StatelessWidget {
                                   Text(
                                     'Permissions we request',
                                     style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: AppTokens.fontWeight.bold,
                                     ),
                                   ),
                                   SizedBox(height: spacing.md),
@@ -311,11 +311,11 @@ class AboutSheet extends StatelessWidget {
                               padding: spacing.edgeInsetsAll(spacing.md),
                               decoration: BoxDecoration(
                                 color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: 0.3)
-                                    : colors.surfaceContainerHighest.withValues(alpha: 0.5),
+                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                                 borderRadius: AppTokens.radius.lg,
                                 border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: 0.2),
+                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                                 ),
                               ),
                               child: Column(
@@ -324,7 +324,7 @@ class AboutSheet extends StatelessWidget {
                                   Text(
                                     'Data & privacy',
                                     style: theme.textTheme.titleLarge?.copyWith(
-                                      fontWeight: FontWeight.w700,
+                                      fontWeight: AppTokens.fontWeight.bold,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
@@ -370,7 +370,7 @@ class AboutSheet extends StatelessWidget {
                                 end: Alignment.bottomCenter,
                                 colors: [
                                   cardBackground,
-                                  cardBackground.withValues(alpha: 0.0),
+                                  cardBackground.withValues(alpha: AppOpacity.transparent),
                                 ],
                               ),
                             ),
@@ -390,7 +390,7 @@ class AboutSheet extends StatelessWidget {
                                 end: Alignment.topCenter,
                                 colors: [
                                   cardBackground,
-                                  cardBackground.withValues(alpha: 0.0),
+                                  cardBackground.withValues(alpha: AppOpacity.transparent),
                                 ],
                               ),
                             ),

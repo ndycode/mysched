@@ -251,7 +251,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return PopupMenuButton<ScheduleAction>(
       key: const ValueKey('schedule-actions-menu'),
       onSelected: (action) => _handleAction(action),
@@ -262,6 +262,18 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
       shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
+      padding: EdgeInsets.zero,
+      icon: SizedBox(
+        width: AppTokens.componentSize.buttonXs,
+        height: AppTokens.componentSize.buttonXs,
+        child: Center(
+          child: Icon(
+            Icons.more_vert_rounded,
+            size: AppTokens.iconSize.md,
+            color: colors.onSurfaceVariant,
+          ),
+        ),
+      ),
       itemBuilder: (context) => [
         PopupMenuItem<ScheduleAction>(
           key: const ValueKey('schedule-export-pdf-item'),
@@ -293,7 +305,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       child: Text(
                         'Export as PDF',
                         style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                           color: colors.onSurface,
                         ),
                       ),
@@ -334,7 +346,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       child: Text(
                         'Export as CSV',
                         style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                           color: colors.onSurface,
                         ),
                       ),
@@ -391,7 +403,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                       child: Text(
                         'Reset schedules',
                         style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: AppTokens.fontWeight.medium,
                           color: colors.onSurface,
                         ),
                       ),
@@ -403,11 +415,6 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
           ),
         ),
       ],
-      icon: Icon(
-        Icons.more_vert_rounded,
-        size: AppTokens.iconSize.lg,
-        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
-      ),
     );
   }
 
@@ -655,7 +662,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     Text(
                       'No schedules yet',
                       style: AppTokens.typography.headline.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),

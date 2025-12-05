@@ -199,23 +199,7 @@ class MainActivity : FlutterActivity() {
         ).apply {
             setMethodCallHandler { _, result -> result.notImplemented() }
         }
-        
-        // Widget update channel
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "com.example.mysched/widget")
-            .setMethodCallHandler { call, result ->
-                when (call.method) {
-                    "updateAllWidgets" -> {
-                        try {
-                            com.ici.mysched.widget.MySchedWidgetProvider.updateAllWidgets(this)
-                            result.success(true)
-                        } catch (e: Exception) {
-                            result.error("update_failed", e.message, null)
-                        }
-                    }
-                    else -> result.notImplemented()
-                }
-            }
-        
+
         deliverPendingNavigation()
         handleNavigationIntent(intent)
     }

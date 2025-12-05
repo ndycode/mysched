@@ -63,7 +63,7 @@ class PrivacySheet extends StatelessWidget {
                       child: Container(
                         padding: spacing.edgeInsetsAll(spacing.sm),
                         decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: 0.08),
+                          color: colors.primary.withValues(alpha: AppOpacity.highlight),
                           borderRadius: AppTokens.radius.xl,
                         ),
                         child: Icon(
@@ -96,7 +96,7 @@ class PrivacySheet extends StatelessWidget {
                         variant: CardVariant.filled,
                         backgroundColor: filledBackground(),
                         borderColor:
-                            colors.outlineVariant.withValues(alpha: 0.2),
+                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                         borderRadius: AppTokens.radius.lg,
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Row(
@@ -104,7 +104,7 @@ class PrivacySheet extends StatelessWidget {
                           children: [
                             Container(
                               decoration: BoxDecoration(
-                                color: colors.primary.withValues(alpha: 0.12),
+                                color: colors.primary.withValues(alpha: AppOpacity.overlay),
                                 borderRadius: AppTokens.radius.sm,
                               ),
                               padding: spacing.edgeInsetsAll(spacing.sm),
@@ -122,7 +122,7 @@ class PrivacySheet extends StatelessWidget {
                                   Text(
                                     'Your schedule stays yours',
                                     style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                        ?.copyWith(fontWeight: AppTokens.fontWeight.bold),
                                   ),
                                   SizedBox(height: spacing.xs),
                                   Text(
@@ -139,8 +139,8 @@ class PrivacySheet extends StatelessWidget {
                       Text(
                         'DATA PRACTICES',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w600,
+                          letterSpacing: AppLetterSpacing.sectionHeader,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
@@ -149,7 +149,7 @@ class PrivacySheet extends StatelessWidget {
                         variant: CardVariant.filled,
                         backgroundColor: filledBackground(),
                         borderColor:
-                            colors.outlineVariant.withValues(alpha: 0.2),
+                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                         borderRadius: AppTokens.radius.lg,
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Column(
@@ -174,8 +174,8 @@ class PrivacySheet extends StatelessWidget {
                       Text(
                         'PERMISSIONS WE REQUEST',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w600,
+                          letterSpacing: AppLetterSpacing.sectionHeader,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
@@ -184,7 +184,7 @@ class PrivacySheet extends StatelessWidget {
                         variant: CardVariant.filled,
                         backgroundColor: filledBackground(),
                         borderColor:
-                            colors.outlineVariant.withValues(alpha: 0.2),
+                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                         borderRadius: AppTokens.radius.lg,
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Column(
@@ -217,8 +217,8 @@ class PrivacySheet extends StatelessWidget {
                       Text(
                         'YOUR CONTROLS',
                         style: theme.textTheme.labelSmall?.copyWith(
-                          letterSpacing: 1.2,
-                          fontWeight: FontWeight.w600,
+                          letterSpacing: AppLetterSpacing.sectionHeader,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
@@ -227,7 +227,7 @@ class PrivacySheet extends StatelessWidget {
                         variant: CardVariant.filled,
                         backgroundColor: filledBackground(),
                         borderColor:
-                            colors.outlineVariant.withValues(alpha: 0.2),
+                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                         borderRadius: AppTokens.radius.lg,
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Column(
@@ -253,7 +253,7 @@ class PrivacySheet extends StatelessWidget {
                         variant: CardVariant.filled,
                         backgroundColor: filledBackground(),
                         borderColor:
-                            colors.outlineVariant.withValues(alpha: 0.2),
+                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
                         borderRadius: AppTokens.radius.lg,
                         padding: spacing.edgeInsetsAll(spacing.md),
                         child: Column(
@@ -262,7 +262,7 @@ class PrivacySheet extends StatelessWidget {
                             Text(
                               'Questions or concerns?',
                               style: theme.textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w700,
+                                fontWeight: AppTokens.fontWeight.bold,
                               ),
                             ),
                             SizedBox(height: spacing.sm),

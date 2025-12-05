@@ -229,7 +229,7 @@ class ShimmerEffect extends StatelessWidget {
     super.key,
     required this.child,
     this.enabled = true,
-    this.duration = const Duration(milliseconds: 1200), // ~AppMotionSystem.long + slow
+    this.duration = AppMotionSystem.extended,
   });
 
   final Widget child;
@@ -259,7 +259,7 @@ class BreathingEffect extends StatelessWidget {
     this.maxScale = 1.0,
     this.minOpacity = 0.7,
     this.maxOpacity = 1.0,
-    this.duration = const Duration(milliseconds: 1500), // ~AppMotionSystem.long + deliberate + standard
+    this.duration = AppMotionSystem.prolonged,
   });
 
   final Widget child;
@@ -1076,7 +1076,7 @@ class _HoverLiftState extends State<HoverLift> {
                 ? [
                     BoxShadow(
                       color: theme.colorScheme.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
-                      blurRadius: 20,
+                      blurRadius: AppTokens.shadow.xl,
                       offset: Offset(0, 8 + widget.liftAmount),
                     ),
                   ]

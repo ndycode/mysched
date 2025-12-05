@@ -114,7 +114,7 @@ class EntityTile extends StatelessWidget {
                         alpha: isHighlighted ? 0.08 : 0.04,
                       ),
                       blurRadius: isHighlighted ? 12 : 6,
-                      offset: const Offset(0, 2),
+                      offset: AppShadowOffset.xs,
                     ),
                   ],
           ),
@@ -134,7 +134,7 @@ class EntityTile extends StatelessWidget {
                         Text(
                           title,
                           style: AppTokens.typography.subtitle.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppTokens.fontWeight.bold,
                             letterSpacing: AppLetterSpacing.compact,
                             color: isActive
                                 ? colors.onSurface
@@ -223,7 +223,7 @@ class EntityTile extends StatelessWidget {
             child: Text(
               item.label,
               style: AppTokens.typography.bodySecondary.copyWith(
-                fontWeight: FontWeight.w500,
+                fontWeight: AppTokens.fontWeight.medium,
                 color: colors.onSurfaceVariant,
               ),
               maxLines: 1,
@@ -234,7 +234,7 @@ class EntityTile extends StatelessWidget {
           Text(
             item.label,
             style: AppTokens.typography.bodySecondary.copyWith(
-              fontWeight: FontWeight.w500,
+              fontWeight: AppTokens.fontWeight.medium,
               color: colors.onSurfaceVariant,
             ),
           ),

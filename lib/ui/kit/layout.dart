@@ -162,8 +162,8 @@ class PageBody extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: colors.outline.withValues(alpha: AppOpacity.border),
-            blurRadius: 32,
-            offset: const Offset(0, 28),
+            blurRadius: AppTokens.shadow.xxl,
+            offset: AppShadowOffset.layout,
           ),
         ],
       );

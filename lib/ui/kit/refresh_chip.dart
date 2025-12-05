@@ -46,7 +46,7 @@ class RefreshChip extends StatelessWidget {
             label,
             style: theme.textTheme.bodySmall?.copyWith(
               fontSize: AppTokens.typography.caption.fontSize,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
               color: colors.primary,
             ),
           ),

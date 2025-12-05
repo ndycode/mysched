@@ -109,7 +109,7 @@ void showAppSnackBar(
           child: Text(
             message,
             style: theme.textTheme.bodyMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
               color: contentColor,
             ),
           ),

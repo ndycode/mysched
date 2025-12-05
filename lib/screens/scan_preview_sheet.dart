@@ -228,7 +228,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                         child: Container(
                           padding: spacing.edgeInsetsAll(spacing.sm),
                           decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: 0.08),
+                            color: colors.primary.withValues(alpha: AppOpacity.highlight),
                             borderRadius: AppTokens.radius.xl,
                           ),
                           child: Icon(
@@ -262,7 +262,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                             Icons.refresh_rounded,
                             size: AppTokens.iconSize.sm,
                             color:
-                                colors.onSurfaceVariant.withValues(alpha: 0.9),
+                                colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
                           ),
                         ),
                       ),
@@ -370,7 +370,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                                   width: AppTokens.componentSize.badgeMd,
                                   height: AppTokens.componentSize.badgeMd,
                                   child: CircularProgressIndicator(
-                                    strokeWidth: 2,
+                                    strokeWidth: AppTokens.componentSize.progressStroke,
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                       colors.onPrimary,
                                     ),

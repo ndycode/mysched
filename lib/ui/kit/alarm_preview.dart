@@ -43,9 +43,9 @@ class AlarmPreviewMock extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: AppOpacity.barrier),
-              blurRadius: 26,
-              spreadRadius: 10,
-              offset: const Offset(0, 22),
+              blurRadius: AppTokens.shadow.hero,
+              spreadRadius: AppTokens.shadow.spreadLg,
+              offset: AppShadowOffset.alarm,
             ),
           ],
         ),
@@ -130,8 +130,8 @@ class _Header extends StatelessWidget {
             boxShadow: [
               BoxShadow(
                 color: accent.withValues(alpha: AppOpacity.border),
-                blurRadius: 22,
-                spreadRadius: 2,
+                blurRadius: AppTokens.shadow.glow,
+                spreadRadius: AppTokens.shadow.spreadMd,
               ),
             ],
           ),
@@ -144,7 +144,7 @@ class _Header extends StatelessWidget {
                 'Class reminder',
                 style: TextStyle(
                   color: textSecondary,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   letterSpacing: AppLetterSpacing.wide,
                 ),
               ),
@@ -159,7 +159,7 @@ class _Header extends StatelessWidget {
               'Ringing',
               style: TextStyle(
                 color: accent,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
                 letterSpacing: AppLetterSpacing.widest,
               ),
             ),
@@ -168,7 +168,7 @@ class _Header extends StatelessWidget {
               '07:15 AM',
               style: TextStyle(
                 color: textMuted,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
           ],
@@ -208,9 +208,9 @@ class _ClockBlock extends StatelessWidget {
             '3:04',
             style: displayBase.copyWith(
               color: textPrimary,
-              fontWeight: FontWeight.w800,
+              fontWeight: AppTokens.fontWeight.extraBold,
               fontSize: (displayBase.fontSize ?? 32) * (expanded ? 3.25 : 3.06),
-              height: 1.0,
+              height: AppLineHeight.single,
             ),
           ),
           SizedBox(height: spacing.xs),
@@ -218,7 +218,7 @@ class _ClockBlock extends StatelessWidget {
             'Alarm stops in 08:00',
             style: TextStyle(
               color: accent,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.xs),
@@ -226,7 +226,7 @@ class _ClockBlock extends StatelessWidget {
             'Tue, Apr 23',
             style: TextStyle(
               color: textSecondary,
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
         ],
@@ -266,7 +266,7 @@ class _ContextCard extends StatelessWidget {
                   'Next: Math class at 3:30 PM',
                   style: TextStyle(
                     color: textPrimary,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                   ),
                 ),
               ),
@@ -335,7 +335,7 @@ class _StatusPill extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: textSecondary,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                   fontSize: AppTokens.typography.caption.fontSize,
                   letterSpacing: AppLetterSpacing.relaxed,
                 ),
@@ -434,8 +434,8 @@ class _ActionButton extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: AppOpacity.border),
-            blurRadius: 18,
-            offset: const Offset(0, 10),
+            blurRadius: AppTokens.shadow.action,
+            offset: AppShadowOffset.modal,
           ),
         ],
       ),
@@ -452,7 +452,7 @@ class _ActionButton extends StatelessWidget {
                   label,
                   style: TextStyle(
                     color: textColor,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppTokens.fontWeight.extraBold,
                     fontSize: AppTokens.typography.subtitle.fontSize,
                   ),
                 ),
@@ -462,7 +462,7 @@ class _ActionButton extends StatelessWidget {
                     secondaryLabel!,
                     style: TextStyle(
                       color: textColor.withValues(alpha: AppOpacity.muted),
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                       fontSize: AppTokens.typography.caption.fontSize,
                     ),
                   ),

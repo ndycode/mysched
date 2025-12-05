@@ -78,7 +78,7 @@ class FormFieldTile extends StatelessWidget {
                     child: Text(
                       value,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                         fontSize:
                             fontSize ?? AppTokens.typography.subtitle.fontSize,
                       ),

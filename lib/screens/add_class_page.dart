@@ -206,7 +206,7 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           avatarRadius: AppTokens.spacing.xl,
           textStyle: theme.textTheme.titleMedium?.copyWith(
             fontFamily: 'SFProRounded',
-            fontWeight: FontWeight.w700,
+            fontWeight: AppTokens.fontWeight.bold,
             color: colors.primary,
             fontSize: AppTokens.typography.title.fontSize,
           ),
@@ -322,7 +322,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.statusBg),
                   blurRadius: AppTokens.shadow.xxl,
-                  offset: const Offset(0, 10),
+                  offset: AppShadowOffset.modal,
                 ),
               ],
             ),
@@ -444,7 +444,7 @@ class _RemindersStyleShell extends StatelessWidget {
                     Text(
                       title,
                       style: theme.textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                         fontSize: AppTokens.typography.title.fontSize,
                       ),
                     ),
@@ -839,7 +839,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final helperStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colors.onSurfaceVariant.withValues(alpha: 0.78),
+      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.glassCard),
     );
 
     final banner = () {
@@ -856,7 +856,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 width: AppTokens.componentSize.badgeMd + 2,
                 height: AppTokens.componentSize.badgeMd + 2,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: AppTokens.componentSize.progressStroke,
                   valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
                 ),
               ),
@@ -881,7 +881,7 @@ class _AddClassFormState extends State<AddClassForm> {
             padding: spacing.edgeInsetsAll(spacing.lg),
             decoration: BoxDecoration(
               borderRadius: AppTokens.radius.lg,
-              color: colors.error.withValues(alpha: 0.08),
+              color: colors.error.withValues(alpha: AppOpacity.highlight),
             ),
             child: Row(
               children: [
@@ -1016,7 +1016,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 titleText,
                 textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
                 style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   color: colors.onSurface,
                 ),
               ),
@@ -1047,9 +1047,9 @@ class _AddClassFormState extends State<AddClassForm> {
         ? 'Update the session details for this custom class.'
         : 'Enter the session details. You can edit or remove custom classes from the schedules tab later.';
     final fillColor = theme.brightness == Brightness.dark
-        ? colors.surfaceContainerHighest.withValues(alpha: 0.85)
+        ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.prominent)
         : colors.surfaceContainerHigh;
-    final borderColor = colors.outlineVariant.withValues(alpha: 0.32);
+    final borderColor = colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
 
     InputDecoration decorationFor(String label, {String? hint}) =>
         InputDecoration(
@@ -1090,7 +1090,7 @@ class _AddClassFormState extends State<AddClassForm> {
           borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
-                ? colors.outline.withValues(alpha: 0.12)
+                ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
@@ -1098,9 +1098,9 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
                     blurRadius: AppTokens.shadow.md,
-                    offset: const Offset(0, 4),
+                    offset: AppShadowOffset.sm,
                   ),
                 ],
         ),
@@ -1150,7 +1150,7 @@ class _AddClassFormState extends State<AddClassForm> {
           borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
-                ? colors.outline.withValues(alpha: 0.12)
+                ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
@@ -1158,9 +1158,9 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
                     blurRadius: AppTokens.shadow.md,
-                    offset: const Offset(0, 4),
+                    offset: AppShadowOffset.sm,
                   ),
                 ],
         ),
@@ -1181,7 +1181,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   color: colors.surfaceContainerHigh,
                   borderRadius: AppTokens.radius.lg,
                   border: Border.all(
-                    color: colors.outlineVariant.withValues(alpha: 0.3),
+                    color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
                   ),
                 ),
                 child: Row(
@@ -1255,7 +1255,7 @@ class _AddClassFormState extends State<AddClassForm> {
           borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: theme.brightness == Brightness.dark
-                ? colors.outline.withValues(alpha: 0.12)
+                ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
             width: theme.brightness == Brightness.dark ? 1 : 0.5,
           ),
@@ -1263,9 +1263,9 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: 0.05),
+                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
                     blurRadius: AppTokens.shadow.md,
-                    offset: const Offset(0, 4),
+                    offset: AppShadowOffset.sm,
                   ),
                 ],
         ),
@@ -1350,7 +1350,7 @@ class _AddClassFormState extends State<AddClassForm> {
                   child: Text(
                     'Select day',
                     style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppTokens.fontWeight.bold,
                     ),
                   ),
                 ),
@@ -1375,8 +1375,8 @@ class _AddClassFormState extends State<AddClassForm> {
                                     _scopeLabel(dayValue),
                                     style: theme.textTheme.bodyLarge?.copyWith(
                                       fontWeight: isSelected
-                                          ? FontWeight.w600
-                                          : FontWeight.w400,
+                                          ? AppTokens.fontWeight.semiBold
+                                          : AppTokens.fontWeight.regular,
                                       color: isSelected
                                           ? theme.colorScheme.primary
                                           : theme.colorScheme.onSurface,
@@ -1451,7 +1451,7 @@ class _TimeField extends StatelessWidget {
           color: colors.surfaceContainerHigh,
           borderRadius: AppTokens.radius.lg,
           border: Border.all(
-            color: colors.outlineVariant.withValues(alpha: 0.3),
+            color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
           ),
         ),
         child: Row(
@@ -1461,7 +1461,7 @@ class _TimeField extends StatelessWidget {
               height: AppTokens.componentSize.avatarSm,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
-                color: colors.primary.withValues(alpha: 0.16),
+                color: colors.primary.withValues(alpha: AppOpacity.statusBg),
               ),
               alignment: Alignment.center,
               child: Icon(icon, color: colors.primary, size: AppTokens.iconSize.sm),
@@ -1484,7 +1484,7 @@ class _TimeField extends StatelessWidget {
                     child: Text(
                       value,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                         fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                       maxLines: 1,
@@ -1497,7 +1497,7 @@ class _TimeField extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant.withValues(alpha: 0.6),
+              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
             ),
           ],
         ),

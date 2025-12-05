@@ -64,7 +64,7 @@ class QuickActionTile extends StatelessWidget {
                   Text(
                     label,
                     style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.xs),

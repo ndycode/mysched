@@ -38,9 +38,9 @@ class ReminderMessageCard extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: 0.05),
+                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
                   blurRadius: AppTokens.shadow.md,
-                  offset: const Offset(0, 4),
+                  offset: AppShadowOffset.sm,
                 ),
               ],
       ),
@@ -55,7 +55,7 @@ class ReminderMessageCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                   ),
                 ),
               ),
@@ -127,7 +127,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
               width: AppTokens.componentSize.progressWidth,
               height: AppTokens.componentSize.progressHeight,
               decoration: BoxDecoration(
-                color: theme.colorScheme.outline.withValues(alpha: 0.4),
+                color: theme.colorScheme.outline.withValues(alpha: AppOpacity.divider),
                 borderRadius: AppTokens.radius.circular(2),
               ),
             ),
@@ -137,7 +137,7 @@ class ReminderSnoozeSheet extends StatelessWidget {
             'Snooze reminder',
             style: theme.textTheme.titleMedium?.copyWith(
               fontFamily: 'SFProRounded',
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.sm),

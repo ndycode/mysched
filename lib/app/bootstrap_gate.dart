@@ -272,7 +272,7 @@ class _SplashContentState extends State<_SplashContent>
                   'Your Schedule, Simplified',
                   style: AppTokens.typography.body.copyWith(
                     color: colors.onSurfaceVariant,
-                    fontWeight: FontWeight.w400,
+                    fontWeight: AppTokens.fontWeight.regular,
                   ),
                 ),
                 SizedBox(height: spacing.xxxl),
@@ -346,7 +346,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
             widget.title,
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.sm),
@@ -408,7 +408,7 @@ class _PermissionSettingsDialog extends StatelessWidget {
             '$title required',
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.sm),
@@ -558,7 +558,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
             style: AppTokens.typography.title.copyWith(
               color: colors.onSurface,
               fontSize: AppTokens.typography.title.fontSize,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
           SizedBox(height: spacing.xs),

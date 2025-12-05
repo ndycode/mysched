@@ -47,7 +47,7 @@ class InfoChip extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.bodyMedium?.copyWith(
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTokens.fontWeight.semiBold,
               ),
               overflow: TextOverflow.ellipsis,
             ),

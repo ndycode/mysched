@@ -53,7 +53,7 @@ class HeroAvatar extends StatelessWidget {
         BoxShadow(
           color: theme.colorScheme.primary.withValues(alpha: AppOpacity.statusBg),
           blurRadius: AppTokens.shadow.xl,
-          offset: const Offset(0, 12),
+          offset: AppShadowOffset.xl,
         ),
       ],
     );
@@ -70,7 +70,7 @@ class HeroAvatar extends StatelessWidget {
               style: TextStyle(
                 fontFamily: AppTypography.primaryFont,
                 fontSize: radius,
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
                 color: theme.colorScheme.onPrimary,
                 letterSpacing: AppLetterSpacing.wide,
               ),

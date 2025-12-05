@@ -120,7 +120,7 @@ class SkeletonCard extends StatelessWidget {
           Row(
             children: [
               if (showAvatar) ...[
-                const SkeletonCircle(size: 48),
+                SkeletonCircle(size: AppTokens.componentSize.avatarXl),
                 SizedBox(width: spacing.md),
               ],
               Expanded(
@@ -128,14 +128,14 @@ class SkeletonCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SkeletonBlock(
-                      height: 18,
-                      width: showAvatar ? 140 : 180,
+                      height: AppTokens.componentSize.skeletonTextLg,
+                      width: showAvatar ? AppTokens.componentSize.skeletonWidthXxl : AppTokens.componentSize.skeletonWidthFull,
                       borderRadius: AppTokens.radius.sm,
                     ),
                     SizedBox(height: spacing.sm),
                     SkeletonBlock(
-                      height: 14,
-                      width: showAvatar ? 100 : 120,
+                      height: AppTokens.componentSize.skeletonTextSm,
+                      width: showAvatar ? AppTokens.componentSize.skeletonWidthLg : AppTokens.componentSize.skeletonWidthXl,
                       borderRadius: AppTokens.radius.sm,
                     ),
                   ],
@@ -147,8 +147,8 @@ class SkeletonCard extends StatelessWidget {
             SizedBox(height: spacing.lg),
             for (int i = 0; i < lineCount; i++) ...[
               SkeletonBlock(
-                height: 14,
-                width: i == lineCount - 1 ? 200 : double.infinity,
+                height: AppTokens.componentSize.skeletonTextSm,
+                width: i == lineCount - 1 ? AppTokens.componentSize.skeletonWidthHero : double.infinity,
                 borderRadius: AppTokens.radius.sm,
               ),
               if (i < lineCount - 1) SizedBox(height: spacing.sm),
@@ -186,23 +186,23 @@ class SkeletonDashboardCard extends StatelessWidget {
         children: [
           // Greeting skeleton
           SkeletonBlock(
-            height: 24,
-            width: 220,
+            height: AppTokens.componentSize.skeletonTextDisplay,
+            width: AppTokens.componentSize.skeletonWidthMax,
             borderRadius: AppTokens.radius.sm,
           ),
           SizedBox(height: spacing.sm),
           SkeletonBlock(
-            height: 16,
-            width: 140,
+            height: AppTokens.componentSize.skeletonTextMd,
+            width: AppTokens.componentSize.skeletonWidthXxl,
             borderRadius: AppTokens.radius.sm,
           ),
           SizedBox(height: spacing.xl),
 
           // Hero tile skeleton
           Container(
-            height: 140,
+            height: AppTokens.componentSize.previewSmd,
             decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: isDark ? 0.15 : 0.08),
+              color: colors.primary.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.highlight),
               borderRadius: AppTokens.radius.lg,
             ),
             padding: spacing.edgeInsetsAll(spacing.lg),
@@ -210,30 +210,30 @@ class SkeletonDashboardCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBlock(
-                  height: 24,
-                  width: 80,
+                  height: AppTokens.componentSize.skeletonTextDisplay,
+                  width: AppTokens.componentSize.skeletonWidthMd,
                   borderRadius: AppTokens.radius.pill,
                 ),
                 SizedBox(height: spacing.md),
                 SkeletonBlock(
-                  height: 20,
-                  width: 180,
+                  height: AppTokens.componentSize.skeletonTextXl,
+                  width: AppTokens.componentSize.skeletonWidthFull,
                   borderRadius: AppTokens.radius.sm,
                 ),
                 SizedBox(height: spacing.sm),
                 SkeletonBlock(
-                  height: 16,
-                  width: 140,
+                  height: AppTokens.componentSize.skeletonTextMd,
+                  width: AppTokens.componentSize.skeletonWidthXxl,
                   borderRadius: AppTokens.radius.sm,
                 ),
                 const Spacer(),
                 Row(
                   children: [
-                    const SkeletonCircle(size: 28),
+                    SkeletonCircle(size: AppTokens.componentSize.avatarSmDense),
                     SizedBox(width: spacing.sm),
                     SkeletonBlock(
-                      height: 14,
-                      width: 100,
+                      height: AppTokens.componentSize.skeletonTextSm,
+                      width: AppTokens.componentSize.skeletonWidthLg,
                       borderRadius: AppTokens.radius.sm,
                     ),
                   ],
@@ -278,17 +278,17 @@ class _SkeletonMetric extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SkeletonCircle(size: 32),
+          SkeletonCircle(size: AppTokens.componentSize.avatarSm),
           SizedBox(height: spacing.md),
           SkeletonBlock(
-            height: 22,
-            width: 48,
+            height: AppTokens.componentSize.skeletonTextXxl,
+            width: AppTokens.componentSize.skeletonWidthXxs,
             borderRadius: AppTokens.radius.sm,
           ),
           SizedBox(height: spacing.xs),
           SkeletonBlock(
-            height: 14,
-            width: 60,
+            height: AppTokens.componentSize.skeletonTextSm,
+            width: AppTokens.componentSize.skeletonWidthXs,
             borderRadius: AppTokens.radius.sm,
           ),
         ],
@@ -320,7 +320,7 @@ class SkeletonListTile extends StatelessWidget {
         vertical: spacing.md,
       ),
       decoration: BoxDecoration(
-        color: colors.surfaceContainerHigh.withValues(alpha: isDark ? AppOpacity.divider : 0.6),
+        color: colors.surfaceContainerHigh.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.soft),
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
           color: colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.highlight),
@@ -329,7 +329,7 @@ class SkeletonListTile extends StatelessWidget {
       child: Row(
         children: [
           if (showLeading) ...[
-            const SkeletonCircle(size: 44),
+            SkeletonCircle(size: AppTokens.componentSize.avatarLgXl),
             SizedBox(width: spacing.md),
           ],
           Expanded(
@@ -337,14 +337,14 @@ class SkeletonListTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SkeletonBlock(
-                  height: 16,
-                  width: 160,
+                  height: AppTokens.componentSize.skeletonTextMd,
+                  width: AppTokens.componentSize.skeletonWidthWide,
                   borderRadius: AppTokens.radius.sm,
                 ),
                 SizedBox(height: spacing.sm),
                 SkeletonBlock(
-                  height: 14,
-                  width: 100,
+                  height: AppTokens.componentSize.skeletonTextSm,
+                  width: AppTokens.componentSize.skeletonWidthLg,
                   borderRadius: AppTokens.radius.sm,
                 ),
               ],
@@ -353,8 +353,8 @@ class SkeletonListTile extends StatelessWidget {
           if (showTrailing) ...[
             SizedBox(width: spacing.md),
             SkeletonBlock(
-              height: 28,
-              width: 70,
+              height: AppTokens.componentSize.skeletonTextHero,
+              width: AppTokens.componentSize.skeletonWidthSm,
               borderRadius: AppTokens.radius.pill,
             ),
           ],
@@ -387,13 +387,13 @@ class SkeletonList extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               SkeletonBlock(
-                height: 18,
-                width: 120,
+                height: AppTokens.componentSize.skeletonTextLg,
+                width: AppTokens.componentSize.skeletonWidthXl,
                 borderRadius: AppTokens.radius.sm,
               ),
               SkeletonBlock(
-                height: 14,
-                width: 70,
+                height: AppTokens.componentSize.skeletonTextSm,
+                width: AppTokens.componentSize.skeletonWidthSm,
                 borderRadius: AppTokens.radius.sm,
               ),
             ],

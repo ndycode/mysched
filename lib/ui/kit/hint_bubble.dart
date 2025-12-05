@@ -47,7 +47,7 @@ class HintBubble extends StatelessWidget {
               Text(
                 message,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
                 textAlign: TextAlign.center,
               ),

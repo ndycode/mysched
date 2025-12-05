@@ -70,7 +70,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
     return Text(
       text,
       style: theme.textTheme.titleSmall?.copyWith(
-        fontWeight: FontWeight.w600,
+        fontWeight: AppTokens.fontWeight.semiBold,
       ),
     );
   }
@@ -92,7 +92,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'App battery usage',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppTokens.fontWeight.medium,
                     color: colors.onSurface,
                   ),
                 ),
@@ -128,7 +128,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'Allow background usage',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppTokens.fontWeight.medium,
                     color: colors.onSurface,
                   ),
                 ),
@@ -225,7 +225,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'Unrestricted',
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppTokens.fontWeight.medium,
                     color: colors.onSurface,
                   ),
                 ),

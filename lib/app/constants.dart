@@ -26,6 +26,26 @@ class AppConstants {
   static const int defaultAlarmVolume = 80;
   static const bool defaultAlarmVibration = true;
   static const String defaultAlarmRingtone = 'default';
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Validation Constants (non-UI)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Minimum password length for registration
+  static const int minPasswordLength = 8;
+
+  /// Minimum password length for login (legacy accounts)
+  static const int minPasswordLengthLogin = 6;
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Image Upload Constants (non-UI)
+  // ─────────────────────────────────────────────────────────────────────────
+
+  /// Maximum width for uploaded images
+  static const double imageMaxWidth = 1200;
+
+  /// JPEG quality for uploaded images (0-100)
+  static const int imageQuality = 85;
 }
 
 

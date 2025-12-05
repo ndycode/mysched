@@ -166,7 +166,7 @@ class ScheduleClassListCard extends StatelessWidget {
                     Text(
                       'Weekly Schedule',
                       style: AppTokens.typography.title.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppTokens.fontWeight.extraBold,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),
@@ -176,18 +176,28 @@ class ScheduleClassListCard extends StatelessWidget {
                       dateLabel,
                       style: AppTokens.typography.bodySecondary.copyWith(
                         color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
                   ],
                 ),
               ),
-              if (onRefresh != null) ...[ 
+              if (onRefresh != null) ...[
                 SizedBox(
-                  height: AppTokens.componentSize.avatarMd,
-                  width: AppTokens.componentSize.avatarMd,
+                  height: AppTokens.componentSize.buttonXs,
                   child: IconButton(
                     onPressed: refreshing ? null : onRefresh,
+                    tooltip: 'Refresh',
+                    style: IconButton.styleFrom(
+                      minimumSize: Size.square(AppTokens.componentSize.buttonXs),
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      foregroundColor: colors.onSurfaceVariant,
+                      backgroundColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTokens.radius.md,
+                      ),
+                    ),
                     icon: refreshing
                         ? SizedBox(
                             width: AppTokens.componentSize.badgeMd,
@@ -199,10 +209,8 @@ class ScheduleClassListCard extends StatelessWidget {
                           )
                         : Icon(
                             Icons.refresh_rounded,
-                            color: colors.onSurfaceVariant,
                             size: AppTokens.iconSize.md,
                           ),
-                    padding: EdgeInsets.zero,
                   ),
                 ),
               ],
@@ -247,7 +255,7 @@ class ScheduleClassListCard extends StatelessWidget {
                   Text(
                     'No classes scheduled',
                     style: AppTokens.typography.subtitle.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: AppTokens.fontWeight.bold,
                       color: colors.onSurfaceVariant,
                     ),
                     textAlign: TextAlign.center,
@@ -303,7 +311,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         child: Text(
                           groups[g].label,
                           style: AppTokens.typography.subtitle.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: AppTokens.fontWeight.extraBold,
                             letterSpacing: AppLetterSpacing.snug,
                             color: colors.onSurface,
                           ),
@@ -318,7 +326,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         child: Text(
                           '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
                           style: AppTokens.typography.caption.copyWith(
-                            fontWeight: FontWeight.w700,
+                            fontWeight: AppTokens.fontWeight.bold,
                             color: colors.primary,
                           ),
                         ),
@@ -490,7 +498,7 @@ class ScheduleGroupCard extends StatelessWidget {
             Text(
               group.label,
               style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
+                fontWeight: AppTokens.fontWeight.bold,
               ),
             ),
             SizedBox(height: spacing.md + AppTokens.spacing.micro),
@@ -569,13 +577,25 @@ class ScheduleSummaryCard extends StatelessWidget {
                 child: Text(
                   'Schedules overview',
                   style: AppTokens.typography.title.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
                 ),
               ),
-              menuButton,
+              SizedBox(
+                width: AppTokens.componentSize.buttonXs,
+                height: AppTokens.componentSize.buttonXs,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints.tightFor(
+                      width: AppTokens.componentSize.buttonXs,
+                      height: AppTokens.componentSize.buttonXs,
+                    ),
+                    child: menuButton,
+                  ),
+                ),
+              ),
             ],
           ),
           SizedBox(height: spacing.xl),
@@ -749,7 +769,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     Text(
                       statusLabel,
                       style: AppTokens.typography.caption.copyWith(
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                         color: foreground,
                         letterSpacing: AppLetterSpacing.wider,
                       ),
@@ -763,7 +783,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                   timeUntilText,
                   style: AppTokens.typography.caption.copyWith(
                     color: foreground.withValues(alpha: AppOpacity.prominent),
-                    fontWeight: FontWeight.w500,
+                    fontWeight: AppTokens.fontWeight.medium,
                   ),
                 ),
               ],
@@ -777,7 +797,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTokens.typography.headline.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
               height: AppLineHeight.compact,
               color: foreground,
               letterSpacing: AppLetterSpacing.tight,
@@ -809,7 +829,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                       timeLabel,
                       style: AppTokens.typography.subtitle.copyWith(
                         color: foreground,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
                     SizedBox(height: AppTokens.spacing.xs),
@@ -849,7 +869,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTokens.typography.body.copyWith(
                       color: foreground.withValues(alpha: AppOpacity.high),
-                      fontWeight: FontWeight.w500,
+                      fontWeight: AppTokens.fontWeight.medium,
                     ),
                   ),
                 ),
@@ -914,7 +934,7 @@ class _ScheduleHeroChip extends StatelessWidget {
           Text(
             label,
             style: AppTokens.typography.caption.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
               color: foreground,
             ),
           ),
@@ -1051,7 +1071,7 @@ class ScheduleRow extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: colors.onError,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -1089,7 +1109,7 @@ class _ScheduleInstructorRow extends StatelessWidget {
     final textStyle =
         (dense ? AppTokens.typography.body : AppTokens.typography.subtitle)
             .copyWith(
-      fontWeight: FontWeight.w600,
+      fontWeight: AppTokens.fontWeight.semiBold,
       color: inverse
           ? colors.onPrimary.withValues(alpha: AppOpacity.full)
           : colors.onSurfaceVariant,

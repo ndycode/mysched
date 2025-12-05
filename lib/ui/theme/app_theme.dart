@@ -198,7 +198,7 @@ class AppTheme {
         ),
         errorStyle: AppTokens.typography.caption.copyWith(
           color: colors.error,
-          fontWeight: FontWeight.w500,
+          fontWeight: AppTokens.fontWeight.medium,
         ),
       ),
       checkboxTheme: CheckboxThemeData(
@@ -264,7 +264,7 @@ class AppTheme {
       ),
       contentTextStyle: AppTokens.typography.body.copyWith(
         color: scheme.onSurface,
-        fontWeight: FontWeight.w600,
+        fontWeight: AppTokens.fontWeight.semiBold,
       ),
     );
   }

@@ -199,10 +199,10 @@ class StateDisplay extends StatelessWidget {
                 title,
                 style: compact
                     ? theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       )
                     : theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
                 textAlign: TextAlign.center,
               ),
@@ -359,7 +359,7 @@ class MessageCard extends StatelessWidget {
                     Text(
                       title,
                       style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
                     SizedBox(height: spacing.xs),
@@ -383,7 +383,7 @@ class MessageCard extends StatelessWidget {
                     child: PrimaryButton(
                       label: primaryLabel!,
                       onPressed: onPrimary,
-                      minHeight: 44,
+                      minHeight: AppTokens.componentSize.buttonSm,
                     ),
                   ),
                 if (primaryLabel != null && secondaryLabel != null)
@@ -393,7 +393,7 @@ class MessageCard extends StatelessWidget {
                     child: SecondaryButton(
                       label: secondaryLabel!,
                       onPressed: onSecondary,
-                      minHeight: 44,
+                      minHeight: AppTokens.componentSize.buttonSm,
                     ),
                   ),
               ],
@@ -471,7 +471,7 @@ class InfoBanner extends StatelessWidget {
                 message,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.onSurface,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppTokens.fontWeight.medium,
                 ),
               ),
             ),

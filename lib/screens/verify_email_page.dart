@@ -254,7 +254,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
               padding: spacing.edgeInsetsAll(spacing.md),
               margin: EdgeInsets.only(bottom: spacing.lg),
               decoration: BoxDecoration(
-                color: colors.error.withValues(alpha: 0.08),
+                color: colors.error.withValues(alpha: AppOpacity.highlight),
                 borderRadius: AppTokens.radius.md,
               ),
               child: Row(
@@ -266,7 +266,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                       _errorText!,
                       style: AppTokens.typography.body.copyWith(
                         color: colors.error,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
                   ),
@@ -294,8 +294,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
             style: AppTokens.typography.title.copyWith(
-              letterSpacing: 6,
-              fontWeight: FontWeight.w600,
+              letterSpacing: AppLetterSpacing.otpCode,
+              fontWeight: AppTokens.fontWeight.semiBold,
             ),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
@@ -351,7 +351,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
                 },
           icon: CircleAvatar(
             radius: AppInteraction.iconButtonContainerRadius,
-            backgroundColor: colors.primary.withValues(alpha: 0.12),
+            backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
             child: Icon(Icons.close_rounded, color: colors.primary, size: AppTokens.iconSize.sm),
           ),
         ),
@@ -360,7 +360,7 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
             label: Text(
               _isEmailChange ? 'Email change' : 'New account',
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppTokens.fontWeight.semiBold,
                   ),
             ),
           ),

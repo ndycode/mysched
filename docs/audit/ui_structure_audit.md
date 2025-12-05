@@ -1517,7 +1517,6 @@ This section covers `lib/app/`, `lib/widgets/`, `lib/models/`, `lib/services/`, 
 **Compliance: 100%** - No UI hardcoded values found:
 - `theme_controller.dart` - Uses `AppMotionSystem` for duration ✅
 - `navigation_channel.dart` - Logic only
-- `widget_service.dart` - Home widget data, no Flutter UI
 - `share_service.dart` - Logic only
 - All other services - Pure business logic
 

@@ -84,6 +84,7 @@ class AppTokens {
   static const AppIconSize iconSize = AppIconSize();
   static const AppComponentSize componentSize = AppComponentSize();
   static const AppShadow shadow = AppShadow();
+  static const AppFontWeight fontWeight = AppFontWeight();
 }
 
 class ColorPalette {
@@ -212,6 +213,9 @@ class AppTypography {
   const AppTypography._();
 
   static const String primaryFont = 'SFProRounded';
+  
+  /// Standard body text line height (1.5)
+  static const double bodyLineHeight = 1.5;
 
   TextStyle get display => const TextStyle(
         fontFamily: primaryFont,
@@ -370,8 +374,11 @@ class AppComponentSize {
   final double avatarSmDense = 28;
   final double avatarSm = 32;
   final double avatarMd = 36;
+  final double avatarMdLg = 40;
   final double avatarLg = 42;
-  final double avatarXl = 52;
+  final double avatarLgXl = 44;
+  final double avatarXl = 48;
+  final double avatarXlXxl = 52;
   final double avatarXxl = 64;
 
   // Badge sizes
@@ -390,8 +397,11 @@ class AppComponentSize {
   final double dividerMedium = 1.2;
   final double dividerThick = 1.5;
   final double dividerBold = 2;
+  final double strokeHeavy = 6;
 
   // Button heights
+  /// Compact icon/button size (used for small icon actions)
+  final double buttonXs = 36;
   final double buttonSm = 44;
   final double buttonMd = 48;
   final double buttonLg = 52;
@@ -399,11 +409,60 @@ class AppComponentSize {
   // Card preview heights
   final double previewSm = 120;
   final double previewMd = 200;
+  final double previewSmd = 140;
   final double previewLg = 280;
 
   // Progress indicator
   final double progressHeight = 4;
   final double progressWidth = 40;
+  final double progressStroke = 2;
+
+  // Skeleton text block heights (approximate typography heights)
+  final double skeletonTextXs = 12;  // caption
+  final double skeletonTextSm = 14;  // bodySecondary, label
+  final double skeletonTextMd = 16;  // body, subtitle
+  final double skeletonTextLg = 18;  // between body and title
+  final double skeletonTextXl = 20;  // title
+  final double skeletonTextXxl = 22; // between title and headline
+  final double skeletonTextDisplay = 24; // display approximation
+  final double skeletonTextHero = 28; // headline approximation
+
+  // Skeleton placeholder widths (content approximations)
+  final double skeletonWidthXxs = 48;   // small metric values
+  final double skeletonWidthXs = 60;    // short labels
+  final double skeletonWidthSm = 70;    // action chips, trailing
+  final double skeletonWidthMd = 80;    // badges, short text
+  final double skeletonWidthLg = 100;   // names, medium text
+  final double skeletonWidthXl = 120;   // section headers
+  final double skeletonWidthXxl = 140;  // titles, longer labels
+  final double skeletonWidthWide = 160; // descriptions
+  final double skeletonWidthFull = 180; // full-width content
+  final double skeletonWidthHero = 200; // hero/primary content
+  final double skeletonWidthMax = 220;  // maximum placeholder width
+
+  // Crop dialog dimensions
+  final double cropDialogMin = 220;
+  final double cropDialogMax = 360;
+}
+
+/// Font weight tokens for consistent typography emphasis.
+class AppFontWeight {
+  const AppFontWeight();
+
+  /// Regular text (400)
+  final FontWeight regular = FontWeight.w400;
+
+  /// Medium emphasis (500)
+  final FontWeight medium = FontWeight.w500;
+
+  /// Semi-bold for labels and emphasis (600)
+  final FontWeight semiBold = FontWeight.w600;
+
+  /// Bold for headings and strong emphasis (700)
+  final FontWeight bold = FontWeight.w700;
+
+  /// Extra bold for hero/display text (800)
+  final FontWeight extraBold = FontWeight.w800;
 }
 
 /// Shadow blur radius presets and BoxShadow factories for consistent elevation effects.
@@ -418,8 +477,16 @@ class AppShadow {
   final double md = 12;
   /// Large blur for elevated cards (16)
   final double lg = 16;
+  /// Button/action blur (18)
+  final double action = 18;
   /// Extra-large blur for prominent cards (20)
   final double xl = 20;
+  /// Glow effect blur (22)
+  final double glow = 22;
+  /// Card hover base blur (24)
+  final double cardHover = 24;
+  /// Hero card blur (26)
+  final double hero = 26;
   /// XXL blur for hero cards and modals (40)
   final double xxl = 40;
 
@@ -432,10 +499,14 @@ class AppShadow {
   /// Light mode popup elevation (12)
   final double elevationLight = 12;
 
+  /// Spread radius for indicator glow (0.5)
+  final double spreadXs = 0.5;
   /// Spread radius for subtle glow effects (1)
   final double spreadSm = 1;
   /// Spread radius for active glow effects (2)
   final double spreadMd = 2;
+  /// Spread radius for hero/card glow effects (10)
+  final double spreadLg = 10;
 
   // ---------------------------------------------------------------------------
   // BoxShadow Factory Methods
@@ -751,6 +822,12 @@ class AppLetterSpacing {
 
   /// Maximum spacing for all-caps (0.4)
   static const double widest = 0.4;
+
+  /// Section header spacing for prominent labels (1.2)
+  static const double sectionHeader = 1.2;
+
+  /// OTP/verification code spacing (6.0)
+  static const double otpCode = 6.0;
 }
 
 /// Centralized modal barrier color tokens.
@@ -774,6 +851,9 @@ class AppBarrier {
 /// Use these instead of raw height values in TextStyle.
 class AppLineHeight {
   const AppLineHeight._();
+
+  /// Single line height for icons/chips (1.0)
+  static const double single = 1.0;
 
   /// Tight line height for display text (1.1)
   static const double tight = 1.1;
@@ -824,6 +904,9 @@ class AppShadowOffset {
   /// Large elevation offset
   static const Offset lg = Offset(0, 8);
 
+  /// Modal/auth shell elevation offset
+  static const Offset modal = Offset(0, 10);
+
   /// Extra-large elevation offset
   static const Offset xl = Offset(0, 12);
 
@@ -832,6 +915,21 @@ class AppShadowOffset {
 
   /// Modal/hero elevation offset
   static const Offset xxl = Offset(0, 16);
+
+  /// Sheet elevation offset
+  static const Offset sheet = Offset(0, 18);
+
+  /// Bubble/tooltip elevation offset
+  static const Offset bubble = Offset(0, 20);
+
+  /// Alarm preview elevation offset
+  static const Offset alarm = Offset(0, 22);
+
+  /// Quick actions panel offset
+  static const Offset panel = Offset(0, 24);
+
+  /// Layout body card elevation offset
+  static const Offset layout = Offset(0, 28);
 
   /// Slide-in animation offset (subtle upward entry)
   static const Offset slideIn = Offset(0, 0.05);
@@ -861,6 +959,12 @@ class AppScale {
   /// Slightly enlarged scale (1.1)
   static const double enlarged = 1.1;
 
+  /// Narrow slidable action extent ratio (0.3 = 30%)
+  static const double slideExtentNarrow = 0.3;
+
   /// Slidable action extent ratio (0.4 = 40%)
   static const double slideExtent = 0.4;
+
+  /// Crop dialog width ratio (0.8 = 80% of screen)
+  static const double cropDialogRatio = 0.8;
 }

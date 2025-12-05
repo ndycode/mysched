@@ -84,7 +84,7 @@ class StatusBadge extends StatelessWidget {
       child: Text(
         label,
         style: AppTokens.typography.caption.copyWith(
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           color: foregroundColor,
         ),
       ),

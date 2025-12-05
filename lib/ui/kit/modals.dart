@@ -127,7 +127,7 @@ class AppModal {
         title: Text(
           title,
           style: AppTokens.typography.title.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: AppTokens.fontWeight.bold,
             color: colors.onSurface,
           ),
         ),
@@ -221,7 +221,7 @@ class AppModal {
               child: Text(
                 title,
                 style: AppTokens.typography.title.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   color: colors.onSurface,
                 ),
               ),
@@ -284,7 +284,7 @@ class AppModal {
         title: Text(
           title,
           style: AppTokens.typography.title.copyWith(
-            fontWeight: FontWeight.w700,
+            fontWeight: AppTokens.fontWeight.bold,
             color: colors.onSurface,
           ),
         ),

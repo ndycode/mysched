@@ -45,7 +45,7 @@ class InstructorAvatar extends StatelessWidget {
       child: Text(
         initials,
         style: theme.textTheme.labelSmall?.copyWith(
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           color: inverse ? colors.onPrimary : tint.withValues(alpha: AppOpacity.prominent),
         ),
       ),

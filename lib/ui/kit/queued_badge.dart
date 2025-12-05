@@ -24,7 +24,7 @@ class QueuedBadge extends StatelessWidget {
         label,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
               color: colors.secondary,
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
             ),
       ),
     );

@@ -21,7 +21,7 @@ class AlarmPage extends StatelessWidget {
       onPressed: () => Navigator.of(context).maybePop(),
       icon: CircleAvatar(
         radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: 0.12),
+        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
         child: Icon(
           Icons.arrow_back_rounded,
           color: colors.primary,
@@ -38,7 +38,7 @@ class AlarmPage extends StatelessWidget {
     void showPreviewOverlay() {
       showSmoothDialog<void>(
         context: context,
-        barrierColor: Colors.black.withValues(alpha: 0.7),
+        barrierColor: Colors.black.withValues(alpha: AppOpacity.muted),
         builder: (_) => Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: spacing.edgeInsetsAll(spacing.lg),
@@ -65,7 +65,7 @@ class AlarmPage extends StatelessWidget {
               Text(
                 'Live preview',
                 style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: AppTokens.fontWeight.bold,
                   color: colors.onSurfaceVariant,
                 ),
               ),

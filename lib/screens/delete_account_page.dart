@@ -141,7 +141,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                 _error!,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   color: colors.error,
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
             ],
@@ -194,7 +194,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: colors.outlineVariant,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
@@ -202,7 +202,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
-                        offset: const Offset(0, 4),
+                        offset: AppShadowOffset.sm,
                       ),
                     ],
             ),
@@ -236,7 +236,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
                 color: colors.outlineVariant,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
@@ -244,7 +244,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: AppOpacity.faint),
                         blurRadius: AppTokens.shadow.md,
-                        offset: const Offset(0, 4),
+                        offset: AppShadowOffset.sm,
                       ),
                     ],
             ),
@@ -289,7 +289,7 @@ class _SuccessView extends StatelessWidget {
             shape: BoxShape.circle,
             border: Border.all(
               color: theme.colorScheme.primary,
-              width: 6,
+              width: AppTokens.componentSize.strokeHeavy,
             ),
           ),
           child: Icon(
@@ -302,7 +302,7 @@ class _SuccessView extends StatelessWidget {
         Text(
           'Account deleted',
           style:
-              theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              theme.textTheme.titleLarge?.copyWith(fontWeight: AppTokens.fontWeight.bold),
         ),
         SizedBox(height: AppTokens.spacing.sm),
         Text(

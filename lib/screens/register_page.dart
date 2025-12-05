@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 
+import '../app/constants.dart';
 import '../app/routes.dart';
 import '../services/auth_service.dart';
 import '../services/telemetry_service.dart';
@@ -70,8 +71,8 @@ class _RegisterPageState extends State<RegisterPage> {
     if (value == null || value.isEmpty) {
       return 'Enter a password';
     }
-    if (value.length < 8) {
-      return 'Password must be at least 8 characters';
+    if (value.length < AppConstants.minPasswordLength) {
+      return 'Password must be at least ${AppConstants.minPasswordLength} characters';
     }
     return null;
   }
@@ -150,14 +151,14 @@ class _RegisterPageState extends State<RegisterPage> {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.md),
                 decoration: BoxDecoration(
-                  color: colors.error.withValues(alpha: 0.08),
+                  color: colors.error.withValues(alpha: AppOpacity.highlight),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Text(
                   _globalError!,
                   style: AppTokens.typography.body.copyWith(
                     color: colors.error,
-                    fontWeight: FontWeight.w600,
+                    fontWeight: AppTokens.fontWeight.semiBold,
                   ),
                 ),
               ),
@@ -224,7 +225,7 @@ class _RegisterPageState extends State<RegisterPage> {
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'At least 8 characters.',
+                'At least ${AppConstants.minPasswordLength} characters.',
                 style: AppTokens.typography.bodySecondary.copyWith(
                   color: colors.onSurfaceVariant,
                 ),

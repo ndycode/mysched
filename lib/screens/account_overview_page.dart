@@ -10,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../app/constants.dart';
 import '../app/routes.dart';
 import '../env.dart';
 import '../services/auth_service.dart';
@@ -106,8 +107,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       final picker = ImagePicker();
       final picked = await picker.pickImage(
         source: ImageSource.gallery,
-        maxWidth: 1200,
-        imageQuality: 85,
+        maxWidth: AppConstants.imageMaxWidth,
+        imageQuality: AppConstants.imageQuality,
       );
 
       if (picked == null) {
@@ -252,21 +253,21 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             clipBehavior: Clip.none,
             children: [
               CircleAvatar(
-                radius: 56,
+                radius: AppTokens.componentSize.avatarXxl - AppTokens.spacing.sm,
                 backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
                 backgroundImage:
                     _avatar == null ? null : NetworkImage(_avatar!),
                 child: _avatar == null
                     ? Icon(
                         Icons.person_rounded,
-                        size: AppTokens.iconSize.xxl + 8,
+                        size: AppTokens.iconSize.xxl + AppTokens.spacing.sm,
                         color: colors.onSurface.withValues(alpha: AppOpacity.subtle),
                       )
                     : null,
               ),
               Positioned(
-                right: -6,
-                bottom: -6,
+                right: -(AppTokens.spacing.xs + AppTokens.spacing.micro),
+                bottom: -(AppTokens.spacing.xs + AppTokens.spacing.micro),
                 child: DecoratedBox(
                   decoration: BoxDecoration(
                     color: colors.surface,
@@ -274,8 +275,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     boxShadow: [
                       BoxShadow(
                         color: colors.shadow.withValues(alpha: AppOpacity.accent),
-                        blurRadius: 14,
-                        offset: const Offset(0, 6),
+                        blurRadius: AppTokens.shadow.lg,
+                        offset: AppShadowOffset.md,
                       ),
                     ],
                   ),
@@ -283,10 +284,10 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     onPressed: _busy ? null : _pickAndUpload,
                     icon: _busy
                         ? SizedBox(
-                width: AppTokens.componentSize.badgeMd + 2,
-                height: AppTokens.componentSize.badgeMd + 2,
+                width: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
+                height: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
                             child: CircularProgressIndicator(
-                              strokeWidth: 2,
+                              strokeWidth: AppTokens.spacing.micro,
                               color: colors.primary,
                             ),
                           )
@@ -301,13 +302,13 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           Text(
             _name.isEmpty ? 'Student' : _name,
             style: theme.textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
+              fontWeight: AppTokens.fontWeight.bold,
               fontSize: AppTokens.typography.title.fontSize,
             ),
             textAlign: TextAlign.center,
           ),
           if (_sid.isNotEmpty || _email.isNotEmpty) ...[
-            SizedBox(height: spacing.xs + 2),
+            SizedBox(height: spacing.xs + AppTokens.spacing.micro),
             Column(
               children: [
                 if (_sid.isNotEmpty)
@@ -315,7 +316,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     _sid,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: colors.onSurfaceVariant,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTokens.fontWeight.semiBold,
                     ),
                   ),
                 if (_email.isNotEmpty)
@@ -418,7 +419,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
-    final cropDimension = (screenWidth * 0.8).clamp(220.0, 360.0);
+    final cropDimension = (screenWidth * AppScale.cropDialogRatio).clamp(AppTokens.componentSize.cropDialogMin, AppTokens.componentSize.cropDialogMax);
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
@@ -439,7 +440,7 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
       title: Text(
         'Crop profile photo',
         style: AppTokens.typography.title.copyWith(
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           color: theme.colorScheme.onSurface,
         ),
       ),
@@ -479,14 +480,14 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
             expanded: false,
           ),
           _saving
-              ? const SizedBox(
-                  width: 80,
-                  height: 44,
+              ? SizedBox(
+                  width: AppTokens.componentSize.buttonLg + AppTokens.spacing.xxl,
+                  height: AppTokens.componentSize.buttonSm,
                   child: Center(
                     child: SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      width: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
+                      height: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
+                      child: CircularProgressIndicator(strokeWidth: AppTokens.spacing.micro),
                     ),
                   ),
                 )

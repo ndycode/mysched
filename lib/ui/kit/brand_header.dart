@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/constants.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'hero_avatar.dart';
 import 'pressable_scale.dart';
@@ -61,13 +62,13 @@ class BrandHeader extends StatelessWidget {
     final style = textStyle ??
         theme.textTheme.titleLarge?.copyWith(
           fontFamily: AppTypography.primaryFont,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           color: theme.colorScheme.primary,
           fontSize: AppTokens.typography.title.fontSize,
         ) ??
         TextStyle(
           fontFamily: AppTypography.primaryFont,
-          fontWeight: FontWeight.w700,
+          fontWeight: AppTokens.fontWeight.bold,
           fontSize: AppTokens.typography.title.fontSize,
           color: theme.colorScheme.primary,
         );
@@ -139,7 +140,7 @@ class ScreenBrandHeader extends StatelessWidget {
     this.trailing,
     this.loading = false,
     this.animateSwap = true,
-    this.animationDuration = const Duration(milliseconds: 200), // AppMotionSystem.standard
+    this.animationDuration = AppMotionSystem.standard,
     this.showSkeletonAvatar = true,
     this.height,
     this.avatarRadius,
@@ -179,7 +180,7 @@ class ScreenBrandHeader extends StatelessWidget {
       textStyle: textStyle ??
           AppTokens.typography.title.copyWith(
             color: colors.primary,
-            fontWeight: FontWeight.w700,
+            fontWeight: AppTokens.fontWeight.bold,
           ),
     );
 
@@ -220,8 +221,9 @@ class ScreenBrandHeaderSkeleton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
+    final sizes = AppTokens.componentSize;
     return SizedBox(
-      height: 52,
+      height: sizes.avatarXlXxl,
       child: Row(
         children: [
           Expanded(
@@ -229,15 +231,15 @@ class ScreenBrandHeaderSkeleton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SkeletonBlock(height: 20, width: 140),
+                SkeletonBlock(height: sizes.skeletonTextXl, width: sizes.skeletonWidthXxl),
                 SizedBox(height: AppTokens.spacing.sm),
-                const SkeletonBlock(height: 14, width: 200),
+                SkeletonBlock(height: sizes.skeletonTextSm, width: sizes.skeletonWidthHero),
               ],
             ),
           ),
           if (showAvatar) ...[
             SizedBox(width: spacing.md),
-            const SkeletonCircle(size: 40),
+            SkeletonCircle(size: sizes.avatarMdLg),
           ],
         ],
       ),

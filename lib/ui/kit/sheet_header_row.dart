@@ -48,7 +48,7 @@ class SheetHeaderRow extends StatelessWidget {
             borderRadius: AppTokens.radius.md,
             border: Border.all(
               color: accent.withValues(alpha: AppOpacity.ghost),
-              width: 1.5,
+              width: AppTokens.componentSize.dividerThick,
             ),
           ),
           child: Icon(
@@ -65,9 +65,9 @@ class SheetHeaderRow extends StatelessWidget {
               Text(
                 title,
                 style: AppTokens.typography.title.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: AppTokens.fontWeight.extraBold,
                   letterSpacing: AppLetterSpacing.tight,
-                  height: 1.2,
+                  height: AppLineHeight.headline,
                   color: colors.onSurface,
                 ),
                 maxLines: 2,
@@ -78,7 +78,7 @@ class SheetHeaderRow extends StatelessWidget {
                 subtitle,
                 style: AppTokens.typography.bodySecondary.copyWith(
                   color: colors.onSurfaceVariant,
-                  fontWeight: FontWeight.w500,
+                  fontWeight: AppTokens.fontWeight.medium,
                 ),
               ),
             ],

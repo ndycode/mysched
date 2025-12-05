@@ -40,7 +40,7 @@ class StatusInfoChip extends StatelessWidget {
           Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(
-              fontWeight: FontWeight.w600,
+              fontWeight: AppTokens.fontWeight.semiBold,
               color: color,
             ),
           ),
@@ -105,7 +105,7 @@ class DetailRow extends StatelessWidget {
               Text(
                 value,
                 style: AppTokens.typography.subtitle.copyWith(
-                  fontWeight: FontWeight.w600,
+                  fontWeight: AppTokens.fontWeight.semiBold,
                   color: colors.onSurface,
                 ),
               ),

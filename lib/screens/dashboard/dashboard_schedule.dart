@@ -132,7 +132,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     Text(
                       '$scopeLabel overview',
                       style: AppTokens.typography.title.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: AppTokens.fontWeight.extraBold,
                         letterSpacing: AppLetterSpacing.tight,
                         color: colors.onSurface,
                       ),
@@ -142,7 +142,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                       dateLabel,
                       style: AppTokens.typography.bodySecondary.copyWith(
                         color: colors.onSurfaceVariant,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
                   ],
@@ -150,10 +150,21 @@ class _DashboardSchedulePeek extends StatelessWidget {
               ),
               if (onRefresh != null) ...[
                 SizedBox(
-                  height: AppTokens.componentSize.avatarMd,
-                  width: AppTokens.componentSize.avatarMd,
+                  height: AppTokens.componentSize.buttonXs,
+                  width: AppTokens.componentSize.buttonXs,
                   child: IconButton(
                     onPressed: refreshing ? null : onRefresh,
+                    tooltip: 'Refresh',
+                    style: IconButton.styleFrom(
+                      minimumSize: Size.square(AppTokens.componentSize.buttonXs),
+                      padding: EdgeInsets.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      foregroundColor: colors.onSurfaceVariant,
+                      backgroundColor: Colors.transparent,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: AppTokens.radius.md,
+                      ),
+                    ),
                     icon: refreshing
                         ? SizedBox(
                             width: AppTokens.componentSize.badgeMd,
@@ -165,10 +176,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           )
                         : Icon(
                             Icons.refresh_rounded,
-                            color: colors.onSurfaceVariant,
                             size: AppTokens.iconSize.md,
                           ),
-                    padding: EdgeInsets.zero,
                   ),
                 ),
               ],
@@ -348,7 +357,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                                     ? 'No classes today'
                                     : 'No classes this week',
                             style: AppTokens.typography.subtitle.copyWith(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: AppTokens.fontWeight.bold,
                               color: colors.onSurfaceVariant,
                             ),
                             textAlign: TextAlign.center,
@@ -432,7 +441,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 child: Text(
                   label,
                   style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: AppTokens.fontWeight.extraBold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
                   ),
@@ -450,7 +459,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 child: Text(
                   '$count ${count == 1 ? 'class' : 'classes'}',
                   style: AppTokens.typography.caption.copyWith(
-                    fontWeight: FontWeight.w700,
+                    fontWeight: AppTokens.fontWeight.bold,
                     color: color,
                   ),
                 ),

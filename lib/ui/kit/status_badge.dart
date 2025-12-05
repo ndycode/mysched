@@ -71,10 +71,10 @@ class StatusBadge extends StatelessWidget {
       padding: compact
           ? spacing.edgeInsetsSymmetric(
               horizontal: spacing.sm,
-              vertical: spacing.xs - 2,
+              vertical: spacing.micro,
             )
           : spacing.edgeInsetsSymmetric(
-              horizontal: spacing.sm + 2,
+              horizontal: spacing.smMd,
               vertical: spacing.xs,
             ),
       decoration: BoxDecoration(

@@ -23,8 +23,8 @@ class RefreshChip extends StatelessWidget {
 
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.sm + spacing.micro,
-        vertical: spacing.xs + spacing.micro,
+        horizontal: spacing.smMd,
+        vertical: spacing.xsPlus,
       ),
       decoration: BoxDecoration(
         color: colors.primary.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.overlay),
@@ -41,7 +41,7 @@ class RefreshChip extends StatelessWidget {
             size: AppTokens.iconSize.xs,
             color: colors.primary,
           ),
-          SizedBox(width: spacing.xs + 2),
+          SizedBox(width: spacing.xsPlus),
           Text(
             label,
             style: theme.textTheme.bodySmall?.copyWith(

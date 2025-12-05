@@ -162,9 +162,9 @@ class BatteryOptimizationDialog extends StatelessWidget {
             child: Stack(
               children: [
                 Positioned(
-                  right: 2,
-                  top: 2,
-                  bottom: 2,
+                  right: AppTokens.spacing.micro,
+                  top: AppTokens.spacing.micro,
+                  bottom: AppTokens.spacing.micro,
                   child: Container(
                     width: AppTokens.componentSize.switchThumbSize,
                     height: AppTokens.componentSize.switchThumbSize,

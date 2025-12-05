@@ -278,7 +278,7 @@ class DashboardScreenState extends State<DashboardScreen>
 
       final shouldSkipRemote = softRefresh &&
           _lastScheduleFetchAt != null &&
-          now.difference(_lastScheduleFetchAt!) < const Duration(seconds: 3);
+          now.difference(_lastScheduleFetchAt!) < AppTokens.durations.fetchDebounce;
       if (shouldSkipRemote) {
         return;
       }
@@ -340,7 +340,7 @@ class DashboardScreenState extends State<DashboardScreen>
       final loader = widget.remindersLoaderOverride == null
           ? () => _remindersApi.fetchReminders(includeCompleted: true)
           : widget.remindersLoaderOverride!;
-      final items = await loader().timeout(const Duration(seconds: 8));
+      final items = await loader().timeout(AppTokens.durations.quickTimeout);
       if (!mounted) return;
       setState(() {
         _reminders = List<ReminderEntry>.unmodifiable(items);

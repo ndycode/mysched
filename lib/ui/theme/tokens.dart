@@ -160,6 +160,8 @@ class AppSpacing {
   /// Small micro spacing for subtle adjustments (4)
   final double microLg = 4;
   final double xs = 4;
+  /// Extra-small half-step (5) - tight chip/badge vertical padding
+  final double xsHalf = 5;
   /// Extra-small plus spacing (6)
   final double xsPlus = 6;
   final double sm = 8;
@@ -169,10 +171,18 @@ class AppSpacing {
   /// Medium-large spacing (14)
   final double mdLg = 14;
   final double lg = 16;
+  /// Large plus spacing (18) - card padding vertical adjustment
+  final double lgPlus = 18;
   final double xl = 20;
+  /// Extra-large half-step (22) - between xl and xxl
+  final double xlHalf = 22;
   final double xxl = 24;
+  /// Extra-extra-large plus spacing (28)
+  final double xxlPlus = 28;
   final double xxxl = 32;
   final double quad = 40;
+  /// Empty state container size (64)
+  final double emptyStateSize = 64;
 
   EdgeInsets edgeInsetsAll(double value) => EdgeInsets.all(value);
   EdgeInsets edgeInsetsSymmetric(
@@ -326,6 +336,9 @@ class AppDurations {
   /// Network request timeout.
   final Duration networkTimeout = const Duration(seconds: 20);
 
+  /// Quick request timeout (for secondary fetches).
+  final Duration quickTimeout = const Duration(seconds: 8);
+
   /// Cache time-to-live for schedule data.
   final Duration cacheTtl = const Duration(minutes: 1);
 
@@ -358,6 +371,12 @@ class AppDurations {
 class AppIconSize {
   const AppIconSize();
 
+  /// Bullet point icons (small filled circles)
+  final double bullet = 8;
+
+  /// Micro check icons (tiny checkmarks in selections)
+  final double check = 10;
+
   /// Extra small icons (chips, badges, inline indicators)
   final double xs = 14;
 
@@ -372,6 +391,9 @@ class AppIconSize {
 
   /// Extra large icons (section headers, cards)
   final double xl = 28;
+
+  /// FAB icons (floating action buttons)
+  final double fab = 32;
 
   /// Hero icons (empty states, featured content)
   final double xxl = 40;
@@ -395,11 +417,15 @@ class AppComponentSize {
   final double avatarLgXl = 44;
   final double avatarXl = 48;
   final double avatarXlXxl = 52;
+  /// Profile avatar radius (56) - for main profile avatars
+  final double avatarProfile = 56;
   final double avatarXxl = 64;
 
   // Badge sizes
   final double badgeSm = 8;
   final double badgeMd = 16;
+  /// Badge medium plus - for progress indicators with padding
+  final double badgeMdPlus = 18;
   final double badgeLg = 24;
 
   // List item heights
@@ -411,6 +437,8 @@ class AppComponentSize {
   final double divider = 1;
   final double dividerThin = 0.5;
   final double dividerMedium = 1.2;
+  /// Navigation bubble border thickness
+  final double dividerNav = 1.4;
   final double dividerThick = 1.5;
   final double dividerBold = 2;
   final double strokeHeavy = 6;

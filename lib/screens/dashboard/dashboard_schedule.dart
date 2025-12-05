@@ -219,7 +219,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
               filled: true,
               fillColor: colors.surfaceContainerHigh,
               contentPadding: spacing.edgeInsetsSymmetric(
-                horizontal: spacing.md + spacing.micro,
+                horizontal: spacing.mdLg,
                 vertical: spacing.md,
               ),
               border: OutlineInputBorder(
@@ -236,7 +236,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 padding: WidgetStateProperty.all(
                   spacing.edgeInsetsSymmetric(
                     horizontal: spacing.xl,
-                    vertical: spacing.sm + spacing.micro,
+                    vertical: spacing.smMd,
                   ),
                 ),
                 side: WidgetStateProperty.resolveWith(
@@ -377,7 +377,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     ),
             ),
           ),
-          SizedBox(height: spacing.lg + spacing.micro),
+          SizedBox(height: spacing.lgPlus),
           _buildReviewButton(),
         ],
       ),
@@ -449,8 +449,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
               ),
               Container(
                 padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.sm + spacing.micro,
-                  vertical: spacing.xs + spacing.microHalf,
+                  horizontal: spacing.smMd,
+                  vertical: spacing.xsHalf,
                 ),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: AppOpacity.overlay),

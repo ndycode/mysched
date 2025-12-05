@@ -462,8 +462,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: spacing.quad + spacing.xxl,
-                      height: spacing.quad + spacing.xxl,
+                      width: spacing.emptyStateSize,
+                      height: spacing.emptyStateSize,
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
@@ -481,11 +481,11 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                       ),
                       child: Icon(
                         Icons.notifications_none_rounded,
-                        size: spacing.xxxl + spacing.sm,
+                        size: spacing.quad,
                         color: colors.primary,
                       ),
                     ),
-                    SizedBox(height: spacing.xxl + spacing.xs),
+                    SizedBox(height: spacing.xxlPlus),
                     Text(
                       'No reminders yet',
                       style: AppTokens.typography.headline.copyWith(

@@ -202,7 +202,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
       reverseDuration: AppMotionSystem.quick,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.08).animate(
+    _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scaleEmphasis).animate(
       CurvedAnimation(
         parent: _controller,
         curve: AppMotionSystem.easeOut,
@@ -210,7 +210,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
       ),
     );
 
-    _indicatorWidthAnimation = Tween<double>(begin: 0.0, end: 18.0).animate(
+    _indicatorWidthAnimation = Tween<double>(begin: 0.0, end: AppMotionSystem.indicatorWidth).animate(
       CurvedAnimation(
         parent: _controller,
         curve: AppMotionSystem.easeOut,
@@ -280,7 +280,7 @@ class _GlassNavItemState extends State<_GlassNavItem>
                 animation: _scaleAnimation,
                 builder: (context, child) {
                   return Transform.scale(
-                    scale: widget.selected ? _scaleAnimation.value : 1.0,
+                    scale: widget.selected ? _scaleAnimation.value : AppMotionSystem.scaleNone,
                     child: child,
                   );
                 },
@@ -389,7 +389,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   borderRadius: AppTokens.radius.xl,
                   border: Border.all(
                     color: accent.withValues(alpha: AppOpacity.darkTint),
-                    width: AppTokens.componentSize.dividerMedium + 0.2,
+                    width: AppTokens.componentSize.dividerNav,
                   ),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -431,13 +431,13 @@ class _FloatingQuickActionButton extends StatelessWidget {
                   ],
                 ),
                 child: AnimatedRotation(
-                  turns: active ? 0.125 : 0.0,
+                  turns: active ? AppMotionSystem.rotationToggle : 0.0,
                   duration: AppMotionSystem.medium,
                   curve: AppMotionSystem.easeOut,
                   child: Icon(
                     active ? Icons.close : Icons.add,
                     color: onAccent,
-                    size: AppTokens.iconSize.xl + 4,
+                    size: AppTokens.iconSize.fab,
                   ),
                 ),
               ),
@@ -517,7 +517,7 @@ class _InlineQuickActionButton extends StatelessWidget {
                 ],
               ),
               child: AnimatedRotation(
-                turns: active ? 0.125 : 0.0,
+                turns: active ? AppMotionSystem.rotationToggle : 0.0,
                 duration: AppMotionSystem.medium,
                 curve: AppMotionSystem.easeOut,
                 child: Icon(

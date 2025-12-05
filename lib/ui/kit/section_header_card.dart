@@ -90,8 +90,8 @@ class SectionHeaderCard extends StatelessWidget {
           ),
           Container(
             padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.sm + 2,
-              vertical: spacing.xs + 1,
+              horizontal: spacing.smMd,
+              vertical: spacing.xsHalf,
             ),
             decoration: BoxDecoration(
               color: accent.withValues(alpha: AppOpacity.overlay),

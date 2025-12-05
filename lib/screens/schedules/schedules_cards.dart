@@ -936,8 +936,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: spacing.quad + spacing.xxl,
-            height: spacing.quad + spacing.xxl,
+            width: spacing.emptyStateSize,
+            height: spacing.emptyStateSize,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -1207,7 +1207,7 @@ class _ScheduleInstructorRow extends StatelessWidget {
           inverse: inverse,
           size: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
         ),
-        SizedBox(width: dense ? spacing.xs + spacing.micro : spacing.sm),
+        SizedBox(width: dense ? spacing.xsPlus : spacing.sm),
         Expanded(
           child: Text(
             name,

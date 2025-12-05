@@ -338,8 +338,8 @@ class _AddReminderFormState extends State<AddReminderForm> {
           SizedBox(height: AppTokens.spacing.lg),
           Container(
             padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.lg + spacing.xs / 2,
-              vertical: spacing.lg + spacing.xs / 2,
+              horizontal: spacing.lgPlus,
+              vertical: spacing.lgPlus,
             ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
@@ -392,8 +392,8 @@ class _AddReminderFormState extends State<AddReminderForm> {
           SizedBox(height: AppTokens.spacing.lg),
           Container(
             padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.lg + spacing.xs / 2,
-              vertical: spacing.lg + spacing.xs / 2,
+              horizontal: spacing.lgPlus,
+              vertical: spacing.lgPlus,
             ),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark

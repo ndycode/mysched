@@ -27,8 +27,8 @@ class InfoChip extends StatelessWidget {
 
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md + spacing.xs / 2,
-        vertical: spacing.sm + spacing.xs / 2,
+        horizontal: spacing.mdLg,
+        vertical: spacing.smMd,
       ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.track),

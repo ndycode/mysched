@@ -51,7 +51,7 @@ class MetricChip extends StatelessWidget {
       return Container(
         padding: spacing.edgeInsetsSymmetric(
           horizontal: spacing.md,
-          vertical: spacing.sm + spacing.micro,
+          vertical: spacing.smMd,
         ),
         decoration: BoxDecoration(
           color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
@@ -102,7 +102,7 @@ class MetricChip extends StatelessWidget {
 
     // Card-style layout for larger displays
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.md + spacing.micro),
+      padding: spacing.edgeInsetsAll(spacing.mdLg),
       decoration: BoxDecoration(
         color: isDark 
             ? accent.withValues(alpha: AppOpacity.dim) 
@@ -127,7 +127,7 @@ class MetricChip extends StatelessWidget {
             alignment: Alignment.center,
             child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
           ),
-          SizedBox(height: spacing.sm + spacing.micro),
+          SizedBox(height: spacing.smMd),
           Text(
             value,
             style: displayStyle

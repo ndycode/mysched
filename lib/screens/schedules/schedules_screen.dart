@@ -635,8 +635,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                   child: Column(
                     children: [
                       Container(
-                        width: spacing.quad + spacing.xxl,
-                        height: spacing.quad + spacing.xxl,
+                        width: spacing.emptyStateSize,
+                        height: spacing.emptyStateSize,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -654,11 +654,11 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         ),
                         child: Icon(
                           Icons.calendar_month_outlined,
-                          size: spacing.xxxl + spacing.sm,
+                          size: spacing.quad,
                           color: colors.primary,
                         ),
                       ),
-                      SizedBox(height: spacing.xxl + spacing.xs),
+                      SizedBox(height: spacing.xxlPlus),
                     Text(
                       'No schedules yet',
                       style: AppTokens.typography.headline.copyWith(

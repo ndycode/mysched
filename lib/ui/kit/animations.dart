@@ -755,14 +755,14 @@ class SkeletonLoader extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: colors.onSurface.withValues(alpha: isDark ? 0.08 : 0.06),
+        color: colors.onSurface.withValues(alpha: isDark ? AppOpacity.highlight : AppOpacity.veryFaint),
         borderRadius: borderRadius ?? BorderRadius.circular(height / 2),
       ),
     )
         .animate(onPlay: (c) => c.repeat())
         .shimmer(
           duration: AppMotionSystem.long + AppMotionSystem.slow, // ~1200ms
-          color: colors.onSurface.withValues(alpha: isDark ? 0.1 : 0.04),
+          color: colors.onSurface.withValues(alpha: isDark ? AppOpacity.dim : AppOpacity.micro),
         );
   }
 }
@@ -1075,9 +1075,9 @@ class _HoverLiftState extends State<HoverLift> {
             boxShadow: _hovered
                 ? [
                     BoxShadow(
-                      color: theme.colorScheme.shadow.withValues(alpha: isDark ? 0.4 : 0.15),
+                      color: theme.colorScheme.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
                       blurRadius: AppTokens.shadow.xl,
-                      offset: Offset(0, 8 + widget.liftAmount),
+                      offset: Offset(0, AppShadowOffset.lg.dy + widget.liftAmount),
                     ),
                   ]
                 : [],
@@ -1120,7 +1120,7 @@ class TypingIndicator extends StatelessWidget {
         )
             .animate(
               onPlay: (controller) => controller.repeat(),
-              delay: Duration(milliseconds: index * 120),
+              delay: AppMotionSystem.staggerTyping * index,
             )
             .scaleXY(
               begin: 0.65,

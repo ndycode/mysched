@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../env.dart';
 import '../ui/theme/motion.dart';
+import '../ui/theme/tokens.dart';
 import '../utils/local_notifs.dart';
 import '../utils/validation_utils.dart';
 import 'offline_cache_service.dart';
@@ -432,7 +433,7 @@ class AuthService {
         operation: 'login',
         task: () => _backend
             .signInWithPassword(email: em, password: password)
-            .timeout(const Duration(seconds: 20)),
+            .timeout(AppTokens.durations.networkTimeout),
       );
       if (r.session == null) throw Exception('Login: failed');
 

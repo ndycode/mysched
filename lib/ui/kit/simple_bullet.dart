@@ -27,7 +27,7 @@ class SimpleBullet extends StatelessWidget {
           SizedBox(width: spacing.xs),
           Icon(
             Icons.circle,
-            size: AppTokens.iconSize.sm - 8,
+            size: AppTokens.iconSize.bullet,
             color: theme.colorScheme.primary,
           ),
           SizedBox(width: spacing.sm),

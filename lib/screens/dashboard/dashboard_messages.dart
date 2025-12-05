@@ -65,7 +65,7 @@ class _DashboardMessageCard extends StatelessWidget {
                   color: colors.primary,
                 ),
               ),
-              SizedBox(width: spacing.md + spacing.microLg),
+              SizedBox(width: spacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

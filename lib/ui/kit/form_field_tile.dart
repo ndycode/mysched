@@ -35,7 +35,7 @@ class FormFieldTile extends StatelessWidget {
       child: Container(
         padding: AppTokens.spacing.edgeInsetsSymmetric(
           horizontal: AppTokens.spacing.lg,
-          vertical: AppTokens.spacing.md + AppTokens.spacing.xs / 2,
+          vertical: AppTokens.spacing.mdLg,
         ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,

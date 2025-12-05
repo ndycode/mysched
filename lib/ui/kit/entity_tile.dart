@@ -146,10 +146,10 @@ class EntityTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (tags.isNotEmpty) ...[
-                          SizedBox(height: spacing.xs + 2),
+                          SizedBox(height: spacing.xsPlus),
                           Wrap(
-                            spacing: spacing.xs + 2,
-                            runSpacing: spacing.xs + 2,
+                            spacing: spacing.xsPlus,
+                            runSpacing: spacing.xsPlus,
                             children: tags,
                           ),
                         ],
@@ -165,7 +165,7 @@ class EntityTile extends StatelessWidget {
 
               // Subtitle if present
               if (subtitle != null && subtitle!.isNotEmpty) ...[
-                SizedBox(height: spacing.xs + 2),
+                SizedBox(height: spacing.xsPlus),
                 Text(
                   subtitle!,
                   style: AppTokens.typography.bodySecondary.copyWith(
@@ -194,7 +194,7 @@ class EntityTile extends StatelessWidget {
 
               // Bottom content (e.g., instructor row)
               if (bottomContent != null) ...[
-                SizedBox(height: spacing.sm + 2),
+                SizedBox(height: spacing.smMd),
                 bottomContent!,
               ],
             ],
@@ -217,7 +217,7 @@ class EntityTile extends StatelessWidget {
           size: AppTokens.iconSize.sm,
           color: colors.onSurfaceVariant,
         ),
-        SizedBox(width: spacing.xs + 2),
+        SizedBox(width: spacing.xsPlus),
         if (item.expanded)
           Expanded(
             child: Text(

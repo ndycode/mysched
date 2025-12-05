@@ -845,7 +845,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final banner = () {
       if (_loadingInstructors) {
         return Container(
-          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg + AppTokens.componentSize.paddingAdjust),
+          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lgPlus),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.lg,
             color: colors.surfaceContainerHigh,
@@ -853,8 +853,8 @@ class _AddClassFormState extends State<AddClassForm> {
           child: Row(
             children: [
               SizedBox(
-                width: AppTokens.componentSize.badgeMd + 2,
-                height: AppTokens.componentSize.badgeMd + 2,
+                width: AppTokens.componentSize.badgeMdPlus,
+                height: AppTokens.componentSize.badgeMdPlus,
                 child: CircularProgressIndicator(
                   strokeWidth: AppTokens.componentSize.progressStroke,
                   valueColor: AlwaysStoppedAnimation<Color>(colors.primary),

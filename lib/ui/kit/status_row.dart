@@ -147,7 +147,7 @@ class _StatusPill extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsSymmetric(
         horizontal: spacing.md,
-        vertical: spacing.xs + spacing.micro,
+        vertical: spacing.xsPlus,
       ),
       decoration: BoxDecoration(
         color: bg,

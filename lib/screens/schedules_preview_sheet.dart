@@ -399,7 +399,7 @@ class _SectionCard extends StatelessWidget {
     return CardX(
       padding: spacing.edgeInsetsSymmetric(
         horizontal: spacing.xl,
-        vertical: spacing.lg + spacing.xs / 2,
+        vertical: spacing.lgPlus,
       ),
       backgroundColor: colors.surfaceContainerHighest.withValues(
         alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.micro,
@@ -632,7 +632,7 @@ class _DayToggleCard extends StatelessWidget {
               ),
               Container(
                 padding: spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.sm + AppTokens.componentSize.paddingAdjust, vertical: spacing.xs + 1),
+                    horizontal: spacing.smMd, vertical: spacing.xsHalf),
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.sm,
@@ -742,7 +742,7 @@ class _ImportClassTile extends StatelessWidget {
               if (isNext)
                 Container(
                   padding: spacing.edgeInsetsSymmetric(
-                      horizontal: spacing.sm + spacing.micro, vertical: spacing.xs),
+                      horizontal: spacing.smMd, vertical: spacing.xs),
                   decoration: BoxDecoration(
                     color: colors.primary.withValues(alpha: AppOpacity.highlight),
                     borderRadius: AppTokens.radius.sm,

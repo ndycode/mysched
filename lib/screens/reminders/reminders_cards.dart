@@ -142,8 +142,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: spacing.quad + spacing.xxl,
-            height: spacing.quad + spacing.xxl,
+            width: spacing.emptyStateSize,
+            height: spacing.emptyStateSize,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -423,7 +423,7 @@ class ReminderHighlightHero extends StatelessWidget {
               letterSpacing: AppLetterSpacing.tight,
             ),
           ),
-          SizedBox(height: spacing.lg + spacing.xs),
+          SizedBox(height: spacing.xl),
           Row(
             children: [
               Container(
@@ -451,7 +451,7 @@ class ReminderHighlightHero extends StatelessWidget {
             ],
           ),
           if (details.isNotEmpty) ...[
-            SizedBox(height: spacing.md + spacing.xs),
+            SizedBox(height: spacing.lg),
             Row(
               children: [
                 Container(

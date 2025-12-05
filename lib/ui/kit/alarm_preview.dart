@@ -32,7 +32,7 @@ class AlarmPreviewMock extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(
           horizontal: spacing.xl,
-          vertical: spacing.xl + spacing.micro,
+          vertical: spacing.xlHalf,
         ),
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -72,7 +72,7 @@ class AlarmPreviewMock extends StatelessWidget {
                   textSecondary: _textSecondary,
                   textMuted: _textMuted,
                 ),
-                SizedBox(height: spacing.xl + 2),
+                SizedBox(height: spacing.xlHalf),
                 _ClockBlock(
                   expanded: expanded,
                   textPrimary: _textPrimary,

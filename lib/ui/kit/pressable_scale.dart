@@ -85,7 +85,7 @@ class _PressableScaleState extends State<PressableScale>
       reverseDuration: config.releaseDuration,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: config.scale).animate(
+    _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleNone, end: config.scale).animate(
       CurvedAnimation(
         parent: _controller,
         curve: config.pressCurve,
@@ -94,7 +94,7 @@ class _PressableScaleState extends State<PressableScale>
     );
 
     _opacityAnimation = Tween<double>(
-      begin: 1.0,
+      begin: AppMotionSystem.scaleNone,
       end: config.opacity,
     ).animate(
       CurvedAnimation(
@@ -314,7 +314,7 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
           ),
           padding: widget.padding,
           child: AnimatedScale(
-            scale: _pressed && widget.enabled ? 0.985 : 1.0,
+            scale: _pressed && widget.enabled ? AppMotionSystem.scalePressSubtle : AppMotionSystem.scaleNone,
             duration: AppMotionSystem.instant,
             curve: Curves.easeOut,
             child: widget.child,
@@ -379,7 +379,7 @@ class _AnimatedIconButtonState extends State<AnimatedIconButton>
       reverseDuration: AppMotionSystem.standard,
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.88).animate(
+    _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePressDeep).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeOut),
     );
 
@@ -497,7 +497,7 @@ class _BouncyTapState extends State<BouncyTap>
       reverseDuration: AppMotionSystem.medium,
     );
 
-    _animation = Tween<double>(begin: 1.0, end: 0.9).animate(
+    _animation = Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePress).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOut,

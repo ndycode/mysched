@@ -294,7 +294,7 @@ class _ReminderActions extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             addButton,
-            SizedBox(height: spacing.sm + spacing.micro),
+            SizedBox(height: spacing.smMd),
             manageButton,
           ],
         );
@@ -368,8 +368,8 @@ class _ReminderProgressPill extends StatelessWidget {
           ),
           Container(
             padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.sm + spacing.micro,
-              vertical: spacing.xs + spacing.microHalf,
+              horizontal: spacing.smMd,
+              vertical: spacing.xsPlus,
             ),
             decoration: BoxDecoration(
               color: headerColor.withValues(alpha: AppOpacity.overlay),
@@ -477,7 +477,7 @@ class _DashboardReminderTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (entry.details?.isNotEmpty == true) ...[
-                  SizedBox(height: spacing.xs + spacing.micro),
+                  SizedBox(height: spacing.xsPlus),
                   Text(
                     entry.details!,
                     style: AppTokens.typography.bodySecondary.copyWith(
@@ -495,7 +495,7 @@ class _DashboardReminderTile extends StatelessWidget {
                       size: AppTokens.iconSize.xs,
                       color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
                     ),
-                    SizedBox(width: spacing.xs + spacing.micro),
+                    SizedBox(width: spacing.xsPlus),
                     Expanded(
                       child: Text(
                         dueLabel,

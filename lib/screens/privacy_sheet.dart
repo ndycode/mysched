@@ -34,7 +34,7 @@ class PrivacySheet extends StatelessWidget {
             MediaQuery.of(context).padding.bottom);
 
     Color filledBackground() => colors.surfaceContainerHighest.withValues(
-          alpha: theme.brightness == Brightness.dark ? 0.28 : 0.5,
+          alpha: theme.brightness == Brightness.dark ? AppOpacity.ghost : AppOpacity.soft,
         );
 
     return Material(

@@ -1506,7 +1506,7 @@ class _ThemeOption extends StatelessWidget {
                     top: AppTokens.spacing.xs,
                     right: AppTokens.spacing.xs,
                     child: Container(
-                      padding: EdgeInsets.all(spacing.xs / 2),
+                      padding: EdgeInsets.all(spacing.micro),
                       decoration: BoxDecoration(
                         color: colors.primary,
                         shape: BoxShape.circle,
@@ -1517,7 +1517,7 @@ class _ThemeOption extends StatelessWidget {
                       ),
                       child: Icon(
                         Icons.check,
-                        size: AppTokens.iconSize.xs - AppTokens.spacing.xs,
+                        size: AppTokens.iconSize.check,
                         color: colors.onPrimary,
                       ),
                     ),

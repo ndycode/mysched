@@ -149,7 +149,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
 
     final defaultPadding = AppTokens.spacing.edgeInsetsSymmetric(
       horizontal: AppTokens.spacing.xl,
-      vertical: AppTokens.spacing.lg + 2,
+      vertical: AppTokens.spacing.lgPlus,
     );
 
     Widget cardContent = Padding(
@@ -323,7 +323,7 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
             BoxShadow(
               color: accent.withValues(alpha: isDark ? (hovered ? AppOpacity.barrier : AppOpacity.ghost) : (hovered ? AppOpacity.ghost : AppOpacity.darkTint)),
               blurRadius: AppTokens.shadow.cardHover + hoverShadowBoost,
-              offset: Offset(0, 16 + (hovered ? 2 : 0)),
+              offset: Offset(0, AppShadowOffset.xxl.dy + (hovered ? AppShadowOffset.xs.dy : 0)),
             ),
           ],
           gradient: LinearGradient(

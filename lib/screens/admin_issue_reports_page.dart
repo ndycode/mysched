@@ -314,11 +314,11 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           SizedBox(height: spacing.lg),
           Container(
             padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.sm + spacing.xs / 2,
-              vertical: spacing.xs + spacing.xs / 2,
+              horizontal: spacing.smMd,
+              vertical: spacing.xsPlus,
             ),
             decoration: BoxDecoration(
-              color: colors.onSurface.withValues(alpha: isDark ? 0.18 : 0.08),
+              color: colors.onSurface.withValues(alpha: isDark ? AppOpacity.border : AppOpacity.highlight),
               borderRadius: AppTokens.radius.md,
             ),
             child: Text(
@@ -464,8 +464,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
                         ),
                       ),
                       padding: AppTokens.spacing.edgeInsetsSymmetric(
-                        horizontal: AppTokens.spacing.sm + AppTokens.spacing.xs / 2,
-                        vertical: AppTokens.spacing.xs + AppTokens.spacing.xs / 2,
+                        horizontal: AppTokens.spacing.smMd,
+                        vertical: AppTokens.spacing.xsPlus,
                       ),
                       child: Text(
                         statusLabel,
@@ -507,8 +507,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           if (metadataChips.isNotEmpty) ...[
             SizedBox(height: spacing.md),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: spacing.sm,
+              runSpacing: spacing.sm,
               children: metadataChips,
             ),
           ],
@@ -565,8 +565,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.sm + spacing.xs / 2,
-        vertical: spacing.xs + spacing.xs / 2,
+        horizontal: spacing.smMd,
+        vertical: spacing.xsPlus,
       ),
       decoration: BoxDecoration(
         color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.track),
@@ -735,7 +735,7 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
         ),
       ),
       content: SizedBox(
-        width: 420,
+        width: AppTokens.componentSize.alarmPreviewMinWidth,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -320,7 +320,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
           boxShadow: [
             AppTokens.shadow.bubble(
               theme.shadowColor.withValues(
-                alpha: isDark ? 0.35 : 0.18,
+                alpha: isDark ? AppOpacity.track : AppOpacity.border,
               ),
             ),
           ],

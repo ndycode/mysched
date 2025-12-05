@@ -63,18 +63,18 @@ class _AppFadeThroughTransition extends StatelessWidget {
     );
 
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fadeIn),
+      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeIn),
       child: ScaleTransition(
-        scale: Tween<double>(begin: 0.96, end: 1.0).animate(scaleIn),
+        scale: Tween<double>(begin: AppMotionSystem.scaleEntrySubtle, end: AppMotionSystem.scaleNone).animate(scaleIn),
         child: SlideTransition(
           position: Tween<Offset>(
             begin: const Offset(0.0, 0.02),
             end: Offset.zero,
           ).animate(slideIn),
           child: FadeTransition(
-            opacity: Tween<double>(begin: 1.0, end: 0.0).animate(fadeOut),
+            opacity: Tween<double>(begin: AppMotionSystem.scaleNone, end: 0.0).animate(fadeOut),
             child: ScaleTransition(
-              scale: Tween<double>(begin: 1.0, end: 1.04).animate(scaleOut),
+              scale: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scaleExit).animate(scaleOut),
               child: child,
             ),
           ),
@@ -127,6 +127,44 @@ class AppMotionSystem {
 
   /// Prolonged animations: breathing effects, slow pulses
   static const Duration prolonged = Duration(milliseconds: 1500);
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SCALE TOKENS (micro-interactions and emphasis)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Default scale (no transformation)
+  static const double scaleNone = 1.0;
+
+  /// Very subtle press feedback
+  static const double scalePressSubtle = 0.985;
+
+  /// Standard press scale
+  static const double scalePress = 0.9;
+
+  /// Deep press scale
+  static const double scalePressDeep = 0.88;
+
+  /// Emphasized scale for selected/active state
+  static const double scaleEmphasis = 1.08;
+
+  /// Entry scale for appear animations
+  static const double scaleEntry = 0.95;
+
+  /// Entry scale subtle
+  static const double scaleEntrySubtle = 0.96;
+
+  /// Exit scale for dismiss animations
+  static const double scaleExit = 1.04;
+
+  /// Rotation for active toggle (1/8 turn = 45°)
+  static const double rotationToggle = 0.125;
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // DIMENSION TOKENS (indicator sizes, widths)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Nav indicator width
+  static const double indicatorWidth = 18.0;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SPRING PHYSICS (natural, responsive feel)
@@ -248,6 +286,9 @@ class AppMotionSystem {
 
   /// Slow stagger for dramatic reveals
   static const Duration staggerSlow = Duration(milliseconds: 80);
+
+  /// Typing/dot indicator stagger for rhythmic animations
+  static const Duration staggerTyping = Duration(milliseconds: 120);
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HELPER METHODS

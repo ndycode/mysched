@@ -264,7 +264,7 @@ class _Row extends StatelessWidget {
           borderRadius: AppTokens.radius.md,
           border: Border.all(color: border),
         ),
-        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + spacing.micro),
+        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.mdLg),
         child: Column(
           children: [
             Row(

@@ -253,7 +253,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             clipBehavior: Clip.none,
             children: [
               CircleAvatar(
-                radius: AppTokens.componentSize.avatarXxl - AppTokens.spacing.sm,
+                radius: AppTokens.componentSize.avatarProfile,
                 backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
                 backgroundImage:
                     _avatar == null ? null : NetworkImage(_avatar!),

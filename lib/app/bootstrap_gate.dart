@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../env.dart';
 import '../services/notif_scheduler.dart';
 import '../ui/kit/kit.dart';
+import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../utils/app_log.dart';
 import '../utils/local_notifs.dart';
@@ -225,7 +226,7 @@ class _SplashContentState extends State<_SplashContent>
       curve: Curves.easeOut,
     );
     
-    _scaleAnimation = Tween<double>(begin: 0.95, end: 1.0).animate(
+    _scaleAnimation = Tween<double>(begin: AppMotionSystem.scaleEntry, end: AppMotionSystem.scaleNone).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeOutCubic,
@@ -320,7 +321,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
-    final badgeColor = widget.accent.withValues(alpha: isDark ? 0.28 : AppOpacity.statusBg);
+    final badgeColor = widget.accent.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.statusBg);
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),

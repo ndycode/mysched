@@ -131,8 +131,8 @@ class StateDisplay extends StatelessWidget {
       params: {'screen': ModalRoute.of(context)?.settings.name},
     );
 
-    final iconSize = compact ? 56.0 : 88.0;
-    final iconInnerSize = compact ? 28.0 : 36.0;
+    final iconSize = compact ? AppTokens.componentSize.stateIconCompact : AppTokens.componentSize.stateIconLarge;
+    final iconInnerSize = compact ? AppTokens.componentSize.stateIconInnerCompact : AppTokens.componentSize.stateIconInnerLarge;
 
     Widget? primaryButton;
     if (primaryActionLabel != null) {

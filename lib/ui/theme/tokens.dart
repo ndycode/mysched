@@ -490,6 +490,16 @@ class AppComponentSize {
   final double alarmPreviewMaxHeight = 560;
   final double alarmActionHeight = 62;
   final double alarmPillHeight = 34;
+
+  // State illustration sizes
+  /// Compact state icon container size (56)
+  final double stateIconCompact = 56;
+  /// Large state icon container size (88)
+  final double stateIconLarge = 88;
+  /// Compact state icon inner size (28)
+  final double stateIconInnerCompact = 28;
+  /// Large state icon inner size (36)
+  final double stateIconInnerLarge = 36;
 }
 
 /// Font weight tokens for consistent typography emphasis.

@@ -253,8 +253,8 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
               : [
                   BoxShadow(
                     color: colors.shadow.withValues(alpha: hovered ? AppOpacity.highlight : AppOpacity.faint),
-                    blurRadius: hovered ? 16 : 12,
-                    offset: hovered ? const Offset(0, 6) : const Offset(0, 4),
+                    blurRadius: hovered ? AppTokens.shadow.xxl : AppTokens.shadow.xl,
+                    offset: hovered ? AppShadowOffset.md : AppShadowOffset.sm,
                   ),
                 ],
         );
@@ -446,7 +446,7 @@ class DividerX extends StatelessWidget {
   Widget build(BuildContext context) {
     final divider = Divider(
       height: AppTokens.spacing.xl,
-      thickness: 1,
+      thickness: AppTokens.componentSize.dividerThin,
       indent: inset,
       endIndent: inset,
     );

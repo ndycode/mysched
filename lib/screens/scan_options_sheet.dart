@@ -57,9 +57,9 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                   ? theme.colorScheme.surfaceContainerHigh
                   : theme.colorScheme.surface,
               borderColor: theme.colorScheme.outline.withValues(
-                  alpha: theme.brightness == Brightness.dark ? 0.12 : 0.4),
+                  alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
               borderRadius: AppTokens.radius.xl,
-              elevation: 12,
+              elevation: AppTokens.shadow.elevationLight,
               child: ClipRRect(
                 borderRadius: AppTokens.radius.xl,
                 child: SingleChildScrollView(

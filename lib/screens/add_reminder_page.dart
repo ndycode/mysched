@@ -33,7 +33,7 @@ class AddReminderPage extends StatelessWidget {
         ScreenSection(
           decorated: false,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 640),
+            constraints: const BoxConstraints(maxWidth: AppLayout.contentMaxWidthMedium),
             child: AddReminderForm(
               api: api,
               editing: editing,
@@ -79,7 +79,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: AppLayout.sheetMaxWidth,
-            maxHeight: media.size.height * 0.85,
+            maxHeight: media.size.height * AppScale.sheetHeightRatio,
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
@@ -92,7 +92,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
@@ -324,7 +324,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
-            borderSide: BorderSide(color: colors.primary, width: 2),
+            borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerBold),
           ),
         );
 

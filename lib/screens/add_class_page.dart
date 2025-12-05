@@ -303,7 +303,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
         child: ConstrainedBox(
           constraints: BoxConstraints(
             maxWidth: AppLayout.sheetMaxWidth,
-            maxHeight: media.size.height * 0.85,
+            maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
@@ -316,7 +316,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                 color: theme.brightness == Brightness.dark
                     ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? 1 : 0.5,
+                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
@@ -845,7 +845,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final banner = () {
       if (_loadingInstructors) {
         return Container(
-          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg + 2),
+          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg + AppTokens.componentSize.paddingAdjust),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.lg,
             color: colors.surfaceContainerHigh,
@@ -1069,7 +1069,7 @@ class _AddClassFormState extends State<AddClassForm> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
-            borderSide: BorderSide(color: colors.primary, width: 2),
+            borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerBold),
           ),
         );
 
@@ -1092,7 +1092,7 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
@@ -1152,7 +1152,7 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
@@ -1176,7 +1176,7 @@ class _AddClassFormState extends State<AddClassForm> {
               onTap: _submitting ? null : _pickDay,
               borderRadius: AppTokens.radius.lg,
               child: Container(
-                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + 2),
+                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + AppTokens.componentSize.paddingAdjust),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHigh,
                   borderRadius: AppTokens.radius.lg,
@@ -1257,7 +1257,7 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? 1 : 0.5,
+            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null

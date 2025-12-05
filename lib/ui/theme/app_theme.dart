@@ -74,7 +74,7 @@ class AppTheme {
       ),
       dividerTheme: DividerThemeData(
         color: colors.outline.withValues(alpha: AppOpacity.soft),
-        thickness: 1,
+        thickness: AppTokens.componentSize.dividerThin,
         space: AppTokens.spacing.lg,
       ),
       iconTheme: IconThemeData(color: colors.onSurface),

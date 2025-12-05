@@ -450,12 +450,65 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           sections.add(
             ScreenSection(
               decorated: false,
-              child: StateDisplay(
-                variant: StateVariant.empty,
-                title: 'No reminders yet',
-                message:
-                    'Tap "New reminder" to create one. We\'ll keep it in sync across devices.',
-                compact: true,
+              child: CardX(
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.xxl,
+                  vertical: spacing.quad,
+                ),
+                backgroundColor:
+                    isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderColor: colors.outline.withValues(
+                  alpha: isDark ? AppOpacity.overlay : AppOpacity.divider,
+                ),
+                borderRadius: AppTokens.radius.xl,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: spacing.quad + spacing.xxl,
+                      height: spacing.quad + spacing.xxl,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            colors.primary.withValues(alpha: AppOpacity.medium),
+                            colors.primary.withValues(alpha: AppOpacity.highlight),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: colors.primary.withValues(alpha: AppOpacity.accent),
+                          width: AppTokens.componentSize.dividerThick,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.notifications_none_rounded,
+                        size: spacing.xxxl + spacing.sm,
+                        color: colors.primary,
+                      ),
+                    ),
+                    SizedBox(height: spacing.xxl + spacing.xs),
+                    Text(
+                      'No reminders yet',
+                      style: AppTokens.typography.headline.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                        letterSpacing: AppLetterSpacing.tight,
+                        color: colors.onSurface,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    SizedBox(height: spacing.md),
+                    Text(
+                      'Tap "New reminder" to create one. We\'ll keep it in sync across devices.',
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        height: AppLineHeight.body,
+                        color: colors.onSurfaceVariant,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
               ),
             ),
           );

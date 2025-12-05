@@ -179,7 +179,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 BoxShadow(
                   color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.statusBg),
                   blurRadius: AppTokens.shadow.xxl,
-                  offset: const Offset(0, 10),
+                  offset: AppShadowOffset.modal,
                 ),
               ],
             ),
@@ -424,7 +424,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),
@@ -449,7 +449,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),
@@ -474,7 +474,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),
@@ -499,7 +499,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),
@@ -528,7 +528,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           BoxShadow(
                             color: colors.shadow.withValues(alpha: AppOpacity.faint),
                             blurRadius: AppTokens.shadow.md,
-                            offset: const Offset(0, 4),
+                            offset: AppShadowOffset.sm,
                           ),
                         ],
                 ),
@@ -558,7 +558,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           BoxShadow(
                             color: colors.shadow.withValues(alpha: AppOpacity.faint),
                             blurRadius: AppTokens.shadow.md,
-                            offset: const Offset(0, 4),
+                            offset: AppShadowOffset.sm,
                           ),
                         ],
                 ),
@@ -601,7 +601,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),
@@ -629,7 +629,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         BoxShadow(
                           color: colors.shadow.withValues(alpha: AppOpacity.faint),
                           blurRadius: AppTokens.shadow.lg,
-                          offset: const Offset(0, 4),
+                          offset: AppShadowOffset.sm,
                         ),
                       ],
               ),

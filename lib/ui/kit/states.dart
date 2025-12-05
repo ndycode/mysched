@@ -444,7 +444,7 @@ class InfoBanner extends StatelessWidget {
     }
 
     return ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 600),
+      constraints: const BoxConstraints(maxWidth: AppLayout.contentMaxWidth),
       child: Container(
         padding: spacing.edgeInsetsSymmetric(
           horizontal: spacing.lg,

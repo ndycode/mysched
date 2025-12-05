@@ -398,6 +398,7 @@ class AppComponentSize {
   final double dividerThick = 1.5;
   final double dividerBold = 2;
   final double strokeHeavy = 6;
+  final double paddingAdjust = 2;
 
   // Button heights
   /// Compact icon/button size (used for small icon actions)
@@ -721,6 +722,9 @@ class AppLayout {
   /// Maximum width for main content areas.
   static const double contentMaxWidth = 600.0;
 
+  /// Slightly wider content max width for forms.
+  static const double contentMaxWidthMedium = 640.0;
+
   /// Wide content max width for tablets/desktop.
   static const double contentMaxWidthWide = 720.0;
 
@@ -967,4 +971,7 @@ class AppScale {
 
   /// Crop dialog width ratio (0.8 = 80% of screen)
   static const double cropDialogRatio = 0.8;
+
+  /// Sheet max height ratio (0.85 = 85% of screen)
+  static const double sheetHeightRatio = 0.85;
 }

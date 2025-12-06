@@ -32,6 +32,7 @@ class ScheduleMessageCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -88,7 +89,7 @@ class ScheduleMessageCard extends StatelessWidget {
                     Text(
                       message,
                       style: AppTokens.typography.body.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                        color: palette.muted.withValues(alpha: AppOpacity.prominent),
                         height: AppLineHeight.relaxed,
                       ),
                     ),
@@ -139,6 +140,8 @@ class OfflineBanner extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final text = lastSynced == null
         ? 'You are viewing your saved schedule offline.'
         : 'You are viewing your saved schedule from '
@@ -160,7 +163,7 @@ class OfflineBanner extends StatelessWidget {
             child: Text(
               '$text We\'ll refresh automatically when you\'re back online.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
           ),

@@ -192,10 +192,12 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final menuButton = _buildMenuButton(
       iconColor:
-          colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+          palette.muted.withValues(alpha: AppOpacity.prominent),
     );
 
     final hero = Column(
@@ -469,6 +471,7 @@ class _RemindersStyleShell extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final cardBackground = elevatedCardBackground(theme);
     final borderColor = elevatedCardBorder(theme);
 
@@ -509,7 +512,7 @@ class _RemindersStyleShell extends StatelessWidget {
                       DateFormat('EEEE, MMM d').format(DateTime.now()),
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontSize: AppTokens.typography.subtitle.fontSize,
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                       ),
                     ),
                   ],
@@ -533,14 +536,14 @@ class _RemindersStyleShell extends StatelessWidget {
             child: Row(
               children: [
                 Icon(Icons.class_outlined,
-                    color: colors.onSurfaceVariant
+                    color: palette.muted
                         .withValues(alpha: AppOpacity.prominent)),
                 SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: Text(
                     subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ),
                 ),
@@ -908,8 +911,10 @@ class _AddClassFormState extends State<AddClassForm> {
   }) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final helperStyle = theme.textTheme.bodySmall?.copyWith(
-      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.glassCard),
+      color: palette.muted.withValues(alpha: AppOpacity.glassCard),
     );
 
     final banner = () {
@@ -936,7 +941,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 child: Text(
                   'Loading instructors...',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ),
@@ -952,17 +957,17 @@ class _AddClassFormState extends State<AddClassForm> {
             padding: spacing.edgeInsetsAll(spacing.lg),
             decoration: BoxDecoration(
               borderRadius: AppTokens.radius.lg,
-              color: colors.error.withValues(alpha: AppOpacity.highlight),
+              color: palette.danger.withValues(alpha: AppOpacity.highlight),
             ),
             child: Row(
               children: [
-                Icon(Icons.refresh_rounded, color: colors.error),
+                Icon(Icons.refresh_rounded, color: palette.danger),
                 SizedBox(width: spacing.md),
                 Expanded(
                   child: Text(
                     _instructorError!,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.error,
+                      color: palette.danger,
                     ),
                   ),
                 ),
@@ -1037,7 +1042,7 @@ class _AddClassFormState extends State<AddClassForm> {
                       Text(
                         'Instructor (optional)',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
+                          color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.xs),
@@ -1054,7 +1059,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 ),
                 Icon(
                   Icons.arrow_drop_down_rounded,
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                 ),
               ],
             ),
@@ -1142,6 +1147,7 @@ class _AddClassFormState extends State<AddClassForm> {
     // Note: SheetHeaderRow is handled by AddClassSheet wrapper, not the form
 
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final cardBorder = elevatedCardBorder(theme, solid: true);
     final cardBorderWidth = elevatedCardBorderWidth(theme);
@@ -1153,10 +1159,10 @@ class _AddClassFormState extends State<AddClassForm> {
           width: double.infinity,
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
-            color: colors.error.withValues(alpha: AppOpacity.highlight),
+            color: palette.danger.withValues(alpha: AppOpacity.highlight),
             borderRadius: AppTokens.radius.lg,
             border: Border.all(
-              color: colors.error.withValues(alpha: AppOpacity.overlay),
+              color: palette.danger.withValues(alpha: AppOpacity.overlay),
               width: AppTokens.componentSize.dividerThin,
             ),
           ),
@@ -1165,7 +1171,7 @@ class _AddClassFormState extends State<AddClassForm> {
             children: [
               Icon(
                 Icons.error_outline_rounded,
-                color: colors.error,
+                color: palette.danger,
                 size: AppTokens.iconSize.md,
               ),
               SizedBox(width: spacing.md),
@@ -1294,7 +1300,7 @@ class _AddClassFormState extends State<AddClassForm> {
                     ),
                     Icon(
                       Icons.arrow_drop_down_rounded,
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ],
                 ),
@@ -1427,6 +1433,8 @@ class _TimeField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     return InkWell(
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
@@ -1463,7 +1471,7 @@ class _TimeField extends StatelessWidget {
                   Text(
                     label,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.xs),
@@ -1486,7 +1494,7 @@ class _TimeField extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
+              color: palette.muted.withValues(alpha: AppOpacity.soft),
             ),
           ],
         ),

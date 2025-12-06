@@ -9,7 +9,9 @@ class StyleGuidePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final hero = ScreenHeroCard(
       title: 'Style guide',
@@ -53,7 +55,7 @@ class StyleGuidePage extends StatelessWidget {
               Text(
                 'Use CardX for grouped content. Combine with ScreenSection for consistent spacing.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
               ),
             ],

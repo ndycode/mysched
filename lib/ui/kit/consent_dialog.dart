@@ -26,6 +26,8 @@ Future<bool> ensureScanConsent(BuildContext context) async {
 
   final theme = Theme.of(context);
   final colors = theme.colorScheme;
+  final isDark = theme.brightness == Brightness.dark;
+  final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
   final spacing = AppTokens.spacing;
 
   final agreed = await AppModal.alert<bool>(
@@ -51,21 +53,21 @@ Future<bool> ensureScanConsent(BuildContext context) async {
             Text(
               'By continuing, you agree that MySched may collect data from your scan for research and scheduling purposes only.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             SizedBox(height: spacing.md),
             Text(
               'All data will be kept private, anonymized, and securely stored under the Data Privacy Act of 2012.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             SizedBox(height: spacing.md),
             Text(
               'Your participation is voluntary, and you can stop anytime. No personal info will be shared.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             SizedBox(height: spacing.lg),

@@ -28,6 +28,8 @@ class SettingsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final accent = accentColor ?? colors.primary;
 
@@ -62,7 +64,7 @@ class SettingsRow extends StatelessWidget {
                 Text(
                   description!,
                   style: AppTokens.typography.bodySecondary.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],
@@ -153,7 +155,9 @@ class NavigationRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return SettingsRow(
       icon: icon,
@@ -163,7 +167,7 @@ class NavigationRow extends StatelessWidget {
       onTap: onTap,
       trailing: trailing ?? Icon(
         Icons.chevron_right_rounded,
-        color: colors.onSurfaceVariant,
+        color: palette.muted,
       ),
     );
   }

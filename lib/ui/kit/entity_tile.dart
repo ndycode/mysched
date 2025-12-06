@@ -116,11 +116,11 @@ class EntityTile extends StatelessWidget {
       ? palette.danger.withValues(alpha: AppOpacity.secondary)
       : isActive
         ? colors.onSurface
-        : colors.onSurfaceVariant;
+        : palette.muted;
 
     final Color secondaryTextColor = isDisabled
       ? palette.danger.withValues(alpha: AppOpacity.secondary)
-      : colors.onSurfaceVariant.withValues(alpha: AppOpacity.glass);
+      : palette.muted.withValues(alpha: AppOpacity.glass);
 
     return Material(
       color: Colors.transparent,
@@ -219,9 +219,9 @@ class EntityTile extends StatelessWidget {
                     for (var i = 0; i < metadata.length; i++) ...[
                       if (i > 0) SizedBox(width: spacing.lg),
                       if (metadata[i].expanded)
-                        Expanded(child: _buildMetadataItem(colors, spacing, metadata[i], isDisabled, secondaryTextColor))
+                        Expanded(child: _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor))
                       else
-                          _buildMetadataItem(colors, spacing, metadata[i], isDisabled, secondaryTextColor),
+                          _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor),
                     ],
                   ],
                 ),
@@ -240,7 +240,7 @@ class EntityTile extends StatelessWidget {
   }
 
   Widget _buildMetadataItem(
-    ColorScheme colors,
+    ColorPalette palette,
     AppSpacing spacing,
     MetadataItem item,
     bool isDisabled,
@@ -252,7 +252,7 @@ class EntityTile extends StatelessWidget {
         Icon(
           item.icon,
           size: AppTokens.iconSize.sm,
-          color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
+          color: isDisabled ? secondaryTextColor : palette.muted,
         ),
         SizedBox(width: spacing.xsPlus),
         if (item.expanded)
@@ -261,7 +261,7 @@ class EntityTile extends StatelessWidget {
               item.label,
               style: AppTokens.typography.bodySecondary.copyWith(
                 fontWeight: AppTokens.fontWeight.medium,
-                color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
+                color: isDisabled ? secondaryTextColor : palette.muted,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -272,7 +272,7 @@ class EntityTile extends StatelessWidget {
             item.label,
             style: AppTokens.typography.bodySecondary.copyWith(
               fontWeight: AppTokens.fontWeight.medium,
-              color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
+              color: isDisabled ? secondaryTextColor : palette.muted,
             ),
           ),
       ],

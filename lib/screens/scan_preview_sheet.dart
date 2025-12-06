@@ -202,6 +202,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
     final spacing = AppTokens.spacing;
     final file = File(widget.imagePath);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
@@ -323,7 +324,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                                             'Image unavailable. Retake to continue.',
                                             textAlign: TextAlign.center,
                                             style: theme.textTheme.bodyMedium?.copyWith(
-                                              color: colors.error,
+                                              color: palette.danger,
                                             ),
                                           ),
                                         ),

@@ -81,11 +81,11 @@ class StatusBadge extends StatelessWidget {
         resolvedBgAlpha = AppOpacity.highlight;
         break;
       case StatusBadgeVariant.done:
-        resolvedAccent = accent ?? colors.onSurfaceVariant;
+        resolvedAccent = accent ?? palette.muted;
         resolvedBgAlpha = AppOpacity.overlay;
         break;
       case StatusBadgeVariant.overdue:
-        resolvedAccent = accent ?? colors.error;
+        resolvedAccent = accent ?? palette.danger;
         resolvedBgAlpha = AppOpacity.overlay;
         break;
       case StatusBadgeVariant.snoozed:
@@ -97,7 +97,7 @@ class StatusBadge extends StatelessWidget {
         resolvedBgAlpha = AppOpacity.statusBg;
         break;
       case StatusBadgeVariant.disabled:
-        resolvedAccent = accent ?? colors.error;
+        resolvedAccent = accent ?? palette.danger;
         resolvedBgAlpha = AppOpacity.statusBg;
         break;
       case StatusBadgeVariant.custom:
@@ -108,7 +108,7 @@ class StatusBadge extends StatelessWidget {
 
     final backgroundColor = switch (variant) {
       StatusBadgeVariant.done => colors.surfaceContainerHighest,
-      StatusBadgeVariant.disabled => colors.error.withValues(alpha: resolvedBgAlpha),
+      StatusBadgeVariant.disabled => palette.danger.withValues(alpha: resolvedBgAlpha),
       _ => resolvedAccent.withValues(alpha: resolvedBgAlpha),
     };
 

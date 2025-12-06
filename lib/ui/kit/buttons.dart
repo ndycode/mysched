@@ -308,7 +308,9 @@ class DestructiveTextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final baseTextStyle = AppTokens.typography.label;
 
     final isDisabled = onPressed == null || loading;
@@ -322,7 +324,7 @@ class DestructiveTextButton extends StatelessWidget {
         child: CircularProgressIndicator(
           strokeWidth: AppInteraction.progressStrokeWidthLarge,
           valueColor: AlwaysStoppedAnimation<Color>(
-            colors.error.withValues(alpha: AppOpacity.muted),
+            palette.danger.withValues(alpha: AppOpacity.muted),
           ),
         ),
       );
@@ -333,7 +335,7 @@ class DestructiveTextButton extends StatelessWidget {
     final child = _ButtonContent(
       label: displayLabel,
       leading: leadingWidget,
-      textColor: colors.error,
+      textColor: palette.danger,
       textStyle: baseTextStyle,
     );
 
@@ -359,8 +361,8 @@ class DestructiveTextButton extends StatelessWidget {
           ),
           textStyle: baseTextStyle,
           shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-          foregroundColor: colors.error,
-          disabledForegroundColor: colors.error.withValues(alpha: AppOpacity.soft),
+          foregroundColor: palette.danger,
+          disabledForegroundColor: palette.danger.withValues(alpha: AppOpacity.soft),
         ),
         child: child,
       ),
@@ -392,8 +394,10 @@ class DestructiveButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final baseTextStyle = AppTokens.typography.label;
 
     final isDisabled = onPressed == null || loading;
@@ -437,7 +441,7 @@ class DestructiveButton extends StatelessWidget {
               },
         style: FilledButton.styleFrom(
           minimumSize: Size.fromHeight(minHeight ?? AppTokens.componentSize.buttonLg),
-          backgroundColor: colors.error,
+          backgroundColor: palette.danger,
           foregroundColor: colors.onError,
           padding: AppTokens.spacing.edgeInsetsSymmetric(
             horizontal: AppTokens.spacing.xl,
@@ -445,7 +449,7 @@ class DestructiveButton extends StatelessWidget {
           ),
           textStyle: baseTextStyle,
           shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-          disabledBackgroundColor: colors.error.withValues(alpha: AppOpacity.skeletonLight),
+          disabledBackgroundColor: palette.danger.withValues(alpha: AppOpacity.skeletonLight),
           disabledForegroundColor: colors.onError.withValues(alpha: AppOpacity.prominent),
         ).copyWith(
           overlayColor: WidgetStateProperty.resolveWith((states) {

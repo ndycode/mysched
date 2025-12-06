@@ -78,6 +78,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final dateLabel = DateFormat('EEEE, MMM d').format(now);
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -150,7 +151,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     Text(
                       dateLabel,
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
@@ -169,7 +170,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      foregroundColor: colors.onSurfaceVariant,
+                      foregroundColor: palette.muted,
                       backgroundColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: AppTokens.radius.md,
@@ -202,7 +203,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     ? 'View all your scheduled classes at a glance.'
                     : 'Review your weekly plan, add sessions, or rescan as needed.',
             style: AppTokens.typography.caption.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xl),
@@ -271,7 +272,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 foregroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.onSurfaceVariant
+                      : palette.muted
                           .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
@@ -336,7 +337,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                             '+${display.length - totalToShow} more class'
                             '${display.length - totalToShow == 1 ? '' : 'es'} in scope',
                             style: AppTokens.typography.body.copyWith(
-                              color: colors.onSurfaceVariant,
+                              color: palette.muted,
                             ),
                           ),
                         ],
@@ -393,7 +394,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                                         : 'No classes this week',
                             style: AppTokens.typography.subtitle.copyWith(
                               fontWeight: AppTokens.fontWeight.bold,
-                              color: colors.onSurfaceVariant,
+                              color: palette.muted,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -403,7 +404,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                                 ? 'Try a different name, classroom, or scope.'
                                 : 'Switch filters or add a class from Review schedule.',
                             style: AppTokens.typography.bodySecondary.copyWith(
-                              color: colors.onSurfaceVariant,
+                              color: palette.muted,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -432,6 +433,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final dividerColor = colors.outlineVariant.withValues(
       alpha: theme.brightness == Brightness.dark
           ? AppOpacity.border
@@ -524,7 +527,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
           widgets.add(
             buildSectionHeader(
               'Completed',
-              colors.onSurfaceVariant,
+              palette.muted,
               Icons.task_alt_rounded,
               display.length - upcomingCount,
             ),

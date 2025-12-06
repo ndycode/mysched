@@ -150,6 +150,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final dateLabel = DateFormat('EEEE, MMM d').format(widget.now);
 
     final hasClasses =
@@ -229,7 +230,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                     Text(
                       dateLabel,
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
@@ -247,7 +248,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                           Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      foregroundColor: colors.onSurfaceVariant,
+                      foregroundColor: palette.muted,
                       backgroundColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: AppTokens.radius.md,
@@ -276,7 +277,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
           Text(
             'Tap a class to view details, enable alarms, or edit reminders.',
             style: AppTokens.typography.caption.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xl),
@@ -311,7 +312,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                 foregroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.onSurfaceVariant
+                      : palette.muted
                           .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
@@ -339,18 +340,18 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
             decoration: InputDecoration(
               hintText: 'Search classes...',
               hintStyle: AppTokens.typography.body.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
               prefixIcon: Icon(
                 Icons.search_rounded,
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
                 size: AppTokens.iconSize.md,
               ),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
                       icon: Icon(
                         Icons.clear_rounded,
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         size: AppTokens.iconSize.md,
                       ),
                       onPressed: () {
@@ -794,7 +795,7 @@ class ScheduleSummaryCard extends StatelessWidget {
                   icon: Icons.toggle_off_outlined,
                   value: '${summary.disabled}',
                   label: 'Disabled',
-                  tint: colors.error,
+                  tint: palette.danger,
                   displayStyle: true,
                 ),
               ),
@@ -1099,7 +1100,10 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       width: double.infinity,
@@ -1143,7 +1147,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
             title,
             style: AppTokens.typography.subtitle.copyWith(
               fontWeight: AppTokens.fontWeight.bold,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
             textAlign: TextAlign.center,
           ),
@@ -1151,7 +1155,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant
+              color: palette.muted
                   .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
@@ -1349,7 +1353,7 @@ class ScheduleRow extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.only(left: AppTokens.spacing.sm),
               decoration: BoxDecoration(
-                color: colors.error,
+                color: palette.danger,
                 borderRadius: AppTokens.radius.lg,
               ),
               child: Column(
@@ -1397,13 +1401,15 @@ class _ScheduleInstructorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final textStyle =
         (dense ? AppTokens.typography.body : AppTokens.typography.subtitle)
             .copyWith(
       fontWeight: AppTokens.fontWeight.semiBold,
       color: inverse
           ? colors.onPrimary.withValues(alpha: AppOpacity.full)
-          : colors.onSurfaceVariant,
+          : palette.muted,
     );
     final spacing = AppTokens.spacing;
     final sizes = AppTokens.componentSize;

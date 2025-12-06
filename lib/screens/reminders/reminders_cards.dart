@@ -127,6 +127,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       width: double.infinity,
@@ -170,7 +172,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
             title,
             style: AppTokens.typography.subtitle.copyWith(
               fontWeight: AppTokens.fontWeight.bold,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
             textAlign: TextAlign.center,
           ),
@@ -178,7 +180,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant
+              color: palette.muted
                   .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
@@ -213,6 +215,7 @@ class ReminderSummaryCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final highlight = summary.highlight;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final card = Container(
@@ -297,7 +300,7 @@ class ReminderSummaryCard extends StatelessWidget {
               Expanded(
                 child: MetricChip(
                   icon: Icons.warning_amber_rounded,
-                  tint: colors.error,
+                  tint: palette.danger,
                   label: 'Overdue',
                   value: '${summary.overdue}',
                   displayStyle: true,
@@ -618,6 +621,7 @@ class ReminderGroupCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final queuedCount =
         group.items.where((item) => queuedIds.contains(item.id)).length;
@@ -663,7 +667,7 @@ class ReminderGroupCard extends StatelessWidget {
                 Text(
                   '${group.items.length} reminder${group.items.length == 1 ? '' : 's'}',
                   style: AppTokens.typography.caption.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                     fontWeight: AppTokens.fontWeight.medium,
                   ),
                 ),
@@ -689,7 +693,7 @@ class ReminderGroupCard extends StatelessWidget {
                             Text(
                               'Synced',
                               style: AppTokens.typography.caption.copyWith(
-                                color: colors.onSurfaceVariant,
+                                color: palette.muted,
                                 fontWeight: AppTokens.fontWeight.semiBold,
                               ),
                             ),
@@ -829,7 +833,7 @@ class ReminderRow extends StatelessWidget {
                       style: AppTokens.typography.subtitle.copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                         letterSpacing: AppLetterSpacing.compact,
-                        color: isDone ? colors.onSurfaceVariant : colors.onSurface,
+                        color: isDone ? palette.muted : colors.onSurface,
                         decoration: isDone ? TextDecoration.lineThrough : null,
                       ),
                       maxLines: 2,
@@ -840,7 +844,7 @@ class ReminderRow extends StatelessWidget {
                       Text(
                         details,
                         style: AppTokens.typography.bodySecondary.copyWith(
-                          color: colors.onSurfaceVariant
+                          color: palette.muted
                               .withValues(alpha: AppOpacity.muted),
                         ),
                         maxLines: 2,
@@ -853,7 +857,7 @@ class ReminderRow extends StatelessWidget {
                         Icon(
                           Icons.schedule_rounded,
                           size: AppTokens.iconSize.xs,
-                          color: colors.onSurfaceVariant
+                          color: palette.muted
                               .withValues(alpha: AppOpacity.muted),
                         ),
                         SizedBox(width: spacing.xsPlus),
@@ -861,7 +865,7 @@ class ReminderRow extends StatelessWidget {
                           child: Text(
                             dueLabel,
                             style: AppTokens.typography.caption.copyWith(
-                              color: colors.onSurfaceVariant
+                              color: palette.muted
                                   .withValues(alpha: AppOpacity.prominent),
                               fontWeight: AppTokens.fontWeight.medium,
                             ),
@@ -905,7 +909,7 @@ class ReminderRow extends StatelessWidget {
             child: Container(
               margin: EdgeInsets.only(left: spacing.sm),
               decoration: BoxDecoration(
-                color: colors.error,
+                color: palette.danger,
                 borderRadius: AppTokens.radius.lg,
               ),
               child: Column(
@@ -1098,6 +1102,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     return Container(
@@ -1172,7 +1177,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
                     Text(
                       'Pinned headers keep each group visible.',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
@@ -1213,7 +1218,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
                 foregroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.onSurfaceVariant
+                      : palette.muted
                           .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
@@ -1285,7 +1290,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
                 icon: Icon(
                   Icons.sort_rounded,
                   size: AppTokens.iconSize.md,
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                 ),
                 style: AppTokens.typography.body.copyWith(
                   color: colors.onSurface,

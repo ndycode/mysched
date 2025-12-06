@@ -272,7 +272,7 @@ class _SplashContentState extends State<_SplashContent>
                 Text(
                   'Your Schedule, Simplified',
                   style: AppTokens.typography.body.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: colors.muted,
                     fontWeight: AppTokens.fontWeight.regular,
                   ),
                 ),
@@ -321,6 +321,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final badgeColor = widget.accent.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.statusBg);
 
     return AlertDialog(
@@ -354,7 +355,7 @@ class _PermissionDialogState extends State<_PermissionDialog> {
           Text(
             widget.message,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xxl),
@@ -392,6 +393,8 @@ class _PermissionSettingsDialog extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
@@ -414,7 +417,7 @@ class _PermissionSettingsDialog extends StatelessWidget {
           Text(
             'You denied this permission. You can enable it later from system settings.',
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xxl),
@@ -538,6 +541,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
@@ -566,7 +570,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               Text(
                 'Turn on these settings so class reminders fire on time.',
                 style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                   fontSize: AppTokens.typography.bodySecondary.fontSize,
                 ),
               ),
@@ -611,7 +615,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                     Text(
                       'Checking status...',
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         fontSize: AppTokens.typography.caption.fontSize,
                       ),
                     ),
@@ -621,7 +625,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 Text(
                   'Status updates automatically after you return.',
                   style: AppTokens.typography.bodySecondary.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                     fontSize: AppTokens.typography.caption.fontSize,
                   ),
                 ),

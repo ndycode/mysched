@@ -98,6 +98,7 @@ class StateDisplay extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     // Resolve colors based on variant
@@ -109,7 +110,7 @@ class StateDisplay extends StatelessWidget {
         displayIcon = icon ?? Icons.inbox_outlined;
         break;
       case StateVariant.error:
-        tintColor = colors.error;
+        tintColor = palette.danger;
         displayIcon = icon ?? Icons.error_outline_rounded;
         break;
       case StateVariant.success:
@@ -214,7 +215,7 @@ class StateDisplay extends StatelessWidget {
                 child: Text(
                   message,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -325,6 +326,7 @@ class MessageCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final tint = tintColor ?? colors.primary;
 
@@ -367,7 +369,7 @@ class MessageCard extends StatelessWidget {
                     Text(
                       message,
                       style: theme.textTheme.bodyMedium?.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                       ),
                     ),
                   ],
@@ -426,6 +428,7 @@ class InfoBanner extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final Color tint;
@@ -434,13 +437,13 @@ class InfoBanner extends StatelessWidget {
         tint = colors.primary;
         break;
       case InfoBannerVariant.warning:
-        tint = colors.secondary;
+        tint = palette.warning;
         break;
       case InfoBannerVariant.error:
-        tint = colors.error;
+        tint = palette.danger;
         break;
       case InfoBannerVariant.success:
-        tint = colors.tertiary;
+        tint = palette.positive;
         break;
     }
 

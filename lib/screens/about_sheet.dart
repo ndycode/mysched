@@ -33,6 +33,7 @@ class AboutSheet extends StatelessWidget {
     final maxHeight = media.size.height -
         (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
@@ -152,7 +153,7 @@ class AboutSheet extends StatelessWidget {
                               style: theme.textTheme.labelSmall?.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
-                                color: colors.onSurfaceVariant,
+                                color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
@@ -205,7 +206,7 @@ class AboutSheet extends StatelessWidget {
                               style: theme.textTheme.labelSmall?.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
-                                color: colors.onSurfaceVariant,
+                                color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
@@ -251,7 +252,7 @@ class AboutSheet extends StatelessWidget {
                               style: theme.textTheme.labelSmall?.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
-                                color: colors.onSurfaceVariant,
+                                color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
@@ -342,7 +343,7 @@ class AboutSheet extends StatelessWidget {
                                   Text(
                                     'Updated October 2025',
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
+                                      color: palette.muted,
                                     ),
                                   ),
                                 ],

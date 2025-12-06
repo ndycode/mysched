@@ -28,6 +28,8 @@ class FormFieldTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return InkWell(
       borderRadius: AppTokens.radius.lg,
@@ -68,7 +70,7 @@ class FormFieldTile extends StatelessWidget {
                   Text(
                     label,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.xs),
@@ -92,7 +94,7 @@ class FormFieldTile extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.subtle),
+              color: palette.muted.withValues(alpha: AppOpacity.subtle),
             ),
           ],
         ),

@@ -91,7 +91,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                           Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      foregroundColor: colors.onSurfaceVariant,
+                      foregroundColor: palette.muted,
                       backgroundColor: Colors.transparent,
                       shape: RoundedRectangleBorder(
                         borderRadius: AppTokens.radius.md,
@@ -470,7 +470,10 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       width: double.infinity,
@@ -514,7 +517,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
             title,
             style: AppTokens.typography.subtitle.copyWith(
               fontWeight: AppTokens.fontWeight.bold,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
             textAlign: TextAlign.center,
           ),
@@ -522,7 +525,7 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant
+              color: palette.muted
                   .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
@@ -629,7 +632,7 @@ class _UpcomingListTile extends StatelessWidget {
                                 ? colors.onSurface
                                     .withValues(alpha: AppOpacity.subtle)
                                 : (isPast
-                                    ? colors.onSurfaceVariant
+                                    ? palette.muted
                                     : colors.onSurface),
                             decoration: disabled || isPast
                                 ? TextDecoration.lineThrough
@@ -689,7 +692,7 @@ class _UpcomingListTile extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant
+                    color: palette.muted
                         .withValues(alpha: AppOpacity.muted),
                   ),
                   SizedBox(width: spacing.xsPlus),
@@ -697,7 +700,7 @@ class _UpcomingListTile extends StatelessWidget {
                     timeRange,
                     style: AppTokens.typography.bodySecondary.copyWith(
                       fontWeight: AppTokens.fontWeight.medium,
-                      color: colors.onSurfaceVariant
+                      color: palette.muted
                           .withValues(alpha: AppOpacity.prominent),
                     ),
                   ),
@@ -706,7 +709,7 @@ class _UpcomingListTile extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: AppTokens.iconSize.sm,
-                      color: colors.onSurfaceVariant
+                      color: palette.muted
                           .withValues(alpha: AppOpacity.muted),
                     ),
                     SizedBox(width: spacing.xsPlus),
@@ -715,7 +718,7 @@ class _UpcomingListTile extends StatelessWidget {
                         location,
                         style: AppTokens.typography.bodySecondary.copyWith(
                           fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurfaceVariant
+                          color: palette.muted
                               .withValues(alpha: AppOpacity.prominent),
                         ),
                         maxLines: 1,
@@ -775,7 +778,8 @@ class _InstructorRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final textColor = inverse ? tint : colors.onSurfaceVariant;
+    final palette = theme.brightness == Brightness.dark ? AppTokens.darkColors : AppTokens.lightColors;
+    final textColor = inverse ? tint : palette.muted;
     final iconColor =
         inverse ? tint.withValues(alpha: AppOpacity.prominent) : tint;
 

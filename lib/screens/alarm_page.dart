@@ -16,6 +16,7 @@ class AlarmPage extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final backButton = IconButton(
       splashRadius: AppInteraction.splashRadius,
@@ -67,7 +68,7 @@ class AlarmPage extends StatelessWidget {
                 'Live preview',
                 style: theme.textTheme.titleMedium?.copyWith(
                   fontWeight: AppTokens.fontWeight.bold,
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                 ),
               ),
               SizedBox(height: spacing.sm),
@@ -115,7 +116,7 @@ class AlarmPage extends StatelessWidget {
               'MySched syncs your timetable to Android\'s exact alarm API. '
               'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
           ),

@@ -637,6 +637,7 @@ class DashboardScreenState extends State<DashboardScreen>
   _ReminderAlert? _resolveReminderAlert(
     DateTime now,
     ColorScheme colors,
+    ColorPalette palette,
   ) {
     final pending = _reminders.where((entry) => !entry.isCompleted).toList()
       ..sort(
@@ -660,7 +661,7 @@ class DashboardScreenState extends State<DashboardScreen>
         icon: Icons.warning_amber_rounded,
         title: 'Overdue reminder',
         message: '${first.title} • $approx overdue',
-        tint: colors.error,
+        tint: palette.danger,
         actionLabel: 'Open reminders',
       );
     }
@@ -825,8 +826,11 @@ class DashboardScreenState extends State<DashboardScreen>
 
     final greeting = 'Good day, ${_resolveDisplayName()}! \u{1F44B}';
     final dateLabel = DateFormat('EEEE, MMM d').format(now);
-    final colors = Theme.of(context).colorScheme;
-    final reminderAlert = _resolveReminderAlert(now, colors);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final reminderAlert = _resolveReminderAlert(now, colors, palette);
     final scopeMessage = _resolveScopeMessage(summary);
     final refreshLabel = _formatRefreshLabel(now);
 

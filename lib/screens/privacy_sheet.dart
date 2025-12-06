@@ -20,6 +20,7 @@ class PrivacySheet extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final maxHeight = MediaQuery.of(context).size.height -
         (AppTokens.spacing.xxxl * 2 +
             MediaQuery.of(context).padding.top +
@@ -154,7 +155,7 @@ class PrivacySheet extends StatelessWidget {
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
-                          color: colors.onSurfaceVariant,
+                          color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
@@ -191,7 +192,7 @@ class PrivacySheet extends StatelessWidget {
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
-                          color: colors.onSurfaceVariant,
+                          color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
@@ -236,7 +237,7 @@ class PrivacySheet extends StatelessWidget {
                         style: theme.textTheme.labelSmall?.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
-                          color: colors.onSurfaceVariant,
+                          color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
@@ -308,7 +309,7 @@ class PrivacySheet extends StatelessWidget {
                             Text(
                               'Last updated October 2025',
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colors.onSurfaceVariant,
+                                color: palette.muted,
                               ),
                             ),
                           ],

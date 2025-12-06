@@ -27,6 +27,8 @@ class QuickActionTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = iconColor ?? colors.primary;
 
     return InkWell(
@@ -72,7 +74,7 @@ class QuickActionTile extends StatelessWidget {
                   Text(
                     description,
                     style: AppTokens.typography.caption.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ),
                 ],
@@ -80,7 +82,7 @@ class QuickActionTile extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.subtle),
+              color: palette.muted.withValues(alpha: AppOpacity.subtle),
             ),
           ],
         ),

@@ -26,6 +26,8 @@ class InstructorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final size = avatarSize ?? AppTokens.componentSize.badgeLg;
 
@@ -67,7 +69,7 @@ class InstructorRow extends StatelessWidget {
             name,
             style: AppTokens.typography.caption.copyWith(
               fontWeight: AppTokens.fontWeight.medium,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,

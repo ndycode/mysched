@@ -32,6 +32,7 @@ class _DashboardReminderCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final now = DateTime.now();
     final scoped = reminders
         .where(
@@ -135,7 +136,7 @@ class _DashboardReminderCard extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppTokens.typography.bodySecondary.copyWith(
-                        color: colors.onSurfaceVariant,
+                        color: palette.muted,
                         fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
@@ -174,7 +175,7 @@ class _DashboardReminderCard extends StatelessWidget {
                 foregroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.onSurfaceVariant
+                      : palette.muted
                           .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
@@ -197,7 +198,7 @@ class _DashboardReminderCard extends StatelessWidget {
           _ReminderProgressPill(
             label: completionLabel,
             progress: completionProgress,
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
           ),
           SizedBox(height: spacing.md),
           if (display.isEmpty) ...[
@@ -308,8 +309,8 @@ class _ReminderProgressPill extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final percent = (progress.clamp(0.0, 1.0) * 100).round();
 
-    // Use neutral gray for the card, matching Schedule's "Completed" section
-    final headerColor = colors.onSurfaceVariant;
+    // Use the passed color parameter for the card
+    final headerColor = color;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md),
@@ -396,6 +397,7 @@ class _DashboardReminderTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final isDone = entry.isCompleted;
 
@@ -455,7 +457,7 @@ class _DashboardReminderTile extends StatelessWidget {
                   style: AppTokens.typography.subtitle.copyWith(
                     fontWeight: AppTokens.fontWeight.bold,
                     letterSpacing: AppLetterSpacing.compact,
-                    color: isDone ? colors.onSurfaceVariant : colors.onSurface,
+                    color: isDone ? palette.muted : colors.onSurface,
                     decoration: isDone ? TextDecoration.lineThrough : null,
                   ),
                   maxLines: 2,
@@ -466,7 +468,7 @@ class _DashboardReminderTile extends StatelessWidget {
                   Text(
                     entry.details!,
                     style: AppTokens.typography.bodySecondary.copyWith(
-                      color: colors.onSurfaceVariant
+                      color: palette.muted
                           .withValues(alpha: AppOpacity.muted),
                     ),
                     maxLines: 2,
@@ -479,7 +481,7 @@ class _DashboardReminderTile extends StatelessWidget {
                     Icon(
                       Icons.schedule_rounded,
                       size: AppTokens.iconSize.xs,
-                      color: colors.onSurfaceVariant
+                      color: palette.muted
                           .withValues(alpha: AppOpacity.muted),
                     ),
                     SizedBox(width: spacing.xsPlus),
@@ -487,7 +489,7 @@ class _DashboardReminderTile extends StatelessWidget {
                       child: Text(
                         dueLabel,
                         style: AppTokens.typography.caption.copyWith(
-                          color: colors.onSurfaceVariant
+                          color: palette.muted
                               .withValues(alpha: AppOpacity.prominent),
                           fontWeight: AppTokens.fontWeight.medium,
                         ),

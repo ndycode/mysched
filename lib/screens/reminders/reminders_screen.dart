@@ -216,6 +216,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     return PopupMenuButton<_ReminderSummaryMenu>(
@@ -259,7 +260,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           child: Icon(
             Icons.more_vert_rounded,
             size: AppTokens.iconSize.md,
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
           ),
         ),
       ),
@@ -437,13 +438,13 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: AppOpacity.overlay),
+                        color: palette.danger.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.picture_as_pdf_outlined,
                         size: AppTokens.iconSize.md,
-                        color: colors.error,
+                        color: palette.danger,
                       ),
                     ),
                     SizedBox(width: spacing.md + spacing.micro),
@@ -501,13 +502,13 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: AppOpacity.overlay),
+                        color: palette.danger.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.restart_alt_rounded,
                         size: AppTokens.iconSize.md,
-                        color: colors.error,
+                        color: palette.danger,
                       ),
                     ),
                     SizedBox(width: spacing.md + spacing.micro),

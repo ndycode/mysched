@@ -39,6 +39,8 @@ class ScheduleList extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final byDay = <int, List<ClassItem>>{for (var d = 1; d <= 7; d++) d: []};
     for (final c in items) {
       byDay[c.day]!.add(c);
@@ -111,7 +113,7 @@ class ScheduleList extends StatelessWidget {
                 child: Text(
                   _dayLabel(d),
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                    color: palette.muted.withValues(alpha: AppOpacity.muted),
                     letterSpacing: AppLetterSpacing.widest,
                     fontWeight: AppTokens.fontWeight.semiBold,
                   ),
@@ -162,8 +164,10 @@ class _Row extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final textTheme = theme.textTheme;
-    final muted = colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted);
+    final muted = palette.muted.withValues(alpha: AppOpacity.muted);
     final title = (c.title ?? '').trim();
     final code = (c.code ?? '').trim();
     final room = (c.room ?? '').trim();
@@ -201,7 +205,7 @@ class _Row extends StatelessWidget {
 
     String? statusLabel;
     IconData? statusIcon;
-    Color statusForeground = colors.onSurfaceVariant;
+    Color statusForeground = palette.muted;
     Color statusBackground = colors.surfaceContainerHigh;
 
     if (isPast) {
@@ -240,7 +244,7 @@ class _Row extends StatelessWidget {
       background: Container(
         alignment: Alignment.centerRight,
         padding: spacing.edgeInsetsOnly(right: spacing.lg),
-        color: colors.error,
+        color: palette.danger,
         child: Icon(Icons.delete, color: colors.onError),
       ),
       confirmDismiss: (_) async {

@@ -77,6 +77,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeSettingsTile(ThemeData theme) {
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg),
@@ -101,7 +103,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'No battery use since last full charge',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],
@@ -114,6 +116,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeToggle(ThemeData theme) {
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md),
@@ -138,7 +142,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'Enable for real-time updates, disable to save battery',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],
@@ -147,7 +151,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
           SizedBox(width: AppTokens.spacing.lg),
           Icon(
             Icons.chevron_right_rounded,
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
             size: AppTokens.iconSize.lg,
           ),
           SizedBox(width: AppTokens.spacing.lg),
@@ -189,6 +193,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
 
   Widget _buildFakeRadio(ThemeData theme) {
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md),
@@ -236,7 +242,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 Text(
                   'Allow battery usage in background without restrictions. May use more battery.',
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],

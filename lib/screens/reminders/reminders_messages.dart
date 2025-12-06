@@ -29,6 +29,7 @@ class ReminderMessageCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -85,7 +86,7 @@ class ReminderMessageCard extends StatelessWidget {
                     Text(
                       message,
                       style: AppTokens.typography.body.copyWith(
-                        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                        color: palette.muted.withValues(alpha: AppOpacity.prominent),
                         height: AppLineHeight.relaxed,
                       ),
                     ),

@@ -892,6 +892,8 @@ class AnimatedBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     if (count <= 0) return const SizedBox.shrink();
 
@@ -901,7 +903,7 @@ class AnimatedBadge extends StatelessWidget {
       constraints: BoxConstraints(minWidth: size, minHeight: size),
       padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.xsPlus, vertical: AppTokens.spacing.micro),
       decoration: BoxDecoration(
-        color: color ?? colors.error,
+        color: color ?? palette.danger,
         borderRadius: BorderRadius.circular(size / 2),
       ),
       child: Center(

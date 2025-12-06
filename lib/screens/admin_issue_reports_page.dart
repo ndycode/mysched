@@ -96,6 +96,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final backButton = PressableScale(
       onTap: () {
@@ -112,7 +114,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         child: Icon(
           Icons.arrow_back_rounded,
           size: AppTokens.iconSize.md,
-          color: colors.onSurfaceVariant,
+          color: palette.muted,
         ),
       ),
     );
@@ -250,6 +252,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final bool isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final Color background = isDark
         ? colors.primary.withValues(alpha: AppOpacity.border)
         : Color.alphaBlend(
@@ -313,7 +316,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           Text(
             'Track what students are flagging and keep every synced class accurate.',
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.lg),
@@ -342,6 +345,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   Widget _buildFilterChips(ThemeData theme) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     return SizedBox(
       width: double.infinity,
       child: SegmentedButton<String>(
@@ -371,7 +376,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           foregroundColor: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.selected)
                 ? colors.primary
-                : colors.onSurfaceVariant
+                : palette.muted
                     .withValues(alpha: AppOpacity.prominent),
           ),
         ),
@@ -395,6 +400,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   Widget _buildReportCard(ThemeData theme, ClassIssueReport report) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final String statusLabel = _statusLabels[report.status] ?? report.status;
     final Color statusColor = _statusColor(report.status, colors);
@@ -514,7 +521,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             Text(
               scheduleLabel,
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
                 fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
@@ -540,7 +547,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             Text(
               report.note!.trim(),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
           ],
@@ -558,7 +565,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             Text(
               report.resolutionNote!.trim(),
               style: theme.textTheme.bodyMedium?.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
                 fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
@@ -567,7 +574,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           Text(
             '$reporterLabel | $timestampLabel',
             style: theme.textTheme.bodySmall?.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
         ],
@@ -578,6 +585,8 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   Widget _infoChip(ThemeData theme, IconData icon, String label) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     return Container(
       padding: spacing.edgeInsetsSymmetric(
         horizontal: spacing.smMd,
@@ -590,12 +599,12 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: colors.onSurfaceVariant),
+          Icon(icon, size: AppTokens.iconSize.sm, color: palette.muted),
           SizedBox(width: AppTokens.spacing.xs),
           Text(
             label,
             style: theme.textTheme.labelMedium?.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
@@ -725,6 +734,8 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
     final spacing = AppTokens.spacing;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return AlertDialog(
       backgroundColor: colors.surface,
@@ -758,7 +769,7 @@ class _ResolutionNoteDialogState extends State<_ResolutionNoteDialog> {
             Text(
               'Let other admins know what you changed so everyone stays informed.',
               style: AppTokens.typography.body.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             SizedBox(height: spacing.lg),

@@ -47,6 +47,8 @@ class InfoTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final accent = tint ?? colors.primary;
 
@@ -104,7 +106,7 @@ class InfoTile extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],
@@ -115,7 +117,7 @@ class InfoTile extends StatelessWidget {
           SizedBox(width: spacing.sm),
           Icon(
             Icons.chevron_right_rounded,
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
           ),
         ],
       ],

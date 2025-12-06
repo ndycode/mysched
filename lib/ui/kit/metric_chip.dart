@@ -49,6 +49,7 @@ class MetricChip extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = tint ?? colors.primary;
     final bgTint = backgroundTint ??
         (isDark
@@ -98,7 +99,7 @@ class MetricChip extends StatelessWidget {
                   label,
                   style: AppTokens.typography.caption.copyWith(
                     fontWeight: AppTokens.fontWeight.medium,
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],
@@ -154,7 +155,7 @@ class MetricChip extends StatelessWidget {
             label,
             style: AppTokens.typography.caption.copyWith(
               fontWeight: AppTokens.fontWeight.medium,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -164,7 +165,7 @@ class MetricChip extends StatelessWidget {
             Text(
               caption!,
               style: AppTokens.typography.caption.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,

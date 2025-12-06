@@ -28,6 +28,8 @@ class SheetHeaderRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = iconColor ?? colors.primary;
 
     return Row(
@@ -77,7 +79,7 @@ class SheetHeaderRow extends StatelessWidget {
               Text(
                 subtitle,
                 style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                   fontWeight: AppTokens.fontWeight.medium,
                 ),
               ),
@@ -96,7 +98,7 @@ class SheetHeaderRow extends StatelessWidget {
             child: Icon(
               Icons.close_rounded,
               size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
         ),

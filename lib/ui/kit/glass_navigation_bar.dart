@@ -246,8 +246,9 @@ class _GlassNavItemState extends State<_GlassNavItem>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final activeColor = colors.primary;
-    final inactiveColor = colors.onSurfaceVariant;
+    final inactiveColor = palette.muted;
     final highlightColor = activeColor.withValues(alpha: isDark ? AppOpacity.shadowBubble : AppOpacity.overlay);
     final activeIconColor = colors.onPrimary;
     final displayIcon =

@@ -75,6 +75,8 @@ class DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -98,7 +100,7 @@ class DetailRow extends StatelessWidget {
               Text(
                 label,
                 style: AppTokens.typography.caption.copyWith(
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                 ),
               ),
               SizedBox(height: AppTokens.spacing.xs),
@@ -114,7 +116,7 @@ class DetailRow extends StatelessWidget {
                 Text(
                   helper!,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ),
               ],

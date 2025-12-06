@@ -16,6 +16,8 @@ void showAppSnackBar(
 }) {
   final theme = Theme.of(context);
   final colors = theme.colorScheme;
+  final isDark = theme.brightness == Brightness.dark;
+  final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
   final media = MediaQuery.of(context);
   final spacing = AppTokens.spacing;
   final effectiveDuration = duration ?? AppTokens.durations.snackbarDuration;
@@ -41,7 +43,7 @@ void showAppSnackBar(
       icon = Icons.check_circle_rounded;
       break;
     case AppSnackBarType.error:
-      accent = colors.error;
+      accent = palette.danger;
       background = theme.brightness == Brightness.dark
           ? colors.surfaceContainerHigh
           : colors.surface;

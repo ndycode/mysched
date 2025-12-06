@@ -362,6 +362,8 @@ class _AmPmButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return PressableScale(
       onTap: onTap,
@@ -385,7 +387,7 @@ class _AmPmButton extends StatelessWidget {
             fontWeight: isSelected
                 ? AppTokens.fontWeight.semiBold
                 : AppTokens.fontWeight.regular,
-            color: isSelected ? colors.primary : colors.onSurfaceVariant,
+            color: isSelected ? colors.primary : palette.muted,
           ),
         ),
       ),

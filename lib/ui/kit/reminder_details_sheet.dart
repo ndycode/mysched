@@ -50,6 +50,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return SafeArea(
       child: Center(
@@ -128,7 +129,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             Text(
                               'Reminder details',
                               style: AppTokens.typography.bodySecondary.copyWith(
-                                color: isDark ? colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted) : colors.onSurfaceVariant,
+                                color: isDark ? palette.muted.withValues(alpha: AppOpacity.muted) : palette.muted,
                                 fontWeight: AppTokens.fontWeight.medium,
                               ),
                             ),
@@ -147,7 +148,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                           child: Icon(
                             Icons.close_rounded,
                             size: AppTokens.iconSize.md,
-                            color: colors.onSurfaceVariant,
+                            color: palette.muted,
                           ),
                         ),
                       ),
@@ -179,7 +180,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                 StatusInfoChip(
                                   icon: Icons.error_outline_rounded,
                                   label: 'Overdue',
-                                  color: colors.error,
+                                  color: palette.danger,
                                 ),
                               if (widget.entry.isSnoozed)
                                 StatusInfoChip(

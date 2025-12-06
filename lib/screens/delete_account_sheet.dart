@@ -246,18 +246,11 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
           child: Row(
             children: [
               Expanded(
-                child: FilledButton(
+                child: DestructiveButton(
+                  label: 'Delete account',
                   onPressed: _busy ? null : _attemptDelete,
-                  style: FilledButton.styleFrom(
-                    backgroundColor: colors.error,
-                    foregroundColor: colors.onError,
-                    minimumSize:
-                        Size.fromHeight(AppTokens.componentSize.buttonMd),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: AppTokens.radius.md,
-                    ),
-                  ),
-                  child: Text(_busy ? 'Deleting...' : 'Delete account'),
+                  loading: _busy,
+                  minHeight: AppTokens.componentSize.buttonMd,
                 ),
               ),
               SizedBox(width: spacing.md),

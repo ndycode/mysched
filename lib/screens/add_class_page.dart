@@ -739,14 +739,69 @@ class _AddClassFormState extends State<AddClassForm> {
   }
 
   Future<void> _pickStart() async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    
     final next = await showTimePicker(
       context: context,
       initialTime: _start,
       helpText: 'Class start time',
       builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
+        return Theme(
+          data: theme.copyWith(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.lg,
+              ),
+              dayPeriodShape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.md,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.xl,
+              ),
+              dialHandColor: colors.primary,
+              dialBackgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
+              entryModeIconColor: Colors.transparent, // Hide keyboard toggle
+              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                      : colors.surfaceContainerHighest),
+              hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurface),
+              dayPeriodColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                      : Colors.transparent),
+              dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurfaceVariant),
+              confirmButtonStyle: FilledButton.styleFrom(
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
+                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppTokens.radius.xl,
+                ),
+              ),
+              cancelButtonStyle: OutlinedButton.styleFrom(
+                foregroundColor: colors.onSurface,
+                side: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.soft)),
+                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppTokens.radius.xl,
+                ),
+              ),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            child: child!,
+          ),
         );
       },
     );
@@ -756,14 +811,69 @@ class _AddClassFormState extends State<AddClassForm> {
   }
 
   Future<void> _pickEnd() async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    
     final next = await showTimePicker(
       context: context,
       initialTime: _end,
       helpText: 'Class end time',
       builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
+        return Theme(
+          data: theme.copyWith(
+            timePickerTheme: TimePickerThemeData(
+              backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
+              hourMinuteShape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.lg,
+              ),
+              dayPeriodShape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.md,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: AppTokens.radius.xl,
+              ),
+              dialHandColor: colors.primary,
+              dialBackgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
+              entryModeIconColor: Colors.transparent, // Hide keyboard toggle
+              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                      : colors.surfaceContainerHighest),
+              hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurface),
+              dayPeriodColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                      : Colors.transparent),
+              dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
+                  states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurfaceVariant),
+              confirmButtonStyle: FilledButton.styleFrom(
+                backgroundColor: colors.primary,
+                foregroundColor: colors.onPrimary,
+                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppTokens.radius.xl,
+                ),
+              ),
+              cancelButtonStyle: OutlinedButton.styleFrom(
+                foregroundColor: colors.onSurface,
+                side: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.soft)),
+                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppTokens.radius.xl,
+                ),
+              ),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            child: child!,
+          ),
         );
       },
     );
@@ -1291,34 +1401,20 @@ class _AddClassFormState extends State<AddClassForm> {
         Row(
           children: [
             Expanded(
-              child: FilledButton(
+              child: PrimaryButton(
+                label: isEditing ? 'Update class' : 'Save class',
                 onPressed: _submitting ? null : _save,
-                style: FilledButton.styleFrom(
-                  minimumSize:
-                      Size.fromHeight(AppTokens.componentSize.buttonSm),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppTokens.radius.xl,
-                  ),
-                ),
-                child: Text(
-                  _submitting
-                      ? (isEditing ? 'Updating...' : 'Saving...')
-                      : (isEditing ? 'Update class' : 'Save class'),
-                ),
+                loading: _submitting,
+                loadingLabel: isEditing ? 'Updating...' : 'Saving...',
+                minHeight: AppTokens.componentSize.buttonSm,
               ),
             ),
             SizedBox(width: AppTokens.spacing.md),
             Expanded(
-              child: OutlinedButton(
+              child: SecondaryButton(
+                label: 'Cancel',
                 onPressed: _submitting ? null : widget.onCancel,
-                style: OutlinedButton.styleFrom(
-                  minimumSize:
-                      Size.fromHeight(AppTokens.componentSize.buttonSm),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppTokens.radius.xl,
-                  ),
-                ),
-                child: const Text('Cancel'),
+                minHeight: AppTokens.componentSize.buttonSm,
               ),
             ),
           ],
@@ -1346,10 +1442,9 @@ class _AddClassFormState extends State<AddClassForm> {
       builder: (dialogContext) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: spacing.edgeInsetsAll(spacing.lg),
+          insetPadding: spacing.edgeInsetsAll(spacing.xl),
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
               maxHeight: MediaQuery.of(dialogContext).size.height * 0.6,
             ),
             child: Container(
@@ -1380,37 +1475,101 @@ class _AddClassFormState extends State<AddClassForm> {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: spacing.edgeInsetsAll(spacing.xxl),
-                    child: Text(
-                      'Select day',
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
+                  // Header with icon and divider
+                  Container(
+                    padding: spacing.edgeInsetsAll(spacing.xl),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: theme.colorScheme.outline.withValues(alpha: AppOpacity.faint),
+                          width: AppTokens.componentSize.dividerThin,
+                        ),
                       ),
                     ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: spacing.edgeInsetsAll(spacing.sm),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay),
+                            borderRadius: AppTokens.radius.sm,
+                          ),
+                          child: Icon(
+                            Icons.calendar_today_rounded,
+                            color: theme.colorScheme.primary,
+                            size: AppTokens.iconSize.md,
+                          ),
+                        ),
+                        SizedBox(width: spacing.md),
+                        Text(
+                          'Select day',
+                          style: AppTokens.typography.subtitle.copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  // Day options
                   Expanded(
                     child: SingleChildScrollView(
+                      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
                       child: Column(
                         children: [
                           ...List.generate(7, (index) {
                             final dayValue = index + 1;
                             final isSelected = dayValue == _day;
-                            return InkWell(
+                            return PressableScale(
                               onTap: () => Navigator.of(dialogContext).pop(dayValue),
-                              child: Padding(
+                              child: Container(
+                                margin: spacing.edgeInsetsSymmetric(
+                                  horizontal: spacing.sm,
+                                  vertical: spacing.xs,
+                                ),
                                 padding: spacing.edgeInsetsSymmetric(
-                                  horizontal: spacing.xl,
+                                  horizontal: spacing.lg,
                                   vertical: spacing.md,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay)
+                                      : Colors.transparent,
+                                  borderRadius: AppTokens.radius.md,
                                 ),
                                 child: Row(
                                   children: [
+                                    // Radio button
+                                    Container(
+                                      width: AppTokens.iconSize.md,
+                                      height: AppTokens.iconSize.md,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
+                                          width: isSelected ? 5 : 2,
+                                        ),
+                                        color: isSelected ? theme.colorScheme.primary : Colors.transparent,
+                                      ),
+                                      child: isSelected
+                                          ? Center(
+                                              child: Container(
+                                                width: 6,
+                                                height: 6,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: theme.colorScheme.onPrimary,
+                                                ),
+                                              ),
+                                            )
+                                          : null,
+                                    ),
+                                    SizedBox(width: spacing.md),
                                     Expanded(
                                       child: Text(
                                         _scopeLabel(dayValue),
-                                        style: theme.textTheme.bodyLarge?.copyWith(
+                                        style: AppTokens.typography.body.copyWith(
                                           fontWeight: isSelected
-                                              ? AppTokens.fontWeight.semiBold
+                                              ? AppTokens.fontWeight.medium
                                               : AppTokens.fontWeight.regular,
                                           color: isSelected
                                               ? theme.colorScheme.primary
@@ -1418,12 +1577,6 @@ class _AddClassFormState extends State<AddClassForm> {
                                         ),
                                       ),
                                     ),
-                                    if (isSelected)
-                                      Icon(
-                                        Icons.check_rounded,
-                                        color: theme.colorScheme.primary,
-                                        size: AppTokens.iconSize.md,
-                                      ),
                                   ],
                                 ),
                               ),
@@ -1433,14 +1586,27 @@ class _AddClassFormState extends State<AddClassForm> {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: spacing.edgeInsetsAll(spacing.md),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        child: const Text('Cancel'),
+                  // Footer with divider
+                  Container(
+                    padding: spacing.edgeInsetsAll(spacing.lg),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: theme.colorScheme.outline.withValues(alpha: AppOpacity.faint),
+                          width: AppTokens.componentSize.dividerThin,
+                        ),
                       ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        SecondaryButton(
+                          label: 'Cancel',
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          minHeight: AppTokens.componentSize.buttonSm,
+                          expanded: false,
+                        ),
+                      ],
                     ),
                   ),
                 ],

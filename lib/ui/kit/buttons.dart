@@ -197,6 +197,180 @@ class SecondaryButton extends StatelessWidget {
   }
 }
 
+/// Text-style button for tertiary/less prominent actions.
+class TertiaryButton extends StatelessWidget {
+  const TertiaryButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+    this.expanded = true,
+    this.minHeight,
+    this.textStyle,
+    this.loading = false,
+    this.loadingLabel,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+  final double? minHeight;
+  final TextStyle? textStyle;
+  final bool loading;
+  final String? loadingLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final baseTextStyle = textStyle ?? AppTokens.typography.label;
+
+    final isDisabled = onPressed == null || loading;
+    final displayLabel = loading ? (loadingLabel ?? label) : label;
+
+    Widget? leadingWidget;
+    if (loading) {
+      leadingWidget = SizedBox(
+        width: AppInteraction.loaderSize,
+        height: AppInteraction.loaderSize,
+        child: CircularProgressIndicator(
+          strokeWidth: AppInteraction.progressStrokeWidthLarge,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.primary.withValues(alpha: AppOpacity.muted),
+          ),
+        ),
+      );
+    } else if (icon != null) {
+      leadingWidget = Icon(icon);
+    }
+
+    final child = _ButtonContent(
+      label: displayLabel,
+      leading: leadingWidget,
+      textColor: colors.primary,
+      textStyle: baseTextStyle,
+    );
+
+    final button = AnimatedOpacity(
+      duration: AppTokens.motion.fast,
+      opacity: isDisabled ? AppOpacity.soft : AppMotionSystem.scaleNone,
+      child: TextButton(
+        onPressed: isDisabled
+            ? null
+            : () {
+                _emitHaptic(source: 'tertiary_button');
+                AnalyticsService.instance.logEvent(
+                  'ui_tap_tertiary_button',
+                  params: {'label': label},
+                );
+                onPressed?.call();
+              },
+        style: TextButton.styleFrom(
+          minimumSize: Size(0, minHeight ?? AppTokens.componentSize.buttonLg),
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+            horizontal: AppTokens.spacing.xl,
+            vertical: AppTokens.spacing.md,
+          ),
+          textStyle: baseTextStyle,
+          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
+          foregroundColor: colors.primary,
+          disabledForegroundColor: colors.primary.withValues(alpha: AppOpacity.soft),
+        ),
+        child: child,
+      ),
+    );
+
+    if (!expanded) return button;
+    return SizedBox(width: double.infinity, child: button);
+  }
+}
+
+/// Text-style button for destructive/dangerous actions.
+class DestructiveTextButton extends StatelessWidget {
+  const DestructiveTextButton({
+    super.key,
+    required this.label,
+    this.onPressed,
+    this.icon,
+    this.expanded = true,
+    this.minHeight,
+    this.loading = false,
+    this.loadingLabel,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final bool expanded;
+  final double? minHeight;
+  final bool loading;
+  final String? loadingLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final baseTextStyle = AppTokens.typography.label;
+
+    final isDisabled = onPressed == null || loading;
+    final displayLabel = loading ? (loadingLabel ?? label) : label;
+
+    Widget? leadingWidget;
+    if (loading) {
+      leadingWidget = SizedBox(
+        width: AppInteraction.loaderSize,
+        height: AppInteraction.loaderSize,
+        child: CircularProgressIndicator(
+          strokeWidth: AppInteraction.progressStrokeWidthLarge,
+          valueColor: AlwaysStoppedAnimation<Color>(
+            colors.error.withValues(alpha: AppOpacity.muted),
+          ),
+        ),
+      );
+    } else if (icon != null) {
+      leadingWidget = Icon(icon);
+    }
+
+    final child = _ButtonContent(
+      label: displayLabel,
+      leading: leadingWidget,
+      textColor: colors.error,
+      textStyle: baseTextStyle,
+    );
+
+    final button = AnimatedOpacity(
+      duration: AppTokens.motion.fast,
+      opacity: isDisabled ? AppOpacity.soft : AppMotionSystem.scaleNone,
+      child: TextButton(
+        onPressed: isDisabled
+            ? null
+            : () {
+                _emitHaptic(source: 'destructive_text_button');
+                AnalyticsService.instance.logEvent(
+                  'ui_tap_destructive_text_button',
+                  params: {'label': label},
+                );
+                onPressed?.call();
+              },
+        style: TextButton.styleFrom(
+          minimumSize: Size(0, minHeight ?? AppTokens.componentSize.buttonLg),
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+            horizontal: AppTokens.spacing.xl,
+            vertical: AppTokens.spacing.md,
+          ),
+          textStyle: baseTextStyle,
+          shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
+          foregroundColor: colors.error,
+          disabledForegroundColor: colors.error.withValues(alpha: AppOpacity.soft),
+        ),
+        child: child,
+      ),
+    );
+
+    if (!expanded) return button;
+    return SizedBox(width: double.infinity, child: button);
+  }
+}
+
 /// Destructive action button for dangerous operations.
 class DestructiveButton extends StatelessWidget {
   const DestructiveButton({

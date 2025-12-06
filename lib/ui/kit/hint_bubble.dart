@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'buttons.dart';
 
 /// A dismissable hint bubble for onboarding tips and guidance.
 class HintBubble extends StatelessWidget {
@@ -54,9 +55,10 @@ class HintBubble extends StatelessWidget {
               SizedBox(height: AppTokens.spacing.md),
               Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
+                child: TertiaryButton(
+                  label: dismissLabel,
                   onPressed: onDismiss,
-                  child: Text(dismissLabel),
+                  expanded: false,
                 ),
               ),
             ],

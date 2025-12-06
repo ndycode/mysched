@@ -387,10 +387,11 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                                       ),
                                     ),
                                     SizedBox(height: spacing.lg),
-                                    FilledButton(
+                                    PrimaryButton(
+                                      label: 'Close',
                                       onPressed: () =>
                                           Navigator.of(context).pop(),
-                                      child: const Text('Close'),
+                                      minHeight: AppTokens.componentSize.buttonMd,
                                     ),
                                   ],
                                 );
@@ -824,16 +825,11 @@ class _ClassDetailActions extends StatelessWidget {
 
     if (onEdit != null) {
       children.add(
-        FilledButton.icon(
+        PrimaryButton(
+          label: 'Edit custom class',
+          icon: Icons.edit_rounded,
           onPressed: onEdit,
-          icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
-          label: const Text('Edit custom class'),
-          style: FilledButton.styleFrom(
-            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppTokens.radius.md,
-            ),
-          ),
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
       );
     }
@@ -844,81 +840,36 @@ class _ClassDetailActions extends StatelessWidget {
           ? Icons.pause_circle_outline_rounded
           : Icons.play_circle_outline_rounded;
       children.add(
-        FilledButton.tonalIcon(
+        SecondaryButton(
+          label: label,
+          icon: icon,
           onPressed: toggleBusy ? null : onToggle,
-          icon: toggleBusy
-              ? SizedBox(
-                  width: AppInteraction.loaderSize,
-                  height: AppInteraction.loaderSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppInteraction.progressStrokeWidth,
-                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-                  ),
-                )
-              : Icon(icon, size: AppTokens.iconSize.md),
-          label: Text(label),
-          style: FilledButton.styleFrom(
-            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppTokens.radius.md,
-            ),
-            backgroundColor: details.enabled ? colors.primaryContainer : null,
-            foregroundColor: details.enabled ? colors.onPrimaryContainer : null,
-          ),
+          loading: toggleBusy,
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
       );
     }
 
     if (!details.isCustom && onReport != null) {
       children.add(
-        TextButton.icon(
+        TertiaryButton(
+          label: reportBusy ? 'Sending report...' : 'Report schedule issue',
+          icon: Icons.flag_outlined,
           onPressed: reportBusy ? null : onReport,
-          icon: reportBusy
-              ? SizedBox(
-                  width: AppInteraction.loaderSize,
-                  height: AppInteraction.loaderSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppInteraction.progressStrokeWidth,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                )
-              : Icon(Icons.flag_outlined, size: AppTokens.iconSize.md),
-          label: Text(
-            reportBusy ? 'Sending report...' : 'Report schedule issue',
-          ),
-          style: TextButton.styleFrom(
-            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppTokens.radius.md,
-            ),
-          ),
+          loading: reportBusy,
+          loadingLabel: 'Sending report...',
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
       );
     }
     if (onDelete != null) {
       children.add(
-        TextButton.icon(
+        DestructiveTextButton(
+          label: 'Delete class',
+          icon: Icons.delete_outline_rounded,
           onPressed: deleteBusy ? null : onDelete,
-          icon: deleteBusy
-              ? SizedBox(
-                  width: AppInteraction.loaderSize,
-                  height: AppInteraction.loaderSize,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppInteraction.progressStrokeWidth,
-                    valueColor: AlwaysStoppedAnimation<Color>(colors.error),
-                  ),
-                )
-              : Icon(Icons.delete_outline_rounded, size: AppTokens.iconSize.md),
-          label: const Text('Delete class'),
-          style: TextButton.styleFrom(
-            foregroundColor: colors.error,
-            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppTokens.radius.md,
-            ),
-          ),
+          loading: deleteBusy,
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
       );
     }

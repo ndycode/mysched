@@ -213,20 +213,11 @@ class AppModal {
             expanded: false,
           ),
           if (isDanger)
-            FilledButton(
+            DestructiveButton(
+              label: confirmLabel,
               onPressed: () => Navigator.of(context).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: colors.error,
-                foregroundColor: colors.onError,
-                minimumSize: Size(0, AppTokens.componentSize.buttonSm),
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.xl,
-                  vertical: spacing.md,
-                ),
-                shape:
-                    RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-              ),
-              child: Text(confirmLabel),
+              minHeight: AppTokens.componentSize.buttonSm,
+              expanded: false,
             )
           else
             PrimaryButton(

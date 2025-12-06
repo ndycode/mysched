@@ -298,12 +298,11 @@ class PrivacySheet extends StatelessWidget {
                       Center(
                         child: Column(
                           children: [
-                            TextButton.icon(
+                            TertiaryButton(
+                              label: 'Open full policy (PDF)',
+                              icon: Icons.picture_as_pdf_outlined,
                               onPressed: () => _openFullPolicy(context),
-                              icon: const Icon(
-                                Icons.picture_as_pdf_outlined,
-                              ),
-                              label: const Text('Open full policy (PDF)'),
+                              expanded: false,
                             ),
                             SizedBox(height: spacing.sm),
                             Text(

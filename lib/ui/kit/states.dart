@@ -225,9 +225,10 @@ class StateDisplay extends StatelessWidget {
               ],
               if (secondaryActionLabel != null) ...[
                 SizedBox(height: spacing.md),
-                TextButton(
+                TertiaryButton(
+                  label: secondaryActionLabel!,
                   onPressed: onSecondaryAction,
-                  child: Text(secondaryActionLabel!),
+                  expanded: false,
                 ),
               ],
             ],

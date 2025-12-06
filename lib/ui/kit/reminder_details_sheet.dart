@@ -12,7 +12,6 @@ class ReminderDetailsSheet extends StatefulWidget {
     required this.entry,
     required this.onEdit,
     required this.onSnooze,
-    required this.onDelete,
     required this.onToggle,
     required this.isActive,
   });
@@ -20,7 +19,6 @@ class ReminderDetailsSheet extends StatefulWidget {
   final ReminderEntry entry;
   final VoidCallback onEdit;
   final VoidCallback onSnooze;
-  final VoidCallback onDelete;
   final ValueChanged<bool> onToggle;
   final bool isActive;
 
@@ -30,7 +28,6 @@ class ReminderDetailsSheet extends StatefulWidget {
 
 class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
   bool _toggleBusy = false;
-  bool _deleteBusy = false;
 
   Future<void> _handleToggle() async {
     if (_toggleBusy) return;
@@ -39,28 +36,6 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
       widget.onToggle(!widget.isActive);
     } finally {
       if (mounted) setState(() => _toggleBusy = false);
-    }
-  }
-
-  Future<void> _handleDelete() async {
-    if (_deleteBusy) return;
-    final confirm = await AppModal.confirm(
-      context: context,
-      title: 'Delete reminder?',
-      message: 'This reminder will be permanently removed.',
-      confirmLabel: 'Delete',
-      isDanger: true,
-    );
-
-    if (confirm != true) return;
-    if (!mounted) return;
-
-    setState(() => _deleteBusy = true);
-    try {
-      widget.onDelete();
-      if (mounted) Navigator.of(context).pop();
-    } finally {
-      if (mounted) setState(() => _deleteBusy = false);
     }
   }
 
@@ -292,9 +267,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               widget.onSnooze();
                             },
                             onToggle: _handleToggle,
-                            onDelete: _handleDelete,
                             toggleBusy: _toggleBusy,
-                            deleteBusy: _deleteBusy,
                           ),
                         ],
                       ),
@@ -319,91 +292,37 @@ class _ReminderActions extends StatelessWidget {
     required this.onEdit,
     required this.onSnooze,
     required this.onToggle,
-    required this.onDelete,
     required this.toggleBusy,
-    required this.deleteBusy,
   });
 
   final bool isActive;
   final VoidCallback onEdit;
   final VoidCallback onSnooze;
   final VoidCallback onToggle;
-  final VoidCallback onDelete;
   final bool toggleBusy;
-  final bool deleteBusy;
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
-    
     final children = <Widget>[
-      FilledButton.icon(
+      PrimaryButton(
+        label: 'Edit',
+        icon: Icons.edit_rounded,
         onPressed: onEdit,
-        icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
-        label: const Text('Edit'),
-        style: FilledButton.styleFrom(
-          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppTokens.radius.md,
-          ),
-        ),
+        minHeight: AppTokens.componentSize.buttonMd,
       ),
       if (isActive)
-        FilledButton.tonalIcon(
+        SecondaryButton(
+          label: 'Snooze',
+          icon: Icons.snooze_rounded,
           onPressed: onSnooze,
-          icon: Icon(Icons.snooze_rounded, size: AppTokens.iconSize.sm),
-          label: const Text('Snooze'),
-          style: FilledButton.styleFrom(
-            minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-            shape: RoundedRectangleBorder(
-              borderRadius: AppTokens.radius.md,
-            ),
-          ),
+          minHeight: AppTokens.componentSize.buttonMd,
         ),
-      FilledButton.tonalIcon(
+      SecondaryButton(
+        label: isActive ? 'Mark as done' : 'Mark as pending',
+        icon: isActive ? Icons.check_circle_outline_rounded : Icons.replay_rounded,
         onPressed: toggleBusy ? null : onToggle,
-        icon: toggleBusy
-            ? SizedBox(
-                width: AppInteraction.loaderSize,
-                height: AppInteraction.loaderSize,
-                child: CircularProgressIndicator(
-                  strokeWidth: AppInteraction.progressStrokeWidth,
-                  valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-                ),
-              )
-            : Icon(isActive
-                ? Icons.check_circle_outline_rounded
-                : Icons.replay_rounded, size: AppTokens.iconSize.md),
-        label: Text(isActive ? 'Mark as done' : 'Mark as pending'),
-        style: FilledButton.styleFrom(
-          backgroundColor: isActive ? colors.primaryContainer : null,
-          foregroundColor: isActive ? colors.onPrimaryContainer : null,
-          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppTokens.radius.md,
-          ),
-        ),
-      ),
-      TextButton.icon(
-        onPressed: deleteBusy ? null : onDelete,
-        icon: deleteBusy
-            ? SizedBox(
-                width: AppInteraction.loaderSize,
-                height: AppInteraction.loaderSize,
-                child: CircularProgressIndicator(
-                  strokeWidth: AppInteraction.progressStrokeWidth,
-                  valueColor: AlwaysStoppedAnimation<Color>(colors.error),
-                ),
-              )
-            : Icon(Icons.delete_outline_rounded, size: AppTokens.iconSize.md),
-        label: const Text('Delete reminder'),
-        style: TextButton.styleFrom(
-          foregroundColor: colors.error,
-          minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-          shape: RoundedRectangleBorder(
-            borderRadius: AppTokens.radius.md,
-          ),
-        ),
+        loading: toggleBusy,
+        minHeight: AppTokens.componentSize.buttonMd,
       ),
     ];
 

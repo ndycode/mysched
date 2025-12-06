@@ -405,7 +405,6 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
-    final colors = theme.colorScheme;
 
     return AnimatedBuilder(
       animation: _controller,

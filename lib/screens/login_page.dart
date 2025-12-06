@@ -196,9 +196,10 @@ class _LoginPageState extends State<LoginPage> {
     final bottomActions = Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        TextButton(
+        TertiaryButton(
+          label: 'Don\'t have an account? Create one',
           onPressed: _saving ? null : () => context.push(AppRoutes.register),
-          child: const Text('Don\'t have an account? Create one'),
+          expanded: false,
         ),
         if (_pendingVerificationEmail != null) ...[
           SizedBox(height: spacing.sm),

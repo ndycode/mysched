@@ -943,7 +943,6 @@ class ReminderRow extends StatelessWidget {
         isActive: !entry.isCompleted,
         onEdit: onEdit,
         onSnooze: onSnooze,
-        onDelete: onDelete,
         onToggle: onToggle,
       ),
     );

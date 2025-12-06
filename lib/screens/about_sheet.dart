@@ -332,10 +332,11 @@ class AboutSheet extends StatelessWidget {
                             Center(
                               child: Column(
                                 children: [
-                                  TextButton.icon(
+                                  TertiaryButton(
+                                    label: 'View release notes',
+                                    icon: Icons.article_outlined,
                                     onPressed: () => _showReleaseNotes(context),
-                                    icon: const Icon(Icons.article_outlined),
-                                    label: const Text('View release notes'),
+                                    expanded: false,
                                   ),
                                   SizedBox(height: spacing.sm),
                                   Text(

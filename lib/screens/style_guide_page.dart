@@ -27,9 +27,9 @@ class StyleGuidePage extends StatelessWidget {
           children: const [
             PrimaryButton(label: 'Primary'),
             SecondaryButton(label: 'Secondary'),
-            TextButton(
+            TertiaryButton(
+              label: 'Tertiary',
               onPressed: null,
-              child: Text('Text (disabled)'),
             ),
           ],
         ),

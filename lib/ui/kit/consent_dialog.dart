@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'buttons.dart';
 import 'modals.dart';
 import '../theme/tokens.dart';
 
@@ -79,19 +80,17 @@ Future<bool> ensureScanConsent(BuildContext context) async {
         ),
         actionsPadding: spacing.edgeInsetsAll(spacing.md),
         actions: [
-          TextButton(
+          SecondaryButton(
+            label: 'Cancel',
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            minHeight: AppTokens.componentSize.buttonSm,
+            expanded: false,
           ),
-          FilledButton(
+          PrimaryButton(
+            label: 'Agree & Continue',
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            style: FilledButton.styleFrom(
-              backgroundColor: colors.primary,
-              foregroundColor: colors.onPrimary,
-              minimumSize: Size(0, AppTokens.componentSize.buttonSm),
-              shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
-            ),
-            child: const Text('Agree & Continue'),
+            minHeight: AppTokens.componentSize.buttonSm,
+            expanded: false,
           ),
         ],
       );

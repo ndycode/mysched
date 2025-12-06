@@ -75,9 +75,10 @@ class AlarmPage extends StatelessWidget {
               SizedBox(height: spacing.sm),
               Align(
                 alignment: Alignment.centerLeft,
-                child: TextButton(
+                child: TertiaryButton(
+                  label: 'Open fullscreen mock',
                   onPressed: showPreviewOverlay,
-                  child: const Text('Open fullscreen mock'),
+                  expanded: false,
                 ),
               ),
             ],

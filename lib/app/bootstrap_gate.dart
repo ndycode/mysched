@@ -360,12 +360,10 @@ class _PermissionDialogState extends State<_PermissionDialog> {
           SizedBox(height: spacing.xxl),
           Row(
             children: [
-              TextButton(
+              TertiaryButton(
+                label: 'Not now',
                 onPressed: () => Navigator.of(context).pop(false),
-                style: TextButton.styleFrom(
-                  foregroundColor: colors.onSurfaceVariant,
-                ),
-                child: const Text('Not now'),
+                expanded: false,
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -422,12 +420,10 @@ class _PermissionSettingsDialog extends StatelessWidget {
           SizedBox(height: spacing.xxl),
           Row(
             children: [
-              TextButton(
+              TertiaryButton(
+                label: 'Close',
                 onPressed: () => Navigator.of(context).pop(),
-                style: TextButton.styleFrom(
-                  foregroundColor: colors.onSurfaceVariant,
-                ),
-                child: const Text('Close'),
+                expanded: false,
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -547,142 +543,147 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
       backgroundColor: isDark ? colors.surface : colors.surfaceContainerLowest,
       insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg),
-      child: Container(
-        constraints: BoxConstraints(maxWidth: AppLayout.dialogMaxWidth),
-        padding: spacing.edgeInsetsAll(spacing.xxl),
-        child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Enable reliable alarms',
-            style: AppTokens.typography.title.copyWith(
-              color: colors.onSurface,
-              fontSize: AppTokens.typography.title.fontSize,
-              fontWeight: AppTokens.fontWeight.bold,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            'Turn on these settings so class reminders fire on time.',
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
-              fontSize: AppTokens.typography.bodySecondary.fontSize,
-            ),
-          ),
-          SizedBox(height: spacing.xxl),
-          StatusRow(
-            icon: Icons.alarm_on_rounded,
-            label: 'Exact alarms',
-            description: 'Required for time-sensitive reminders.',
-            status: _readiness?.exactAlarmAllowed,
-            onTap: _busy ? null : _openExactAlarms,
-          ),
-          SizedBox(height: spacing.sm),
-          StatusRow(
-            icon: Icons.notifications_active_outlined,
-            label: 'Notifications',
-            description: 'Backup alert if full-screen alarms are blocked.',
-            status: _readiness?.notificationsAllowed,
-            onTap: _busy ? null : _requestNotifications,
-          ),
-          SizedBox(height: spacing.md),
-          StatusRow(
-            icon: Icons.battery_alert_rounded,
-            label: 'Battery optimization (recommended)',
-            description: 'Set MySched to Unrestricted so alarms are not killed.',
-            status: _readiness?.ignoringBatteryOptimizations,
-            optional: true,
-            onTap: _busy ? null : _openBatterySettings,
-          ),
-          SizedBox(height: spacing.xl),
-          if (_loading)
-            Row(
-              children: [
-                SizedBox(
-                  width: AppInteraction.loaderSizeSmall,
-                  height: AppInteraction.loaderSizeSmall,
-                  child: CircularProgressIndicator(
-                    strokeWidth: AppInteraction.progressStrokeWidth,
-                    valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
-                  ),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: AppLayout.dialogMaxWidth,
+          maxHeight: MediaQuery.of(context).size.height * 0.85,
+        ),
+        child: SingleChildScrollView(
+          padding: spacing.edgeInsetsAll(spacing.xxl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Enable reliable alarms',
+                style: AppTokens.typography.title.copyWith(
+                  color: colors.onSurface,
+                  fontSize: AppTokens.typography.title.fontSize,
+                  fontWeight: AppTokens.fontWeight.bold,
                 ),
-                SizedBox(width: spacing.sm),
+              ),
+              SizedBox(height: spacing.xs),
+              Text(
+                'Turn on these settings so class reminders fire on time.',
+                style: AppTokens.typography.bodySecondary.copyWith(
+                  color: colors.onSurfaceVariant,
+                  fontSize: AppTokens.typography.bodySecondary.fontSize,
+                ),
+              ),
+              SizedBox(height: spacing.xxl),
+              StatusRow(
+                icon: Icons.alarm_on_rounded,
+                label: 'Exact alarms',
+                description: 'Required for time-sensitive reminders.',
+                status: _readiness?.exactAlarmAllowed,
+                onTap: _busy ? null : _openExactAlarms,
+              ),
+              SizedBox(height: spacing.sm),
+              StatusRow(
+                icon: Icons.notifications_active_outlined,
+                label: 'Notifications',
+                description: 'Backup alert if full-screen alarms are blocked.',
+                status: _readiness?.notificationsAllowed,
+                onTap: _busy ? null : _requestNotifications,
+              ),
+              SizedBox(height: spacing.md),
+              StatusRow(
+                icon: Icons.battery_alert_rounded,
+                label: 'Battery optimization (recommended)',
+                description: 'Set MySched to Unrestricted so alarms are not killed.',
+                status: _readiness?.ignoringBatteryOptimizations,
+                optional: true,
+                onTap: _busy ? null : _openBatterySettings,
+              ),
+              SizedBox(height: spacing.xl),
+              if (_loading)
+                Row(
+                  children: [
+                    SizedBox(
+                      width: AppInteraction.loaderSizeSmall,
+                      height: AppInteraction.loaderSizeSmall,
+                      child: CircularProgressIndicator(
+                        strokeWidth: AppInteraction.progressStrokeWidth,
+                        valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                      ),
+                    ),
+                    SizedBox(width: spacing.sm),
+                    Text(
+                      'Checking status...',
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        color: colors.onSurfaceVariant,
+                        fontSize: AppTokens.typography.caption.fontSize,
+                      ),
+                    ),
+                  ],
+                )
+              else
                 Text(
-                  'Checking status...',
+                  'Status updates automatically after you return.',
                   style: AppTokens.typography.bodySecondary.copyWith(
                     color: colors.onSurfaceVariant,
                     fontSize: AppTokens.typography.caption.fontSize,
                   ),
                 ),
-              ],
-            )
-          else
-            Text(
-              'Status updates automatically after you return.',
-              style: AppTokens.typography.bodySecondary.copyWith(
-                color: colors.onSurfaceVariant,
-                fontSize: AppTokens.typography.caption.fontSize,
-              ),
-            ),
-          SizedBox(height: spacing.xxl),
-          if (_ready)
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                label: 'Continue',
-                expanded: true,
-                minHeight: AppTokens.componentSize.buttonLg,
-                onPressed: _busy
-                    ? null
-                    : () {
-                        widget.onComplete();
-                        Navigator.of(context).pop();
-                      },
-              ),
-            )
-          else if (!_canAdvanceToGuide)
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                label: 'Open settings',
-                expanded: true,
-                minHeight: AppTokens.componentSize.buttonLg,
-                onPressed: _busy
-                    ? null
-                    : () {
-                        if (!_exactAllowed) {
-                          _openExactAlarms();
-                        } else {
-                          _requestNotifications();
-                        }
-                      },
-              ),
-            )
-          else
-            SizedBox(
-              width: double.infinity,
-              child: PrimaryButton(
-                label: 'Next',
-                expanded: true,
-                minHeight: AppTokens.componentSize.buttonLg,
-                onPressed: _busy
-                    ? null
-                    : () async {
-                        await _showBatteryGuide(context);
-                        await _refresh();
-                        if (!mounted || !context.mounted) return;
-                        final allowed =
-                            (_readiness?.ignoringBatteryOptimizations ?? false) &&
-                                _openedBatteryOnce;
-                        if (allowed) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-              ),
-            ),
-        ],
-      ),
+              SizedBox(height: spacing.xxl),
+              if (_ready)
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: 'Continue',
+                    expanded: true,
+                    minHeight: AppTokens.componentSize.buttonLg,
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            widget.onComplete();
+                            Navigator.of(context).pop();
+                          },
+                  ),
+                )
+              else if (!_canAdvanceToGuide)
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: 'Open settings',
+                    expanded: true,
+                    minHeight: AppTokens.componentSize.buttonLg,
+                    onPressed: _busy
+                        ? null
+                        : () {
+                            if (!_exactAllowed) {
+                              _openExactAlarms();
+                            } else {
+                              _requestNotifications();
+                            }
+                          },
+                  ),
+                )
+              else
+                SizedBox(
+                  width: double.infinity,
+                  child: PrimaryButton(
+                    label: 'Next',
+                    expanded: true,
+                    minHeight: AppTokens.componentSize.buttonLg,
+                    onPressed: _busy
+                        ? null
+                        : () async {
+                            await _showBatteryGuide(context);
+                            await _refresh();
+                            if (!mounted || !context.mounted) return;
+                            final allowed =
+                                (_readiness?.ignoringBatteryOptimizations ?? false) &&
+                                    _openedBatteryOnce;
+                            if (allowed) {
+                              Navigator.of(context).pop();
+                            }
+                          },
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -522,17 +522,12 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             ),
           ),
           SizedBox(height: spacing.lg),
-          FilledButton.tonal(
+          SecondaryButton(
+            label: resendLabel,
             onPressed: (!_hasEmail || _cooldown > 0 || _resending || _verifying)
                 ? null
                 : _resend,
-            style: FilledButton.styleFrom(
-              minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.md,
-              ),
-            ),
-            child: Text(resendLabel),
+            minHeight: AppTokens.componentSize.buttonMd,
           ),
           SizedBox(height: spacing.md),
           SecondaryButton(

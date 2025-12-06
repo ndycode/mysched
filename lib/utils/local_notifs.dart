@@ -440,7 +440,7 @@ class LocalNotifs {
   }
 
   static Future<void> openBatteryOptimizationDialog(BuildContext context) async {
-    await showSmoothDialog(
+    await AppModal.alert(
       context: context,
       builder: (context) => const BatteryOptimizationDialog(),
     );

@@ -80,9 +80,9 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   }
 
   Future<String?> _promptResolutionNote(ClassIssueReport report) {
-    return showSmoothDialog<String>(
+    return AppModal.alert<String>(
       context: context,
-      barrierDismissible: false,
+      dismissible: false,
       builder: (context) => _ResolutionNoteDialog(
         initialValue: report.resolutionNote,
       ),
@@ -264,20 +264,24 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
       padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: background,
-        borderRadius: AppTokens.radius.xxl,
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          width: theme.brightness == Brightness.dark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withValues(alpha: AppOpacity.faint),
-            blurRadius: AppTokens.shadow.md,
-            offset: AppShadowOffset.sm,
-          ),
-        ],
+        boxShadow: theme.brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -370,7 +374,9 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          width: theme.brightness == Brightness.dark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
       ),
       child: Wrap(
@@ -421,20 +427,24 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh
             : colors.surface,
-        borderRadius: AppTokens.radius.xxl,
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: theme.brightness == Brightness.dark
               ? colors.outline.withValues(alpha: AppOpacity.overlay)
               : colors.outline,
-          width: theme.brightness == Brightness.dark ? 1 : 0.5,
+          width: theme.brightness == Brightness.dark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withValues(alpha: AppOpacity.faint),
-            blurRadius: AppTokens.shadow.md,
-            offset: AppShadowOffset.sm,
-          ),
-        ],
+        boxShadow: theme.brightness == Brightness.dark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

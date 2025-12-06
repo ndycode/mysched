@@ -182,7 +182,11 @@ enum SheetTransitionVariant {
   slideFromBottom,
 }
 
-/// Show an overlay sheet with smooth animations.
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY FUNCTIONS - Deprecated, use AppModal instead
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// @deprecated Use [AppModal.sheet] instead.
 Future<T?> showOverlaySheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -217,41 +221,72 @@ Future<T?> showOverlaySheet<T>({
   );
 }
 
-/// Show a modal bottom sheet with premium animations.
+/// @deprecated Use [AppModal.sheet] instead.
 Future<T?> showSmoothBottomSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
-  bool isScrollControlled = true,
   bool isDismissible = true,
-  bool enableDrag = true,
-  Color? backgroundColor,
-  double? elevation,
-  ShapeBorder? shape,
-  Clip? clipBehavior,
-  BoxConstraints? constraints,
-  Color? barrierColor,
-  bool useSafeArea = false,
 }) {
-  return showModalBottomSheet<T>(
-    context: context,
-    builder: builder,
-    isScrollControlled: isScrollControlled,
-    isDismissible: isDismissible,
-    enableDrag: enableDrag,
-    backgroundColor: backgroundColor,
-    elevation: elevation,
-    shape: shape ??
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppTokens.radius.xl.topLeft.x)),
-        ),
-    clipBehavior: clipBehavior,
-    constraints: constraints,
-    barrierColor: barrierColor ?? AppBarrier.heavy,
-    useSafeArea: useSafeArea,
-    transitionAnimationController: AnimationController(
-      vsync: Navigator.of(context),
-      duration: AppMotionSystem.medium,
-      reverseDuration: AppMotionSystem.quick,
+  return Navigator.of(context).push<T>(
+    _SmoothSheetRoute<T>(
+      builder: builder,
+      isDismissible: isDismissible,
     ),
   );
+}
+
+/// Internal route for legacy showSmoothBottomSheet.
+class _SmoothSheetRoute<T> extends PopupRoute<T> {
+  _SmoothSheetRoute({
+    required this.builder,
+    this.isDismissible = true,
+  });
+
+  final WidgetBuilder builder;
+  final bool isDismissible;
+
+  @override
+  Color? get barrierColor => AppBarrier.heavy;
+
+  @override
+  bool get barrierDismissible => isDismissible;
+
+  @override
+  String? get barrierLabel => 'Dismiss';
+
+  @override
+  Duration get transitionDuration => AppMotionSystem.medium;
+
+  @override
+  Duration get reverseTransitionDuration => AppMotionSystem.quick;
+
+  @override
+  Widget buildPage(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+  ) {
+    return builder(context);
+  }
+
+  @override
+  Widget buildTransitions(
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: AppMotionSystem.easeOut,
+      reverseCurve: AppMotionSystem.easeIn,
+    );
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(curved),
+      child: child,
+    );
+  }
 }

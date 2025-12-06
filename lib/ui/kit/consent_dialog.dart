@@ -27,9 +27,9 @@ Future<bool> ensureScanConsent(BuildContext context) async {
   final colors = theme.colorScheme;
   final spacing = AppTokens.spacing;
 
-  final agreed = await showSmoothDialog<bool>(
+  final agreed = await AppModal.alert<bool>(
     context: context,
-    barrierDismissible: false,
+    dismissible: false,
     builder: (dialogContext) {
       return AlertDialog(
         backgroundColor: colors.surface,

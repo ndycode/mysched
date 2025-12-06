@@ -119,9 +119,9 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       final originalBytes = await picked.readAsBytes();
       if (!mounted) return;
 
-      final croppedBytes = await showSmoothDialog<Uint8List>(
+      final croppedBytes = await AppModal.alert<Uint8List>(
         context: context,
-        barrierDismissible: false,
+        dismissible: false,
         builder: (context) => _AvatarCropDialog(imageBytes: originalBytes),
       );
 
@@ -262,8 +262,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -375,8 +375,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -429,7 +429,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   }
 
   Future<void> _confirmSignOut(BuildContext context) async {
-    final shouldSignOut = await AppModal.showConfirmDialog(
+    final shouldSignOut = await AppModal.confirm(
       context: context,
       title: 'Sign out?',
       message: 'You\'ll return to the login screen.',

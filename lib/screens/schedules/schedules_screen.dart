@@ -114,19 +114,9 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       return;
     }
 
-    final media = MediaQuery.of(context);
     // Returns the day (1-7) of the added/edited class, or null if cancelled
-    final addedDay = await showOverlaySheet<int?>(
+    final addedDay = await AppModal.sheet<int?>(
       context: context,
-      alignment: Alignment.center,
-      barrierDismissible: false,
-      dimBackground: true,
-      padding: AppTokens.spacing.edgeInsetsOnly(
-        left: AppTokens.spacing.xl,
-        right: AppTokens.spacing.xl,
-        top: media.padding.top + AppTokens.spacing.xxl,
-        bottom: media.padding.bottom + AppTokens.spacing.xxl,
-      ),
       builder: (_) => AddClassSheet(api: widget.api, initialClass: initial),
     );
     if (!mounted) return;
@@ -170,19 +160,15 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     }
     while (mounted) {
       if (!mounted) return;
-      final path = await showModalBottomSheet<String?>(
+      final path = await AppModal.sheet<String?>(
         context: context,
-        backgroundColor: Colors.transparent,
-        isScrollControlled: true,
         builder: (_) => const ScanOptionsSheet(),
       );
       if (!mounted || path == null) return;
 
       if (!mounted) return;
-      final preview = await showModalBottomSheet<ScanPreviewOutcome?>(
+      final preview = await AppModal.sheet<ScanPreviewOutcome?>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (_) => ScanPreviewSheet(imagePath: path),
       );
       if (!mounted) return;
@@ -193,10 +179,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       if (!preview.isSuccess) return;
 
       if (!mounted) return;
-      final outcome = await showModalBottomSheet<ScheduleImportOutcome?>(
+      final outcome = await AppModal.sheet<ScheduleImportOutcome?>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (_) => SchedulesPreviewSheet(
           imagePath: preview.imagePath!,
           section: preview.section!,
@@ -221,21 +205,12 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
   }
 
   Future<void> _openClassDetails(sched.ClassItem item) async {
-    final media = MediaQuery.of(context);
     final initial = _controller.classes.firstWhere(
       (element) => element.id == item.id,
       orElse: () => item,
     );
-    await showOverlaySheet<void>(
+    await AppModal.sheet<void>(
       context: context,
-      alignment: Alignment.center,
-      dimBackground: true,
-      padding: AppTokens.spacing.edgeInsetsOnly(
-        left: AppTokens.spacing.xl,
-        right: AppTokens.spacing.xl,
-        top: media.padding.top + AppTokens.spacing.xxl,
-        bottom: media.padding.bottom + AppTokens.spacing.xxl,
-      ),
       builder: (_) => ClassDetailsSheet(
         api: widget.api,
         item: initial,
@@ -500,7 +475,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
 
   Future<void> _confirmResetSchedules() async {
     if (_controller.loading) return;
-    final confirm = await AppModal.showConfirmDialog(
+    final confirm = await AppModal.confirm(
       context: context,
       title: 'Reset schedules?',
       message:

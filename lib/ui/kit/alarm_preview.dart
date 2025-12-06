@@ -430,7 +430,7 @@ class _ActionButton extends StatelessWidget {
         borderRadius: AppTokens.radius.xxl,
         border: Border.all(
           color: borderColor ?? Colors.transparent,
-          width: 1.2,
+          width: AppTokens.componentSize.dividerMedium,
         ),
         boxShadow: [
           BoxShadow(

@@ -630,6 +630,7 @@ class ScheduleGroupCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final background = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
     final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
     final spacing = AppTokens.spacing;
     return Container(
@@ -639,9 +640,10 @@ class ScheduleGroupCard extends StatelessWidget {
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
           color: borderColor,
+          width: borderWidth,
         ),
         boxShadow: theme.brightness == Brightness.dark
-            ? const []
+            ? null
             : [
                 BoxShadow(
                   color: shadowColor,
@@ -726,8 +728,8 @@ class ScheduleSummaryCard extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -1330,7 +1332,7 @@ class ScheduleRow extends StatelessWidget {
             autoClose: true,
             padding: EdgeInsets.zero,
             onPressed: (context) async {
-              final confirm = await AppModal.showConfirmDialog(
+              final confirm = await AppModal.confirm(
                 context: context,
                 title: 'Delete custom class?',
                 message:

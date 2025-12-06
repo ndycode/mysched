@@ -163,7 +163,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
     
     final currentUri = _controller.alarmRingtone;
-    final selected = await showSmoothDialog<AlarmSound>(
+    final selected = await AppModal.alert<AlarmSound>(
       context: context,
       builder: (context) => _RingtonePicker(
         ringtones: _deviceRingtones,
@@ -183,7 +183,7 @@ class _SettingsPageState extends State<SettingsPage> {
     required int selected,
     required String suffix,
   }) {
-    return showSmoothDialog<int>(
+    return AppModal.alert<int>(
       context: context,
       builder: (context) {
         final theme = Theme.of(context);
@@ -443,7 +443,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? null
                     : [
                         BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                           blurRadius: AppTokens.shadow.lg,
                           offset: AppShadowOffset.sm,
                         ),
@@ -468,7 +468,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? null
                     : [
                         BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                           blurRadius: AppTokens.shadow.lg,
                           offset: AppShadowOffset.sm,
                         ),
@@ -497,8 +497,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ? null
                       : [
                           BoxShadow(
-                            color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                            blurRadius: AppTokens.shadow.md,
+                            color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                            blurRadius: AppTokens.shadow.lg,
                             offset: AppShadowOffset.sm,
                           ),
                         ],
@@ -527,8 +527,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ? null
                       : [
                           BoxShadow(
-                            color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                            blurRadius: AppTokens.shadow.md,
+                            color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                            blurRadius: AppTokens.shadow.lg,
                             offset: AppShadowOffset.sm,
                           ),
                         ],
@@ -561,7 +561,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Container(
               decoration: BoxDecoration(
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.lg,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
@@ -570,7 +570,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? null
                     : [
                         BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                           blurRadius: AppTokens.shadow.lg,
                           offset: AppShadowOffset.sm,
                         ),
@@ -589,7 +589,7 @@ class _SettingsPageState extends State<SettingsPage> {
             child: Container(
               decoration: BoxDecoration(
                 color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.lg,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
                   color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
                   width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
@@ -598,7 +598,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     ? null
                     : [
                         BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                           blurRadius: AppTokens.shadow.lg,
                           offset: AppShadowOffset.sm,
                         ),
@@ -769,7 +769,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // Schedule Preferences Section
           // ────────────────────────────────────────────────────────────────
           SizedBox(height: spacing.xl),
-          Divider(color: colors.outlineVariant),
+          Divider(color: colors.outline),
           SizedBox(height: spacing.lg),
           Text(
             'Timing',
@@ -796,7 +796,7 @@ class _SettingsPageState extends State<SettingsPage> {
           // Alarm Settings Section
           // ────────────────────────────────────────────────────────────────
           SizedBox(height: spacing.xl),
-          Divider(color: colors.outlineVariant),
+          Divider(color: colors.outline),
           SizedBox(height: spacing.lg),
           Text(
             'Alarm',

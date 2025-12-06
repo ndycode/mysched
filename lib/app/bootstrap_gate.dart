@@ -114,9 +114,9 @@ class _BootstrapGateState extends State<BootstrapGate> {
       return;
     }
     if (!mounted) return;
-    await showSmoothDialog<void>(
+    await AppModal.alert<void>(
       context: context,
-      barrierDismissible: false,
+      dismissible: false,
       builder: (_) => _AlarmPromptDialog(
         onComplete: () {
           BootstrapGate._alarmPromptCompleted = true;
@@ -142,9 +142,9 @@ class _BootstrapGateState extends State<BootstrapGate> {
     }
 
     if (!mounted) return;
-    final allow = await showSmoothDialog<bool>(
+    final allow = await AppModal.alert<bool>(
           context: context,
-          barrierDismissible: false,
+          dismissible: false,
           builder: (context) => _PermissionDialog(
             icon: icon,
             accent: accent,
@@ -167,9 +167,9 @@ class _BootstrapGateState extends State<BootstrapGate> {
     }
 
     if (status.isPermanentlyDenied && mounted) {
-      await showSmoothDialog<void>(
+      await AppModal.alert<void>(
         context: context,
-        barrierDismissible: false,
+        dismissible: false,
         builder: (context) => _PermissionSettingsDialog(title: title),
       );
     }

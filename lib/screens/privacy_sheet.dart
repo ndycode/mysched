@@ -1,24 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../ui/kit/kit.dart';
+import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
 
 class PrivacySheet extends StatelessWidget {
   const PrivacySheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    final media = MediaQuery.of(context);
-    return showOverlaySheet<void>(
+    return AppModal.sheet<void>(
       context: context,
-      alignment: Alignment.center,
-      barrierDismissible: true,
-      barrierTint: AppBarrier.medium,
-      padding: EdgeInsets.fromLTRB(
-        AppTokens.spacing.xxl,
-        media.padding.top + AppTokens.spacing.xxxl,
-        AppTokens.spacing.xxl,
-        media.padding.bottom + AppTokens.spacing.xxxl,
-      ),
       builder: (_) => const PrivacySheet(),
     );
   }
@@ -33,6 +24,9 @@ class PrivacySheet extends StatelessWidget {
         (AppTokens.spacing.xxxl * 2 +
             MediaQuery.of(context).padding.top +
             MediaQuery.of(context).padding.bottom);
+    final cardBackground = elevatedCardBackground(theme, solid: true);
+    final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
 
     Color filledBackground() => colors.surfaceContainerHighest.withValues(
           alpha: isDark ? AppOpacity.ghost : AppOpacity.soft,
@@ -48,18 +42,17 @@ class PrivacySheet extends StatelessWidget {
         child: Container(
           padding: spacing.edgeInsetsAll(spacing.xxl),
           decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            color: cardBackground,
             borderRadius: AppTokens.radius.xl,
             border: Border.all(
-              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+              color: borderColor,
+              width: borderWidth,
             ),
             boxShadow: isDark
                 ? null
                 : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                      blurRadius: AppTokens.shadow.sm,
-                      offset: AppShadowOffset.sm,
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                     ),
                   ],
           ),
@@ -94,6 +87,8 @@ class PrivacySheet extends StatelessWidget {
                         'Privacy policy',
                         textAlign: TextAlign.center,
                         style: AppTokens.typography.title.copyWith(
+                          fontWeight: AppTokens.fontWeight.bold,
+                          letterSpacing: AppLetterSpacing.snug,
                           color: colors.onSurface,
                         ),
                       ),
@@ -332,7 +327,7 @@ class PrivacySheet extends StatelessWidget {
   }
 
   static Future<void> _openFullPolicy(BuildContext context) {
-    return AppModal.showAlertDialog(
+    return AppModal.info(
       context: context,
       title: 'Full privacy policy',
       message: 'A downloadable PDF is coming soon. For now, the full policy is mirrored in Settings → Updates.',

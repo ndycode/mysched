@@ -126,6 +126,8 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
 
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
+    final isDark = theme.brightness == Brightness.dark;
 
     return SafeArea(
       child: Center(
@@ -137,23 +139,19 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.surfaceContainerHigh
-                  : theme.colorScheme.surface,
+              color: cardBackground,
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
-                    : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+                color: borderColor,
+                width: borderWidth,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
-                  blurRadius: AppTokens.shadow.xxl,
-                  offset: AppShadowOffset.modal,
-                ),
-              ],
+              boxShadow: isDark
+                  ? null
+                  : [
+                      AppTokens.shadow.modal(
+                        theme.colorScheme.shadow.withValues(alpha: AppOpacity.border),
+                      ),
+                    ],
             ),
             child: Material(
               type: MaterialType.transparency,
@@ -359,6 +357,8 @@ class _ImportHeader extends StatelessWidget {
                 'Import schedule',
                 textAlign: TextAlign.center,
                 style: AppTokens.typography.title.copyWith(
+                  fontWeight: AppTokens.fontWeight.extraBold,
+                  letterSpacing: AppLetterSpacing.tight,
                   color: colors.onSurface,
                 ),
               ),
@@ -370,7 +370,7 @@ class _ImportHeader extends StatelessWidget {
         Text(
           helper,
           textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
+          style: AppTokens.typography.body.copyWith(
             color: colors.onSurfaceVariant,
           ),
         ),
@@ -425,7 +425,7 @@ class _SectionCard extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: theme.textTheme.titleMedium?.copyWith(
+                  style: AppTokens.typography.title.copyWith(
                     fontWeight: AppTokens.fontWeight.bold,
                   ),
                 ),
@@ -433,7 +433,7 @@ class _SectionCard extends StatelessWidget {
                   SizedBox(height: spacing.xs),
                   Text(
                     subtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
                   ),
@@ -635,7 +635,8 @@ class _DayToggleCard extends StatelessWidget {
               ),
               Container(
                 padding: spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.smMd, vertical: spacing.xsHalf),
+                    horizontal: spacing.sm + AppTokens.spacing.micro,
+                    vertical: spacing.xs + AppTokens.spacing.microHalf),
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.sm,
@@ -661,7 +662,7 @@ class _DayToggleCard extends StatelessWidget {
             highlight: highlightClassId == entries[i].id,
             onToggle: (value) => onToggle(entries[i].id, value),
           ),
-          if (i != entries.length - 1) SizedBox(height: spacing.sm + AppTokens.componentSize.paddingAdjust),
+          if (i != entries.length - 1) SizedBox(height: spacing.sm + AppTokens.spacing.micro),
         ],
       ],
     );
@@ -685,10 +686,6 @@ class _ImportClassTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final spacing = AppTokens.spacing;
     final disabled = !enabled;
     final bool isNext = highlight && !disabled;
 
@@ -698,165 +695,53 @@ class _ImportClassTile extends StatelessWidget {
     final instructorAvatar = entry.instructorAvatar?.trim() ?? '';
     final subject = entry.title.isEmpty ? 'Untitled class' : entry.title;
 
-    // Match ScheduleRow design exactly
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(
-          color: isNext
-              ? colors.primary.withValues(alpha: AppOpacity.ghost)
-              : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
-          width: isNext ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
+    // Build metadata items - same as ScheduleRow
+    final metadata = <MetadataItem>[
+      MetadataItem(icon: Icons.access_time_rounded, label: timeLabel ?? '--'),
+      if (location.isNotEmpty)
+        MetadataItem(
+          icon: Icons.location_on_outlined,
+          label: location,
+          expanded: true,
         ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: isNext ? AppOpacity.highlight : AppOpacity.veryFaint),
-                  blurRadius: isNext ? AppTokens.shadow.md : AppTokens.shadow.xs,
-                  offset: AppShadowOffset.xs,
-                ),
-              ],
+    ];
+
+    // Build status badge - same as ScheduleRow
+    StatusBadge? badge;
+    if (isNext) {
+      badge = StatusBadge(
+        label: StatusBadgeVariant.next.label,
+        variant: StatusBadgeVariant.next,
+      );
+    }
+
+    // Build trailing toggle - same as ScheduleRow
+    final trailing = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {}, // Absorb tap to prevent row tap
+      child: AppSwitch(
+        value: !disabled,
+        onChanged: saving ? null : onToggle,
+        showDangerWhenOff: true,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: Title and Toggle
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  subject,
-                  style: AppTokens.typography.subtitle.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                    letterSpacing: AppLetterSpacing.compact,
-                    color:
-                        disabled ? colors.onSurfaceVariant : colors.onSurface,
-                    decoration: disabled ? TextDecoration.lineThrough : null,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              SizedBox(width: spacing.md),
-              // Status badge or toggle
-              if (isNext)
-                Container(
-                  padding: spacing.edgeInsetsSymmetric(
-                      horizontal: spacing.smMd, vertical: spacing.xs),
-                  decoration: BoxDecoration(
-                    color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                    borderRadius: AppTokens.radius.sm,
-                  ),
-                  child: Text(
-                    'Next',
-                    style: AppTokens.typography.caption.copyWith(
-                      fontWeight: AppTokens.fontWeight.bold,
-                      color: colors.primary,
-                    ),
-                  ),
-                )
-              else
-                Switch(
-                  value: !disabled,
-                  onChanged: saving ? null : onToggle,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                ),
-            ],
-          ),
-          SizedBox(height: spacing.md),
-          // Bottom row: Time, Location
-          Row(
-            children: [
-              // Time
-              Icon(
-                Icons.access_time_rounded,
-                size: AppTokens.iconSize.sm,
-                color: colors.onSurfaceVariant,
-              ),
-              SizedBox(width: spacing.xs + AppTokens.componentSize.paddingAdjust),
-              Text(
-                timeLabel ?? '--',
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  fontWeight: AppTokens.fontWeight.medium,
-                  color: colors.onSurfaceVariant,
-                ),
-              ),
-              if (location.isNotEmpty) ...[
-                SizedBox(width: spacing.lg),
-                Icon(
-                  Icons.location_on_outlined,
-                  size: AppTokens.iconSize.sm,
-                  color: colors.onSurfaceVariant,
-                ),
-                SizedBox(width: spacing.xs + AppTokens.componentSize.paddingAdjust),
-                Expanded(
-                  child: Text(
-                    location,
-                    style: AppTokens.typography.bodySecondary.copyWith(
-                      fontWeight: AppTokens.fontWeight.medium,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ],
-          ),
-          if (instructor.isNotEmpty) ...[
-            SizedBox(height: spacing.sm + AppTokens.componentSize.paddingAdjust),
-            Row(
-              children: [
-                if (instructorAvatar.isNotEmpty)
-                  Container(
-                    width: AppTokens.componentSize.badgeLg,
-                    height: AppTokens.componentSize.badgeLg,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(instructorAvatar),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  )
-                else
-                  Container(
-                    width: AppTokens.componentSize.badgeLg,
-                    height: AppTokens.componentSize.badgeLg,
-                    decoration: BoxDecoration(
-                      color: colors.primary.withValues(alpha: AppOpacity.medium),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        instructor[0].toUpperCase(),
-                        style: AppTokens.typography.caption.copyWith(
-                          fontWeight: AppTokens.fontWeight.semiBold,
-                          color: colors.primary,
-                        ),
-                      ),
-                    ),
-                  ),
-                SizedBox(width: spacing.sm),
-                Expanded(
-                  child: Text(
-                    instructor,
-                    style: AppTokens.typography.caption.copyWith(
-                      fontWeight: AppTokens.fontWeight.medium,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ],
-      ),
+    );
+
+    // Use EntityTile - same as ScheduleRow
+    return EntityTile(
+      title: subject,
+      isActive: !disabled,
+      isStrikethrough: disabled,
+      isHighlighted: isNext,
+      tags: const [], // No custom tag for imports
+      metadata: metadata,
+      badge: badge,
+      trailing: trailing,
+      bottomContent: instructor.isNotEmpty
+          ? InstructorRow(
+              name: instructor,
+              avatarUrl: instructorAvatar.isNotEmpty ? instructorAvatar : null,
+            )
+          : null,
     );
   }
 }

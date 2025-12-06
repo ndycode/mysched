@@ -3,30 +3,33 @@ import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 
-/// Custom dialog route with smooth fade/scale transition.
-class _SmoothDialogRoute<T> extends PopupRoute<T> {
-  _SmoothDialogRoute({
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIFIED MODAL ROUTE - Single animation system for all modals
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Base modal route with smooth barrier fade animation.
+class _AppModalRoute<T> extends PopupRoute<T> {
+  _AppModalRoute({
     required this.builder,
     required this.barrierDismissible,
+    required this.transition,
     this.barrierLabel,
     Color? barrierColor,
-    Duration? transitionDuration,
-  })  : _barrierColor = barrierColor ?? AppBarrier.heavy,
-        _transitionDuration = transitionDuration ?? AppMotionSystem.medium;
+  }) : _barrierColor = barrierColor;
 
   final WidgetBuilder builder;
   @override
   final bool barrierDismissible;
   @override
   final String? barrierLabel;
-  final Color _barrierColor;
-  final Duration _transitionDuration;
+  final _ModalTransition transition;
+  final Color? _barrierColor;
 
   @override
-  Color get barrierColor => _barrierColor;
+  Color get barrierColor => _barrierColor ?? AppBarrier.heavy;
 
   @override
-  Duration get transitionDuration => _transitionDuration;
+  Duration get transitionDuration => AppMotionSystem.medium;
 
   @override
   Duration get reverseTransitionDuration => AppMotionSystem.quick;
@@ -47,70 +50,116 @@ class _SmoothDialogRoute<T> extends PopupRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final fadeAnimation = CurvedAnimation(
+    switch (transition) {
+      case _ModalTransition.slideUp:
+        return _buildSlideTransition(animation, child);
+      case _ModalTransition.scale:
+        return _buildScaleTransition(animation, child);
+    }
+  }
+
+  Widget _buildSlideTransition(Animation<double> animation, Widget child) {
+    final curved = CurvedAnimation(
+      parent: animation,
+      curve: AppMotionSystem.easeOut,
+      reverseCurve: AppMotionSystem.easeIn,
+    );
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(curved),
+      child: child,
+    );
+  }
+
+  Widget _buildScaleTransition(Animation<double> animation, Widget child) {
+    final fade = CurvedAnimation(
       parent: animation,
       curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
       reverseCurve: const Interval(AppMotionSystem.intervalHalf, 1.0, curve: AppMotionSystem.easeIn),
     );
-
-    final scaleAnimation = CurvedAnimation(
+    final scale = CurvedAnimation(
       parent: animation,
       curve: AppMotionSystem.overshoot,
       reverseCurve: AppMotionSystem.easeIn,
     );
-
     return FadeTransition(
-      opacity: Tween<double>(begin: 0.0, end: AppMotionSystem.scaleNone).animate(fadeAnimation),
+      opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fade),
       child: ScaleTransition(
-        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: AppMotionSystem.scaleNone).animate(scaleAnimation),
+        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: 1.0).animate(scale),
         child: child,
       ),
     );
   }
 }
 
-/// Shows a smooth dialog with fade/scale transition using AppMotionSystem.
-///
-/// Set [useRootNavigator] to false when showing dialogs from within a modal sheet
-/// to prevent the dialog from appearing behind the sheet.
-Future<T?> showSmoothDialog<T>({
-  required BuildContext context,
-  required WidgetBuilder builder,
-  bool barrierDismissible = true,
-  String? barrierLabel = 'Dismiss',
-  Color? barrierColor,
-  Duration? transitionDuration,
-  bool useRootNavigator = true,
-}) {
-  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
-    _SmoothDialogRoute<T>(
-      builder: builder,
-      barrierDismissible: barrierDismissible,
-      barrierLabel: barrierLabel,
-      barrierColor: barrierColor,
-      transitionDuration: transitionDuration,
-    ),
-  );
-}
+enum _ModalTransition { slideUp, scale }
 
-/// Global modal configuration for consistent dialogs across the app.
+// ═══════════════════════════════════════════════════════════════════════════
+// APP MODAL - Unified modal API
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Global modal system with consistent animations.
+///
+/// Use [AppModal.sheet] for content panels (details, forms, pickers).
+/// Use [AppModal.alert] for dialogs (confirmations, prompts).
 class AppModal {
-  /// Shows a standardized confirmation dialog.
-  static Future<bool?> showConfirmDialog({
+  const AppModal._();
+
+  /// Shows a sheet sliding up from bottom.
+  ///
+  /// Use for: details views, forms, pickers, previews.
+  static Future<T?> sheet<T>({
+    required BuildContext context,
+    required WidgetBuilder builder,
+    bool dismissible = true,
+  }) {
+    return Navigator.of(context).push<T>(
+      _AppModalRoute<T>(
+        builder: builder,
+        barrierDismissible: dismissible,
+        barrierLabel: 'Dismiss',
+        transition: _ModalTransition.slideUp,
+      ),
+    );
+  }
+
+  /// Shows a dialog scaling from center.
+  ///
+  /// Use for: confirmations, alerts, prompts.
+  static Future<T?> alert<T>({
+    required BuildContext context,
+    required WidgetBuilder builder,
+    bool dismissible = true,
+    bool useRootNavigator = true,
+    Color? barrierColor,
+  }) {
+    return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
+      _AppModalRoute<T>(
+        builder: builder,
+        barrierDismissible: dismissible,
+        barrierLabel: 'Dismiss',
+        transition: _ModalTransition.scale,
+        barrierColor: barrierColor,
+      ),
+    );
+  }
+
+  /// Shows a confirmation dialog with confirm/cancel actions.
+  static Future<bool?> confirm({
     required BuildContext context,
     required String title,
     required String message,
     String confirmLabel = 'Confirm',
     String cancelLabel = 'Cancel',
     bool isDanger = false,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
   }) async {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return showSmoothDialog<bool>(
+    return alert<bool>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,
@@ -144,19 +193,13 @@ class AppModal {
         actions: [
           SecondaryButton(
             label: cancelLabel,
-            onPressed: () {
-              onCancel?.call();
-              Navigator.of(context).pop(false);
-            },
+            onPressed: () => Navigator.of(context).pop(false),
             minHeight: AppTokens.componentSize.buttonSm,
             expanded: false,
           ),
           if (isDanger)
             FilledButton(
-              onPressed: () {
-                onConfirm?.call();
-                Navigator.of(context).pop(true);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
               style: FilledButton.styleFrom(
                 backgroundColor: colors.error,
                 foregroundColor: colors.onError,
@@ -172,10 +215,7 @@ class AppModal {
           else
             PrimaryButton(
               label: confirmLabel,
-              onPressed: () {
-                onConfirm?.call();
-                Navigator.of(context).pop(true);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
               minHeight: AppTokens.componentSize.buttonSm,
               expanded: false,
             ),
@@ -184,8 +224,8 @@ class AppModal {
     );
   }
 
-  /// Shows a standardized alert dialog (single action).
-  static Future<void> showAlertDialog({
+  /// Shows an info alert with single action.
+  static Future<void> info({
     required BuildContext context,
     required String title,
     required String message,
@@ -197,7 +237,7 @@ class AppModal {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return showSmoothDialog<void>(
+    return alert<void>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,
@@ -250,8 +290,8 @@ class AppModal {
     );
   }
 
-  /// Shows a standardized input dialog.
-  static Future<String?> showInputDialog({
+  /// Shows an input dialog.
+  static Future<String?> input({
     required BuildContext context,
     required String title,
     String? message,
@@ -267,7 +307,7 @@ class AppModal {
     final spacing = AppTokens.spacing;
     final controller = TextEditingController(text: initialValue);
 
-    final result = await showSmoothDialog<String>(
+    final result = await alert<String>(
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colors.surface,
@@ -351,4 +391,95 @@ class AppModal {
     controller.dispose();
     return result;
   }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // LEGACY API - Deprecated, use new methods above
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// @deprecated Use [AppModal.confirm] instead.
+  static Future<bool?> showConfirmDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    String confirmLabel = 'Confirm',
+    String cancelLabel = 'Cancel',
+    bool isDanger = false,
+    VoidCallback? onConfirm,
+    VoidCallback? onCancel,
+  }) {
+    return confirm(
+      context: context,
+      title: title,
+      message: message,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel,
+      isDanger: isDanger,
+    );
+  }
+
+  /// @deprecated Use [AppModal.info] instead.
+  static Future<void> showAlertDialog({
+    required BuildContext context,
+    required String title,
+    required String message,
+    String actionLabel = 'OK',
+    IconData? icon,
+    Color? iconColor,
+  }) {
+    return info(
+      context: context,
+      title: title,
+      message: message,
+      actionLabel: actionLabel,
+      icon: icon,
+      iconColor: iconColor,
+    );
+  }
+
+  /// @deprecated Use [AppModal.input] instead.
+  static Future<String?> showInputDialog({
+    required BuildContext context,
+    required String title,
+    String? message,
+    String? initialValue,
+    String? hintText,
+    String confirmLabel = 'Save',
+    String cancelLabel = 'Cancel',
+    int maxLines = 1,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return input(
+      context: context,
+      title: title,
+      message: message,
+      initialValue: initialValue,
+      hintText: hintText,
+      confirmLabel: confirmLabel,
+      cancelLabel: cancelLabel,
+      maxLines: maxLines,
+      keyboardType: keyboardType,
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGACY FUNCTIONS - Deprecated, use AppModal instead
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// @deprecated Use [AppModal.alert] instead.
+Future<T?> showSmoothDialog<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool barrierDismissible = true,
+  String? barrierLabel = 'Dismiss',
+  Color? barrierColor,
+  Duration? transitionDuration,
+  bool useRootNavigator = true,
+}) {
+  return AppModal.alert<T>(
+    context: context,
+    builder: builder,
+    dismissible: barrierDismissible,
+    useRootNavigator: useRootNavigator,
+  );
 }

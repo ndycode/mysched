@@ -301,6 +301,9 @@ class _AddClassSheetState extends State<AddClassSheet> {
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
+    final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
+    final isDark = theme.brightness == Brightness.dark;
     final isEditing = widget.initialClass != null;
 
     return SafeArea(
@@ -313,27 +316,19 @@ class _AddClassSheetState extends State<AddClassSheet> {
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.surfaceContainerHigh
-                  : theme.colorScheme.surface,
+              color: cardBackground,
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline
-                        .withValues(alpha: AppOpacity.overlay)
-                    : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark
-                    ? AppTokens.componentSize.divider
-                    : AppTokens.componentSize.dividerThin,
+                color: borderColor,
+                width: borderWidth,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow
-                      .withValues(alpha: AppOpacity.statusBg),
-                  blurRadius: AppTokens.shadow.xxl,
-                  offset: AppShadowOffset.modal,
-                ),
-              ],
+              boxShadow: isDark
+                  ? null
+                  : [
+                      AppTokens.shadow.modal(
+                        theme.colorScheme.shadow.withValues(alpha: AppOpacity.border),
+                      ),
+                    ],
             ),
             child: Material(
               type: MaterialType.transparency,
@@ -1151,8 +1146,8 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                    blurRadius: AppTokens.shadow.md,
+                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    blurRadius: AppTokens.shadow.lg,
                     offset: AppShadowOffset.sm,
                   ),
                 ],
@@ -1213,8 +1208,8 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                    blurRadius: AppTokens.shadow.md,
+                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    blurRadius: AppTokens.shadow.lg,
                     offset: AppShadowOffset.sm,
                   ),
                 ],
@@ -1324,8 +1319,8 @@ class _AddClassFormState extends State<AddClassForm> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                    blurRadius: AppTokens.shadow.md,
+                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    blurRadius: AppTokens.shadow.lg,
                     offset: AppShadowOffset.sm,
                   ),
                 ],
@@ -1396,7 +1391,7 @@ class _AddClassFormState extends State<AddClassForm> {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
 
-    final picked = await showSmoothDialog<int>(
+    final picked = await AppModal.alert<int>(
       context: context,
       useRootNavigator: !widget.isSheet,
       builder: (dialogContext) {
@@ -1416,15 +1411,18 @@ class _AddClassFormState extends State<AddClassForm> {
                 borderRadius: AppTokens.radius.md,
                 border: Border.all(
                   color: theme.brightness == Brightness.dark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.black.withValues(alpha: 0.05),
+                      ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
+                      : theme.colorScheme.outline,
+                  width: theme.brightness == Brightness.dark
+                      ? AppTokens.componentSize.divider
+                      : AppTokens.componentSize.dividerThin,
                 ),
                 boxShadow: theme.brightness == Brightness.dark
                     ? null
                     : [
                         BoxShadow(
-                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.faint),
-                          blurRadius: AppTokens.shadow.sm,
+                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.veryFaint),
+                          blurRadius: AppTokens.shadow.lg,
                           offset: AppShadowOffset.sm,
                         ),
                       ],

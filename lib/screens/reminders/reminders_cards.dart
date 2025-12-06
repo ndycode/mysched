@@ -232,8 +232,8 @@ class ReminderSummaryCard extends StatelessWidget {
             ? null
             : [
                 BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.md,
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
                   offset: AppShadowOffset.sm,
                 ),
               ],
@@ -936,16 +936,8 @@ class ReminderRow extends StatelessWidget {
   Future<void> _showDetails(BuildContext context) async {
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
-    await showOverlaySheet(
+    await AppModal.sheet(
       context: context,
-      alignment: Alignment.center,
-      dimBackground: true,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (context) => ReminderDetailsSheet(
         entry: entry,
         isActive: !entry.isCompleted,

@@ -9,6 +9,7 @@ import '../env.dart';
 import '../models/schedule_class.dart';
 import '../models/section.dart' as model;
 import '../ui/kit/kit.dart';
+import '../ui/theme/card_styles.dart';
 import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../utils/app_log.dart';
@@ -201,6 +202,10 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
     final viewInsets = MediaQuery.viewInsetsOf(context);
     final spacing = AppTokens.spacing;
     final file = File(widget.imagePath);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardBackground = elevatedCardBackground(theme, solid: true);
+    final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
 
     return SafeArea(
       child: Center(
@@ -218,22 +223,17 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
             child: Container(
               padding: spacing.edgeInsetsAll(spacing.xxl),
               decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark
-                    ? colors.surfaceContainerHigh
-                    : colors.surface,
-                borderRadius: AppTokens.radius.md,
+                color: cardBackground,
+                borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: theme.brightness == Brightness.dark
-                      ? Colors.white.withValues(alpha: 0.1)
-                      : Colors.black.withValues(alpha: 0.05),
+                  color: borderColor,
+                  width: borderWidth,
                 ),
-                boxShadow: theme.brightness == Brightness.dark
+                boxShadow: isDark
                     ? null
                     : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                          blurRadius: AppTokens.shadow.sm,
-                          offset: AppShadowOffset.sm,
+                        AppTokens.shadow.modal(
+                          colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                         ),
                       ],
               ),
@@ -263,6 +263,8 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                           'Check your capture',
                           textAlign: TextAlign.center,
                           style: AppTokens.typography.title.copyWith(
+                            fontWeight: AppTokens.fontWeight.bold,
+                            letterSpacing: AppLetterSpacing.snug,
                             color: colors.onSurface,
                           ),
                         ),

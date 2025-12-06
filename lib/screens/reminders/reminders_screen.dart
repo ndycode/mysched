@@ -96,17 +96,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
   }
 
   Future<void> _openAddPage([ReminderEntry? editing]) async {
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
-    final result = await showOverlaySheet<int?>(
+    final result = await AppModal.sheet<int?>(
       context: context,
-      alignment: Alignment.center,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (_) => AddReminderSheet(
         api: widget._apiOverride ?? RemindersApi(),
         editing: editing,
@@ -156,7 +147,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
 
 
   Future<void> _deleteReminder(ReminderEntry entry) async {
-    final ok = await AppModal.showConfirmDialog(
+    final ok = await AppModal.confirm(
       context: context,
       title: 'Delete reminder?',
       message: 'This reminder will be removed and any scheduled notifications will be cancelled.',
@@ -173,9 +164,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
 
   Future<void> _snoozeReminder(ReminderEntry entry) async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    final duration = await showModalBottomSheet<Duration>(
+    final duration = await AppModal.sheet<Duration>(
       context: context,
-      backgroundColor: Colors.transparent,
       builder: (context) => ReminderSnoozeSheet(
         entry: entry,
         formatDue: _formatDue,

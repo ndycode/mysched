@@ -8,24 +8,14 @@ class AboutSheet extends StatelessWidget {
   const AboutSheet({super.key});
 
   static Future<void> show(BuildContext context) {
-    final media = MediaQuery.of(context);
-    return showOverlaySheet<void>(
+    return AppModal.sheet<void>(
       context: context,
-      alignment: Alignment.center,
-      barrierDismissible: true,
-      barrierTint: AppBarrier.medium,
-      padding: EdgeInsets.fromLTRB(
-        AppTokens.spacing.xxl,
-        media.padding.top + AppTokens.spacing.xxxl,
-        AppTokens.spacing.xxl,
-        media.padding.bottom + AppTokens.spacing.xxxl,
-      ),
       builder: (_) => const AboutSheet(),
     );
   }
 
   static Future<void> _showReleaseNotes(BuildContext context) {
-    return AppModal.showAlertDialog(
+    return AppModal.info(
       context: context,
       title: 'Release notes',
       message: 'Thanks for using MySched! The full changelog lives in Settings → Updates. '
@@ -42,7 +32,10 @@ class AboutSheet extends StatelessWidget {
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height -
         (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
+    final isDark = theme.brightness == Brightness.dark;
     final cardBackground = elevatedCardBackground(theme, solid: true);
+    final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
 
     return Material(
       color: Colors.transparent,
@@ -53,21 +46,19 @@ class AboutSheet extends StatelessWidget {
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: theme.brightness == Brightness.dark
-                ? theme.colorScheme.surfaceContainerHigh
-                : theme.colorScheme.surface,
-          borderRadius: AppTokens.radius.xl,
+            color: cardBackground,
+            borderRadius: AppTokens.radius.xl,
             border: Border.all(
-              color: theme.colorScheme.outlineVariant,
-              width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+              color: borderColor,
+              width: borderWidth,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
-                blurRadius: AppTokens.shadow.xxl,
-                offset: AppShadowOffset.modal,
-              ),
-            ],
+            boxShadow: isDark
+                ? null
+                : [
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    ),
+                  ],
           ),
           child: ClipRRect(
           borderRadius: AppTokens.radius.xl,
@@ -104,6 +95,8 @@ class AboutSheet extends StatelessWidget {
                           'About MySched',
                           textAlign: TextAlign.center,
                           style: AppTokens.typography.title.copyWith(
+                            fontWeight: AppTokens.fontWeight.bold,
+                            letterSpacing: AppLetterSpacing.snug,
                             color: colors.onSurface,
                           ),
                         ),

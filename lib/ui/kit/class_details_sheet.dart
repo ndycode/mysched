@@ -123,7 +123,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
 
   Future<void> _deleteCustom(sched.ClassDetails details) async {
     if (!details.isCustom || _deleteBusy) return;
-    final confirm = await AppModal.showConfirmDialog(
+    final confirm = await AppModal.confirm(
           context: context,
           title: 'Delete custom class?',
           message:
@@ -161,9 +161,9 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     if (_reportBusy) return;
 
     final controller = TextEditingController();
-    final submittedNote = await showSmoothDialog<String>(
+    final submittedNote = await AppModal.alert<String>(
       context: context,
-      barrierDismissible: false,
+      dismissible: false,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -321,8 +321,9 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
     final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * 0.85;
+    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
 
     return ConstrainedBox(
@@ -331,14 +332,14 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
         decoration: BoxDecoration(
           color: cardBackground,
           borderRadius: AppTokens.radius.xl,
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            AppTokens.shadow.bubble(
-              theme.shadowColor.withValues(
-                alpha: isDark ? AppOpacity.track : AppOpacity.border,
-              ),
-            ),
-          ],
+          border: Border.all(color: borderColor, width: borderWidth),
+          boxShadow: isDark
+              ? null
+              : [
+                  AppTokens.shadow.bubble(
+                    theme.shadowColor.withValues(alpha: AppOpacity.border),
+                  ),
+                ],
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -488,8 +489,8 @@ class _ClassDetailsContent extends StatelessWidget {
               children: [
                 // Tags
                 Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
+                  spacing: AppTokens.spacing.sm,
+                  runSpacing: AppTokens.spacing.sm,
                   children: [
                     StatusInfoChip(
                       icon: details.isCustom

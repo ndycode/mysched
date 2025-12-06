@@ -29,7 +29,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
       title: Text(
         'Allow background usage',
         style: theme.textTheme.titleLarge?.copyWith(
-          fontWeight: FontWeight.bold,
+          fontWeight: AppTokens.fontWeight.bold,
         ),
       ),
       content: SingleChildScrollView(

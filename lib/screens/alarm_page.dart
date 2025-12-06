@@ -37,7 +37,7 @@ class AlarmPage extends StatelessWidget {
     );
 
     void showPreviewOverlay() {
-      showSmoothDialog<void>(
+      AppModal.alert<void>(
         context: context,
         barrierColor: AppSemanticColor.black.withValues(alpha: AppOpacity.muted),
         builder: (_) => Dialog(
@@ -91,16 +91,21 @@ class AlarmPage extends StatelessWidget {
             padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.md,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark
+                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                    : colors.outline,
+                width: isDark
+                    ? AppTokens.componentSize.divider
+                    : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: isDark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                        blurRadius: AppTokens.shadow.sm,
+                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                        blurRadius: AppTokens.shadow.lg,
                         offset: AppShadowOffset.sm,
                       ),
                     ],
@@ -122,16 +127,21 @@ class AlarmPage extends StatelessWidget {
             padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.md,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark
+                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                    : colors.outline,
+                width: isDark
+                    ? AppTokens.componentSize.divider
+                    : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: isDark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                        blurRadius: AppTokens.shadow.sm,
+                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                        blurRadius: AppTokens.shadow.lg,
                         offset: AppShadowOffset.sm,
                       ),
                     ],
@@ -154,16 +164,21 @@ class AlarmPage extends StatelessWidget {
             padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.md,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+                color: isDark
+                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                    : colors.outline,
+                width: isDark
+                    ? AppTokens.componentSize.divider
+                    : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: isDark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                        blurRadius: AppTokens.shadow.sm,
+                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                        blurRadius: AppTokens.shadow.lg,
                         offset: AppShadowOffset.sm,
                       ),
                     ],

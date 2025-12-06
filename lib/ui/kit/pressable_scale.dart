@@ -327,6 +327,10 @@ class _AnimatedListTileState extends State<AnimatedListTile> {
 
 /// An icon button with smooth scale and rotation animations.
 class AnimatedIconButton extends StatefulWidget {
+  /// Default padding value matching AppTokens.spacing.sm (8px).
+  /// Cannot use AppTokens directly in const constructor default.
+  static const _defaultPadding = EdgeInsets.all(8);
+
   const AnimatedIconButton({
     super.key,
     required this.icon,
@@ -334,7 +338,7 @@ class AnimatedIconButton extends StatefulWidget {
     this.size = 24,
     this.color,
     this.backgroundColor,
-    this.padding = const EdgeInsets.all(8), // Default matches AppTokens.spacing.sm
+    this.padding = _defaultPadding,
     this.borderRadius,
     this.tooltip,
     this.rotateOnPress = false,

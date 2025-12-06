@@ -107,7 +107,7 @@ class GlassNavigationBar extends StatelessWidget {
               navRow,
             ),
             Positioned(
-              top: -22,
+              top: AppTokens.componentSize.navFabOffset,
               child: _FloatingQuickActionButton(
                 onTap: onQuickAction!,
                 active: quickActionOpen,
@@ -359,7 +359,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             Positioned(
-              bottom: -18,
+              bottom: AppTokens.componentSize.navBubbleOuterOffset,
               child: Container(
                 width: AppTokens.componentSize.navBubbleLabelWidth,
                 height: AppTokens.componentSize.navBubbleLabelHeight,
@@ -381,7 +381,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: -8,
+              bottom: AppTokens.componentSize.navBubbleInnerOffset,
               child: Container(
                 width: AppTokens.componentSize.navBubbleInnerWidth,
                 height: AppTokens.componentSize.navBubbleInnerHeight,

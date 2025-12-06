@@ -446,19 +446,8 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _addCustomClass() async {
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
-    final created = await showOverlaySheet<int?>(
+    final created = await AppModal.sheet<int?>(
       context: context,
-      alignment: Alignment.center,
-      barrierDismissible: false,
-      dimBackground: true,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (_) => AddClassSheet(api: widget.api),
     );
     if (created != null) {
@@ -467,19 +456,8 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _editCustomClass(sched.ClassItem schedItem) async {
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
-    final updated = await showOverlaySheet<bool>(
+    final updated = await AppModal.sheet<bool>(
       context: context,
-      alignment: Alignment.center,
-      barrierDismissible: false,
-      dimBackground: true,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (_) => AddClassSheet(
         api: widget.api,
         initialClass: schedItem,
@@ -491,8 +469,6 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _openClassDetails(ClassItem item) async {
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
     final base = _classSource[item.id];
     final sched.ClassItem schedItem = base ??
         sched.ClassItem(
@@ -509,16 +485,8 @@ class DashboardScreenState extends State<DashboardScreen>
           isCustom: item.isCustom,
         );
     final cached = _classDetailsCache[item.id];
-    await showOverlaySheet<void>(
+    await AppModal.sheet<void>(
       context: context,
-      alignment: Alignment.center,
-      dimBackground: true,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (_) => ClassDetailsSheet(
         api: widget.api,
         item: schedItem,
@@ -556,18 +524,8 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _openAddReminder() async {
-    final media = MediaQuery.of(context);
-    final spacing = AppTokens.spacing;
-    final created = await showOverlaySheet<bool>(
+    final created = await AppModal.sheet<bool>(
       context: context,
-      alignment: Alignment.center,
-      dimBackground: true,
-      padding: spacing.edgeInsetsOnly(
-        left: spacing.xl,
-        right: spacing.xl,
-        top: media.padding.top + spacing.xxl,
-        bottom: media.padding.bottom + spacing.xxl,
-      ),
       builder: (_) => AddReminderSheet(api: _remindersApi),
     );
     if (created == true && mounted) {

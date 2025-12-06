@@ -178,10 +178,8 @@ class _RootNavState extends State<RootNav>
   Future<void> _openAddClass() async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     _closeQuickActions();
-    final created = await showModalBottomSheet<bool?>(
+    final created = await AppModal.sheet<bool?>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => AddClassSheet(api: _api),
     );
     if (created == true) {
@@ -193,10 +191,8 @@ class _RootNavState extends State<RootNav>
   Future<void> _openAddReminder() async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     _closeQuickActions();
-    final result = await showModalBottomSheet<bool?>(
+    final result = await AppModal.sheet<bool?>(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) => AddReminderSheet(api: _remindersApi),
     );
     if (result == true) {
@@ -210,17 +206,13 @@ class _RootNavState extends State<RootNav>
     _closeQuickActions();
     while (mounted) {
       if (!mounted) return;
-      final path = await showModalBottomSheet<String?>(
+      final path = await AppModal.sheet<String?>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (_) => const ScanOptionsSheet(),
       );
       if (path == null || !mounted) return;
-      final preview = await showModalBottomSheet<ScanPreviewOutcome?>(
+      final preview = await AppModal.sheet<ScanPreviewOutcome?>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (_) => ScanPreviewSheet(imagePath: path),
       );
       if (!mounted) return;
@@ -231,10 +223,8 @@ class _RootNavState extends State<RootNav>
       }
       if (!preview.isSuccess) return;
 
-      final outcome = await showModalBottomSheet<ScheduleImportOutcome?>(
+      final outcome = await AppModal.sheet<ScheduleImportOutcome?>(
         context: context,
-        isScrollControlled: true,
-        backgroundColor: Colors.transparent,
         builder: (_) => SchedulesPreviewSheet(
           imagePath: preview.imagePath!,
           section: preview.section!,

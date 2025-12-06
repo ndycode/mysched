@@ -147,6 +147,15 @@ class AppComponentSize {
   final double navItemHeight = 64;
   final double navFabSize = 56;
 
+  /// Navigation FAB offset from top (negative)
+  final double navFabOffset = -22;
+
+  /// Navigation bubble outer offset from bottom (negative)
+  final double navBubbleOuterOffset = -18;
+
+  /// Navigation bubble inner offset from bottom (negative)
+  final double navBubbleInnerOffset = -8;
+
   // Alarm preview dimensions
   final double alarmPreviewMinWidth = 420;
   final double alarmPreviewMaxWidth = 460;

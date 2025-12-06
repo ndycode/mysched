@@ -44,7 +44,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
 
   Future<void> _handleDelete() async {
     if (_deleteBusy) return;
-    final confirm = await AppModal.showConfirmDialog(
+    final confirm = await AppModal.confirm(
       context: context,
       title: 'Delete reminder?',
       message: 'This reminder will be permanently removed.',
@@ -71,6 +71,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
@@ -81,14 +82,14 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
         decoration: BoxDecoration(
           color: cardBackground,
           borderRadius: AppTokens.radius.xl,
-          border: Border.all(color: borderColor),
-          boxShadow: [
-            AppTokens.shadow.modal(
-              theme.shadowColor.withValues(
-                alpha: isDark ? AppOpacity.fieldBorder : AppOpacity.border,
-              ),
-            ),
-          ],
+          border: Border.all(color: borderColor, width: borderWidth),
+          boxShadow: isDark
+              ? null
+              : [
+                  AppTokens.shadow.modal(
+                    theme.shadowColor.withValues(alpha: AppOpacity.border),
+                  ),
+                ],
         ),
         child: Material(
           type: MaterialType.transparency,
@@ -183,8 +184,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                         children: [
                           // Tags
                           Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: AppTokens.spacing.sm,
+                            runSpacing: AppTokens.spacing.sm,
                             children: [
                               StatusInfoChip(
                                 icon: widget.isActive

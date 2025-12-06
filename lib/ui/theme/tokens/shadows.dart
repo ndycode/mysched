@@ -73,76 +73,76 @@ class AppShadow {
   BoxShadow elevation1(Color color) => BoxShadow(
         color: color,
         blurRadius: xs,
-        offset: const Offset(0, 2),
+        offset: AppShadowOffset.xs,
       );
 
   /// Light elevation for list tiles and small cards.
   BoxShadow elevation2(Color color) => BoxShadow(
         color: color,
         blurRadius: sm,
-        offset: const Offset(0, 4),
+        offset: AppShadowOffset.sm,
       );
 
   /// Standard elevation for cards and containers.
   BoxShadow elevation3(Color color) => BoxShadow(
         color: color,
         blurRadius: md,
-        offset: const Offset(0, 6),
+        offset: AppShadowOffset.md,
       );
 
   /// Elevated cards with prominent shadow.
   BoxShadow elevation4(Color color) => BoxShadow(
         color: color,
         blurRadius: lg,
-        offset: const Offset(0, 8),
+        offset: AppShadowOffset.lg,
       );
 
   /// High elevation for modals and sheets.
   BoxShadow elevation5(Color color) => BoxShadow(
         color: color,
         blurRadius: xl,
-        offset: const Offset(0, 12),
+        offset: AppShadowOffset.xl,
       );
 
   /// Maximum elevation for floating action buttons and hero elements.
   BoxShadow elevation6(Color color) => BoxShadow(
         color: color,
         blurRadius: xxl,
-        offset: const Offset(0, 16),
+        offset: AppShadowOffset.xxl,
       );
 
   /// Card shadow with customizable blur and offset.
   BoxShadow card(Color color,
-          {double blur = 12, Offset offset = const Offset(0, 4)}) =>
+          {double blur = 12, Offset offset = AppShadowOffset.sm}) =>
       BoxShadow(color: color, blurRadius: blur, offset: offset);
 
   /// Modal/sheet shadow with high elevation.
   BoxShadow modal(Color color, {bool isDark = false}) => BoxShadow(
         color: color,
-        blurRadius: 24,
-        offset: const Offset(0, 18),
+        blurRadius: cardHover,
+        offset: AppShadowOffset.modal,
       );
 
   /// Navigation bar shadow.
   BoxShadow navBar(Color color) => BoxShadow(
         color: color,
-        blurRadius: 30,
-        offset: const Offset(0, 16),
+        blurRadius: navBubbleInactive,
+        offset: AppShadowOffset.lg,
       );
 
   /// FAB/quick action button shadow with spread.
   BoxShadow fab(Color color, {bool active = false}) => BoxShadow(
         color: color,
-        blurRadius: active ? 36 : 30,
-        offset: Offset(0, active ? 18 : 16),
-        spreadRadius: active ? 2 : 0,
+        blurRadius: active ? navBubbleActive : navBubbleInactive,
+        offset: active ? AppShadowOffset.navBubbleActive : AppShadowOffset.lg,
+        spreadRadius: active ? spreadMd : 0,
       );
 
   /// Hint bubble shadow.
   BoxShadow bubble(Color color) => BoxShadow(
         color: color,
-        blurRadius: 28,
-        offset: const Offset(0, 20),
+        blurRadius: hero,
+        offset: AppShadowOffset.modal,
       );
 }
 

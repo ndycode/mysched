@@ -245,7 +245,7 @@ class _Row extends StatelessWidget {
         child: Icon(Icons.delete, color: colors.onError),
       ),
       confirmDismiss: (_) async {
-        final ok = await AppModal.showConfirmDialog(
+        final ok = await AppModal.confirm(
           context: context,
           title: 'Delete class?',
           message: c.isCustom == true

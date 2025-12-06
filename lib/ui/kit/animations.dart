@@ -909,7 +909,7 @@ class AnimatedBadge extends StatelessWidget {
           displayText,
           style: AppTokens.typography.caption.copyWith(
             color: textColor ?? colors.onError,
-            fontWeight: FontWeight.bold,
+            fontWeight: AppTokens.fontWeight.bold,
           ),
         ),
       ),

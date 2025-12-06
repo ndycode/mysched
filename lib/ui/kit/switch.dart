@@ -36,11 +36,13 @@ class AppSwitch extends StatelessWidget {
         value: value,
         onChanged: onChanged,
         thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colors.onPrimary;
+          if (states.contains(WidgetState.selected)) return colors.primary;
           return palette.danger;
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return colors.primary;
+          if (states.contains(WidgetState.selected)) {
+            return colors.primary.withValues(alpha: AppOpacity.track);
+          }
           return palette.danger.withValues(alpha: AppOpacity.dim);
         }),
         trackOutlineColor: WidgetStateProperty.resolveWith((states) {

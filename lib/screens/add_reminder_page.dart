@@ -72,6 +72,9 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
+    final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
+    final isDark = theme.brightness == Brightness.dark;
     final isEditing = widget.editing != null;
 
     return SafeArea(
@@ -84,23 +87,19 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.surfaceContainerHigh
-                  : theme.colorScheme.surface,
+              color: cardBackground,
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
-                    : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+                color: borderColor,
+                width: borderWidth,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.medium),
-                  blurRadius: AppTokens.shadow.xxl,
-                  offset: AppShadowOffset.modal,
-                ),
-              ],
+              boxShadow: isDark
+                  ? null
+                  : [
+                      AppTokens.shadow.modal(
+                        theme.colorScheme.shadow.withValues(alpha: AppOpacity.border),
+                      ),
+                    ],
             ),
             child: Material(
               type: MaterialType.transparency,

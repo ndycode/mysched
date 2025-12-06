@@ -225,15 +225,17 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
                   : colors.surface,
               borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: colors.outlineVariant,
+                color: theme.brightness == Brightness.dark
+                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                    : colors.outline,
                 width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: theme.brightness == Brightness.dark
                   ? null
                   : [
                       BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                        blurRadius: AppTokens.shadow.md,
+                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                        blurRadius: AppTokens.shadow.lg,
                         offset: AppShadowOffset.sm,
                       ),
                     ],

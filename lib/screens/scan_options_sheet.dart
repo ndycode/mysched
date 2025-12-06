@@ -41,33 +41,33 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
+    final borderWidth = elevatedCardBorderWidth(theme);
+    final isDark = theme.brightness == Brightness.dark;
 
-    return SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: AppLayout.sheetMaxWidth,
-            maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
-          ),
-          child: Container(
+    return Material(
+      type: MaterialType.transparency,
+      child: SafeArea(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.sheetMaxWidth,
+              maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
+            ),
+            child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
             child: Container(
               decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.surfaceContainerHigh
-                    : theme.colorScheme.surface,
+                color: cardBackground,
                 borderRadius: AppTokens.radius.xl,
                 border: Border.all(
-                  color: theme.colorScheme.outline.withValues(
-                      alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
+                  color: borderColor,
+                  width: borderWidth,
                 ),
-                boxShadow: theme.brightness == Brightness.dark
+                boxShadow: isDark
                     ? null
                     : [
-                        BoxShadow(
-                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.faint),
-                          blurRadius: AppTokens.shadow.sm,
-                          offset: AppShadowOffset.sm,
+                        AppTokens.shadow.modal(
+                          theme.colorScheme.shadow.withValues(alpha: AppOpacity.veryFaint),
                         ),
                       ],
               ),
@@ -106,6 +106,8 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                               'Scan student card',
                               textAlign: TextAlign.center,
                               style: AppTokens.typography.title.copyWith(
+                                fontWeight: AppTokens.fontWeight.bold,
+                                letterSpacing: AppLetterSpacing.snug,
                                 color: colors.onSurface,
                               ),
                             ),
@@ -168,6 +170,7 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
                 ),
               ),
             ),
+          ),
           ),
         ),
       ),

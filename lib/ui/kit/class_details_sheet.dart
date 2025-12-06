@@ -326,28 +326,32 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
-      child: Container(
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(color: borderColor, width: borderWidth),
-          boxShadow: isDark
-              ? null
-              : [
-                  AppTokens.shadow.bubble(
-                    theme.shadowColor.withValues(alpha: AppOpacity.border),
-                  ),
-                ],
-        ),
-        child: Material(
-          type: MaterialType.transparency,
-          child: Padding(
-            padding: EdgeInsets.all(spacing.xl),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: maxHeight),
-              child: Column(
+    return SafeArea(
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardBackground,
+                borderRadius: AppTokens.radius.xl,
+                border: Border.all(color: borderColor, width: borderWidth),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        AppTokens.shadow.bubble(
+                          theme.shadowColor.withValues(alpha: AppOpacity.border),
+                        ),
+                      ],
+              ),
+              child: Material(
+                type: MaterialType.transparency,
+                child: Padding(
+                  padding: EdgeInsets.all(spacing.xl),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxHeight: maxHeight),
+                    child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -416,6 +420,9 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
               ),
             ),
           ),
+        ),
+      ),
+    ),
         ),
       ),
     );

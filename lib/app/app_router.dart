@@ -93,7 +93,9 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.account,
-      builder: (context, state) => const AccountOverviewPage(),
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: AccountOverviewPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.changeEmail,

@@ -1,327 +1,45 @@
-// coverage:ignore-file
+﻿// coverage:ignore-file
+// lib/screens/delete_account_page.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import '../app/routes.dart';
-import '../services/auth_service.dart';
 import '../ui/kit/kit.dart';
-import '../ui/theme/tokens.dart';
+import 'delete_account_sheet.dart';
 
+/// Shows the [DeleteAccountSheet] modal via [AppModal.sheet].
+/// Use [DeleteAccountPage.show] for direct invocation.
 class DeleteAccountPage extends StatefulWidget {
   const DeleteAccountPage({super.key});
+
+  /// Shows the delete account sheet and returns 	rue if account was deleted.
+  static Future<bool?> show(BuildContext context) {
+    return AppModal.sheet<bool>(
+      context: context,
+      dismissible: false,
+      builder: (_) => const DeleteAccountSheet(),
+    );
+  }
 
   @override
   State<DeleteAccountPage> createState() => _DeleteAccountPageState();
 }
 
 class _DeleteAccountPageState extends State<DeleteAccountPage> {
-  final _auth = AuthService.instance;
-  final _formKey = GlobalKey<FormState>();
-  final _password = TextEditingController();
-
-  bool _hidePassword = true;
-  bool _busy = false;
-  String? _error;
-  bool _completed = false;
-
   @override
-  void dispose() {
-    _password.dispose();
-    super.dispose();
-  }
-
-  Future<void> _attemptDelete() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final confirmed = await AppModal.confirm(
-      context: context,
-      title: 'Delete account?',
-      message: 'This permanently removes your schedule data. This action cannot be undone.',
-      confirmLabel: 'Delete',
-      isDanger: true,
-    );
-
-    if (confirmed != true) return;
-
-    setState(() {
-      _busy = true;
-      _error = null;
+  void initState() {
+    super.initState();
+    // Show the sheet immediately when this page is pushed.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final result = await DeleteAccountPage.show(context);
+      if (mounted) Navigator.of(context).pop(result);
     });
-
-    try {
-      await _auth.deleteAccount(password: _password.text.trim());
-      if (!mounted) return;
-      setState(() => _completed = true);
-    } catch (error) {
-      if (!mounted) return;
-      setState(() => _error = _mapError(error));
-    } finally {
-      if (mounted) setState(() => _busy = false);
-    }
-  }
-
-  String _mapError(Object error) {
-    final message = error.toString().toLowerCase();
-    if (message.contains('incorrect password')) {
-      return 'Incorrect password. Please try again.';
-    }
-    if (message.contains('unauthorized') ||
-        message.contains('unauthenticated')) {
-      return 'Session expired. Please sign in again.';
-    }
-    if (message.contains('rate limit')) {
-      return 'Too many attempts. Wait a moment and try again.';
-    }
-    return 'Delete failed. Please try again.';
-  }
-
-  Future<void> _backToLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.clear();
-    if (!mounted) return;
-    context.go(AppRoutes.login);
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    final helperStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: colors.onSurfaceVariant,
-    );
-
-    final backButton = IconButton(
-      splashRadius: AppInteraction.splashRadius,
-      onPressed: _busy ? null : () => context.pop(),
-      icon: CircleAvatar(
-        radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-        child: Icon(
-          Icons.arrow_back_rounded,
-          color: colors.primary,
-          size: AppTokens.iconSize.sm,
-        ),
-      ),
-    );
-
-    Widget passwordForm() {
-      return Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _password,
-              obscureText: _hidePassword,
-              onChanged: (_) {
-                if (_error != null) {
-                  setState(() => _error = null);
-                }
-              },
-              decoration: InputDecoration(
-                labelText: 'Password',
-                suffixIcon: IconButton(
-                  onPressed: _busy
-                      ? null
-                      : () => setState(() => _hidePassword = !_hidePassword),
-                  icon: Icon(
-                    _hidePassword ? Icons.visibility_off : Icons.visibility,
-                  ),
-                ),
-              ),
-              validator: (value) => value == null || value.trim().isEmpty
-                  ? 'Password is required'
-                  : null,
-            ),
-            if (_error != null) ...[
-              SizedBox(height: spacing.md),
-              Text(
-                _error!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colors.error,
-                  fontWeight: AppTokens.fontWeight.semiBold,
-                ),
-              ),
-            ],
-            SizedBox(height: spacing.xl),
-            FilledButton(
-              onPressed: _busy ? null : _attemptDelete,
-              style: FilledButton.styleFrom(
-                backgroundColor: colors.error,
-                foregroundColor: colors.onError,
-                minimumSize: Size.fromHeight(AppTokens.componentSize.buttonMd),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-              child: Text(_busy ? 'Deleting...' : 'Delete account'),
-            ),
-            SizedBox(height: spacing.sm),
-            SecondaryButton(
-              label: 'Cancel',
-              onPressed: _busy ? null : () => context.pop(),
-            ),
-            TextButton(
-              onPressed: _busy ? null : _backToLogin,
-              child: const Text('Sign out instead'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    final sections = <Widget>[];
-    if (_completed) {
-      sections.add(
-        ScreenSection(
-          title: 'Account deleted',
-          child: _SuccessView(onBack: _backToLogin),
-        ),
-      );
-    } else {
-      sections.add(
-        ScreenSection(
-          title: 'Before you delete',
-          decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: theme.brightness == Brightness.dark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Deleting your account removes your schedules, reminders, and offline backups immediately.',
-                  style: helperStyle,
-                ),
-                SizedBox(height: spacing.sm),
-                Text(
-                  'Export your timetable first if you think you might need it later.',
-                  style: helperStyle,
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-      sections.add(
-        ScreenSection(
-          title: 'Confirm with password',
-          decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: theme.brightness == Brightness.dark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
-            child: passwordForm(),
-          ),
-        ),
-      );
-    }
-
-    return ScreenShell(
-      screenName: 'delete_account',
-      hero: ScreenHeroCard(
-        leading: Align(
-          alignment: Alignment.centerLeft,
-          child: backButton,
-        ),
-        title: 'Delete account',
-        subtitle: _completed
-            ? 'Your data has been removed from MySched.'
-            : 'This action cannot be undone.',
-      ),
-      sections: sections,
-    );
-  }
-}
-
-class _SuccessView extends StatelessWidget {
-  const _SuccessView({required this.onBack});
-
-  final Future<void> Function() onBack;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Container(
-          width: AppTokens.componentSize.previewSm,
-          height: AppTokens.componentSize.previewSm,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: theme.colorScheme.primary,
-              width: AppTokens.componentSize.strokeHeavy,
-            ),
-          ),
-          child: Icon(
-            Icons.check,
-            size: AppTokens.iconSize.display,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-        SizedBox(height: AppTokens.spacing.xl),
-        Text(
-          'Account deleted',
-          style:
-              theme.textTheme.titleLarge?.copyWith(fontWeight: AppTokens.fontWeight.bold),
-        ),
-        SizedBox(height: AppTokens.spacing.sm),
-        Text(
-          'Your account and schedule data have been removed.',
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        SizedBox(height: AppTokens.spacing.xxl),
-        PrimaryButton(
-          label: 'Back to sign in',
-          onPressed: onBack,
-        ),
-      ],
+    // Placeholder while the sheet opens.
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SizedBox.shrink(),
     );
   }
 }

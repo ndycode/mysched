@@ -199,29 +199,29 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final media = MediaQuery.of(context);
-    final viewInsets = MediaQuery.viewInsetsOf(context);
     final spacing = AppTokens.spacing;
     final file = File(widget.imagePath);
     final isDark = theme.brightness == Brightness.dark;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
+    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     return SafeArea(
-      child: Center(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(
-            spacing.xl,
-            spacing.xl,
-            spacing.xl,
-            media.padding.bottom + viewInsets.bottom + spacing.xl,
-          ),
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: spacing.xl,
+          right: spacing.xl,
+          bottom: media.viewInsets.bottom + spacing.xl,
+        ),
+        child: Center(
           child: ConstrainedBox(
             constraints: BoxConstraints(
               maxWidth: AppLayout.sheetMaxWidth,
+              maxHeight: maxHeight,
             ),
             child: Container(
-              padding: spacing.edgeInsetsAll(spacing.xxl),
               decoration: BoxDecoration(
                 color: cardBackground,
                 borderRadius: AppTokens.radius.xl,
@@ -233,189 +233,183 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
                     ? null
                     : [
                         AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                          colors.shadow.withValues(alpha: AppOpacity.border),
                         ),
                       ],
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+              child: ClipRRect(
+                borderRadius: AppTokens.radius.xl,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      PressableScale(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          padding: spacing.edgeInsetsAll(spacing.sm),
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                            borderRadius: AppTokens.radius.xl,
-                          ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: AppTokens.iconSize.sm,
-                            color: colors.primary,
-                          ),
+                      // Header
+                      Padding(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.xl,
+                          bottom: spacing.md,
+                        ),
+                        child: SheetHeaderRow(
+                          title: 'Check your capture',
+                          subtitle: 'Make sure the card details are readable before scanning.',
+                          icon: Icons.qr_code_scanner_rounded,
+                          onClose: () => Navigator.of(context).pop(),
                         ),
                       ),
-                      Expanded(
-                        child: Text(
-                          'Check your capture',
-                          textAlign: TextAlign.center,
-                          style: AppTokens.typography.title.copyWith(
-                            fontWeight: AppTokens.fontWeight.bold,
-                            letterSpacing: AppLetterSpacing.snug,
-                            color: colors.onSurface,
+                      // Preview content
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: spacing.edgeInsetsOnly(
+                            left: spacing.xl,
+                            right: spacing.xl,
+                            bottom: spacing.md,
                           ),
-                        ),
-                      ),
-                      PressableScale(
-                        onTap: _processing
-                            ? null
-                            : () => Navigator.of(context)
-                                .pop(const ScanPreviewOutcome.retake()),
-                        child: Container(
-                          padding: spacing.edgeInsetsAll(spacing.sm),
-                          decoration: BoxDecoration(
-                            color: colors.surfaceContainerHighest,
-                            borderRadius: AppTokens.radius.xl,
-                          ),
-                          child: Icon(
-                            Icons.refresh_rounded,
-                            size: AppTokens.iconSize.sm,
-                            color:
-                                colors.onSurfaceVariant.withValues(alpha: AppOpacity.high),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: spacing.sm),
-                  Text(
-                    'Make sure the card details are readable before scanning.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                  SizedBox(height: spacing.xl),
-                  ConstrainedBox(
-                    constraints: BoxConstraints(
-                      maxHeight: media.size.height * AppScale.previewHeightRatio,
-                    ),
-                    child: ClipRRect(
-                      borderRadius: AppTokens.radius.lg,
-                      child: file.existsSync()
-                          ? Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                if (!_imageReady)
-                                  SizedBox(
-                                    height: AppTokens.componentSize.previewMd,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          colors.primary,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // Use standard ID card aspect ratio (85.6mm × 53.98mm ≈ 1.586:1)
+                              AspectRatio(
+                                aspectRatio: 1.586,
+                                child: ClipRRect(
+                                  borderRadius: AppTokens.radius.lg,
+                                  child: file.existsSync()
+                                      ? Stack(
+                                          alignment: Alignment.center,
+                                          children: [
+                                            if (!_imageReady)
+                                              Center(
+                                                child: CircularProgressIndicator(
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<Color>(
+                                                    colors.primary,
+                                                  ),
+                                                ),
+                                              ),
+                                            Positioned.fill(
+                                              child: Image.file(
+                                                file,
+                                                fit: BoxFit.cover,
+                                                gaplessPlayback: true,
+                                                frameBuilder: (context, child, frame,
+                                                    wasSynchronouslyLoaded) {
+                                                  if (frame != null &&
+                                                      !_imageReady &&
+                                                      mounted) {
+                                                    WidgetsBinding.instance
+                                                        .addPostFrameCallback((_) {
+                                                      if (mounted) {
+                                                        setState(() => _imageReady = true);
+                                                      }
+                                                    });
+                                                  }
+                                                  return AnimatedOpacity(
+                                                    opacity: frame == null ? 0 : 1,
+                                                    duration: AppMotionSystem.standard,
+                                                    curve: AppMotionSystem.easeInOut,
+                                                    child: child,
+                                                  );
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        )
+                                      : Container(
+                                          alignment: Alignment.center,
+                                          color: colors.surfaceContainerHigh,
+                                          child: Text(
+                                            'Image unavailable. Retake to continue.',
+                                            textAlign: TextAlign.center,
+                                            style: theme.textTheme.bodyMedium?.copyWith(
+                                              color: colors.error,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ),
-                                  ),
-                                Image.file(
-                                  file,
-                                  fit: BoxFit.contain,
-                                  gaplessPlayback: true,
-                                  frameBuilder: (context, child, frame,
-                                      wasSynchronouslyLoaded) {
-                                    if (frame != null &&
-                                        !_imageReady &&
-                                        mounted) {
-                                      WidgetsBinding.instance
-                                          .addPostFrameCallback((_) {
-                                        if (mounted) {
-                                          setState(() => _imageReady = true);
-                                        }
-                                      });
-                                    }
-                                    return AnimatedOpacity(
-                                      opacity: frame == null ? 0 : 1,
-                                      duration: AppMotionSystem.standard,
-                                      curve: AppMotionSystem.easeInOut,
-                                      child: child,
-                                    );
-                                  },
-                                ),
-                              ],
-                            )
-                          : Container(
-                              alignment: Alignment.center,
-                              color: colors.surfaceContainerHigh,
-                              child: Text(
-                                'Image unavailable. Retake to continue.',
-                                textAlign: TextAlign.center,
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colors.error,
                                 ),
                               ),
-                            ),
-                    ),
-                  ),
-                  if (_error != null) ...[
-                    SizedBox(height: spacing.lg),
-                    StateDisplay(
-                      variant: StateVariant.error,
-                      title: 'Scan failed',
-                      message: _error!,
-                      primaryActionLabel: 'Retry',
-                      onPrimaryAction: _processing ? null : _scan,
-                      secondaryActionLabel: 'Retake',
-                      onSecondaryAction: _processing
-                          ? null
-                          : () => Navigator.of(context)
-                              .pop(const ScanPreviewOutcome.retake()),
-                      compact: true,
-                    ),
-                  ],
-                  SizedBox(height: spacing.xl),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: PrimaryButton(
-                          onPressed:
-                              _processing || !file.existsSync() ? null : _scan,
-                          label: _processing ? 'Scanning...' : 'Scan',
-                          icon: _processing
-                              ? null
-                              : Icons.qr_code_scanner_rounded,
-                          leading: _processing
-                              ? SizedBox(
-                                  width: AppTokens.componentSize.badgeMd,
-                                  height: AppTokens.componentSize.badgeMd,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: AppTokens.componentSize.progressStroke,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      colors.onPrimary,
-                                    ),
-                                  ),
-                                )
-                              : null,
-                          minHeight: AppTokens.componentSize.buttonMd,
+                              if (_error != null) ...[
+                                SizedBox(height: spacing.lg),
+                                StateDisplay(
+                                  variant: StateVariant.error,
+                                  title: 'Scan failed',
+                                  message: _error!,
+                                  primaryActionLabel: 'Retry',
+                                  onPrimaryAction: _processing ? null : _scan,
+                                  secondaryActionLabel: 'Retake',
+                                  onSecondaryAction: _processing
+                                      ? null
+                                      : () => Navigator.of(context)
+                                          .pop(const ScanPreviewOutcome.retake()),
+                                  compact: true,
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       ),
-                      SizedBox(width: spacing.md),
-                      Expanded(
-                        child: SecondaryButton(
-                          onPressed: _processing
-                              ? null
-                              : () => Navigator.of(context)
-                                  .pop(const ScanPreviewOutcome.retake()),
-                          label: 'Retake',
-                          minHeight: AppTokens.componentSize.buttonMd,
+                      // Action buttons
+                      Container(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.md,
+                          bottom: spacing.xl,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cardBackground,
+                          border: Border(
+                            top: BorderSide(
+                              color: isDark
+                                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                                  : colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+                              width: AppTokens.componentSize.dividerThin,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                onPressed:
+                                    _processing || !file.existsSync() ? null : _scan,
+                                label: _processing ? 'Scanning...' : 'Scan',
+                                icon: _processing
+                                    ? null
+                                    : Icons.qr_code_scanner_rounded,
+                                leading: _processing
+                                    ? SizedBox(
+                                        width: AppTokens.componentSize.badgeMd,
+                                        height: AppTokens.componentSize.badgeMd,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: AppTokens.componentSize.progressStroke,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            colors.onPrimary,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
+                            ),
+                            SizedBox(width: spacing.md),
+                            Expanded(
+                              child: SecondaryButton(
+                                onPressed: _processing
+                                    ? null
+                                    : () => Navigator.of(context)
+                                        .pop(const ScanPreviewOutcome.retake()),
+                                label: 'Retake',
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

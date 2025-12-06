@@ -19,6 +19,8 @@ import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
 import '../utils/nav.dart';
 import 'change_email_page.dart';
+import 'change_password_page.dart';
+import 'delete_account_page.dart';
 
 class AccountOverviewPage extends StatefulWidget {
   const AccountOverviewPage({super.key});
@@ -91,7 +93,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         _profileHydrated = true;
       });
     } catch (e, stack) {
-      TelemetryService.instance.logError('account_load_profile', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('account_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -172,22 +175,24 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
 
-    final backButton = IconButton(
-      splashRadius: AppInteraction.splashRadius,
-      onPressed: _busy
+    final backButton = PressableScale(
+      onTap: _busy
           ? null
           : () {
               if (context.canPop()) {
                 context.pop();
               }
             },
-      icon: CircleAvatar(
-        radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
+      child: Container(
+        padding: EdgeInsets.all(spacing.sm),
+        decoration: BoxDecoration(
+          color: colors.onSurface.withValues(alpha: AppOpacity.faint),
+          borderRadius: AppTokens.radius.md,
+        ),
         child: Icon(
           Icons.arrow_back_rounded,
-          color: colors.primary,
-          size: AppTokens.iconSize.sm,
+          size: AppTokens.iconSize.md,
+          color: colors.onSurfaceVariant,
         ),
       ),
     );
@@ -202,22 +207,11 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       screenName: 'account_overview',
       hero: heroContent,
       sections: [
-        const ScreenSection(
+        ScreenSection(
           decorated: false,
-          child: ScreenHeroCard(
-            title: 'Account overview',
-            subtitle: 'Manage your profile and security preferences.',
-          ),
+          child: _buildAccountSummaryCard(colors, isDark),
         ),
         ScreenSection(
-          title: 'Profile',
-          subtitle: 'Update your avatar, name, and student ID.',
-          decorated: false,
-          child: _buildProfileCard(colors, isDark),
-        ),
-        ScreenSection(
-          title: 'Security actions',
-          subtitle: 'Keep your login details up to date.',
           decorated: false,
           child: _buildSecurityCard(colors, isDark),
         ),
@@ -229,6 +223,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
               onPressed: _busy ? null : () => _confirmSignOut(context),
               label: 'Sign out',
               icon: Icons.logout_rounded,
+              minHeight: AppTokens.componentSize.buttonMd,
             ),
           ),
         ),
@@ -243,114 +238,140 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildProfileCard(ColorScheme colors, bool isDark) {
+  Widget _buildAccountSummaryCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
-    return Container(
+
+    return CardX(
+      variant: CardVariant.elevated,
       padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            clipBehavior: Clip.none,
+          // Section header
+          Text(
+            'Account overview',
+            style: AppTokens.typography.title.copyWith(
+              fontWeight: AppTokens.fontWeight.bold,
+              letterSpacing: AppLetterSpacing.snug,
+              color: colors.onSurface,
+            ),
+          ),
+          SizedBox(height: spacing.xs),
+          Text(
+            'Manage your profile and security preferences.',
+            style: AppTokens.typography.body.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: spacing.xl),
+          // Profile section header
+          Text(
+            'Profile',
+            style: AppTokens.typography.subtitle.copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: colors.onSurface,
+            ),
+          ),
+          SizedBox(height: spacing.xs),
+          Text(
+            'Update your avatar, name, and student ID.',
+            style: AppTokens.typography.bodySecondary.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: spacing.lg),
+          // Profile content
+          Row(
             children: [
-              CircleAvatar(
-                radius: AppTokens.componentSize.avatarProfile,
-                backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-                backgroundImage:
-                    _avatar == null ? null : NetworkImage(_avatar!),
-                child: _avatar == null
-                    ? Icon(
-                        Icons.person_rounded,
-                        size: AppTokens.iconSize.xxl + AppTokens.spacing.sm,
-                        color: colors.onSurface.withValues(alpha: AppOpacity.subtle),
-                      )
-                    : null,
-              ),
-              Positioned(
-                right: -(AppTokens.spacing.xs + AppTokens.spacing.micro),
-                bottom: -(AppTokens.spacing.xs + AppTokens.spacing.micro),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: colors.surface,
-                    borderRadius: AppTokens.radius.xxxl,
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.accent),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.md,
-                      ),
-                    ],
-                  ),
-                  child: IconButton(
-                    onPressed: _busy ? null : _pickAndUpload,
-                    icon: _busy
-                        ? SizedBox(
-                width: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
-                height: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
-                            child: CircularProgressIndicator(
-                              strokeWidth: AppTokens.spacing.micro,
-                              color: colors.primary,
-                            ),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  CircleAvatar(
+                    radius: AppTokens.componentSize.avatarXl,
+                    backgroundColor:
+                        colors.primary.withValues(alpha: AppOpacity.overlay),
+                    backgroundImage:
+                        _avatar == null ? null : NetworkImage(_avatar!),
+                    child: _avatar == null
+                        ? Icon(
+                            Icons.person_rounded,
+                            size: AppTokens.iconSize.xl,
+                            color: colors.onSurface
+                                .withValues(alpha: AppOpacity.subtle),
                           )
-                        : Icon(Icons.photo_camera_outlined,
-                            color: colors.primary),
+                        : null,
                   ),
+                  Positioned(
+                    right: -spacing.xs,
+                    bottom: -spacing.xs,
+                    child: GestureDetector(
+                      onTap: _busy ? null : _pickAndUpload,
+                      child: Container(
+                        padding: spacing.edgeInsetsAll(spacing.sm),
+                        decoration: BoxDecoration(
+                          color: colors.primary,
+                          borderRadius: AppTokens.radius.xxxl,
+                          border: Border.all(
+                            color: isDark
+                                ? colors.surfaceContainerHigh
+                                : colors.surface,
+                            width: AppTokens.componentSize.dividerThick,
+                          ),
+                        ),
+                        child: _busy
+                            ? SizedBox(
+                                width: AppTokens.iconSize.sm,
+                                height: AppTokens.iconSize.sm,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: AppTokens.spacing.micro,
+                                  color: colors.onPrimary,
+                                ),
+                              )
+                            : Icon(
+                                Icons.photo_camera_outlined,
+                                size: AppTokens.iconSize.sm,
+                                color: colors.onPrimary,
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(width: spacing.lg),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _name.isEmpty ? 'Student' : _name,
+                      style: AppTokens.typography.subtitle.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                        color: colors.onSurface,
+                      ),
+                    ),
+                    if (_sid.isNotEmpty || _email.isNotEmpty) ...[
+                      SizedBox(height: spacing.xs),
+                      if (_sid.isNotEmpty)
+                        Text(
+                          _sid,
+                          style: AppTokens.typography.bodySecondary.copyWith(
+                            color: colors.onSurfaceVariant,
+                            fontWeight: AppTokens.fontWeight.medium,
+                          ),
+                        ),
+                      if (_email.isNotEmpty)
+                        Text(
+                          _email,
+                          style: AppTokens.typography.bodySecondary.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                    ],
+                  ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: spacing.md),
-          Text(
-            _name.isEmpty ? 'Student' : _name,
-            style: AppTokens.typography.title.copyWith(
-              fontWeight: AppTokens.fontWeight.bold,
-              color: colors.onSurface,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          if (_sid.isNotEmpty || _email.isNotEmpty) ...[
-            SizedBox(height: spacing.xs + AppTokens.spacing.micro),
-            Column(
-              children: [
-                if (_sid.isNotEmpty)
-                  Text(
-                    _sid,
-                    style: AppTokens.typography.body.copyWith(
-                      color: colors.onSurfaceVariant,
-                      fontWeight: AppTokens.fontWeight.semiBold,
-                    ),
-                  ),
-                if (_email.isNotEmpty)
-                  Text(
-                    _email,
-                    style: AppTokens.typography.body.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-              ],
-            ),
-          ],
         ],
       ),
     );
@@ -358,31 +379,27 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
 
   Widget _buildSecurityCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
-    return Container(
+    return CardX(
+      variant: CardVariant.elevated,
       padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Security actions',
+            style: AppTokens.typography.subtitle.copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: colors.onSurface,
+            ),
+          ),
+          SizedBox(height: spacing.xs),
+          Text(
+            'Keep your login details up to date.',
+            style: AppTokens.typography.bodySecondary.copyWith(
+              color: colors.onSurfaceVariant,
+            ),
+          ),
+          SizedBox(height: spacing.lg),
           InfoTile(
             icon: Icons.mail_outline,
             title: 'Change email',
@@ -390,14 +407,14 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             iconInContainer: true,
             showChevron: true,
             onTap: () async {
-              await context.push<bool>(
-                AppRoutes.changeEmail,
-                extra: ChangeEmailPageArgs(currentEmail: _email),
+              await ChangeEmailPage.show(
+                context,
+                currentEmail: _email,
               );
               await _load();
             },
           ),
-          SizedBox(height: AppTokens.spacing.lg),
+          SizedBox(height: spacing.md),
           InfoTile(
             icon: Icons.lock_outline,
             title: 'Change password',
@@ -405,11 +422,11 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             iconInContainer: true,
             showChevron: true,
             onTap: () async {
-              await context.push<bool>(AppRoutes.changePassword);
+              await ChangePasswordPage.show(context);
               await _load();
             },
           ),
-          SizedBox(height: AppTokens.spacing.lg),
+          SizedBox(height: spacing.md),
           InfoTile(
             icon: Icons.delete_forever_outlined,
             title: 'Delete account',
@@ -417,7 +434,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
             iconInContainer: true,
             showChevron: true,
             onTap: () async {
-              await context.push<bool>(AppRoutes.deleteAccount);
+              await DeleteAccountPage.show(context);
               if (mounted) {
                 await _load();
               }
@@ -462,7 +479,9 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final screenWidth = MediaQuery.of(context).size.width;
-    final cropDimension = (screenWidth * AppScale.cropDialogRatio).clamp(AppTokens.componentSize.cropDialogMin, AppTokens.componentSize.cropDialogMax);
+    final cropDimension = (screenWidth * AppScale.cropDialogRatio).clamp(
+        AppTokens.componentSize.cropDialogMin,
+        AppTokens.componentSize.cropDialogMax);
 
     return AlertDialog(
       backgroundColor: theme.colorScheme.surface,
@@ -515,37 +534,40 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
           ),
         ],
       ),
-        actions: [
-          SecondaryButton(
-            label: 'Cancel',
-            onPressed: _saving ? null : () => Navigator.of(context).pop(),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-          _saving
-              ? SizedBox(
-                  width: AppTokens.componentSize.buttonLg + AppTokens.spacing.xxl,
-                  height: AppTokens.componentSize.buttonSm,
-                  child: Center(
-                    child: SizedBox(
-                      width: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
-                      height: AppTokens.componentSize.badgeMd + AppTokens.spacing.micro,
-                      child: CircularProgressIndicator(strokeWidth: AppTokens.spacing.micro),
-                    ),
+      actions: [
+        SecondaryButton(
+          label: 'Cancel',
+          onPressed: _saving ? null : () => Navigator.of(context).pop(),
+          minHeight: AppTokens.componentSize.buttonSm,
+          expanded: false,
+        ),
+        _saving
+            ? SizedBox(
+                width: AppTokens.componentSize.buttonLg + AppTokens.spacing.xxl,
+                height: AppTokens.componentSize.buttonSm,
+                child: Center(
+                  child: SizedBox(
+                    width: AppTokens.componentSize.badgeMd +
+                        AppTokens.spacing.micro,
+                    height: AppTokens.componentSize.badgeMd +
+                        AppTokens.spacing.micro,
+                    child: CircularProgressIndicator(
+                        strokeWidth: AppTokens.spacing.micro),
                   ),
-                )
-              : PrimaryButton(
-                  label: 'Save',
-                  onPressed: () {
-                    setState(() {
-                      _saving = true;
-                    });
-                    _controller.crop();
-                  },
-                  minHeight: AppTokens.componentSize.buttonSm,
-                  expanded: false,
                 ),
-        ],
+              )
+            : PrimaryButton(
+                label: 'Save',
+                onPressed: () {
+                  setState(() {
+                    _saving = true;
+                  });
+                  _controller.crop();
+                },
+                minHeight: AppTokens.componentSize.buttonSm,
+                expanded: false,
+              ),
+      ],
     );
   }
 }

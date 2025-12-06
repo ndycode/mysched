@@ -90,7 +90,6 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
-    final code = (widget.section['code'] ?? '').toString();
 
     final grouped = _groupByDay(widget.classes);
     final dayKeys = grouped.keys.toList()..sort();
@@ -128,168 +127,176 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
+    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     return SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: AppLayout.sheetMaxWidth,
-            maxHeight: media.size.height * AppLayout.sheetMaxHeightRatio,
-          ),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
-            decoration: BoxDecoration(
-              color: cardBackground,
-              borderRadius: AppTokens.radius.xxl,
-              border: Border.all(
-                color: borderColor,
-                width: borderWidth,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      AppTokens.shadow.modal(
-                        theme.colorScheme.shadow.withValues(alpha: AppOpacity.border),
-                      ),
-                    ],
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: spacing.xl,
+          right: spacing.xl,
+          bottom: media.viewInsets.bottom + spacing.xl,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.sheetMaxWidth,
+              maxHeight: maxHeight,
             ),
-            child: Material(
-              type: MaterialType.transparency,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        spacing.xl,
-                        spacing.xl,
-                        spacing.xl,
-                        spacing.lg,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          _ImportHeader(
-                            helper:
-                                'Toggle classes you want to keep before adding them to MySched.',
-                            onClose: () => Navigator.of(context).pop(),
-                          ),
-                          SizedBox(height: spacing.lg),
-                          _SectionCard(
-                            title: 'Section $code',
-                            subtitle: _sectionDetails(),
-                            icon: Icons.event_note_rounded,
-                          ),
-                          if (_error != null) ...[
-                            SizedBox(height: spacing.lg),
-                            StateDisplay(
-                              variant: StateVariant.error,
-                              title: 'Import failed',
-                              message: _error!,
-                              primaryActionLabel: 'Retry import',
-                              onPrimaryAction: _saving ? null : _proceed,
-                              secondaryActionLabel: 'Retake',
-                              onSecondaryAction: _saving
-                                  ? null
-                                  : () => Navigator.of(context).pop(
-                                      const ScheduleImportOutcome.retake()),
-                              compact: true,
-                            ),
-                          ],
-                          SizedBox(height: spacing.xl),
-                          // Class list - no extra container, matches schedules page
-                          for (var i = 0; i < dayKeys.length; i++) ...[
-                            _DayToggleCard(
-                              dayLabel: _dayName(dayKeys[i]),
-                              entries: importGroups[dayKeys[i]] ?? const [],
-                              enabledMap: _enabled,
-                              saving: _saving,
-                              highlightClassId: highlightClassId,
-                              onToggle: (classId, value) {
-                                setState(() => _enabled[classId] = value);
-                              },
-                            ),
-                            if (i != dayKeys.length - 1)
-                              SizedBox(height: spacing.xl),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Sticky buttons at bottom
-                  Container(
-                    padding: EdgeInsets.fromLTRB(
-                      spacing.xl,
-                      spacing.md,
-                      spacing.xl,
-                      spacing.xl,
-                    ),
-                    decoration: BoxDecoration(
-                      color: cardBackground,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: AppTokens.radius.xl.bottomLeft,
-                        bottomRight: AppTokens.radius.xl.bottomRight,
-                      ),
-                      border: Border(
-                        top: BorderSide(
-                          color: borderColor.withValues(alpha: AppOpacity.subtle),
-                          width: AppTokens.componentSize.divider,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: PrimaryButton(
-                            onPressed: _saving ? null : _proceed,
-                            label: _saving ? 'Saving...' : 'Import schedule',
-                            leading: _saving
-                                ? SizedBox(
-                                    width: AppTokens.componentSize.badgeMd,
-                                    height: AppTokens.componentSize.badgeMd,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: AppTokens.componentSize.progressStroke,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        colors.onPrimary,
-                                      ),
-                                    ),
-                                  )
-                                : null,
-                            minHeight: AppTokens.componentSize.buttonMd,
-                          ),
-                        ),
-                        SizedBox(width: spacing.md),
-                        Expanded(
-                          child: SecondaryButton(
-                            onPressed: _saving
-                                ? null
-                                : () => Navigator.of(context)
-                                    .pop(const ScheduleImportOutcome.retake()),
-                            label: 'Retake',
-                            minHeight: AppTokens.componentSize.buttonMd,
-                          ),
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardBackground,
+                borderRadius: AppTokens.radius.xl,
+                border: Border.all(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        AppTokens.shadow.modal(
+                          colors.shadow.withValues(alpha: AppOpacity.border),
                         ),
                       ],
-                    ),
+              ),
+              child: ClipRRect(
+                borderRadius: AppTokens.radius.xl,
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Padding(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.xl,
+                          bottom: spacing.md,
+                        ),
+                        child: SheetHeaderRow(
+                          title: 'Import schedule',
+                          subtitle:
+                              'Toggle classes you want to keep before adding them to MySched.',
+                          icon: Icons.download_rounded,
+                          onClose: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                      // Content
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: spacing.edgeInsetsOnly(
+                            left: spacing.xl,
+                            right: spacing.xl,
+                            bottom: spacing.md,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              if (_error != null) ...[
+                                StateDisplay(
+                                  variant: StateVariant.error,
+                                  title: 'Import failed',
+                                  message: _error!,
+                                  primaryActionLabel: 'Retry import',
+                                  onPrimaryAction: _saving ? null : _proceed,
+                                  secondaryActionLabel: 'Retake',
+                                  onSecondaryAction: _saving
+                                      ? null
+                                      : () => Navigator.of(context).pop(
+                                          const ScheduleImportOutcome.retake()),
+                                  compact: true,
+                                ),
+                                SizedBox(height: spacing.lg),
+                              ],
+                              // Class list
+                              for (var i = 0; i < dayKeys.length; i++) ...[
+                                _DayToggleCard(
+                                  dayLabel: _dayName(dayKeys[i]),
+                                  entries: importGroups[dayKeys[i]] ?? const [],
+                                  enabledMap: _enabled,
+                                  saving: _saving,
+                                  highlightClassId: highlightClassId,
+                                  onToggle: (classId, value) {
+                                    setState(() => _enabled[classId] = value);
+                                  },
+                                ),
+                                if (i != dayKeys.length - 1)
+                                  SizedBox(height: spacing.xl),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
+                      // Action buttons
+                      Container(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.md,
+                          bottom: spacing.xl,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cardBackground,
+                          border: Border(
+                            top: BorderSide(
+                              color: isDark
+                                  ? colors.outline
+                                      .withValues(alpha: AppOpacity.overlay)
+                                  : colors.outlineVariant
+                                      .withValues(alpha: AppOpacity.ghost),
+                              width: AppTokens.componentSize.dividerThin,
+                            ),
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                label: _saving
+                                    ? 'Importing...'
+                                    : 'Import schedule',
+                                onPressed: _saving ? null : _proceed,
+                                leading: _saving
+                                    ? SizedBox(
+                                        width: AppTokens.componentSize.badgeMd,
+                                        height: AppTokens.componentSize.badgeMd,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: AppTokens
+                                              .componentSize.progressStroke,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            colors.onPrimary,
+                                          ),
+                                        ),
+                                      )
+                                    : null,
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
+                            ),
+                            SizedBox(width: spacing.md),
+                            Expanded(
+                              child: SecondaryButton(
+                                label: 'Retake',
+                                onPressed: _saving
+                                    ? null
+                                    : () => Navigator.of(context).pop(
+                                        const ScheduleImportOutcome.retake()),
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
         ),
       ),
     );
-  }
-
-  String _sectionDetails() {
-    final parts = [
-      widget.section['department'],
-      widget.section['campus'],
-    ]
-        .whereType<String>()
-        .map((value) => value.trim())
-        .where((value) => value.isNotEmpty)
-        .toList();
-    return parts.join(' / ');
   }
 
   Map<int, List<Map<String, dynamic>>> _groupByDay(
@@ -315,135 +322,6 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
     ];
     if (day >= 1 && day <= 7) return names[day];
     return 'Unknown';
-  }
-}
-
-class _ImportHeader extends StatelessWidget {
-  const _ImportHeader({
-    required this.helper,
-    required this.onClose,
-  });
-
-  final String helper;
-  final VoidCallback onClose;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-
-    return Column(
-      children: [
-        Row(
-          children: [
-            PressableScale(
-              onTap: onClose,
-              child: Container(
-                padding: spacing.edgeInsetsAll(spacing.sm),
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                  borderRadius: AppTokens.radius.xl,
-                ),
-                child: Icon(
-                  Icons.close_rounded,
-                  size: AppTokens.iconSize.sm,
-                  color: colors.primary,
-                ),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                'Import schedule',
-                textAlign: TextAlign.center,
-                style: AppTokens.typography.title.copyWith(
-                  fontWeight: AppTokens.fontWeight.extraBold,
-                  letterSpacing: AppLetterSpacing.tight,
-                  color: colors.onSurface,
-                ),
-              ),
-            ),
-            SizedBox(width: AppTokens.spacing.quad),
-          ],
-        ),
-        SizedBox(height: spacing.xs),
-        Text(
-          helper,
-          textAlign: TextAlign.center,
-          style: AppTokens.typography.body.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SectionCard extends StatelessWidget {
-  const _SectionCard({
-    required this.title,
-    required this.subtitle,
-    required this.icon,
-  });
-
-  final String title;
-  final String subtitle;
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.xl,
-        vertical: spacing.lgPlus,
-      ),
-      decoration: BoxDecoration(
-        color: colors.surfaceContainerHighest.withValues(
-          alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.micro,
-        ),
-        borderRadius: AppTokens.radius.md,
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: AppTokens.componentSize.avatarXxl,
-            height: AppTokens.componentSize.avatarXxl,
-            decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: AppOpacity.medium),
-              borderRadius: AppTokens.radius.lg,
-            ),
-            child: Icon(icon, color: colors.primary),
-          ),
-          SizedBox(width: spacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTokens.typography.title.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                  ),
-                ),
-                if (subtitle.isNotEmpty) ...[
-                  SizedBox(height: spacing.xs),
-                  Text(
-                    subtitle,
-                    style: AppTokens.typography.body.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }
 
@@ -662,7 +540,8 @@ class _DayToggleCard extends StatelessWidget {
             highlight: highlightClassId == entries[i].id,
             onToggle: (value) => onToggle(entries[i].id, value),
           ),
-          if (i != entries.length - 1) SizedBox(height: spacing.sm + AppTokens.spacing.micro),
+          if (i != entries.length - 1)
+            SizedBox(height: spacing.sm + AppTokens.spacing.micro),
         ],
       ],
     );

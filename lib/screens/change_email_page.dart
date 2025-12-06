@@ -1,13 +1,9 @@
-// coverage:ignore-file
+﻿// coverage:ignore-file
 // lib/screens/change_email_page.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../app/routes.dart';
-import '../services/auth_service.dart';
 import '../ui/kit/kit.dart';
-import '../ui/theme/tokens.dart';
-import 'verify_email_page.dart';
+import 'change_email_sheet.dart';
 
 class ChangeEmailPageArgs {
   const ChangeEmailPageArgs({required this.currentEmail});
@@ -15,257 +11,48 @@ class ChangeEmailPageArgs {
   final String currentEmail;
 }
 
+/// Shows the [ChangeEmailSheet] modal via [AppModal.sheet].
+/// Use [ChangeEmailPage.show] for direct invocation.
 class ChangeEmailPage extends StatefulWidget {
   const ChangeEmailPage({super.key, required this.currentEmail});
 
   final String currentEmail;
+
+  /// Shows the change email sheet and returns `true` if the email was updated.
+  static Future<bool?> show(
+    BuildContext context, {
+    required String currentEmail,
+  }) {
+    return AppModal.sheet<bool>(
+      context: context,
+      builder: (_) => ChangeEmailSheet(currentEmail: currentEmail),
+    );
+  }
 
   @override
   State<ChangeEmailPage> createState() => _ChangeEmailPageState();
 }
 
 class _ChangeEmailPageState extends State<ChangeEmailPage> {
-  final _form = GlobalKey<FormState>();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
-
-  bool _saving = false;
-  bool _hidePassword = true;
-  String? _errorText;
-
   @override
   void initState() {
     super.initState();
-    _email.text = widget.currentEmail;
-  }
-
-  @override
-  void dispose() {
-    _email.dispose();
-    _password.dispose();
-    super.dispose();
-  }
-
-  String _mapError(Object error) {
-    final message = error.toString().toLowerCase();
-    if (message.contains('invalid_password')) {
-      return 'Incorrect password. Try again.';
-    }
-    if (message.contains('email_in_use')) {
-      return 'That email is already in use.';
-    }
-    if (message.contains('same_email')) {
-      return 'New email matches current email.';
-    }
-    if (message.contains('invalid email')) {
-      return 'Enter a valid email address.';
-    }
-    if (message.contains('email_change_failed') ||
-        message.contains('edge_fail')) {
-      return 'We couldn’t send the verification code. Check your connection and try again in a moment.';
-    }
-    return 'Something went wrong. Please try again.';
-  }
-
-  Future<void> _submit() async {
-    if (!_form.currentState!.validate()) return;
-
-    final newEmail = _email.text.trim().toLowerCase();
-    if (newEmail == widget.currentEmail.trim().toLowerCase()) {
-      setState(() => _errorText = 'New email matches current email.');
-      return;
-    }
-
-    setState(() {
-      _saving = true;
-      _errorText = null;
-    });
-
-    try {
-      await AuthService.instance.updateEmailWithPassword(
-        currentEmail: widget.currentEmail,
-        currentPassword: _password.text,
-        newEmail: newEmail,
-      );
-      if (!mounted) return;
-      showAppSnackBar(
+    // Show the sheet immediately when this page is pushed.
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final result = await ChangeEmailPage.show(
         context,
-        'Enter the 6-digit code we sent to $newEmail to finish updating your email.',
-        type: AppSnackBarType.info,
+        currentEmail: widget.currentEmail,
       );
-      final result = await context.push(
-        AppRoutes.verify,
-        extra: VerifyEmailPageArgs(
-          email: newEmail,
-          intent: VerificationIntent.emailChange,
-        ),
-      );
-      if (!mounted) return;
-      if (result == true) {
-        showAppSnackBar(
-          context,
-          'Email updated successfully.',
-          type: AppSnackBarType.success,
-        );
-        context.pop(true);
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _errorText = _mapError(e));
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
+      if (mounted) Navigator.of(context).pop(result);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-
-    final backButton = IconButton(
-      splashRadius: AppInteraction.splashRadius,
-      onPressed: _saving ? null : () => context.pop(),
-      icon: CircleAvatar(
-        radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-        child: Icon(
-          Icons.arrow_back_rounded,
-          color: colors.primary,
-          size: AppTokens.iconSize.sm,
-        ),
-      ),
-    );
-
-    final descriptionStyle = theme.textTheme.bodyMedium?.copyWith(
-      color: colors.onSurfaceVariant,
-    );
-
-    Widget formFields() {
-      return Form(
-        key: _form,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextFormField(
-              controller: _email,
-              // Avoid auto-filling the "new email" with the current account.
-              autofillHints: const [],
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'New email',
-                hintText: 'name@example.com',
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Enter your new email';
-                }
-                if (!value.contains('@')) {
-                  return 'Enter a valid email address';
-                }
-                return null;
-              },
-            ),
-            SizedBox(height: spacing.md),
-            TextFormField(
-              controller: _password,
-              obscureText: _hidePassword,
-              autofillHints: const [AutofillHints.password],
-              decoration: InputDecoration(
-                labelText: 'Current password',
-                suffixIcon: IconButton(
-                  onPressed: _saving
-                      ? null
-                      : () => setState(() => _hidePassword = !_hidePassword),
-                  icon: Icon(
-                    _hidePassword ? Icons.visibility_off : Icons.visibility,
-                  ),
-                ),
-              ),
-              validator: (value) =>
-                  value == null || value.isEmpty ? 'Required' : null,
-            ),
-            if (_errorText != null) ...[
-              SizedBox(height: spacing.md),
-              Text(
-                _errorText!,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colors.error,
-                  fontWeight: AppTokens.fontWeight.semiBold,
-                ),
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    return ScreenShell(
-      screenName: 'change_email',
-      hero: ScreenHeroCard(
-        leading: Align(
-          alignment: Alignment.centerLeft,
-          child: backButton,
-        ),
-        title: 'Update your email',
-        subtitle:
-            'Use an address you check often so verification codes arrive quickly.',
-      ),
-      sections: [
-        ScreenSection(
-          title: 'New address',
-          subtitle: 'We\'ll send a 6-digit code to confirm the change.',
-          decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHigh
-                  : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: theme.brightness == Brightness.dark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Currently signed in as ${widget.currentEmail}',
-                  style: descriptionStyle,
-                ),
-                SizedBox(height: spacing.md),
-                formFields(),
-                SizedBox(height: spacing.xl),
-                PrimaryButton(
-                  label: _saving ? 'Saving...' : 'Save changes',
-                  onPressed: _saving ? null : _submit,
-                  minHeight: AppTokens.componentSize.buttonMd,
-                ),
-                SizedBox(height: spacing.sm),
-                SecondaryButton(
-                  label: 'Cancel',
-                  onPressed: _saving ? null : () => context.pop(),
-                  minHeight: AppTokens.componentSize.buttonMd,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+    // Placeholder while the sheet opens.
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SizedBox.shrink(),
     );
   }
 }

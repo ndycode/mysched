@@ -26,7 +26,16 @@ class _AppModalRoute<T> extends PopupRoute<T> {
   final Color? _barrierColor;
 
   @override
-  Color get barrierColor => _barrierColor ?? AppBarrier.heavy;
+  Color get barrierColor => _barrierColor ?? _defaultBarrier;
+
+  Color get _defaultBarrier {
+    switch (transition) {
+      case _ModalTransition.slideUp:
+        return AppBarrier.medium; // Sheets: lighter barrier
+      case _ModalTransition.scale:
+        return AppBarrier.heavy; // Alerts: heavier barrier
+    }
+  }
 
   @override
   Duration get transitionDuration => AppMotionSystem.medium;
@@ -76,8 +85,10 @@ class _AppModalRoute<T> extends PopupRoute<T> {
   Widget _buildScaleTransition(Animation<double> animation, Widget child) {
     final fade = CurvedAnimation(
       parent: animation,
-      curve: const Interval(0.0, AppMotionSystem.intervalHalf, curve: AppMotionSystem.easeOut),
-      reverseCurve: const Interval(AppMotionSystem.intervalHalf, 1.0, curve: AppMotionSystem.easeIn),
+      curve: const Interval(0.0, AppMotionSystem.intervalHalf,
+          curve: AppMotionSystem.easeOut),
+      reverseCurve: const Interval(AppMotionSystem.intervalHalf, 1.0,
+          curve: AppMotionSystem.easeIn),
     );
     final scale = CurvedAnimation(
       parent: animation,
@@ -87,7 +98,9 @@ class _AppModalRoute<T> extends PopupRoute<T> {
     return FadeTransition(
       opacity: Tween<double>(begin: 0.0, end: 1.0).animate(fade),
       child: ScaleTransition(
-        scale: Tween<double>(begin: AppMotionSystem.scalePageTransition, end: 1.0).animate(scale),
+        scale:
+            Tween<double>(begin: AppMotionSystem.scalePageTransition, end: 1.0)
+                .animate(scale),
         child: child,
       ),
     );
@@ -114,6 +127,7 @@ class AppModal {
     required BuildContext context,
     required WidgetBuilder builder,
     bool dismissible = true,
+    Color? barrierColor,
   }) {
     return Navigator.of(context).push<T>(
       _AppModalRoute<T>(
@@ -121,6 +135,7 @@ class AppModal {
         barrierDismissible: dismissible,
         barrierLabel: 'Dismiss',
         transition: _ModalTransition.slideUp,
+        barrierColor: barrierColor,
       ),
     );
   }
@@ -208,7 +223,8 @@ class AppModal {
                   horizontal: spacing.xl,
                   vertical: spacing.md,
                 ),
-                shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
+                shape:
+                    RoundedRectangleBorder(borderRadius: AppTokens.radius.xxl),
               ),
               child: Text(confirmLabel),
             )
@@ -258,7 +274,9 @@ class AppModal {
         title: Row(
           children: [
             if (icon != null) ...[
-              Icon(icon, color: iconColor ?? colors.primary, size: AppTokens.iconSize.lg),
+              Icon(icon,
+                  color: iconColor ?? colors.primary,
+                  size: AppTokens.iconSize.lg),
               SizedBox(width: spacing.md),
             ],
             Expanded(
@@ -353,18 +371,23 @@ class AppModal {
               decoration: InputDecoration(
                 hintText: hintText,
                 filled: true,
-                fillColor: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
+                fillColor: colors.surfaceContainerHighest
+                    .withValues(alpha: AppOpacity.subtle),
                 border: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
                   borderSide: BorderSide(color: colors.outline),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
-                  borderSide: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.subtle)),
+                  borderSide: BorderSide(
+                      color:
+                          colors.outline.withValues(alpha: AppOpacity.subtle)),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: AppTokens.radius.md,
-                  borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerThick),
+                  borderSide: BorderSide(
+                      color: colors.primary,
+                      width: AppTokens.componentSize.dividerThick),
                 ),
                 contentPadding: spacing.edgeInsetsAll(spacing.md),
               ),

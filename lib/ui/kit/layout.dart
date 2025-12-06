@@ -59,12 +59,7 @@ class _AppScaffoldState extends State<AppScaffold> {
         ? null
         : Semantics(
             label: semanticsLabel,
-            child: AnimatedSwitcher(
-              duration: AppTokens.motion.medium,
-              switchInCurve: AppTokens.motion.ease,
-              switchOutCurve: AppTokens.motion.ease,
-              child: body,
-            ),
+            child: body,
           );
 
     return Scaffold(

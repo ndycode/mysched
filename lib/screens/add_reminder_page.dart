@@ -33,7 +33,8 @@ class AddReminderPage extends StatelessWidget {
         ScreenSection(
           decorated: false,
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: AppLayout.contentMaxWidthMedium),
+            constraints:
+                const BoxConstraints(maxWidth: AppLayout.contentMaxWidthMedium),
             child: AddReminderForm(
               api: api,
               editing: editing,
@@ -69,6 +70,7 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
@@ -76,105 +78,144 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
     final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
     final isEditing = widget.editing != null;
+    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     return SafeArea(
-      child: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: AppLayout.sheetMaxWidth,
-            maxHeight: media.size.height * AppScale.sheetHeightRatio,
-          ),
-          child: Container(
-            margin: EdgeInsets.symmetric(horizontal: spacing.xl),
-            decoration: BoxDecoration(
-              color: cardBackground,
-              borderRadius: AppTokens.radius.xxl,
-              border: Border.all(
-                color: borderColor,
-                width: borderWidth,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      AppTokens.shadow.modal(
-                        theme.colorScheme.shadow.withValues(alpha: AppOpacity.border),
-                      ),
-                    ],
+      bottom: false,
+      child: Padding(
+        padding: EdgeInsets.only(
+          left: spacing.xl,
+          right: spacing.xl,
+          bottom: media.viewInsets.bottom + spacing.xl,
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.sheetMaxWidth,
+              maxHeight: maxHeight,
             ),
-            child: Material(
-              type: MaterialType.transparency,
+            child: Container(
+              decoration: BoxDecoration(
+                color: cardBackground,
+                borderRadius: AppTokens.radius.xl,
+                border: Border.all(
+                  color: borderColor,
+                  width: borderWidth,
+                ),
+                boxShadow: isDark
+                    ? null
+                    : [
+                        AppTokens.shadow.modal(
+                          colors.shadow.withValues(alpha: AppOpacity.border),
+                        ),
+                      ],
+              ),
               child: ClipRRect(
                 borderRadius: AppTokens.radius.xl,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: EdgeInsets.all(spacing.xl),
-                        child: AddReminderForm(
-                          key: _formKey,
-                          api: widget.api,
-                          editing: widget.editing,
-                          isSheet: true,
-                          includeButtons: false,
-                          onCancel: () => Navigator.of(context).maybePop(),
-                          onSaved: (reminderId) =>
-                              Navigator.of(context).pop(reminderId),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Padding(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.xl,
+                          bottom: spacing.md,
+                        ),
+                        child: SheetHeaderRow(
+                          title: isEditing ? 'Edit reminder' : 'New reminder',
+                          subtitle: isEditing
+                              ? 'Update your reminder details'
+                              : 'Create a reminder and we will notify you before it is due',
+                          icon: isEditing
+                              ? Icons.edit_rounded
+                              : Icons.add_rounded,
+                          onClose: () => Navigator.of(context).pop(),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: EdgeInsets.fromLTRB(
-                        spacing.xl,
-                        spacing.md,
-                        spacing.xl,
-                        spacing.xl + media.viewInsets.bottom,
-                      ),
-                      decoration: BoxDecoration(
-                        color: cardBackground,
-                        border: Border(
-                          top: BorderSide(
-                            color: theme.colorScheme.outlineVariant
-                                .withValues(alpha: AppOpacity.ghost),
+                      // Form content
+                      Flexible(
+                        child: SingleChildScrollView(
+                          padding: spacing.edgeInsetsOnly(
+                            left: spacing.xl,
+                            right: spacing.xl,
+                            bottom: spacing.md,
+                          ),
+                          child: AddReminderForm(
+                            key: _formKey,
+                            api: widget.api,
+                            editing: widget.editing,
+                            isSheet: true,
+                            includeButtons: false,
+                            onCancel: () => Navigator.of(context).maybePop(),
+                            onSaved: (reminderId) =>
+                                Navigator.of(context).pop(reminderId),
                           ),
                         ),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: PrimaryButton(
-                              label: _submitting
-                                  ? (isEditing ? 'Updating...' : 'Saving...')
-                                  : (isEditing
-                                      ? 'Update reminder'
-                                      : 'Save reminder'),
-                              onPressed: _submitting
-                                  ? null
-                                  : () {
-                                      setState(() => _submitting = true);
-                                      _formKey.currentState
-                                          ?.triggerSave()
-                                          .whenComplete(() {
-                                        if (mounted) {
-                                          setState(() => _submitting = false);
-                                        }
-                                      });
-                                    },
-                              minHeight: AppTokens.componentSize.buttonMd,
+                      // Action buttons
+                      Container(
+                        padding: spacing.edgeInsetsOnly(
+                          left: spacing.xl,
+                          right: spacing.xl,
+                          top: spacing.md,
+                          bottom: spacing.xl,
+                        ),
+                        decoration: BoxDecoration(
+                          color: cardBackground,
+                          border: Border(
+                            top: BorderSide(
+                              color: isDark
+                                  ? colors.outline
+                                      .withValues(alpha: AppOpacity.overlay)
+                                  : colors.outlineVariant
+                                      .withValues(alpha: AppOpacity.ghost),
+                              width: AppTokens.componentSize.dividerThin,
                             ),
                           ),
-                          SizedBox(width: AppTokens.spacing.md),
-                          Expanded(
-                            child: SecondaryButton(
-                              label: 'Cancel',
-                              onPressed: () => Navigator.of(context).maybePop(),
-                              minHeight: AppTokens.componentSize.buttonMd,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: PrimaryButton(
+                                label: _submitting
+                                    ? (isEditing ? 'Saving...' : 'Saving...')
+                                    : (isEditing
+                                        ? 'Save reminder'
+                                        : 'Save reminder'),
+                                onPressed: _submitting
+                                    ? null
+                                    : () {
+                                        setState(() => _submitting = true);
+                                        _formKey.currentState
+                                            ?.triggerSave()
+                                            .whenComplete(() {
+                                          if (mounted) {
+                                            setState(() => _submitting = false);
+                                          }
+                                        });
+                                      },
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
                             ),
-                          ),
-                        ],
+                            SizedBox(width: spacing.md),
+                            Expanded(
+                              child: SecondaryButton(
+                                label: 'Cancel',
+                                onPressed: _submitting
+                                    ? null
+                                    : () => Navigator.of(context).maybePop(),
+                                minHeight: AppTokens.componentSize.buttonMd,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -200,6 +241,7 @@ class AddReminderForm extends StatefulWidget {
   final ReminderEntry? editing;
   final bool isSheet;
   final VoidCallback onCancel;
+
   /// Called with the new reminder ID when creating, or null when editing.
   final ValueChanged<int?> onSaved;
   final bool includeButtons;
@@ -279,12 +321,12 @@ class _AddReminderFormState extends State<AddReminderForm> {
     setState(() {
       _titleController.text = titles[index];
       _notesController.text = notes[index];
-      
+
       final now = DateTime.now();
       final randomDay = now.add(Duration(days: random.nextInt(7)));
       final randomHour = random.nextInt(24);
       final randomMinute = random.nextInt(60);
-      
+
       _selectedDate = _roundToNearestDate(randomDay);
       _selectedTime = TimeOfDay(hour: randomHour, minute: randomMinute);
     });
@@ -296,15 +338,18 @@ class _AddReminderFormState extends State<AddReminderForm> {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final editing = widget.editing;
-    final title = editing == null ? 'New reminder' : 'Edit reminder';
-    final helper = editing == null
-        ? 'Create a reminder and we will notify you before it is due.'
-        : 'Update the reminder details. We will refresh upcoming alerts.';
     final fieldFill = isDark
         ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.prominent)
         : colors.surfaceContainerHigh;
-    final fieldBorder = colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
+    final fieldBorder =
+        colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
     final spacing = AppTokens.spacing;
+
+    // Card styling matching AddClassForm
+    final cardBackground = elevatedCardBackground(theme, solid: true);
+    final cardBorder = elevatedCardBorder(theme, solid: true);
+    final cardBorderWidth = elevatedCardBorderWidth(theme);
+    final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
 
     InputDecoration decorationFor(String label, {String? hint}) =>
         InputDecoration(
@@ -312,8 +357,8 @@ class _AddReminderFormState extends State<AddReminderForm> {
           hintText: hint,
           filled: true,
           fillColor: fieldFill,
-          contentPadding:
-              spacing.edgeInsetsAll(spacing.lg),
+          contentPadding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg, vertical: spacing.lg),
           border: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
             borderSide: BorderSide(color: fieldBorder),
@@ -324,7 +369,9 @@ class _AddReminderFormState extends State<AddReminderForm> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
-            borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerBold),
+            borderSide: BorderSide(
+                color: colors.primary,
+                width: AppTokens.componentSize.dividerBold),
           ),
         );
 
@@ -334,21 +381,25 @@ class _AddReminderFormState extends State<AddReminderForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildHeader(theme, title, helper),
-          SizedBox(height: AppTokens.spacing.lg),
+          // Reminder details card
           Container(
-            padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.lgPlus,
-              vertical: spacing.lgPlus,
-            ),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-              borderRadius: AppTokens.radius.lg,
+              color: cardBackground,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                color: cardBorder,
+                width: cardBorderWidth,
               ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: shadowColor,
+                        blurRadius: AppTokens.shadow.lg,
+                        offset: AppShadowOffset.hero,
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -390,19 +441,25 @@ class _AddReminderFormState extends State<AddReminderForm> {
             ),
           ),
           SizedBox(height: AppTokens.spacing.lg),
+          // Reminder time card
           Container(
-            padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.lgPlus,
-              vertical: spacing.lgPlus,
-            ),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-              borderRadius: AppTokens.radius.lg,
+              color: cardBackground,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                color: cardBorder,
+                width: cardBorderWidth,
               ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: shadowColor,
+                        blurRadius: AppTokens.shadow.lg,
+                        offset: AppShadowOffset.hero,
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -415,17 +472,16 @@ class _AddReminderFormState extends State<AddReminderForm> {
                 Row(
                   children: [
                     Expanded(
-                      child: FormFieldTile(
+                      child: _TimeField(
                         label: 'Date',
                         value: _dateFormat.format(_selectedDate),
                         icon: Icons.calendar_month_rounded,
                         onTap: _submitting ? null : _pickDate,
-                        fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                     ),
                     SizedBox(width: AppTokens.spacing.md),
                     Expanded(
-                      child: FormFieldTile(
+                      child: _TimeField(
                         label: 'Time',
                         value: _timeFormat.format(_combine()),
                         icon: Icons.schedule_rounded,
@@ -469,21 +525,19 @@ class _AddReminderFormState extends State<AddReminderForm> {
             Row(
               children: [
                 Expanded(
-                  child: SecondaryButton(
-                    label: 'Cancel',
-                    onPressed: _submitting ? null : widget.onCancel,
+                  child: PrimaryButton(
+                    label: _submitting
+                        ? (editing == null ? 'Saving...' : 'Saving...')
+                        : (editing == null ? 'Save reminder' : 'Save reminder'),
+                    onPressed: _submitting ? null : _submit,
                     minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ),
                 SizedBox(width: AppTokens.spacing.md),
                 Expanded(
-                  child: PrimaryButton(
-                    label: _submitting
-                        ? (editing == null ? 'Saving...' : 'Updating...')
-                        : (editing == null
-                            ? 'Save reminder'
-                            : 'Update reminder'),
-                    onPressed: _submitting ? null : _submit,
+                  child: SecondaryButton(
+                    label: 'Cancel',
+                    onPressed: _submitting ? null : widget.onCancel,
                     minHeight: AppTokens.componentSize.buttonMd,
                   ),
                 ),
@@ -495,67 +549,8 @@ class _AddReminderFormState extends State<AddReminderForm> {
     );
   }
 
-  Widget _buildHeader(
-    ThemeData theme,
-    String title,
-    String helper,
-  ) {
-    final colors = theme.colorScheme;
-    final leading = widget.isSheet
-        ? IconButton(
-            icon: const Icon(Icons.close_rounded),
-            onPressed: widget.onCancel,
-          )
-        : PressableScale(
-            onTap: widget.onCancel,
-            child: Container(
-              padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                borderRadius: AppTokens.radius.xl,
-              ),
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                size: AppTokens.iconSize.sm,
-                color: colors.primary,
-              ),
-            ),
-          );
-
-    final trailingGap =
-        widget.isSheet ? SizedBox(width: AppTokens.spacing.quad) : SizedBox(width: AppTokens.spacing.md);
-
-    return Column(
-      crossAxisAlignment:
-          widget.isSheet ? CrossAxisAlignment.center : CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            leading,
-            Expanded(
-              child: Text(
-                title,
-                textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: AppTokens.fontWeight.bold,
-                  color: colors.onSurface,
-                ),
-              ),
-            ),
-            trailingGap,
-          ],
-        ),
-        SizedBox(height: AppTokens.spacing.sm),
-        Text(
-          helper,
-          textAlign: widget.isSheet ? TextAlign.center : TextAlign.left,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-      ],
-    );
-  }
+  // Header is now handled by SheetHeaderRow in the sheet wrapper
+  // For non-sheet usage, we skip header as it's in the hero section
 
   Future<void> _pickDate() async {
     final now = DateTime.now();
@@ -675,4 +670,88 @@ class _AddReminderFormState extends State<AddReminderForm> {
   }
 }
 
-// _FieldTile removed - using global FormFieldTile from kit.dart
+/// Time field widget matching the one in AddClassForm
+class _TimeField extends StatelessWidget {
+  const _TimeField({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    return InkWell(
+      borderRadius: AppTokens.radius.lg,
+      onTap: onTap,
+      child: Container(
+        padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.md,
+          vertical: AppTokens.spacing.md,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerHigh,
+          borderRadius: AppTokens.radius.lg,
+          border: Border.all(
+            color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: AppTokens.componentSize.avatarSm,
+              height: AppTokens.componentSize.avatarSm,
+              decoration: BoxDecoration(
+                borderRadius: AppTokens.radius.md,
+                color: colors.primary.withValues(alpha: AppOpacity.statusBg),
+              ),
+              alignment: Alignment.center,
+              child: Icon(icon,
+                  color: colors.primary, size: AppTokens.iconSize.sm),
+            ),
+            SizedBox(width: AppTokens.spacing.md),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                  SizedBox(height: AppTokens.spacing.xs),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      value,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                        fontSize: AppTokens.typography.subtitle.fontSize,
+                      ),
+                      maxLines: 1,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(width: AppTokens.spacing.sm),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: AppTokens.iconSize.md,
+              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

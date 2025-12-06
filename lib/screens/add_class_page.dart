@@ -1377,7 +1377,7 @@ class _AddClassFormState extends State<AddClassForm> {
                       ],
               ),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
+                mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
@@ -1389,52 +1389,58 @@ class _AddClassFormState extends State<AddClassForm> {
                       ),
                     ),
                   ),
-                  ...List.generate(7, (index) {
-                    final dayValue = index + 1;
-                    final isSelected = dayValue == _day;
-                    return InkWell(
-                      onTap: () => Navigator.of(dialogContext).pop(dayValue),
-                      child: Padding(
-                        padding: spacing.edgeInsetsSymmetric(
-                          horizontal: spacing.xl,
-                          vertical: spacing.md,
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: Text(
-                                _scopeLabel(dayValue),
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontWeight: isSelected
-                                      ? AppTokens.fontWeight.semiBold
-                                      : AppTokens.fontWeight.regular,
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.onSurface,
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ...List.generate(7, (index) {
+                            final dayValue = index + 1;
+                            final isSelected = dayValue == _day;
+                            return InkWell(
+                              onTap: () => Navigator.of(dialogContext).pop(dayValue),
+                              child: Padding(
+                                padding: spacing.edgeInsetsSymmetric(
+                                  horizontal: spacing.xl,
+                                  vertical: spacing.md,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        _scopeLabel(dayValue),
+                                        style: theme.textTheme.bodyLarge?.copyWith(
+                                          fontWeight: isSelected
+                                              ? AppTokens.fontWeight.semiBold
+                                              : AppTokens.fontWeight.regular,
+                                          color: isSelected
+                                              ? theme.colorScheme.primary
+                                              : theme.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      Icon(
+                                        Icons.check_rounded,
+                                        color: theme.colorScheme.primary,
+                                        size: AppTokens.iconSize.md,
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            if (isSelected)
-                              Icon(
-                                Icons.check_rounded,
-                                color: theme.colorScheme.primary,
-                                size: AppTokens.iconSize.md,
-                              ),
-                          ],
-                        ),
+                            );
+                          }),
+                        ],
                       ),
-                    );
-                  }),
+                    ),
+                  ),
                   Padding(
                     padding: spacing.edgeInsetsAll(spacing.md),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        TextButton(
-                          onPressed: () => Navigator.of(dialogContext).pop(),
-                          child: const Text('Cancel'),
-                        ),
-                      ],
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () => Navigator.of(dialogContext).pop(),
+                        child: const Text('Cancel'),
+                      ),
                     ),
                   ),
                 ],

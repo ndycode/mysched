@@ -25,6 +25,7 @@ class StatusBadge extends StatelessWidget {
     required this.label,
     required this.variant,
     this.compact = false,
+    this.accent,
   });
 
   /// Text to display in the badge
@@ -36,6 +37,9 @@ class StatusBadge extends StatelessWidget {
   /// If true, uses smaller padding
   final bool compact;
 
+  /// Optional accent override (defaults to variant-based color)
+  final Color? accent;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -44,28 +48,38 @@ class StatusBadge extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    final (backgroundColor, foregroundColor) = switch (variant) {
-      StatusBadgeVariant.live => (
-          colors.primary.withValues(alpha: AppOpacity.medium),
-          colors.primary,
-        ),
-      StatusBadgeVariant.next => (
-          colors.primary.withValues(alpha: AppOpacity.highlight),
-          colors.primary,
-        ),
-      StatusBadgeVariant.done => (
-          colors.surfaceContainerHighest,
-          colors.onSurfaceVariant,
-        ),
-      StatusBadgeVariant.overdue => (
-          colors.error.withValues(alpha: AppOpacity.overlay),
-          colors.error,
-        ),
-      StatusBadgeVariant.snoozed => (
-          palette.warning.withValues(alpha: AppOpacity.overlay),
-          palette.warning,
-        ),
+    Color resolvedAccent;
+    double resolvedBgAlpha;
+
+    switch (variant) {
+      case StatusBadgeVariant.live:
+        resolvedAccent = accent ?? colors.primary;
+        resolvedBgAlpha = AppOpacity.highlight;
+        break;
+      case StatusBadgeVariant.next:
+        resolvedAccent = accent ?? colors.primary;
+        resolvedBgAlpha = AppOpacity.highlight;
+        break;
+      case StatusBadgeVariant.done:
+        resolvedAccent = accent ?? colors.onSurfaceVariant;
+        resolvedBgAlpha = AppOpacity.overlay;
+        break;
+      case StatusBadgeVariant.overdue:
+        resolvedAccent = accent ?? colors.error;
+        resolvedBgAlpha = AppOpacity.overlay;
+        break;
+      case StatusBadgeVariant.snoozed:
+        resolvedAccent = accent ?? palette.warning;
+        resolvedBgAlpha = AppOpacity.overlay;
+        break;
+    }
+
+    final backgroundColor = switch (variant) {
+      StatusBadgeVariant.done => colors.surfaceContainerHighest,
+      _ => resolvedAccent.withValues(alpha: resolvedBgAlpha),
     };
+
+    final foregroundColor = resolvedAccent;
 
     return Container(
       padding: compact

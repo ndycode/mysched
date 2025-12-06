@@ -35,6 +35,7 @@ class _DashboardSummaryCard extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final hero = upcoming.primary;
     final spacing = AppTokens.spacing;
 
@@ -140,7 +141,10 @@ class _DashboardSummaryCard extends StatelessWidget {
                   icon: Icons.task_alt_rounded,
                   value: summary.tasksLabel,
                   label: 'Open tasks',
-                  tint: colors.tertiary,
+                  tint: palette.positive,
+                  backgroundTint: palette.positive.withValues(
+                    alpha: AppOpacity.dim,
+                  ),
                   displayStyle: true,
                 ),
               ),
@@ -530,12 +534,14 @@ class _UpcomingListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final palette = theme.brightness == Brightness.dark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final subject = occurrence.item.subject;
     final timeFormat = DateFormat('h:mm a');
     final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
     final location = occurrence.item.room.trim();
     final instructor = occurrence.item.instructor;
+    final isCustom = occurrence.item.isCustom;
     
     final now = DateTime.now();
     final isPast = occurrence.end.isBefore(now);
@@ -586,20 +592,34 @@ class _UpcomingListTile extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Text(
-                      subject,
-                      style: AppTokens.typography.subtitle.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                        letterSpacing: AppLetterSpacing.compact,
-                        color: disabled
-                            ? colors.onSurface.withValues(alpha: AppOpacity.subtle)
-                            : (isPast
-                                ? colors.onSurfaceVariant
-                                : colors.onSurface),
-                        decoration: disabled || isPast ? TextDecoration.lineThrough : null,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          subject,
+                          style: AppTokens.typography.subtitle.copyWith(
+                            fontWeight: AppTokens.fontWeight.bold,
+                            letterSpacing: AppLetterSpacing.compact,
+                            color: disabled
+                                ? colors.onSurface.withValues(alpha: AppOpacity.subtle)
+                                : (isPast
+                                    ? colors.onSurfaceVariant
+                                    : colors.onSurface),
+                            decoration: disabled || isPast ? TextDecoration.lineThrough : null,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (isCustom && !disabled) ...[
+                          SizedBox(height: spacing.microHalf),
+                          StatusBadge(
+                            label: 'Custom',
+                            variant: StatusBadgeVariant.next,
+                            accent: palette.positive,
+                            compact: true,
+                          ),
+                        ],
+                      ],
                     ),
                   ),
                   SizedBox(width: spacing.md),

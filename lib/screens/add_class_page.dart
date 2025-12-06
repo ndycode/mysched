@@ -19,10 +19,11 @@ import '../utils/schedule_overlap.dart';
 
 const _scope = 'AddClass';
 
+/// Validates class time range. Overnight classes (end before start) are allowed.
 bool isValidClassTimeRange(TimeOfDay start, TimeOfDay end) {
-  final startMinutes = start.hour * 60 + start.minute;
-  final endMinutes = end.hour * 60 + end.minute;
-  return endMinutes > startMinutes;
+  // Always valid - overnight classes (e.g., 11 PM - 1 AM) are supported.
+  // The overlap detection in schedule_overlap.dart handles overnight spans.
+  return true;
 }
 
 class AddClassPage extends StatefulWidget {
@@ -652,8 +653,12 @@ class _AddClassFormState extends State<AddClassForm> {
     }
   }
 
-  String _format(TimeOfDay value) =>
-      '${value.hour.toString().padLeft(2, '0')}:${value.minute.toString().padLeft(2, '0')}';
+  String _format(TimeOfDay value) {
+    final hour = value.hourOfPeriod == 0 ? 12 : value.hourOfPeriod;
+    final minute = value.minute.toString().padLeft(2, '0');
+    final period = value.period == DayPeriod.am ? 'AM' : 'PM';
+    return '$hour:$minute $period';
+  }
 
   String _scopeLabel(int weekday) {
     const names = [
@@ -681,6 +686,12 @@ class _AddClassFormState extends State<AddClassForm> {
       context: context,
       initialTime: _start,
       helpText: 'Class start time',
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
     );
     if (next != null && mounted) {
       setState(() => _start = next);
@@ -692,6 +703,12 @@ class _AddClassFormState extends State<AddClassForm> {
       context: context,
       initialTime: _end,
       helpText: 'Class end time',
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
     );
     if (next != null && mounted) {
       setState(() => _end = next);
@@ -733,14 +750,8 @@ class _AddClassFormState extends State<AddClassForm> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
-    if (!isValidClassTimeRange(_start, _end)) {
-      showAppSnackBar(
-        context,
-        'End time must be after start time.',
-        type: AppSnackBarType.error,
-      );
-      return;
-    }
+    // Note: overnight classes (end before start) are now supported.
+    // The overlap detection handles spans across midnight correctly.
 
     final instructorName = _instructorText.text.trim();
     final trimmedTitle = _title.text.trim();
@@ -1330,86 +1341,85 @@ class _AddClassFormState extends State<AddClassForm> {
   }
   Future<void> _pickDay() async {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
     final picked = await showSmoothDialog<int>(
       context: context,
-      builder: (context) {
+      useRootNavigator: !widget.isSheet,
+      builder: (dialogContext) {
         return Dialog(
-          backgroundColor: colors.shadow.withValues(alpha: 0),
+          backgroundColor: Colors.transparent,
           insetPadding: spacing.edgeInsetsAll(spacing.lg),
-          child: CardX(
-            padding: EdgeInsets.zero,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: spacing.edgeInsetsAll(spacing.xl),
-                  child: Text(
-                    'Select day',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: AppTokens.fontWeight.bold,
-                    ),
-                  ),
-                ),
-                Flexible(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: List.generate(7, (index) {
-                        final dayValue = index + 1;
-                        final isSelected = dayValue == _day;
-                        return InkWell(
-                          onTap: () => Navigator.of(context).pop(dayValue),
-                          child: Padding(
-                            padding: spacing.edgeInsetsSymmetric(
-                              horizontal: spacing.xl,
-                              vertical: spacing.md,
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    _scopeLabel(dayValue),
-                                    style: theme.textTheme.bodyLarge?.copyWith(
-                                      fontWeight: isSelected
-                                          ? AppTokens.fontWeight.semiBold
-                                          : AppTokens.fontWeight.regular,
-                                      color: isSelected
-                                          ? theme.colorScheme.primary
-                                          : theme.colorScheme.onSurface,
-                                    ),
-                                  ),
-                                ),
-                                if (isSelected)
-                                  Icon(
-                                    Icons.check_rounded,
-                                    color: theme.colorScheme.primary,
-                                    size: AppTokens.iconSize.md,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: spacing.edgeInsetsAll(spacing.md),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text('Cancel'),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: AppLayout.sheetMaxWidth,
+              maxHeight: MediaQuery.of(dialogContext).size.height * 0.6,
+            ),
+            child: CardX(
+              padding: EdgeInsets.zero,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: spacing.edgeInsetsAll(spacing.xl),
+                    child: Text(
+                      'Select day',
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                  ...List.generate(7, (index) {
+                    final dayValue = index + 1;
+                    final isSelected = dayValue == _day;
+                    return InkWell(
+                      onTap: () => Navigator.of(dialogContext).pop(dayValue),
+                      child: Padding(
+                        padding: spacing.edgeInsetsSymmetric(
+                          horizontal: spacing.xl,
+                          vertical: spacing.md,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _scopeLabel(dayValue),
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontWeight: isSelected
+                                      ? AppTokens.fontWeight.semiBold
+                                      : AppTokens.fontWeight.regular,
+                                  color: isSelected
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              Icon(
+                                Icons.check_rounded,
+                                color: theme.colorScheme.primary,
+                                size: AppTokens.iconSize.md,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  Padding(
+                    padding: spacing.edgeInsetsAll(spacing.md),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.of(dialogContext).pop(),
+                          child: const Text('Cancel'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         );

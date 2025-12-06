@@ -833,7 +833,7 @@ class ReminderRow extends StatelessWidget {
           CustomSlidableAction(
             autoClose: true,
             padding: EdgeInsets.zero,
-            onPressed: (context) => _handleDelete(context),
+            onPressed: (_) => _handleDelete(),
             backgroundColor: Colors.transparent,
             foregroundColor: colors.onError,
             child: Container(
@@ -867,17 +867,8 @@ class ReminderRow extends StatelessWidget {
     );
   }
 
-  Future<void> _handleDelete(BuildContext context) async {
-    final confirm = await AppModal.showConfirmDialog(
-      context: context,
-      title: 'Delete reminder?',
-      message: 'This reminder will be permanently removed.',
-      confirmLabel: 'Delete',
-      isDanger: true,
-    );
-    if (confirm == true) {
-      onDelete();
-    }
+  void _handleDelete() {
+    onDelete();
   }
 
   Future<void> _showDetails(BuildContext context) async {

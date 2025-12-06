@@ -547,6 +547,7 @@ class ScheduleSummaryCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
     final highlight = summary.highlight;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final card = Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -637,7 +638,10 @@ class ScheduleSummaryCard extends StatelessWidget {
                   icon: Icons.edit_outlined,
                   value: '${summary.custom}',
                   label: 'Custom',
-                  tint: colors.tertiary,
+                  tint: palette.positive,
+                  backgroundTint: palette.positive.withValues(
+                    alpha: AppOpacity.dim,
+                  ),
                   displayStyle: true,
                 ),
               ),
@@ -1052,6 +1056,7 @@ class ScheduleRow extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final now = DateTime.now();
+    final isDark = theme.brightness == Brightness.dark;
     final nextStart = ScheduleClassListCard._nextOccurrence(item, now);
     final nextEnd = ScheduleClassListCard._endFor(item, nextStart);
     final rawSubject = ((item.title ?? item.code ?? '').trim());
@@ -1060,6 +1065,8 @@ class ScheduleRow extends StatelessWidget {
     final instructor = (item.instructor ?? '').trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
     final isHidden = !item.enabled;
+    final isCustom = item.isCustom;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     // Calculate urgency level using global tokens
     final urgency = AppUrgency.calculate(
@@ -1085,15 +1092,47 @@ class ScheduleRow extends StatelessWidget {
     StatusBadge? badge;
     
     if (isLive) {
-      badge = const StatusBadge(label: 'Live', variant: StatusBadgeVariant.live);
+      badge = StatusBadge(
+        label: 'Live',
+        variant: StatusBadgeVariant.live,
+        accent: isCustom && !isHidden ? palette.positive : null,
+      );
     } else if (isNext) {
-      badge = const StatusBadge(label: 'Next', variant: StatusBadgeVariant.next);
+      badge = StatusBadge(
+        label: 'Next',
+        variant: StatusBadgeVariant.next,
+        accent: isCustom && !isHidden ? palette.positive : null,
+      );
     } else {
+      final accent = isCustom ? palette.positive : colors.primary;
+      final disabledThumb = palette.danger.withValues(alpha: AppOpacity.secondary);
+      final disabledTrack = colors.errorContainer.withValues(alpha: AppOpacity.medium);
+      final trackColor = WidgetStateProperty.resolveWith<Color?>(
+        (states) {
+          if (states.contains(WidgetState.selected)) return accent;
+          return isHidden ? disabledTrack : colors.surfaceContainerHighest;
+        },
+      );
+      final thumbColor = WidgetStateProperty.resolveWith<Color?>(
+        (states) {
+          if (states.contains(WidgetState.selected)) return colors.onPrimary;
+          return isHidden ? disabledThumb : colors.surface;
+        },
+      );
+      final outlineColor = WidgetStateProperty.resolveWith<Color?>(
+        (states) {
+          if (isHidden) return palette.danger.withValues(alpha: AppOpacity.borderEmphasis);
+          return Colors.transparent;
+        },
+      );
       trailing = Transform.scale(
         scale: AppScale.dense,
         child: Switch(
           value: !isHidden,
           onChanged: toggleBusy ? null : onToggleEnabled,
+          thumbColor: thumbColor,
+          trackColor: trackColor,
+          trackOutlineColor: outlineColor,
           materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
         ),
       );
@@ -1104,6 +1143,17 @@ class ScheduleRow extends StatelessWidget {
       isActive: !isHidden,
       isStrikethrough: isHidden,
       isHighlighted: AppUrgency.shouldHighlight(urgency),
+      highlightColor: isCustom && !isHidden ? palette.positive : null,
+      tags: isCustom
+          ? [
+              StatusBadge(
+                label: 'Custom',
+                variant: isHidden ? StatusBadgeVariant.overdue : StatusBadgeVariant.next,
+                accent: isHidden ? palette.danger : palette.positive,
+                compact: true,
+              ),
+            ]
+          : const [],
       metadata: metadata,
       badge: badge,
       trailing: trailing,

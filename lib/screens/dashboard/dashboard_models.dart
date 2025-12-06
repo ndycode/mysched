@@ -225,6 +225,7 @@ class ClassItem {
     required this.enabled,
     required this.startTime,
     required this.endTime,
+    required this.isCustom,
   }) : duration = _computeDuration(startTime, endTime);
 
   factory ClassItem.fromApi(sched.ClassItem api) {
@@ -244,6 +245,7 @@ class ClassItem {
       enabled: api.enabled,
       startTime: start,
       endTime: end,
+      isCustom: api.isCustom,
     );
   }
 
@@ -256,6 +258,7 @@ class ClassItem {
   final bool enabled;
   final TimeOfDay startTime;
   final TimeOfDay endTime;
+    final bool isCustom;
   final Duration duration;
 
   ClassItem copyWith({
@@ -267,6 +270,7 @@ class ClassItem {
     bool? enabled,
     TimeOfDay? startTime,
     TimeOfDay? endTime,
+    bool? isCustom,
   }) {
     final nextStart = startTime ?? this.startTime;
     final nextEnd = endTime ?? this.endTime;
@@ -280,6 +284,7 @@ class ClassItem {
       enabled: enabled ?? this.enabled,
       startTime: nextStart,
       endTime: nextEnd,
+      isCustom: isCustom ?? this.isCustom,
     );
   }
 

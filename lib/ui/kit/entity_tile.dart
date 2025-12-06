@@ -38,6 +38,7 @@ class EntityTile extends StatelessWidget {
     this.isActive = true,
     this.isStrikethrough = false,
     this.isHighlighted = false,
+    this.highlightColor,
     this.onTap,
     this.borderRadius,
   });
@@ -72,6 +73,9 @@ class EntityTile extends StatelessWidget {
   /// Whether this tile is highlighted (e.g., current/next item)
   final bool isHighlighted;
 
+  /// Optional override for highlight color (defaults to primary when highlighted)
+  final Color? highlightColor;
+
   /// Tap handler
   final VoidCallback? onTap;
 
@@ -86,6 +90,37 @@ class EntityTile extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
     final radius = borderRadius ?? AppTokens.radius.md;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final isDisabled = !isActive;
+    final highlightBase = highlightColor ?? colors.primary;
+    final hasAccentFill = highlightColor != null && !isDisabled;
+
+    // Resolve surface and border based on state.
+    final Color containerColor = isDisabled
+      ? palette.danger.withValues(alpha: AppOpacity.veryFaint)
+      : hasAccentFill
+        ? highlightBase.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.faint)
+        : isDark
+          ? colors.surfaceContainerHigh
+          : colors.surface;
+
+    final Color borderColor = isHighlighted
+      ? highlightBase.withValues(alpha: AppOpacity.medium)
+      : hasAccentFill
+        ? highlightBase.withValues(alpha: AppOpacity.medium)
+        : isDisabled
+          ? palette.danger.withValues(alpha: AppOpacity.medium)
+          : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle);
+
+    final Color titleColor = isDisabled
+      ? palette.danger.withValues(alpha: AppOpacity.secondary)
+      : isActive
+        ? colors.onSurface
+        : colors.onSurfaceVariant;
+
+    final Color secondaryTextColor = isDisabled
+      ? palette.danger.withValues(alpha: AppOpacity.secondary)
+      : colors.onSurfaceVariant.withValues(alpha: AppOpacity.glass);
 
     return Material(
       color: Colors.transparent,
@@ -93,24 +128,26 @@ class EntityTile extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         borderRadius: radius,
-        splashColor: colors.primary.withValues(alpha: AppOpacity.faint),
-        highlightColor: colors.primary.withValues(alpha: AppOpacity.ultraMicro),
-        child: Container(
+        splashColor: highlightBase.withValues(alpha: AppOpacity.faint),
+        highlightColor: highlightBase.withValues(alpha: AppOpacity.ultraMicro),
+        child: AnimatedContainer(
+          duration: AppTokens.motion.medium,
+          curve: AppTokens.motion.ease,
           padding: spacing.edgeInsetsAll(spacing.lg),
           decoration: BoxDecoration(
-            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            color: containerColor,
             borderRadius: radius,
             border: Border.all(
-              color: isHighlighted
-                  ? colors.primary.withValues(alpha: AppOpacity.ghost)
-                  : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.subtle),
+              color: borderColor,
               width: isHighlighted ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
             ),
             boxShadow: isDark
                 ? null
-                : [
+                : isDisabled
+                    ? null
+                    : [
                     BoxShadow(
-                      color: colors.shadow.withValues(
+                      color: highlightBase.withValues(
                         alpha: isHighlighted ? AppOpacity.highlight : AppOpacity.micro,
                       ),
                       blurRadius: isHighlighted ? AppTokens.shadow.md : AppTokens.shadow.xs,
@@ -136,9 +173,7 @@ class EntityTile extends StatelessWidget {
                           style: AppTokens.typography.subtitle.copyWith(
                             fontWeight: AppTokens.fontWeight.bold,
                             letterSpacing: AppLetterSpacing.compact,
-                            color: isActive
-                                ? colors.onSurface
-                                : colors.onSurfaceVariant,
+                            color: titleColor,
                             decoration:
                                 isStrikethrough ? TextDecoration.lineThrough : null,
                           ),
@@ -169,7 +204,7 @@ class EntityTile extends StatelessWidget {
                 Text(
                   subtitle!,
                   style: AppTokens.typography.bodySecondary.copyWith(
-                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.glass),
+                    color: secondaryTextColor,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -184,9 +219,9 @@ class EntityTile extends StatelessWidget {
                     for (var i = 0; i < metadata.length; i++) ...[
                       if (i > 0) SizedBox(width: spacing.lg),
                       if (metadata[i].expanded)
-                        Expanded(child: _buildMetadataItem(colors, spacing, metadata[i]))
+                        Expanded(child: _buildMetadataItem(colors, spacing, metadata[i], isDisabled, secondaryTextColor))
                       else
-                        _buildMetadataItem(colors, spacing, metadata[i]),
+                          _buildMetadataItem(colors, spacing, metadata[i], isDisabled, secondaryTextColor),
                     ],
                   ],
                 ),
@@ -208,6 +243,8 @@ class EntityTile extends StatelessWidget {
     ColorScheme colors,
     AppSpacing spacing,
     MetadataItem item,
+    bool isDisabled,
+    Color secondaryTextColor,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -215,7 +252,7 @@ class EntityTile extends StatelessWidget {
         Icon(
           item.icon,
           size: AppTokens.iconSize.sm,
-          color: colors.onSurfaceVariant,
+          color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
         ),
         SizedBox(width: spacing.xsPlus),
         if (item.expanded)
@@ -224,7 +261,7 @@ class EntityTile extends StatelessWidget {
               item.label,
               style: AppTokens.typography.bodySecondary.copyWith(
                 fontWeight: AppTokens.fontWeight.medium,
-                color: colors.onSurfaceVariant,
+                color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
@@ -235,7 +272,7 @@ class EntityTile extends StatelessWidget {
             item.label,
             style: AppTokens.typography.bodySecondary.copyWith(
               fontWeight: AppTokens.fontWeight.medium,
-              color: colors.onSurfaceVariant,
+              color: isDisabled ? secondaryTextColor : colors.onSurfaceVariant,
             ),
           ),
       ],

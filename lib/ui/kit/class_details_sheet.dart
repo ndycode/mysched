@@ -437,6 +437,7 @@ class _ClassDetailsContent extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final startLabel = _formatTime(details.start);
     final endLabel = _formatTime(details.end);
@@ -480,7 +481,7 @@ class _ClassDetailsContent extends StatelessWidget {
                     StatusInfoChip(
                       icon: details.isCustom ? Icons.edit_note_rounded : Icons.cloud_sync_rounded,
                       label: details.isCustom ? 'Custom class' : 'Synced class',
-                      color: details.isCustom ? colors.primary : colors.tertiary,
+                      color: details.isCustom ? palette.positive : colors.primary,
                     ),
                     if (!details.enabled)
                       StatusInfoChip(

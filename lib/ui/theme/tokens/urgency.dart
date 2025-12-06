@@ -128,7 +128,8 @@ class AppUrgency {
   ///
   /// Returns true for levels that warrant visual emphasis.
   static bool shouldHighlight(UrgencyLevel level) {
-    return level != UrgencyLevel.none;
+    // Limit strong emphasis to items that are live or starting very soon.
+    return level == UrgencyLevel.live || level == UrgencyLevel.imminent;
   }
 
   /// Get a human-readable label for an urgency level.

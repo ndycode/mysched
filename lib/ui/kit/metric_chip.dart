@@ -14,6 +14,7 @@ class MetricChip extends StatelessWidget {
     required this.icon,
     this.caption,
     this.tint,
+    this.backgroundTint,
     this.compact = false,
     this.displayStyle = false,
   });
@@ -33,6 +34,9 @@ class MetricChip extends StatelessWidget {
   /// Optional accent color (defaults to primary)
   final Color? tint;
 
+  /// Optional override for background tint (defaults to a translucent [tint]).
+  final Color? backgroundTint;
+
   /// If true, uses horizontal compact layout
   final bool compact;
 
@@ -46,6 +50,10 @@ class MetricChip extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final accent = tint ?? colors.primary;
+    final bgTint = backgroundTint ??
+        (isDark
+            ? accent.withValues(alpha: AppOpacity.dim)
+            : accent.withValues(alpha: AppOpacity.veryFaint));
 
     if (compact) {
       return Container(
@@ -104,9 +112,7 @@ class MetricChip extends StatelessWidget {
     return Container(
       padding: spacing.edgeInsetsAll(spacing.mdLg),
       decoration: BoxDecoration(
-        color: isDark 
-            ? accent.withValues(alpha: AppOpacity.dim) 
-            : accent.withValues(alpha: AppOpacity.veryFaint),
+        color: bgTint,
         borderRadius: AppTokens.radius.md,
         border: Border.all(
           color: accent.withValues(alpha: AppOpacity.medium),
@@ -121,7 +127,9 @@ class MetricChip extends StatelessWidget {
             height: AppTokens.componentSize.avatarSm,
             width: AppTokens.componentSize.avatarSm,
             decoration: BoxDecoration(
-              color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
+              color: (backgroundTint ?? accent).withValues(
+                alpha: isDark ? AppOpacity.medium : AppOpacity.dim,
+              ),
               borderRadius: AppTokens.radius.sm,
             ),
             alignment: Alignment.center,

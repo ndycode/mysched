@@ -478,7 +478,7 @@ class DashboardScreenState extends State<DashboardScreen>
           instructor: item.instructor.isEmpty ? null : item.instructor,
           instructorAvatar: item.instructorAvatar,
           enabled: item.enabled,
-          isCustom: base?.isCustom ?? false,
+          isCustom: item.isCustom,
         );
     final cached = _classDetailsCache[item.id];
     await showOverlaySheet<void>(

@@ -70,6 +70,9 @@ class _SmoothDialogRoute<T> extends PopupRoute<T> {
 }
 
 /// Shows a smooth dialog with fade/scale transition using AppMotionSystem.
+///
+/// Set [useRootNavigator] to false when showing dialogs from within a modal sheet
+/// to prevent the dialog from appearing behind the sheet.
 Future<T?> showSmoothDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
@@ -77,8 +80,9 @@ Future<T?> showSmoothDialog<T>({
   String? barrierLabel = 'Dismiss',
   Color? barrierColor,
   Duration? transitionDuration,
+  bool useRootNavigator = true,
 }) {
-  return Navigator.of(context, rootNavigator: true).push<T>(
+  return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
     _SmoothDialogRoute<T>(
       builder: builder,
       barrierDismissible: barrierDismissible,

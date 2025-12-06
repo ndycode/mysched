@@ -40,6 +40,10 @@ void main() {
         AppConstants.keyLeadMinutes: 15,
         AppConstants.keySnoozeMinutes: 10,
         AppConstants.keyVerboseLogging: true,
+        // Mark migration as complete to prevent ensurePreferenceMigration from
+        // treating snoozeMinutes=10 as a legacy default that needs rebasing.
+        'lead_minutes_rebased_v2': true,
+        'snooze_minutes_rebased_v2': true,
       });
 
       UserSettings.resetInstance();

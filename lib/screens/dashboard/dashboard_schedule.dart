@@ -541,10 +541,12 @@ class _ScheduleRow extends StatelessWidget {
     final location = item.room.trim();
     final instructor = item.instructor.trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
+    final isCustom = item.isCustom;
     
     final isOngoing = occurrence.isOngoingAt(now);
     final isPast = occurrence.end.isBefore(now);
     final isNext = highlight && !isOngoing && !isPast;
+    final isDisabled = !item.enabled;
     
     final timeFormat = DateFormat('h:mm a');
     final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
@@ -557,22 +559,44 @@ class _ScheduleRow extends StatelessWidget {
     ];
 
     // Build status badge
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+
     StatusBadge? badge;
     if (isOngoing) {
-      badge = const StatusBadge(label: 'Live', variant: StatusBadgeVariant.live);
+      badge = StatusBadge(
+        label: 'Live',
+        variant: StatusBadgeVariant.live,
+        accent: isCustom && !isDisabled ? palette.positive : null,
+      );
     } else if (isNext) {
-      badge = const StatusBadge(label: 'Next', variant: StatusBadgeVariant.next);
+      badge = StatusBadge(
+        label: 'Next',
+        variant: StatusBadgeVariant.next,
+        accent: isCustom && !isDisabled ? palette.positive : null,
+      );
     } else if (isPast) {
       badge = const StatusBadge(label: 'Done', variant: StatusBadgeVariant.done);
     }
 
     return EntityTile(
       title: subject,
-      isActive: !isPast,
-      isStrikethrough: isPast,
+      isActive: !isDisabled,
+      isStrikethrough: isPast || isDisabled,
       isHighlighted: isOngoing,
       metadata: metadata,
       badge: badge,
+      tags: isCustom && !isDisabled
+          ? [
+              StatusBadge(
+                label: 'Custom',
+                variant: StatusBadgeVariant.next,
+                accent: palette.positive,
+                compact: true,
+              ),
+            ]
+          : const [],
       bottomContent: instructor.isNotEmpty
           ? InstructorRow(
               name: instructor,

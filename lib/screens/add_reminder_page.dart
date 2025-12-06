@@ -580,6 +580,12 @@ class _AddReminderFormState extends State<AddReminderForm> {
     final picked = await showTimePicker(
       context: context,
       initialTime: _selectedTime,
+      builder: (context, child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+          child: child!,
+        );
+      },
     );
     if (picked != null) {
       setState(() {

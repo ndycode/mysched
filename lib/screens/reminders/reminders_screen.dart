@@ -124,13 +124,13 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
       if (keyContext != null) {
         Scrollable.ensureVisible(
           keyContext,
-          duration: const Duration(milliseconds: 400),
+          duration: AppTokens.motion.slow,
           curve: Curves.easeOutCubic,
           alignment: 0.5, // Center the reminder on screen
         );
       }
       // Clear highlight after 1.5 seconds
-      Future.delayed(const Duration(milliseconds: 1500), () {
+      Future.delayed(AppTokens.motion.slower * 3, () {
         if (mounted && _highlightReminderId == reminderId) {
           setState(() => _highlightReminderId = null);
         }

@@ -739,71 +739,10 @@ class _AddClassFormState extends State<AddClassForm> {
   }
 
   Future<void> _pickStart() async {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    
-    final next = await showTimePicker(
+    final next = await showAppTimePicker(
       context: context,
       initialTime: _start,
       helpText: 'Class start time',
-      builder: (context, child) {
-        return Theme(
-          data: theme.copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
-              hourMinuteShape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.lg,
-              ),
-              dayPeriodShape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.md,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.xl,
-              ),
-              dialHandColor: colors.primary,
-              dialBackgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-              entryModeIconColor: Colors.transparent, // Hide keyboard toggle
-              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
-                      : colors.surfaceContainerHighest),
-              hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : colors.onSurface),
-              dayPeriodColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
-                      : Colors.transparent),
-              dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : colors.onSurfaceVariant),
-              confirmButtonStyle: FilledButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
-                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-              cancelButtonStyle: OutlinedButton.styleFrom(
-                foregroundColor: colors.onSurface,
-                side: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.soft)),
-                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-            ),
-          ),
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-            child: child!,
-          ),
-        );
-      },
     );
     if (next != null && mounted) {
       setState(() => _start = next);
@@ -811,71 +750,10 @@ class _AddClassFormState extends State<AddClassForm> {
   }
 
   Future<void> _pickEnd() async {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    
-    final next = await showTimePicker(
+    final next = await showAppTimePicker(
       context: context,
       initialTime: _end,
       helpText: 'Class end time',
-      builder: (context, child) {
-        return Theme(
-          data: theme.copyWith(
-            timePickerTheme: TimePickerThemeData(
-              backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
-              hourMinuteShape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.lg,
-              ),
-              dayPeriodShape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.md,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: AppTokens.radius.xl,
-              ),
-              dialHandColor: colors.primary,
-              dialBackgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-              entryModeIconColor: Colors.transparent, // Hide keyboard toggle
-              hourMinuteColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
-                      : colors.surfaceContainerHighest),
-              hourMinuteTextColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : colors.onSurface),
-              dayPeriodColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.overlay)
-                      : Colors.transparent),
-              dayPeriodTextColor: WidgetStateColor.resolveWith((states) =>
-                  states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : colors.onSurfaceVariant),
-              confirmButtonStyle: FilledButton.styleFrom(
-                backgroundColor: colors.primary,
-                foregroundColor: colors.onPrimary,
-                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-              cancelButtonStyle: OutlinedButton.styleFrom(
-                foregroundColor: colors.onSurface,
-                side: BorderSide(color: colors.outline.withValues(alpha: AppOpacity.soft)),
-                minimumSize: Size(100, AppTokens.componentSize.buttonSm),
-                shape: RoundedRectangleBorder(
-                  borderRadius: AppTokens.radius.xl,
-                ),
-              ),
-            ),
-          ),
-          child: MediaQuery(
-            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-            child: child!,
-          ),
-        );
-      },
     );
     if (next != null && mounted) {
       setState(() => _end = next);
@@ -1433,188 +1311,14 @@ class _AddClassFormState extends State<AddClassForm> {
   }
 
   Future<void> _pickDay() async {
-    final theme = Theme.of(context);
-    final spacing = AppTokens.spacing;
-
-    final picked = await AppModal.alert<int>(
+    final days = List.generate(7, (i) => i + 1);
+    final picked = await showAppOptionPicker<int>(
       context: context,
-      useRootNavigator: !widget.isSheet,
-      builder: (dialogContext) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: spacing.edgeInsetsAll(spacing.xl),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(dialogContext).size.height * 0.6,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.surfaceContainerHigh
-                    : theme.colorScheme.surface,
-                borderRadius: AppTokens.radius.md,
-                border: Border.all(
-                  color: theme.brightness == Brightness.dark
-                      ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
-                      : theme.colorScheme.outline,
-                  width: theme.brightness == Brightness.dark
-                      ? AppTokens.componentSize.divider
-                      : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: theme.brightness == Brightness.dark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.veryFaint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with icon and divider
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.xl),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: theme.colorScheme.outline.withValues(alpha: AppOpacity.faint),
-                          width: AppTokens.componentSize.dividerThin,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: spacing.edgeInsetsAll(spacing.sm),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay),
-                            borderRadius: AppTokens.radius.sm,
-                          ),
-                          child: Icon(
-                            Icons.calendar_today_rounded,
-                            color: theme.colorScheme.primary,
-                            size: AppTokens.iconSize.md,
-                          ),
-                        ),
-                        SizedBox(width: spacing.md),
-                        Text(
-                          'Select day',
-                          style: AppTokens.typography.subtitle.copyWith(
-                            fontWeight: AppTokens.fontWeight.semiBold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Day options
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-                      child: Column(
-                        children: [
-                          ...List.generate(7, (index) {
-                            final dayValue = index + 1;
-                            final isSelected = dayValue == _day;
-                            return PressableScale(
-                              onTap: () => Navigator.of(dialogContext).pop(dayValue),
-                              child: Container(
-                                margin: spacing.edgeInsetsSymmetric(
-                                  horizontal: spacing.sm,
-                                  vertical: spacing.xs,
-                                ),
-                                padding: spacing.edgeInsetsSymmetric(
-                                  horizontal: spacing.lg,
-                                  vertical: spacing.md,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary.withValues(alpha: AppOpacity.overlay)
-                                      : Colors.transparent,
-                                  borderRadius: AppTokens.radius.md,
-                                ),
-                                child: Row(
-                                  children: [
-                                    // Radio button
-                                    Container(
-                                      width: AppTokens.iconSize.md,
-                                      height: AppTokens.iconSize.md,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: isSelected ? theme.colorScheme.primary : theme.colorScheme.outline,
-                                          width: isSelected ? 5 : 2,
-                                        ),
-                                        color: isSelected ? theme.colorScheme.primary : Colors.transparent,
-                                      ),
-                                      child: isSelected
-                                          ? Center(
-                                              child: Container(
-                                                width: 6,
-                                                height: 6,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: theme.colorScheme.onPrimary,
-                                                ),
-                                              ),
-                                            )
-                                          : null,
-                                    ),
-                                    SizedBox(width: spacing.md),
-                                    Expanded(
-                                      child: Text(
-                                        _scopeLabel(dayValue),
-                                        style: AppTokens.typography.body.copyWith(
-                                          fontWeight: isSelected
-                                              ? AppTokens.fontWeight.medium
-                                              : AppTokens.fontWeight.regular,
-                                          color: isSelected
-                                              ? theme.colorScheme.primary
-                                              : theme.colorScheme.onSurface,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Footer with divider
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.lg),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: theme.colorScheme.outline.withValues(alpha: AppOpacity.faint),
-                          width: AppTokens.componentSize.dividerThin,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SecondaryButton(
-                          label: 'Cancel',
-                          onPressed: () => Navigator.of(dialogContext).pop(),
-                          minHeight: AppTokens.componentSize.buttonSm,
-                          expanded: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+      options: days,
+      selectedValue: _day,
+      labelBuilder: _scopeLabel,
+      title: 'Select day',
+      icon: Icons.calendar_today_rounded,
     );
 
     if (picked != null) {

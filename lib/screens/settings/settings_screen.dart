@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../app/routes.dart';
 import '../../services/admin_service.dart';
+import '../../services/auth_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/local_notifs.dart';
@@ -29,9 +30,11 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   late final SettingsController _controller;
+  final AuthService _auth = AuthService.instance;
   bool _adminSnackShown = false;
   List<AlarmSound> _deviceRingtones = [];
   bool _ringtonesLoading = true;
+  bool _signingOut = false;
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
@@ -186,185 +189,13 @@ class _SettingsPageState extends State<SettingsPage> {
     required String suffix,
     IconData? icon,
   }) {
-    return AppModal.alert<int>(
+    return showAppOptionPicker<int>(
       context: context,
-      builder: (context) {
-        final theme = Theme.of(context);
-        final colors = theme.colorScheme;
-        final isDark = theme.brightness == Brightness.dark;
-        final spacing = AppTokens.spacing;
-
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: spacing.edgeInsetsAll(spacing.xl),
-          child: Container(
-            decoration: BoxDecoration(
-              color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: isDark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline.withValues(alpha: AppOpacity.faint),
-                width: AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.xl,
-                        offset: AppShadowOffset.md,
-                      ),
-                    ],
-            ),
-            child: ClipRRect(
-              borderRadius: AppTokens.radius.xl,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header with icon
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.xl),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: colors.outline.withValues(alpha: AppOpacity.faint),
-                          width: AppTokens.componentSize.dividerThin,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        if (icon != null) ...[
-                          Container(
-                            padding: spacing.edgeInsetsAll(spacing.sm),
-                            decoration: BoxDecoration(
-                              color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                              borderRadius: AppTokens.radius.sm,
-                            ),
-                            child: Icon(
-                              icon,
-                              color: colors.primary,
-                              size: AppTokens.iconSize.md,
-                            ),
-                          ),
-                          SizedBox(width: spacing.md),
-                        ],
-                        Expanded(
-                          child: Text(
-                            title,
-                            style: AppTokens.typography.subtitle.copyWith(
-                              fontWeight: AppTokens.fontWeight.semiBold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Options
-                  Flexible(
-                    child: SingleChildScrollView(
-                      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: options.map((value) {
-                          final displayLabel = '$value $suffix';
-                          final isSelected = value == selected;
-
-                          return PressableScale(
-                            onTap: () => Navigator.of(context).pop(value),
-                            child: Container(
-                              margin: spacing.edgeInsetsSymmetric(
-                                horizontal: spacing.sm,
-                                vertical: spacing.xs,
-                              ),
-                              padding: spacing.edgeInsetsSymmetric(
-                                horizontal: spacing.lg,
-                                vertical: spacing.md,
-                              ),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? colors.primary.withValues(alpha: AppOpacity.overlay)
-                                    : Colors.transparent,
-                                borderRadius: AppTokens.radius.md,
-                              ),
-                              child: Row(
-                                children: [
-                                  // Radio button
-                                  Container(
-                                    width: AppTokens.iconSize.md,
-                                    height: AppTokens.iconSize.md,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: isSelected ? colors.primary : colors.outline,
-                                        width: isSelected ? 5 : 2,
-                                      ),
-                                      color: isSelected ? colors.primary : Colors.transparent,
-                                    ),
-                                    child: isSelected
-                                        ? Center(
-                                            child: Container(
-                                              width: 6,
-                                              height: 6,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: colors.onPrimary,
-                                              ),
-                                            ),
-                                          )
-                                        : null,
-                                  ),
-                                  SizedBox(width: spacing.md),
-                                  Expanded(
-                                    child: Text(
-                                      displayLabel,
-                                      style: AppTokens.typography.body.copyWith(
-                                        fontWeight: isSelected
-                                            ? AppTokens.fontWeight.medium
-                                            : AppTokens.fontWeight.regular,
-                                        color: isSelected ? colors.primary : colors.onSurface,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
-                      ),
-                    ),
-                  ),
-                  // Footer
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.lg),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        top: BorderSide(
-                          color: colors.outline.withValues(alpha: AppOpacity.faint),
-                          width: AppTokens.componentSize.dividerThin,
-                        ),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        SecondaryButton(
-                          label: 'Cancel',
-                          onPressed: () => Navigator.of(context).pop(),
-                          minHeight: AppTokens.componentSize.buttonSm,
-                          expanded: false,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      },
+      options: options,
+      selectedValue: selected,
+      labelBuilder: (value) => '$value $suffix',
+      title: title,
+      icon: icon,
     );
   }
 
@@ -1081,8 +912,8 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           SizedBox(height: spacing.xl),
           PrimaryButton(
-            label: 'Sign out',
-            onPressed: () => context.go(AppRoutes.login),
+            label: _signingOut ? 'Signing out...' : 'Sign out',
+            onPressed: _signingOut ? null : _handleSignOut,
             minHeight: AppTokens.componentSize.buttonMd,
           ),
         ],
@@ -1267,6 +1098,29 @@ class _SettingsPageState extends State<SettingsPage> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleSignOut() async {
+    setState(() => _signingOut = true);
+    try {
+      await _auth.logout();
+      if (!mounted) return;
+      await DataSync.instance.reset();
+      if (!mounted) return;
+      context.go(AppRoutes.login);
+    } catch (error) {
+      if (mounted) {
+        showAppSnackBar(
+          context,
+          'Sign out failed. Please try again.',
+          type: AppSnackBarType.error,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _signingOut = false);
+      }
+    }
   }
 }
 
@@ -1489,7 +1343,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
               ? null
               : [
                   BoxShadow(
-                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    color:
+                        colors.shadow.withValues(alpha: AppOpacity.veryFaint),
                     blurRadius: AppTokens.shadow.xl,
                     offset: AppShadowOffset.md,
                   ),
@@ -1517,7 +1372,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                     Container(
                       padding: spacing.edgeInsetsAll(spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                        color: colors.primary
+                            .withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -1560,7 +1416,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected || isPlaying
-                              ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                              ? colors.primary
+                                  .withValues(alpha: AppOpacity.overlay)
                               : Colors.transparent,
                           borderRadius: AppTokens.radius.md,
                         ),
@@ -1575,13 +1432,18 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                                 decoration: BoxDecoration(
                                   color: isPlaying
                                       ? colors.primary
-                                      : colors.primary.withValues(alpha: AppOpacity.overlay),
+                                      : colors.primary.withValues(
+                                          alpha: AppOpacity.overlay),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded,
+                                  isPlaying
+                                      ? Icons.volume_up_rounded
+                                      : Icons.play_arrow_rounded,
                                   size: AppTokens.iconSize.sm,
-                                  color: isPlaying ? colors.onPrimary : colors.primary,
+                                  color: isPlaying
+                                      ? colors.onPrimary
+                                      : colors.primary,
                                 ),
                               ),
                             ),
@@ -1593,7 +1455,9 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                                   fontWeight: isSelected || isPlaying
                                       ? AppTokens.fontWeight.medium
                                       : AppTokens.fontWeight.regular,
-                                  color: isSelected ? colors.primary : colors.onSurface,
+                                  color: isSelected
+                                      ? colors.primary
+                                      : colors.onSurface,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -1681,26 +1545,10 @@ class _DndTimePicker extends StatelessWidget {
 
     return InkWell(
       onTap: () async {
-        final picked = await showTimePicker(
+        final picked = await showAppTimePicker(
           context: context,
           initialTime: timeOfDay,
           helpText: '$label time',
-          builder: (context, child) {
-            return Theme(
-              data: theme.copyWith(
-                timePickerTheme: TimePickerThemeData(
-                  backgroundColor: colors.surface,
-                  hourMinuteShape: RoundedRectangleBorder(
-                    borderRadius: AppTokens.radius.md,
-                  ),
-                  dayPeriodShape: RoundedRectangleBorder(
-                    borderRadius: AppTokens.radius.sm,
-                  ),
-                ),
-              ),
-              child: child!,
-            );
-          },
         );
         if (picked != null) {
           final formatted =
@@ -1740,3 +1588,4 @@ class _DndTimePicker extends StatelessWidget {
     );
   }
 }
+

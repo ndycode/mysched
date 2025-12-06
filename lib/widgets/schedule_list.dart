@@ -117,8 +117,7 @@ class ScheduleList extends StatelessWidget {
                   ),
                 ),
               ),
-              Card(
-                margin: EdgeInsets.zero,
+              CardX(
                 child: Column(
                   children: [
                     for (int i = 0; i < byDay[d]!.length; i++)

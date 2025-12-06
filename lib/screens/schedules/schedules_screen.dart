@@ -138,7 +138,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       if (keyContext != null) {
         Scrollable.ensureVisible(
           keyContext,
-          duration: const Duration(milliseconds: 400),
+          duration: AppTokens.motion.slow,
           curve: Curves.easeOutCubic,
           alignment: 0.5, // Center the day section on screen
         );

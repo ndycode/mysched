@@ -324,13 +324,11 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
                         ),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Chip(
-                            label: Text(
-                              _isEmailChange ? 'Email change' : 'New account',
-                              style: theme.textTheme.labelSmall?.copyWith(
-                                fontWeight: AppTokens.fontWeight.semiBold,
-                              ),
-                            ),
+                          child: InfoChip(
+                            icon: _isEmailChange
+                                ? Icons.mail_outline_rounded
+                                : Icons.person_add_outlined,
+                            label: _isEmailChange ? 'Email change' : 'New account',
                           ),
                         ),
                       ),

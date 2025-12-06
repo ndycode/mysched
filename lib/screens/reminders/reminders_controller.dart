@@ -9,6 +9,7 @@ import '../../models/reminder_scope.dart';
 import '../../services/profile_cache.dart';
 import '../../services/reminders_api.dart';
 import '../../services/telemetry_service.dart';
+import '../../ui/theme/tokens.dart';
 import '../../services/data_sync.dart';
 import '../../services/offline_queue.dart';
 import '../../services/export_queue.dart';
@@ -148,7 +149,7 @@ class RemindersController extends ChangeNotifier {
     await load();
     // If initial load failed, retry after a short delay
     if (_error != null) {
-      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await Future<void>.delayed(AppTokens.motion.slower * 1.6);
       await load();
     }
   }

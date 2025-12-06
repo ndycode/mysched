@@ -38,6 +38,15 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
   late final SchedulesController _controller;
   PageRoute<dynamic>? _routeSubscription;
 
+  /// Keys for each day section - used to scroll into view after adding a class
+  final Map<int, GlobalKey> _dayKeys = {};
+
+  /// Day (1-7) to highlight after adding a new class. Cleared after scroll.
+  int? _highlightDay;
+
+  /// Get or create a GlobalKey for a specific day
+  GlobalKey _keyForDay(int day) => _dayKeys.putIfAbsent(day, () => GlobalKey());
+
   @override
   void initState() {
     super.initState();
@@ -106,7 +115,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     }
 
     final media = MediaQuery.of(context);
-    final result = await showOverlaySheet<bool>(
+    // Returns the day (1-7) of the added/edited class, or null if cancelled
+    final addedDay = await showOverlaySheet<int?>(
       context: context,
       alignment: Alignment.center,
       barrierDismissible: false,
@@ -120,10 +130,36 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       builder: (_) => AddClassSheet(api: widget.api, initialClass: initial),
     );
     if (!mounted) return;
-    if (result == true) {
+    if (addedDay != null) {
       _controller.dirty = true;
       await _controller.refresh();
+      // Set highlight and scroll to the newly added class
+      _scrollToAddedClass(addedDay);
     }
+  }
+
+  void _scrollToAddedClass(int day) {
+    setState(() => _highlightDay = day);
+    // Wait for the next frame so the list is rebuilt with the new data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final dayKey = _dayKeys[day];
+      final keyContext = dayKey?.currentContext;
+      if (keyContext != null) {
+        Scrollable.ensureVisible(
+          keyContext,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+          alignment: 0.5, // Center the day section on screen
+        );
+      }
+      // Clear highlight after 1 second
+      Future.delayed(const Duration(seconds: 1), () {
+        if (mounted && _highlightDay == day) {
+          setState(() => _highlightDay = null);
+        }
+      });
+    });
   }
 
   Future<void> _openScanOptions() async {
@@ -230,7 +266,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             ? (details) async {
                 await _controller.deleteCustom(
                   details.id,
-                  onSuccess: (msg) => _notify(msg, type: AppSnackBarType.success),
+                  onSuccess: (msg) =>
+                      _notify(msg, type: AppSnackBarType.success),
                   onError: (err) => _notify(err, type: AppSnackBarType.error),
                 );
               }
@@ -258,10 +295,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       shape: RoundedRectangleBorder(
         borderRadius: AppTokens.radius.lg,
       ),
-      elevation: isDark ? AppTokens.shadow.elevationDark : AppTokens.shadow.elevationLight,
+      elevation: isDark
+          ? AppTokens.shadow.elevationDark
+          : AppTokens.shadow.elevationLight,
       color: isDark ? colors.surfaceContainerHigh : colors.surface,
       surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
+      shadowColor: colors.shadow
+          .withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
       padding: EdgeInsets.zero,
       icon: SizedBox(
         width: AppTokens.componentSize.buttonXs,
@@ -283,15 +323,23 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, ScheduleAction.pdf),
+              splashColor:
+                  colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor:
+                  colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
+                padding: AppTokens.spacing.edgeInsetsSymmetric(
+                    horizontal: AppTokens.spacing.lg,
+                    vertical: AppTokens.spacing.md),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
+                      padding:
+                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.error.withValues(alpha: AppOpacity.overlay),
+                        color:
+                            colors.error.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -300,7 +348,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.error,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
+                    SizedBox(
+                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Export as PDF',
@@ -324,15 +373,23 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, ScheduleAction.csv),
+              splashColor:
+                  colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor:
+                  colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
+                padding: AppTokens.spacing.edgeInsetsSymmetric(
+                    horizontal: AppTokens.spacing.lg,
+                    vertical: AppTokens.spacing.md),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
+                      padding:
+                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.tertiary.withValues(alpha: AppOpacity.overlay),
+                        color: colors.tertiary
+                            .withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -341,7 +398,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.tertiary,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
+                    SizedBox(
+                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Export as CSV',
@@ -360,14 +418,16 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
         PopupMenuItem<ScheduleAction>(
           enabled: false,
           height: AppTokens.componentSize.divider,
-          padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
+          padding: AppTokens.spacing.edgeInsetsSymmetric(
+              horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
           child: Container(
             height: AppTokens.componentSize.divider,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
                   colors.outline.withValues(alpha: AppOpacity.transparent),
-                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
+                  colors.outline.withValues(
+                      alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
                   colors.outline.withValues(alpha: AppOpacity.transparent),
                 ],
               ),
@@ -381,15 +441,23 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, ScheduleAction.reset),
+              splashColor:
+                  colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor:
+                  colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg, vertical: AppTokens.spacing.md),
+                padding: AppTokens.spacing.edgeInsetsSymmetric(
+                    horizontal: AppTokens.spacing.lg,
+                    vertical: AppTokens.spacing.md),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
-                      padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
+                      padding:
+                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                        color: colors.primary
+                            .withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
@@ -398,7 +466,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         color: colors.primary,
                       ),
                     ),
-                    SizedBox(width: AppTokens.spacing.md + AppTokens.spacing.micro),
+                    SizedBox(
+                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
                     Flexible(
                       child: Text(
                         'Reset schedules',
@@ -434,7 +503,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final confirm = await AppModal.showConfirmDialog(
       context: context,
       title: 'Reset schedules?',
-      message: 'This will remove all linked classes and custom additions for this account. You can rescan or sync again later.',
+      message:
+          'This will remove all linked classes and custom additions for this account. You can rescan or sync again later.',
       confirmLabel: 'Reset',
       isDanger: true,
     );
@@ -594,12 +664,15 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                   groups: groups,
                   now: now,
                   highlightClassId: summary.highlight?.item.id,
+                  highlightDay: _highlightDay,
+                  dayKeyBuilder: _keyForDay,
                   onOpenDetails: _openClassDetails,
                   onToggleEnabled: (item, enable) {
                     _controller.toggleClassEnabled(
                       item,
                       enable,
-                      onError: (msg) => _notify(msg, type: AppSnackBarType.error),
+                      onError: (msg) =>
+                          _notify(msg, type: AppSnackBarType.error),
                     );
                   },
                   pendingToggleIds: _controller.pendingToggleClassIds,
@@ -629,8 +702,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                     horizontal: spacing.xxl,
                     vertical: spacing.quad,
                   ),
-                  backgroundColor: isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderColor: colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.divider),
+                  backgroundColor:
+                      isDark ? colors.surfaceContainerHigh : colors.surface,
+                  borderColor: colors.outline.withValues(
+                      alpha: isDark ? AppOpacity.overlay : AppOpacity.divider),
                   borderRadius: AppTokens.radius.xl,
                   child: Column(
                     children: [
@@ -642,13 +717,16 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                             begin: Alignment.topLeft,
                             end: Alignment.bottomRight,
                             colors: [
-                              colors.primary.withValues(alpha: AppOpacity.medium),
-                              colors.primary.withValues(alpha: AppOpacity.highlight),
+                              colors.primary
+                                  .withValues(alpha: AppOpacity.medium),
+                              colors.primary
+                                  .withValues(alpha: AppOpacity.highlight),
                             ],
                           ),
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: colors.primary.withValues(alpha: AppOpacity.accent),
+                            color: colors.primary
+                                .withValues(alpha: AppOpacity.accent),
                             width: AppTokens.componentSize.dividerThick,
                           ),
                         ),
@@ -659,24 +737,24 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         ),
                       ),
                       SizedBox(height: spacing.xxlPlus),
-                    Text(
-                      'No schedules yet',
-                      style: AppTokens.typography.headline.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                        letterSpacing: AppLetterSpacing.tight,
-                        color: colors.onSurface,
+                      Text(
+                        'No schedules yet',
+                        style: AppTokens.typography.headline.copyWith(
+                          fontWeight: AppTokens.fontWeight.bold,
+                          letterSpacing: AppLetterSpacing.tight,
+                          color: colors.onSurface,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
                       SizedBox(height: spacing.md),
-                    Text(
-                      'Get started by adding your first class or scanning your student card using the buttons above',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        height: AppLineHeight.body,
-                        color: colors.onSurfaceVariant,
+                      Text(
+                        'Get started by adding your first class or scanning your student card using the buttons above',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          height: AppLineHeight.body,
+                          color: colors.onSurfaceVariant,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
                     ],
                   ),
                 ),

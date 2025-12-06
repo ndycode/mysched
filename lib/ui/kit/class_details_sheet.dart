@@ -126,7 +126,8 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final confirm = await AppModal.showConfirmDialog(
           context: context,
           title: 'Delete custom class?',
-          message: 'This class will be removed from your schedules and reminders.',
+          message:
+              'This class will be removed from your schedules and reminders.',
           confirmLabel: 'Delete',
           isDanger: true,
         ) ??
@@ -171,7 +172,8 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
             return AlertDialog(
               backgroundColor: Theme.of(context).colorScheme.surface,
               surfaceTintColor: Colors.transparent,
-              shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
+              shape:
+                  RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
               titlePadding: AppTokens.spacing.edgeInsetsOnly(
                 left: AppTokens.spacing.xl,
                 right: AppTokens.spacing.xl,
@@ -183,7 +185,8 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                 right: AppTokens.spacing.xl,
                 bottom: AppTokens.spacing.lg,
               ),
-              actionsPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
+              actionsPadding:
+                  AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
               title: Text(
                 'Report a schedule issue',
                 style: AppTokens.typography.title.copyWith(
@@ -208,22 +211,34 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                     autofocus: true,
                     onChanged: (_) => setModalState(() {}),
                     decoration: InputDecoration(
-                      hintText: 'Example: Time conflict, instructor mismatch...',
+                      hintText:
+                          'Example: Time conflict, instructor mismatch...',
                       filled: true,
-                      fillColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
+                      fillColor: Theme.of(context)
+                          .colorScheme
+                          .surfaceContainerHighest
+                          .withValues(alpha: AppOpacity.subtle),
                       border: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.outline),
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: AppOpacity.subtle)),
+                        borderSide: BorderSide(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .outline
+                                .withValues(alpha: AppOpacity.subtle)),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: AppTokens.radius.md,
-                        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: AppTokens.componentSize.dividerThick),
+                        borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: AppTokens.componentSize.dividerThick),
                       ),
-                      contentPadding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
+                      contentPadding:
+                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.sm),
@@ -437,7 +452,6 @@ class _ClassDetailsContent extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
-    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final startLabel = _formatTime(details.start);
     final endLabel = _formatTime(details.end);
@@ -467,7 +481,6 @@ class _ClassDetailsContent extends StatelessWidget {
           onClose: onClose,
         ),
         SizedBox(height: spacing.xl),
-        
         Flexible(
           child: SingleChildScrollView(
             child: Column(
@@ -479,9 +492,11 @@ class _ClassDetailsContent extends StatelessWidget {
                   runSpacing: 8,
                   children: [
                     StatusInfoChip(
-                      icon: details.isCustom ? Icons.edit_note_rounded : Icons.cloud_sync_rounded,
+                      icon: details.isCustom
+                          ? Icons.edit_note_rounded
+                          : Icons.cloud_sync_rounded,
                       label: details.isCustom ? 'Custom class' : 'Synced class',
-                      color: details.isCustom ? palette.positive : colors.primary,
+                      color: colors.primary,
                     ),
                     if (!details.enabled)
                       StatusInfoChip(
@@ -497,13 +512,14 @@ class _ClassDetailsContent extends StatelessWidget {
                 Container(
                   padding: EdgeInsets.all(AppTokens.spacing.xl),
                   decoration: BoxDecoration(
-                    color: isDark 
-                        ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) 
+                    color: isDark
+                        ? colors.surfaceContainerHighest
+                            .withValues(alpha: AppOpacity.ghost)
                         : colors.primary.withValues(alpha: AppOpacity.micro),
                     borderRadius: AppTokens.radius.lg,
                     border: Border.all(
-                      color: isDark 
-                          ? colors.outline.withValues(alpha: AppOpacity.overlay) 
+                      color: isDark
+                          ? colors.outline.withValues(alpha: AppOpacity.overlay)
                           : colors.primary.withValues(alpha: AppOpacity.dim),
                       width: AppTokens.componentSize.divider,
                     ),
@@ -517,12 +533,15 @@ class _ClassDetailsContent extends StatelessWidget {
                         accentIcon: true,
                       ),
                       Padding(
-                        padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                        padding: EdgeInsets.symmetric(
+                            vertical: AppTokens.spacing.lg),
                         child: Divider(
                           height: AppTokens.componentSize.divider,
-                          color: isDark 
-                              ? colors.outline.withValues(alpha: AppOpacity.medium) 
-                              : colors.primary.withValues(alpha: AppOpacity.dim),
+                          color: isDark
+                              ? colors.outline
+                                  .withValues(alpha: AppOpacity.medium)
+                              : colors.primary
+                                  .withValues(alpha: AppOpacity.dim),
                         ),
                       ),
                       DetailRow(
@@ -533,12 +552,15 @@ class _ClassDetailsContent extends StatelessWidget {
                       ),
                       if (details.units != null) ...[
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                          padding: EdgeInsets.symmetric(
+                              vertical: AppTokens.spacing.lg),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
-                            color: isDark 
-                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
-                                : colors.primary.withValues(alpha: AppOpacity.dim),
+                            color: isDark
+                                ? colors.outline
+                                    .withValues(alpha: AppOpacity.medium)
+                                : colors.primary
+                                    .withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
@@ -548,21 +570,27 @@ class _ClassDetailsContent extends StatelessWidget {
                           accentIcon: true,
                         ),
                       ],
-                      if (sectionValue != null || details.sectionName != null) ...[
+                      if (sectionValue != null ||
+                          details.sectionName != null) ...[
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                          padding: EdgeInsets.symmetric(
+                              vertical: AppTokens.spacing.lg),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
-                            color: isDark 
-                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
-                                : colors.primary.withValues(alpha: AppOpacity.dim),
+                            color: isDark
+                                ? colors.outline
+                                    .withValues(alpha: AppOpacity.medium)
+                                : colors.primary
+                                    .withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
                           icon: Icons.class_outlined,
                           label: 'Section',
-                          value: sectionValue ?? details.sectionName ?? 'Section',
-                          helper: sectionValue != null && details.sectionName != null
+                          value:
+                              sectionValue ?? details.sectionName ?? 'Section',
+                          helper: sectionValue != null &&
+                                  details.sectionName != null
                               ? details.sectionName
                               : null,
                           accentIcon: true,
@@ -570,12 +598,15 @@ class _ClassDetailsContent extends StatelessWidget {
                       ],
                       if (details.createdAt != null) ...[
                         Padding(
-                          padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                          padding: EdgeInsets.symmetric(
+                              vertical: AppTokens.spacing.lg),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
-                            color: isDark 
-                                ? colors.outline.withValues(alpha: AppOpacity.medium) 
-                                : colors.primary.withValues(alpha: AppOpacity.dim),
+                            color: isDark
+                                ? colors.outline
+                                    .withValues(alpha: AppOpacity.medium)
+                                : colors.primary
+                                    .withValues(alpha: AppOpacity.dim),
                           ),
                         ),
                         DetailRow(
@@ -588,8 +619,9 @@ class _ClassDetailsContent extends StatelessWidget {
                     ],
                   ),
                 ),
-                
-                if (details.instructorName != null && details.instructorName!.isNotEmpty) ...[
+
+                if (details.instructorName != null &&
+                    details.instructorName!.isNotEmpty) ...[
                   SizedBox(height: spacing.lg),
                   _InstructorDetail(details: details),
                 ],
@@ -637,14 +669,18 @@ class _InstructorDetail extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final name = details.instructorName ?? '';
-    
+
     return Container(
       padding: EdgeInsets.all(AppTokens.spacing.lg),
       decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) : colors.surface,
+        color: isDark
+            ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+            : colors.surface,
         borderRadius: AppTokens.radius.lg,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outlineVariant,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outlineVariant,
           width: AppTokens.componentSize.divider,
         ),
       ),
@@ -779,7 +815,7 @@ class _ClassDetailActions extends StatelessWidget {
 
     if (onEdit != null) {
       children.add(
-      FilledButton.icon(
+        FilledButton.icon(
           onPressed: onEdit,
           icon: Icon(Icons.edit_rounded, size: AppTokens.iconSize.sm),
           label: const Text('Edit custom class'),

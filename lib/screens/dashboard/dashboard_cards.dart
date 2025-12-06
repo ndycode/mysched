@@ -45,8 +45,12 @@ class _DashboardSummaryCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -79,9 +83,12 @@ class _DashboardSummaryCard extends StatelessWidget {
                   height: AppTokens.componentSize.buttonXs,
                   child: IconButton(
                     onPressed: onRefresh,
-                    tooltip: refreshLabel != null ? 'Refreshed $refreshLabel' : 'Refresh',
+                    tooltip: refreshLabel != null
+                        ? 'Refreshed $refreshLabel'
+                        : 'Refresh',
                     style: IconButton.styleFrom(
-                      minimumSize: Size.square(AppTokens.componentSize.buttonXs),
+                      minimumSize:
+                          Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: colors.onSurfaceVariant,
@@ -178,7 +185,6 @@ class _DashboardSummaryCard extends StatelessWidget {
 
     return RepaintBoundary(child: card);
   }
-
 }
 
 class _UpcomingHeroTile extends StatelessWidget {
@@ -273,7 +279,8 @@ class _UpcomingHeroTile extends StatelessWidget {
                               shape: BoxShape.circle,
                               boxShadow: [
                                 BoxShadow(
-                                  color: foreground.withValues(alpha: AppOpacity.subtle),
+                                  color: foreground.withValues(
+                                      alpha: AppOpacity.subtle),
                                   blurRadius: AppTokens.shadow.xs,
                                   spreadRadius: AppTokens.componentSize.divider,
                                 ),
@@ -303,7 +310,8 @@ class _UpcomingHeroTile extends StatelessWidget {
                     Text(
                       timeUntilText,
                       style: AppTokens.typography.caption.copyWith(
-                        color: foreground.withValues(alpha: AppOpacity.prominent),
+                        color:
+                            foreground.withValues(alpha: AppOpacity.prominent),
                         fontWeight: AppTokens.fontWeight.medium,
                       ),
                     ),
@@ -311,21 +319,21 @@ class _UpcomingHeroTile extends StatelessWidget {
                 ],
               ),
               SizedBox(height: spacing.xl),
-              
+
               // Class title
-            Text(
-              subject,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: AppTokens.typography.headline.copyWith(
-                fontWeight: AppTokens.fontWeight.bold,
-                height: AppLineHeight.compact,
-                color: foreground,
-                letterSpacing: AppLetterSpacing.tight,
+              Text(
+                subject,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: AppTokens.typography.headline.copyWith(
+                  fontWeight: AppTokens.fontWeight.bold,
+                  height: AppLineHeight.compact,
+                  color: foreground,
+                  letterSpacing: AppLetterSpacing.tight,
+                ),
               ),
-            ),
               SizedBox(height: spacing.lgPlus),
-              
+
               // Time
               Row(
                 children: [
@@ -357,7 +365,8 @@ class _UpcomingHeroTile extends StatelessWidget {
                         Text(
                           dateLabel,
                           style: AppTokens.typography.caption.copyWith(
-                            color: foreground.withValues(alpha: AppOpacity.secondary),
+                            color: foreground.withValues(
+                                alpha: AppOpacity.secondary),
                           ),
                         ),
                       ],
@@ -365,7 +374,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ),
                 ],
               ),
-              
+
               if (location.isNotEmpty) ...[
                 SizedBox(height: spacing.md + AppTokens.spacing.micro),
                 Row(
@@ -397,34 +406,36 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ],
                 ),
               ],
-              
+
               // Instructor
-                if (occurrence.item.instructor.isNotEmpty) ...[
-                  SizedBox(height: spacing.lg),
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.md),
-                    decoration: BoxDecoration(
-                      color: foreground.withValues(alpha: AppOpacity.overlay),
-                      borderRadius: AppTokens.radius.md,
-                    ),
-                    child: Row(
+              if (occurrence.item.instructor.isNotEmpty) ...[
+                SizedBox(height: spacing.lg),
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.md),
+                  decoration: BoxDecoration(
+                    color: foreground.withValues(alpha: AppOpacity.overlay),
+                    borderRadius: AppTokens.radius.md,
+                  ),
+                  child: Row(
                     children: [
                       InstructorAvatar(
                         name: occurrence.item.instructor,
-                        avatarUrl: (occurrence.item.instructorAvatar?.isEmpty ?? true)
-                            ? null 
-                            : occurrence.item.instructorAvatar,
+                        avatarUrl:
+                            (occurrence.item.instructorAvatar?.isEmpty ?? true)
+                                ? null
+                                : occurrence.item.instructorAvatar,
                         tint: foreground,
                         inverse: true,
                         size: AppTokens.componentSize.avatarSmDense,
                       ),
                       SizedBox(width: spacing.sm),
                       Expanded(
-                      child: Text(
+                        child: Text(
                           occurrence.item.instructor,
                           style: AppTokens.typography.subtitle.copyWith(
                             fontWeight: AppTokens.fontWeight.semiBold,
-                            color: colors.onPrimary.withValues(alpha: AppOpacity.full),
+                            color: colors.onPrimary
+                                .withValues(alpha: AppOpacity.full),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -507,7 +518,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
+              color: colors.onSurfaceVariant
+                  .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
           ),
@@ -534,15 +546,18 @@ class _UpcomingListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final palette = theme.brightness == Brightness.dark ? AppTokens.darkColors : AppTokens.lightColors;
+    final palette = theme.brightness == Brightness.dark
+        ? AppTokens.darkColors
+        : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final subject = occurrence.item.subject;
     final timeFormat = DateFormat('h:mm a');
-    final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
+    final timeRange =
+        '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
     final location = occurrence.item.room.trim();
     final instructor = occurrence.item.instructor;
     final isCustom = occurrence.item.isCustom;
-    
+
     final now = DateTime.now();
     final isPast = occurrence.end.isBefore(now);
     final isLive = occurrence.isOngoingAt(now);
@@ -572,15 +587,23 @@ class _UpcomingListTile extends StatelessWidget {
             border: Border.all(
               color: (isLive || isNext) && !disabled
                   ? colors.primary.withValues(alpha: AppOpacity.ghost)
-                  : colors.outline.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.barrier),
-              width: (isLive || isNext) && !disabled ? AppTokens.componentSize.dividerThick : AppTokens.componentSize.dividerThin,
+                  : colors.outline.withValues(
+                      alpha: isDark ? AppOpacity.overlay : AppOpacity.barrier),
+              width: (isLive || isNext) && !disabled
+                  ? AppTokens.componentSize.dividerThick
+                  : AppTokens.componentSize.dividerThin,
             ),
             boxShadow: isDark
                 ? null
                 : [
                     BoxShadow(
-                      color: colors.shadow.withValues(alpha: (isLive || isNext) && !disabled ? AppOpacity.highlight : AppOpacity.faint),
-                      blurRadius: (isLive || isNext) && !disabled ? AppTokens.shadow.md : AppTokens.shadow.sm,
+                      color: colors.shadow.withValues(
+                          alpha: (isLive || isNext) && !disabled
+                              ? AppOpacity.highlight
+                              : AppOpacity.faint),
+                      blurRadius: (isLive || isNext) && !disabled
+                          ? AppTokens.shadow.md
+                          : AppTokens.shadow.sm,
                       offset: AppShadowOffset.xs,
                     ),
                   ],
@@ -601,11 +624,14 @@ class _UpcomingListTile extends StatelessWidget {
                             fontWeight: AppTokens.fontWeight.bold,
                             letterSpacing: AppLetterSpacing.compact,
                             color: disabled
-                                ? colors.onSurface.withValues(alpha: AppOpacity.subtle)
+                                ? colors.onSurface
+                                    .withValues(alpha: AppOpacity.subtle)
                                 : (isPast
                                     ? colors.onSurfaceVariant
                                     : colors.onSurface),
-                            decoration: disabled || isPast ? TextDecoration.lineThrough : null,
+                            decoration: disabled || isPast
+                                ? TextDecoration.lineThrough
+                                : null,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -631,26 +657,30 @@ class _UpcomingListTile extends StatelessWidget {
                           ? _StatusPill(
                               label: 'Off',
                               color: colors.onSurfaceVariant,
-                              background: colors.error.withValues(alpha: AppOpacity.overlay),
+                              background: colors.error
+                                  .withValues(alpha: AppOpacity.overlay),
                             )
                           : isLive
                               ? _StatusPill(
                                   label: 'Live',
                                   color: colors.primary,
-                                  background: colors.primary.withValues(alpha: AppOpacity.statusBg),
+                                  background: colors.primary
+                                      .withValues(alpha: AppOpacity.statusBg),
                                 )
                               : isPast
                                   ? _StatusPill(
                                       label: 'Done',
                                       color: colors.onSurfaceVariant,
-                                      background: colors.surfaceContainerHighest,
+                                      background:
+                                          colors.surfaceContainerHighest,
                                     )
                                   : Transform.scale(
                                       scale: AppScale.dense,
                                       child: Switch(
                                         value: enabled,
                                         onChanged: onToggle,
-                                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                        materialTapTargetSize:
+                                            MaterialTapTargetSize.shrinkWrap,
                                       ),
                                     ),
                     ),
@@ -664,14 +694,16 @@ class _UpcomingListTile extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: AppTokens.iconSize.sm,
-                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                    color: colors.onSurfaceVariant
+                        .withValues(alpha: AppOpacity.muted),
                   ),
                   SizedBox(width: spacing.xsPlus),
                   Text(
                     timeRange,
                     style: AppTokens.typography.bodySecondary.copyWith(
                       fontWeight: AppTokens.fontWeight.medium,
-                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                      color: colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.prominent),
                     ),
                   ),
                   if (location.isNotEmpty) ...[
@@ -679,7 +711,8 @@ class _UpcomingListTile extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: AppTokens.iconSize.sm,
-                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                      color: colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.muted),
                     ),
                     SizedBox(width: spacing.xsPlus),
                     Expanded(
@@ -687,7 +720,8 @@ class _UpcomingListTile extends StatelessWidget {
                         location,
                         style: AppTokens.typography.bodySecondary.copyWith(
                           fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                          color: colors.onSurfaceVariant
+                              .withValues(alpha: AppOpacity.prominent),
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -747,7 +781,8 @@ class _InstructorRow extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final textColor = inverse ? tint : colors.onSurfaceVariant;
-    final iconColor = inverse ? tint.withValues(alpha: AppOpacity.prominent) : tint;
+    final iconColor =
+        inverse ? tint.withValues(alpha: AppOpacity.prominent) : tint;
 
     return Row(
       children: [
@@ -761,7 +796,10 @@ class _InstructorRow extends StatelessWidget {
                 image: NetworkImage(avatarUrl!),
                 fit: BoxFit.cover,
               ),
-              border: inverse ? Border.all(color: tint, width: AppTokens.componentSize.divider) : null,
+              border: inverse
+                  ? Border.all(
+                      color: tint, width: AppTokens.componentSize.divider)
+                  : null,
             ),
           )
         else
@@ -774,7 +812,10 @@ class _InstructorRow extends StatelessWidget {
         Expanded(
           child: Text(
             name,
-            style: (dense ? AppTokens.typography.caption : AppTokens.typography.bodySecondary).copyWith(
+            style: (dense
+                    ? AppTokens.typography.caption
+                    : AppTokens.typography.bodySecondary)
+                .copyWith(
               color: textColor,
               fontWeight: AppTokens.fontWeight.medium,
             ),
@@ -820,4 +861,3 @@ class _StatusPill extends StatelessWidget {
     );
   }
 }
-

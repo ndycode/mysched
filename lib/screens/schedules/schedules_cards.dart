@@ -23,11 +23,19 @@ class ScheduleClassListCard extends StatelessWidget {
     this.onDelete,
     this.onRefresh,
     this.refreshing = false,
+    this.highlightDay,
+    this.dayKeyBuilder,
   });
 
   final List<DayGroup> groups;
   final DateTime now;
   final int? highlightClassId;
+
+  /// Day (1-7) to highlight after adding a new class. Shows a pulse effect on the day section.
+  final int? highlightDay;
+
+  /// Callback to get a GlobalKey for a specific day, used for scroll-to behavior.
+  final GlobalKey Function(int day)? dayKeyBuilder;
   final void Function(sched.ClassItem item) onOpenDetails;
   final void Function(sched.ClassItem item, bool enable) onToggleEnabled;
   final Set<int> pendingToggleIds;
@@ -106,7 +114,8 @@ class ScheduleClassListCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final dateLabel = DateFormat('EEEE, MMM d').format(now);
 
-    final hasClasses = groups.isNotEmpty && groups.any((g) => g.items.isNotEmpty);
+    final hasClasses =
+        groups.isNotEmpty && groups.any((g) => g.items.isNotEmpty);
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
@@ -114,8 +123,12 @@ class ScheduleClassListCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -148,7 +161,8 @@ class ScheduleClassListCard extends StatelessWidget {
                   ),
                   borderRadius: AppTokens.radius.md,
                   border: Border.all(
-                    color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
+                    color: colors.primary
+                        .withValues(alpha: AppOpacity.borderEmphasis),
                     width: AppTokens.componentSize.dividerThick,
                   ),
                 ),
@@ -189,7 +203,8 @@ class ScheduleClassListCard extends StatelessWidget {
                     onPressed: refreshing ? null : onRefresh,
                     tooltip: 'Refresh',
                     style: IconButton.styleFrom(
-                      minimumSize: Size.square(AppTokens.componentSize.buttonXs),
+                      minimumSize:
+                          Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: colors.onSurfaceVariant,
@@ -204,7 +219,8 @@ class ScheduleClassListCard extends StatelessWidget {
                             height: AppTokens.componentSize.badgeMd,
                             child: CircularProgressIndicator(
                               strokeWidth: AppInteraction.progressStrokeWidth,
-                              valueColor: AlwaysStoppedAnimation(colors.primary),
+                              valueColor:
+                                  AlwaysStoppedAnimation(colors.primary),
                             ),
                           )
                         : Icon(
@@ -230,10 +246,15 @@ class ScheduleClassListCard extends StatelessWidget {
             Container(
               padding: spacing.edgeInsetsAll(spacing.xxl),
               decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.divider) : colors.primary.withValues(alpha: AppOpacity.micro),
+                color: isDark
+                    ? colors.surfaceContainerHighest
+                        .withValues(alpha: AppOpacity.divider)
+                    : colors.primary.withValues(alpha: AppOpacity.micro),
                 borderRadius: AppTokens.radius.lg,
                 border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.primary.withValues(alpha: AppOpacity.dim),
+                  color: isDark
+                      ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                      : colors.primary.withValues(alpha: AppOpacity.dim),
                   width: AppTokens.componentSize.divider,
                 ),
               ),
@@ -242,7 +263,9 @@ class ScheduleClassListCard extends StatelessWidget {
                   Container(
                     padding: spacing.edgeInsetsAll(spacing.lg),
                     decoration: BoxDecoration(
-                      color: isDark ? colors.primary.withValues(alpha: AppOpacity.medium) : colors.primary.withValues(alpha: AppOpacity.dim),
+                      color: isDark
+                          ? colors.primary.withValues(alpha: AppOpacity.medium)
+                          : colors.primary.withValues(alpha: AppOpacity.dim),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
@@ -264,7 +287,8 @@ class ScheduleClassListCard extends StatelessWidget {
                   Text(
                     'Add a class or scan your student card to get started.',
                     style: AppTokens.typography.bodySecondary.copyWith(
-                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
+                      color: colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.secondary),
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -274,66 +298,95 @@ class ScheduleClassListCard extends StatelessWidget {
           ] else ...[
             for (var g = 0; g < groups.length; g++) ...[
               if (groups[g].items.isNotEmpty) ...[
-                // Day Header - Premium redesign
-                Container(
-                  padding: spacing.edgeInsetsAll(spacing.md),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        colors.primary.withValues(alpha: AppOpacity.dim),
-                        colors.primary.withValues(alpha: AppOpacity.veryFaint),
+                // Day Header - Premium redesign with highlight support for newly added classes
+                Builder(builder: (context) {
+                  final dayNumber = groups[g].day;
+                  final isHighlightedDay = highlightDay == dayNumber;
+                  final palette =
+                      isDark ? AppTokens.darkColors : AppTokens.lightColors;
+                  final accentColor =
+                      isHighlightedDay ? palette.positive : colors.primary;
+
+                  return Container(
+                    key: dayKeyBuilder?.call(dayNumber),
+                    padding: spacing.edgeInsetsAll(spacing.md),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          accentColor.withValues(
+                              alpha: isHighlightedDay
+                                  ? AppOpacity.medium
+                                  : AppOpacity.dim),
+                          accentColor.withValues(alpha: AppOpacity.veryFaint),
+                        ],
+                      ),
+                      borderRadius: AppTokens.radius.md,
+                      border: Border.all(
+                        color: accentColor.withValues(
+                            alpha: isHighlightedDay
+                                ? AppOpacity.dim
+                                : AppOpacity.accent),
+                        width: isHighlightedDay
+                            ? AppTokens.componentSize.dividerThick
+                            : AppTokens.componentSize.divider,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          padding: spacing.edgeInsetsAll(spacing.sm),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(
+                                alpha: AppOpacity.medium),
+                            borderRadius: AppTokens.radius.sm,
+                          ),
+                          child: Icon(
+                            isHighlightedDay
+                                ? Icons.check_circle_rounded
+                                : Icons.calendar_today_rounded,
+                            size: AppTokens.iconSize.sm,
+                            color: accentColor,
+                          ),
+                        ),
+                        SizedBox(width: spacing.md),
+                        Expanded(
+                          child: Text(
+                            groups[g].label,
+                            style: AppTokens.typography.subtitle.copyWith(
+                              fontWeight: AppTokens.fontWeight.extraBold,
+                              letterSpacing: AppLetterSpacing.snug,
+                              color: isHighlightedDay
+                                  ? accentColor
+                                  : colors.onSurface,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          padding: spacing.edgeInsetsSymmetric(
+                              horizontal: spacing.sm + AppTokens.spacing.micro,
+                              vertical:
+                                  spacing.xs + AppTokens.spacing.microHalf),
+                          decoration: BoxDecoration(
+                            color: accentColor.withValues(
+                                alpha: AppOpacity.overlay),
+                            borderRadius: AppTokens.radius.sm,
+                          ),
+                          child: Text(
+                            isHighlightedDay
+                                ? 'Added!'
+                                : '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
+                            style: AppTokens.typography.caption.copyWith(
+                              fontWeight: AppTokens.fontWeight.bold,
+                              color: accentColor,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
-                    borderRadius: AppTokens.radius.md,
-                    border: Border.all(
-                      color: colors.primary.withValues(alpha: AppOpacity.accent),
-                      width: AppTokens.componentSize.divider,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: AppOpacity.medium),
-                          borderRadius: AppTokens.radius.sm,
-                        ),
-                        child: Icon(
-                          Icons.calendar_today_rounded,
-                          size: AppTokens.iconSize.sm,
-                          color: colors.primary,
-                        ),
-                      ),
-                      SizedBox(width: spacing.md),
-                      Expanded(
-                        child: Text(
-                          groups[g].label,
-                          style: AppTokens.typography.subtitle.copyWith(
-                            fontWeight: AppTokens.fontWeight.extraBold,
-                            letterSpacing: AppLetterSpacing.snug,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm + AppTokens.spacing.micro, vertical: spacing.xs + AppTokens.spacing.microHalf),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                          borderRadius: AppTokens.radius.sm,
-                        ),
-                        child: Text(
-                          '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
-                          style: AppTokens.typography.caption.copyWith(
-                            fontWeight: AppTokens.fontWeight.bold,
-                            color: colors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                  );
+                }),
                 SizedBox(height: spacing.md),
 
                 // Classes for this day
@@ -345,12 +398,14 @@ class ScheduleClassListCard extends StatelessWidget {
                     onOpenDetails: () => onOpenDetails(groups[g].items[i]),
                     onToggleEnabled: (enable) =>
                         onToggleEnabled(groups[g].items[i], enable),
-                    toggleBusy: pendingToggleIds.contains(groups[g].items[i].id),
+                    toggleBusy:
+                        pendingToggleIds.contains(groups[g].items[i].id),
                     onDelete: onDelete != null
                         ? () => onDelete!(groups[g].items[i].id)
                         : null,
                   ),
-                  if (i != groups[g].items.length - 1) SizedBox(height: spacing.sm + AppTokens.spacing.micro),
+                  if (i != groups[g].items.length - 1)
+                    SizedBox(height: spacing.sm + AppTokens.spacing.micro),
                 ],
                 if (g != groups.length - 1) SizedBox(height: spacing.xl),
               ],
@@ -362,8 +417,7 @@ class ScheduleClassListCard extends StatelessWidget {
   }
 }
 
-class ScheduleGroupSliver extends StatelessWidget
-    implements ScreenShellSliver {
+class ScheduleGroupSliver extends StatelessWidget implements ScreenShellSliver {
   const ScheduleGroupSliver({
     super.key,
     required this.header,
@@ -512,11 +566,11 @@ class ScheduleGroupCard extends StatelessWidget {
               onToggleEnabled: (enable) =>
                   onToggleEnabled(group.items[i], enable),
               toggleBusy: pendingToggleIds.contains(group.items[i].id),
-              onDelete: onDelete != null
-                  ? () => onDelete!(group.items[i].id)
-                  : null,
+              onDelete:
+                  onDelete != null ? () => onDelete!(group.items[i].id) : null,
             ),
-            if (i != group.items.length - 1) SizedBox(height: spacing.sm + AppTokens.spacing.micro),
+            if (i != group.items.length - 1)
+              SizedBox(height: spacing.sm + AppTokens.spacing.micro),
           ],
         ],
       ),
@@ -555,8 +609,12 @@ class ScheduleSummaryCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -745,7 +803,9 @@ class _ScheduleHighlightHero extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.md, vertical: spacing.sm - spacing.micro),
+                padding: spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.md,
+                    vertical: spacing.sm - spacing.micro),
                 decoration: BoxDecoration(
                   color: foreground.withValues(alpha: AppOpacity.border),
                   borderRadius: AppTokens.radius.pill,
@@ -763,7 +823,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: foreground.withValues(alpha: AppOpacity.subtle),
+                              color: foreground.withValues(
+                                  alpha: AppOpacity.subtle),
                               blurRadius: AppTokens.shadow.xs,
                               spreadRadius: AppTokens.componentSize.divider,
                             ),
@@ -776,7 +837,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                         size: AppTokens.iconSize.sm,
                         color: foreground,
                       ),
-                    if (!isLive) SizedBox(width: spacing.xs + AppTokens.spacing.micro),
+                    if (!isLive)
+                      SizedBox(width: spacing.xs + AppTokens.spacing.micro),
                     Text(
                       statusLabel,
                       style: AppTokens.typography.caption.copyWith(
@@ -801,7 +863,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
             ],
           ),
           SizedBox(height: spacing.xl),
-          
+
           // Class title
           Text(
             subject,
@@ -815,7 +877,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
             ),
           ),
           SizedBox(height: spacing.lg + AppTokens.spacing.micro),
-          
+
           // Time
           Row(
             children: [
@@ -847,7 +909,8 @@ class _ScheduleHighlightHero extends StatelessWidget {
                     Text(
                       dateLabel,
                       style: AppTokens.typography.caption.copyWith(
-                        color: foreground.withValues(alpha: AppOpacity.secondary),
+                        color:
+                            foreground.withValues(alpha: AppOpacity.secondary),
                       ),
                     ),
                   ],
@@ -855,7 +918,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
               ),
             ],
           ),
-          
+
           if (location.isNotEmpty) ...[
             SizedBox(height: spacing.md + AppTokens.spacing.micro),
             Row(
@@ -887,7 +950,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
               ],
             ),
           ],
-          
+
           if (hasInstructor) ...[
             SizedBox(height: spacing.lg),
             Container(
@@ -976,7 +1039,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
+              color: colors.onSurfaceVariant
+                  .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
           ),
@@ -1010,7 +1074,8 @@ class _ScheduleHeroChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.pill,
-        border: Border.all(color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
+        border: Border.all(
+            color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1029,7 +1094,6 @@ class _ScheduleHeroChip extends StatelessWidget {
     );
   }
 }
-
 
 class ScheduleRow extends StatelessWidget {
   const ScheduleRow({
@@ -1078,35 +1142,37 @@ class ScheduleRow extends StatelessWidget {
     final isNext = urgency == UrgencyLevel.imminent;
 
     final timeFormat = DateFormat('h:mm a');
-    final timeRange = '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
+    final timeRange =
+        '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
 
     // Build metadata items
     final metadata = <MetadataItem>[
       MetadataItem(icon: Icons.access_time_rounded, label: timeRange),
       if (location.isNotEmpty)
-        MetadataItem(icon: Icons.location_on_outlined, label: location, expanded: true),
+        MetadataItem(
+            icon: Icons.location_on_outlined, label: location, expanded: true),
     ];
 
     // Build trailing widget (badge or toggle)
     Widget? trailing;
     StatusBadge? badge;
-    
+
     if (isLive) {
       badge = StatusBadge(
         label: 'Live',
         variant: StatusBadgeVariant.live,
-        accent: isCustom && !isHidden ? palette.positive : null,
       );
     } else if (isNext) {
       badge = StatusBadge(
         label: 'Next',
         variant: StatusBadgeVariant.next,
-        accent: isCustom && !isHidden ? palette.positive : null,
       );
     } else {
-      final accent = isCustom ? palette.positive : colors.primary;
-      final disabledThumb = palette.danger.withValues(alpha: AppOpacity.secondary);
-      final disabledTrack = colors.errorContainer.withValues(alpha: AppOpacity.medium);
+      final accent = colors.primary;
+      final disabledThumb =
+          palette.danger.withValues(alpha: AppOpacity.secondary);
+      final disabledTrack =
+          colors.errorContainer.withValues(alpha: AppOpacity.medium);
       final trackColor = WidgetStateProperty.resolveWith<Color?>(
         (states) {
           if (states.contains(WidgetState.selected)) return accent;
@@ -1121,7 +1187,9 @@ class ScheduleRow extends StatelessWidget {
       );
       final outlineColor = WidgetStateProperty.resolveWith<Color?>(
         (states) {
-          if (isHidden) return palette.danger.withValues(alpha: AppOpacity.borderEmphasis);
+          if (isHidden) {
+            return palette.danger.withValues(alpha: AppOpacity.borderEmphasis);
+          }
           return Colors.transparent;
         },
       );
@@ -1143,13 +1211,14 @@ class ScheduleRow extends StatelessWidget {
       isActive: !isHidden,
       isStrikethrough: isHidden,
       isHighlighted: AppUrgency.shouldHighlight(urgency),
-      highlightColor: isCustom && !isHidden ? palette.positive : null,
       tags: isCustom
           ? [
               StatusBadge(
                 label: 'Custom',
-                variant: isHidden ? StatusBadgeVariant.overdue : StatusBadgeVariant.next,
-                accent: isHidden ? palette.danger : palette.positive,
+                variant: isHidden
+                    ? StatusBadgeVariant.overdue
+                    : StatusBadgeVariant.next,
+                accent: isHidden ? null : palette.positive,
                 compact: true,
               ),
             ]
@@ -1183,7 +1252,8 @@ class ScheduleRow extends StatelessWidget {
               final confirm = await AppModal.showConfirmDialog(
                 context: context,
                 title: 'Delete custom class?',
-                message: 'This class will be removed from your schedules and reminders.',
+                message:
+                    'This class will be removed from your schedules and reminders.',
                 confirmLabel: 'Delete',
                 isDanger: true,
               );

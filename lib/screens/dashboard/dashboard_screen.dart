@@ -47,7 +47,7 @@ class DashboardScreen extends StatefulWidget {
     this.scheduleLoaderOverride,
     this.remindersLoaderOverride,
     this.debugForceScheduleError = false,
-  })  : _remindersOverride = remindersApi;
+  }) : _remindersOverride = remindersApi;
 
   final sched.ScheduleApi api;
   final RemindersApi? _remindersOverride;
@@ -217,7 +217,8 @@ class DashboardScreenState extends State<DashboardScreen>
       final profile = await ProfileCache.load(forceRefresh: refresh);
       _applyProfile(profile);
     } catch (e, stack) {
-      TelemetryService.instance.logError('dashboard_load_profile', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('dashboard_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -278,7 +279,8 @@ class DashboardScreenState extends State<DashboardScreen>
 
       final shouldSkipRemote = softRefresh &&
           _lastScheduleFetchAt != null &&
-          now.difference(_lastScheduleFetchAt!) < AppTokens.durations.fetchDebounce;
+          now.difference(_lastScheduleFetchAt!) <
+              AppTokens.durations.fetchDebounce;
       if (shouldSkipRemote) {
         return;
       }
@@ -290,7 +292,8 @@ class DashboardScreenState extends State<DashboardScreen>
       _lastScheduleFetchAt = DateTime.now();
       await _applySchedule(List<sched.ClassItem>.from(fresh));
     } catch (e, stack) {
-      TelemetryService.instance.logError('dashboard_load_schedule', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('dashboard_load_schedule', error: e, stack: stack);
       if (!mounted) return;
       setState(() {
         _scheduleLoading = false;
@@ -348,7 +351,8 @@ class DashboardScreenState extends State<DashboardScreen>
         _lastRefreshedAt = DateTime.now();
       });
     } catch (e, stack) {
-      TelemetryService.instance.logError('dashboard_load_reminders', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('dashboard_load_reminders', error: e, stack: stack);
       if (!mounted) return;
       setState(() {
         _reminders = const [];
@@ -368,6 +372,8 @@ class DashboardScreenState extends State<DashboardScreen>
         case 'Today':
           return item.weekday == weekday;
         case 'This week':
+          return true;
+        case 'All':
           return true;
         default:
           return true;
@@ -436,6 +442,27 @@ class DashboardScreenState extends State<DashboardScreen>
     });
     _recomputeFilteredClasses();
     await _loadScheduleFromSupabase(softRefresh: true);
+  }
+
+  Future<void> _addCustomClass() async {
+    final media = MediaQuery.of(context);
+    final spacing = AppTokens.spacing;
+    final created = await showOverlaySheet<int?>(
+      context: context,
+      alignment: Alignment.center,
+      barrierDismissible: false,
+      dimBackground: true,
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: media.padding.top + spacing.xxl,
+        bottom: media.padding.bottom + spacing.xxl,
+      ),
+      builder: (_) => AddClassSheet(api: widget.api),
+    );
+    if (created != null) {
+      await _loadScheduleFromSupabase(softRefresh: true);
+    }
   }
 
   Future<void> _editCustomClass(sched.ClassItem schedItem) async {
@@ -588,7 +615,8 @@ class DashboardScreenState extends State<DashboardScreen>
       await _remindersApi.toggleCompleted(entry, completed);
       await _loadReminders();
     } catch (e, stack) {
-      TelemetryService.instance.logError('dashboard_toggle_reminder', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('dashboard_toggle_reminder', error: e, stack: stack);
       if (!mounted) return;
       showAppSnackBar(
         context,
@@ -609,7 +637,8 @@ class DashboardScreenState extends State<DashboardScreen>
       await _remindersApi.snoozeReminder(entry.id, const Duration(hours: 1));
       await _loadReminders();
     } catch (e, stack) {
-      TelemetryService.instance.logError('dashboard_snooze_reminder', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('dashboard_snooze_reminder', error: e, stack: stack);
       if (!mounted) return;
       showAppSnackBar(
         context,
@@ -820,8 +849,7 @@ class DashboardScreenState extends State<DashboardScreen>
     required ValueChanged<String> onSearchChanged,
   }) {
     final sections = <_DashboardSectionBuilder>[];
-    void addSection(_DashboardSectionBuilder builder) =>
-        sections.add(builder);
+    void addSection(_DashboardSectionBuilder builder) => sections.add(builder);
     void addSpacing(double value) =>
         sections.add((_) => SizedBox(height: value));
 
@@ -878,8 +906,6 @@ class DashboardScreenState extends State<DashboardScreen>
       );
     }
 
-
-
     addSection(
       (_) => _DashboardSchedulePeek(
         occurrences: scheduleOccurrences,
@@ -892,6 +918,7 @@ class DashboardScreenState extends State<DashboardScreen>
         searchController: searchController,
         onSearchChanged: onSearchChanged,
         onOpenSchedules: _openSchedules,
+        onAddClass: _addCustomClass,
         refreshing: _scheduleLoading || _remindersLoading,
         searchFocusNode: _searchFocusNode,
         searchActive: _searchActive,

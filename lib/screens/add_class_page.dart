@@ -19,11 +19,12 @@ import '../utils/schedule_overlap.dart';
 
 const _scope = 'AddClass';
 
-/// Validates class time range. Overnight classes (end before start) are allowed.
+/// Validates class time range. End time must be after start time.
 bool isValidClassTimeRange(TimeOfDay start, TimeOfDay end) {
-  // Always valid - overnight classes (e.g., 11 PM - 1 AM) are supported.
-  // The overlap detection in schedule_overlap.dart handles overnight spans.
-  return true;
+  final startMinutes = start.hour * 60 + start.minute;
+  final endMinutes = end.hour * 60 + end.minute;
+  // End time must be strictly after start time
+  return endMinutes > startMinutes;
 }
 
 class AddClassPage extends StatefulWidget {
@@ -85,7 +86,8 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
       final profile = await ProfileCache.load(forceRefresh: refresh);
       _applyProfile(profile);
     } catch (e, stack) {
-      TelemetryService.instance.logError('add_class_load_profile', error: e, stack: stack);
+      TelemetryService.instance
+          .logError('add_class_load_profile', error: e, stack: stack);
       if (!mounted) return;
       if (!_profileHydrated) {
         setState(() => _profileHydrated = true);
@@ -190,7 +192,8 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
     final spacing = AppTokens.spacing;
 
     final menuButton = _buildMenuButton(
-      iconColor: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+      iconColor:
+          colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
     );
 
     final hero = Column(
@@ -229,14 +232,15 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           subtitle: _isEditing
               ? 'Update the session details for this custom class.'
               : 'Enter the session details. You can edit or remove custom classes from the schedules tab later.',
-          trailing: SizedBox(height: AppTokens.componentSize.buttonSm, child: menuButton),
+          trailing: SizedBox(
+              height: AppTokens.componentSize.buttonSm, child: menuButton),
           child: AddClassForm(
             key: _formKey,
             api: widget.api,
             initialClass: widget.initialClass,
             isSheet: false,
             onCancel: () => Navigator.of(context).maybePop(),
-            onSaved: (created) => Navigator.of(context).pop(created),
+            onSaved: (day) => Navigator.of(context).pop(day),
           ),
         ),
       ),
@@ -315,13 +319,17 @@ class _AddClassSheetState extends State<AddClassSheet> {
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
+                    ? theme.colorScheme.outline
+                        .withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+                width: theme.brightness == Brightness.dark
+                    ? AppTokens.componentSize.divider
+                    : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.statusBg),
+                  color: theme.colorScheme.shadow
+                      .withValues(alpha: AppOpacity.statusBg),
                   blurRadius: AppTokens.shadow.xxl,
                   offset: AppShadowOffset.modal,
                 ),
@@ -344,8 +352,7 @@ class _AddClassSheetState extends State<AddClassSheet> {
                           isSheet: true,
                           includeButtons: false,
                           onCancel: () => Navigator.of(context).maybePop(),
-                          onSaved: (created) =>
-                              Navigator.of(context).pop(created),
+                          onSaved: (day) => Navigator.of(context).pop(day),
                         ),
                       ),
                     ),
@@ -462,7 +469,8 @@ class _RemindersStyleShell extends StatelessWidget {
               ),
               if (trailing != null) ...[
                 SizedBox(width: AppTokens.spacing.xs),
-                SizedBox(height: AppTokens.componentSize.buttonSm, child: trailing!),
+                SizedBox(
+                    height: AppTokens.componentSize.buttonSm, child: trailing!),
               ],
             ],
           ),
@@ -470,13 +478,15 @@ class _RemindersStyleShell extends StatelessWidget {
           Container(
             padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.lg),
             decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest.withValues(alpha: AppOpacity.barrier),
+              color: colors.surfaceContainerHighest
+                  .withValues(alpha: AppOpacity.barrier),
               borderRadius: AppTokens.radius.lg,
             ),
             child: Row(
               children: [
                 Icon(Icons.class_outlined,
-                    color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent)),
+                    color: colors.onSurfaceVariant
+                        .withValues(alpha: AppOpacity.prominent)),
                 SizedBox(width: AppTokens.spacing.md),
                 Expanded(
                   child: Text(
@@ -511,7 +521,10 @@ class AddClassForm extends StatefulWidget {
   final ScheduleApi api;
   final ClassItem? initialClass;
   final VoidCallback onCancel;
-  final ValueChanged<bool> onSaved;
+
+  /// Called when the class is saved. Passes the weekday (1-7) of the saved class,
+  /// or null if cancelled/failed. This allows callers to scroll to the new class.
+  final ValueChanged<int?> onSaved;
   final bool isSheet;
   final bool includeButtons;
 
@@ -724,7 +737,7 @@ class _AddClassFormState extends State<AddClassForm> {
 
     // Fetch random class from DB
     final randomClass = await widget.api.fetchRandomClass();
-    
+
     if (!mounted) return;
 
     setState(() {
@@ -750,14 +763,21 @@ class _AddClassFormState extends State<AddClassForm> {
 
   Future<void> _save() async {
     if (!_form.currentState!.validate()) return;
-    // Note: overnight classes (end before start) are now supported.
-    // The overlap detection handles spans across midnight correctly.
+
+    // Validate that end time is after start time
+    if (!isValidClassTimeRange(_start, _end)) {
+      showAppSnackBar(
+        context,
+        'End time must be after start time.',
+        type: AppSnackBarType.error,
+      );
+      return;
+    }
 
     final instructorName = _instructorText.text.trim();
     final trimmedTitle = _title.text.trim();
     final trimmedRoom = _room.text.trim();
-    final sanitizedInstructor =
-        instructorName.isEmpty ? null : instructorName;
+    final sanitizedInstructor = instructorName.isEmpty ? null : instructorName;
     final day = _day;
     final start = _format(_start);
     final end = _format(_end);
@@ -778,12 +798,14 @@ class _AddClassFormState extends State<AddClassForm> {
     );
     for (final existing in cached) {
       if (!existing.enabled) continue;
-      if (widget.initialClass != null && existing.id == widget.initialClass!.id) {
+      if (widget.initialClass != null &&
+          existing.id == widget.initialClass!.id) {
         continue;
       }
       if (existing.day != day) continue;
       if (classesOverlap(proposed, existing)) {
-        final conflictLabel = existing.title ?? existing.code ?? 'another class';
+        final conflictLabel =
+            existing.title ?? existing.code ?? 'another class';
         showAppSnackBar(
           context,
           'This class overlaps with $conflictLabel. Adjust the time or day.',
@@ -821,15 +843,15 @@ class _AddClassFormState extends State<AddClassForm> {
           instructorAvatar: _selectedInstructorAvatar,
         );
       }
-      
+
       // Ensure the new class is visible to the scheduler
       await widget.api.refreshMyClasses();
       // Short delay to allow DB propagation if needed
       await Future.delayed(AppMotionSystem.deliberate);
-      
+
       await NotifScheduler.resync(api: widget.api);
       if (!mounted) return;
-      widget.onSaved(true);
+      widget.onSaved(day);
     } catch (e) {
       if (!mounted) return;
       showAppSnackBar(
@@ -856,7 +878,8 @@ class _AddClassFormState extends State<AddClassForm> {
     final banner = () {
       if (_loadingInstructors) {
         return Container(
-          padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lgPlus),
+          padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg, vertical: spacing.lgPlus),
           decoration: BoxDecoration(
             borderRadius: AppTokens.radius.lg,
             color: colors.surfaceContainerHigh,
@@ -1012,8 +1035,9 @@ class _AddClassFormState extends State<AddClassForm> {
           )
         : const SizedBox.shrink();
 
-    final trailingGap =
-        widget.isSheet ? SizedBox(width: AppTokens.spacing.quad) : SizedBox(width: AppTokens.spacing.md);
+    final trailingGap = widget.isSheet
+        ? SizedBox(width: AppTokens.spacing.quad)
+        : SizedBox(width: AppTokens.spacing.md);
 
     return Column(
       crossAxisAlignment:
@@ -1060,7 +1084,8 @@ class _AddClassFormState extends State<AddClassForm> {
     final fillColor = theme.brightness == Brightness.dark
         ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.prominent)
         : colors.surfaceContainerHigh;
-    final borderColor = colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
+    final borderColor =
+        colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder);
 
     InputDecoration decorationFor(String label, {String? hint}) =>
         InputDecoration(
@@ -1068,8 +1093,8 @@ class _AddClassFormState extends State<AddClassForm> {
           hintText: hint,
           filled: true,
           fillColor: fillColor,
-          contentPadding:
-              spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.lg),
+          contentPadding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg, vertical: spacing.lg),
           border: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
             borderSide: BorderSide(color: borderColor),
@@ -1080,7 +1105,9 @@ class _AddClassFormState extends State<AddClassForm> {
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: AppTokens.radius.lg,
-            borderSide: BorderSide(color: colors.primary, width: AppTokens.componentSize.dividerBold),
+            borderSide: BorderSide(
+                color: colors.primary,
+                width: AppTokens.componentSize.dividerBold),
           ),
         );
 
@@ -1103,7 +1130,9 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+            width: theme.brightness == Brightness.dark
+                ? AppTokens.componentSize.divider
+                : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
@@ -1163,7 +1192,9 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+            width: theme.brightness == Brightness.dark
+                ? AppTokens.componentSize.divider
+                : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
@@ -1187,12 +1218,16 @@ class _AddClassFormState extends State<AddClassForm> {
               onTap: _submitting ? null : _pickDay,
               borderRadius: AppTokens.radius.lg,
               child: Container(
-                padding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg, vertical: spacing.md + AppTokens.componentSize.paddingAdjust),
+                padding: spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.lg,
+                    vertical:
+                        spacing.md + AppTokens.componentSize.paddingAdjust),
                 decoration: BoxDecoration(
                   color: colors.surfaceContainerHigh,
                   borderRadius: AppTokens.radius.lg,
                   border: Border.all(
-                    color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+                    color: colors.outlineVariant
+                        .withValues(alpha: AppOpacity.ghost),
                   ),
                 ),
                 child: Row(
@@ -1268,7 +1303,9 @@ class _AddClassFormState extends State<AddClassForm> {
             color: theme.brightness == Brightness.dark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
                 : colors.outline,
-            width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+            width: theme.brightness == Brightness.dark
+                ? AppTokens.componentSize.divider
+                : AppTokens.componentSize.dividerThin,
           ),
           boxShadow: theme.brightness == Brightness.dark
               ? null
@@ -1300,7 +1337,8 @@ class _AddClassFormState extends State<AddClassForm> {
               child: FilledButton(
                 onPressed: _submitting ? null : _save,
                 style: FilledButton.styleFrom(
-                  minimumSize: Size.fromHeight(AppTokens.componentSize.buttonSm),
+                  minimumSize:
+                      Size.fromHeight(AppTokens.componentSize.buttonSm),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppTokens.radius.xl,
                   ),
@@ -1317,7 +1355,8 @@ class _AddClassFormState extends State<AddClassForm> {
               child: OutlinedButton(
                 onPressed: _submitting ? null : widget.onCancel,
                 style: OutlinedButton.styleFrom(
-                  minimumSize: Size.fromHeight(AppTokens.componentSize.buttonSm),
+                  minimumSize:
+                      Size.fromHeight(AppTokens.componentSize.buttonSm),
                   shape: RoundedRectangleBorder(
                     borderRadius: AppTokens.radius.xl,
                   ),
@@ -1339,6 +1378,7 @@ class _AddClassFormState extends State<AddClassForm> {
       ),
     );
   }
+
   Future<void> _pickDay() async {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
@@ -1474,7 +1514,8 @@ class _TimeField extends StatelessWidget {
                 color: colors.primary.withValues(alpha: AppOpacity.statusBg),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: colors.primary, size: AppTokens.iconSize.sm),
+              child: Icon(icon,
+                  color: colors.primary, size: AppTokens.iconSize.sm),
             ),
             SizedBox(width: AppTokens.spacing.md),
             Expanded(

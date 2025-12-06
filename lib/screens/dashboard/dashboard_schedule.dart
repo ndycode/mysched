@@ -17,6 +17,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     required this.onSearchClear,
     required this.onSearchChanged,
     required this.onOpenSchedules,
+    required this.onAddClass,
     required this.refreshing,
     required this.onRefresh,
     required this.onViewDetails,
@@ -36,6 +37,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
   final VoidCallback onSearchClear;
   final ValueChanged<String> onSearchChanged;
   final VoidCallback onOpenSchedules;
+  final VoidCallback onAddClass;
   final bool refreshing;
   final Future<void> Function() onRefresh;
   final ValueChanged<ClassItem> onViewDetails;
@@ -55,7 +57,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
       }
     }
 
-    final display = selectedScope == 'This week'
+    final display = (selectedScope == 'This week' || selectedScope == 'All')
         ? <ClassOccurrence>[...upcoming, ...completed]
         : List<ClassOccurrence>.from(occurrences);
 
@@ -63,7 +65,9 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final highlightIndex = display
         .indexWhere((occ) => occ.end.isAfter(now) || occ.isOngoingAt(now));
     final targetIndex = highlightIndex >= 0 ? highlightIndex : -1;
-    final totalToShow = hasItems ? math.min(display.length, AppDisplayLimits.schedulePreviewCount) : 0;
+    final totalToShow = hasItems
+        ? math.min(display.length, AppDisplayLimits.schedulePreviewCount)
+        : 0;
     final displaySignature = hasItems
         ? display
             .take(totalToShow)
@@ -81,8 +85,12 @@ class _DashboardSchedulePeek extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -114,7 +122,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   ),
                   borderRadius: AppTokens.radius.md,
                   border: Border.all(
-                    color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
+                    color: colors.primary
+                        .withValues(alpha: AppOpacity.borderEmphasis),
                     width: AppTokens.componentSize.dividerThick,
                   ),
                 ),
@@ -156,7 +165,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
                     onPressed: refreshing ? null : onRefresh,
                     tooltip: 'Refresh',
                     style: IconButton.styleFrom(
-                      minimumSize: Size.square(AppTokens.componentSize.buttonXs),
+                      minimumSize:
+                          Size.square(AppTokens.componentSize.buttonXs),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: colors.onSurfaceVariant,
@@ -171,7 +181,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
                             height: AppTokens.componentSize.badgeMd,
                             child: CircularProgressIndicator(
                               strokeWidth: AppInteraction.progressStrokeWidth,
-                              valueColor: AlwaysStoppedAnimation(colors.primary),
+                              valueColor:
+                                  AlwaysStoppedAnimation(colors.primary),
                             ),
                           )
                         : Icon(
@@ -187,9 +198,12 @@ class _DashboardSchedulePeek extends StatelessWidget {
           Text(
             scopeLabel == 'Today'
                 ? 'Stay on top of today\'s classes and make changes instantly.'
-                : 'Review your weekly plan, add sessions, or rescan as needed.',
+                : scopeLabel == 'All'
+                    ? 'View all your scheduled classes at a glance.'
+                    : 'Review your weekly plan, add sessions, or rescan as needed.',
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+              color:
+                  colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
             ),
           ),
           SizedBox(height: spacing.lg),
@@ -235,8 +249,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 padding: WidgetStateProperty.all(
                   spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.xl,
-                    vertical: spacing.smMd,
+                    horizontal: spacing.md,
+                    vertical: spacing.sm,
                   ),
                 ),
                 side: WidgetStateProperty.resolveWith(
@@ -250,22 +264,28 @@ class _DashboardSchedulePeek extends StatelessWidget {
                 backgroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-                      : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.barrier),
+                      : colors.surfaceContainerHighest
+                          .withValues(alpha: AppOpacity.barrier),
                 ),
                 foregroundColor: WidgetStateProperty.resolveWith(
                   (states) => states.contains(WidgetState.selected)
                       ? colors.primary
-                      : colors.onSurfaceVariant.withValues(alpha: AppOpacity.prominent),
+                      : colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
               segments: const [
                 ButtonSegment(
                   value: 'Today',
-                  label: Text('Today'),
+                  label: Text('Today', softWrap: false),
                 ),
                 ButtonSegment(
                   value: 'This week',
-                  label: Text('This week'),
+                  label: Text('This week', softWrap: false),
+                ),
+                ButtonSegment(
+                  value: 'All',
+                  label: Text('All', softWrap: false),
                 ),
               ],
               selected: <String>{selectedScope},
@@ -326,10 +346,18 @@ class _DashboardSchedulePeek extends StatelessWidget {
                       width: double.infinity,
                       padding: spacing.edgeInsetsAll(spacing.xxl),
                       decoration: BoxDecoration(
-                        color: isDark ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.divider) : colors.primary.withValues(alpha: AppOpacity.micro),
+                        color: isDark
+                            ? colors.surfaceContainerHighest
+                                .withValues(alpha: AppOpacity.divider)
+                            : colors.primary
+                                .withValues(alpha: AppOpacity.micro),
                         borderRadius: AppTokens.radius.lg,
                         border: Border.all(
-                          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.primary.withValues(alpha: AppOpacity.dim),
+                          color: isDark
+                              ? colors.outline
+                                  .withValues(alpha: AppOpacity.overlay)
+                              : colors.primary
+                                  .withValues(alpha: AppOpacity.dim),
                           width: AppTokens.componentSize.divider,
                         ),
                       ),
@@ -338,7 +366,11 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           Container(
                             padding: spacing.edgeInsetsAll(spacing.lg),
                             decoration: BoxDecoration(
-                              color: isDark ? colors.primary.withValues(alpha: AppOpacity.medium) : colors.primary.withValues(alpha: AppOpacity.dim),
+                              color: isDark
+                                  ? colors.primary
+                                      .withValues(alpha: AppOpacity.medium)
+                                  : colors.primary
+                                      .withValues(alpha: AppOpacity.dim),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -355,7 +387,9 @@ class _DashboardSchedulePeek extends StatelessWidget {
                                 ? 'No matches found'
                                 : selectedScope == 'Today'
                                     ? 'No classes today'
-                                    : 'No classes this week',
+                                    : selectedScope == 'All'
+                                        ? 'No classes yet'
+                                        : 'No classes this week',
                             style: AppTokens.typography.subtitle.copyWith(
                               fontWeight: AppTokens.fontWeight.bold,
                               color: colors.onSurfaceVariant,
@@ -398,10 +432,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final dividerColor = colors.outlineVariant.withValues(
-      alpha: theme.brightness == Brightness.dark ? AppOpacity.border : AppOpacity.overlay,
+      alpha: theme.brightness == Brightness.dark
+          ? AppOpacity.border
+          : AppOpacity.overlay,
     );
 
-    Widget buildSectionHeader(String label, Color color, IconData icon, int count) {
+    Widget buildSectionHeader(
+        String label, Color color, IconData icon, int count) {
       final isDark = theme.brightness == Brightness.dark;
       return Padding(
         padding: spacing.edgeInsetsOnly(bottom: spacing.md),
@@ -504,7 +541,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
       );
 
       if (i != totalToShow - 1) {
-        widgets.add(SizedBox(height: AppTokens.spacing.sm + AppTokens.spacing.micro));
+        widgets.add(
+            SizedBox(height: AppTokens.spacing.sm + AppTokens.spacing.micro));
       }
     }
 
@@ -512,11 +550,27 @@ class _DashboardSchedulePeek extends StatelessWidget {
   }
 
   Widget _buildReviewButton() {
-    return PrimaryButton(
-      label: 'Review schedule',
-      onPressed: refreshing ? null : onOpenSchedules,
-      minHeight: AppTokens.componentSize.buttonLg,
-      expanded: true,
+    final spacing = AppTokens.spacing;
+    return Row(
+      children: [
+        Expanded(
+          child: PrimaryButton(
+            label: 'Add class',
+            onPressed: refreshing ? null : onAddClass,
+            minHeight: AppTokens.componentSize.buttonMd,
+            expanded: true,
+          ),
+        ),
+        SizedBox(width: spacing.md),
+        Expanded(
+          child: SecondaryButton(
+            label: 'Schedules',
+            onPressed: refreshing ? null : onOpenSchedules,
+            minHeight: AppTokens.componentSize.buttonMd,
+            expanded: true,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -542,20 +596,22 @@ class _ScheduleRow extends StatelessWidget {
     final instructor = item.instructor.trim();
     final instructorAvatar = (item.instructorAvatar ?? '').trim();
     final isCustom = item.isCustom;
-    
+
     final isOngoing = occurrence.isOngoingAt(now);
     final isPast = occurrence.end.isBefore(now);
     final isNext = highlight && !isOngoing && !isPast;
     final isDisabled = !item.enabled;
-    
+
     final timeFormat = DateFormat('h:mm a');
-    final timeRange = '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
+    final timeRange =
+        '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
 
     // Build metadata items
     final metadata = <MetadataItem>[
       MetadataItem(icon: Icons.access_time_rounded, label: timeRange),
       if (location.isNotEmpty)
-        MetadataItem(icon: Icons.location_on_outlined, label: location, expanded: true),
+        MetadataItem(
+            icon: Icons.location_on_outlined, label: location, expanded: true),
     ];
 
     // Build status badge
@@ -568,16 +624,15 @@ class _ScheduleRow extends StatelessWidget {
       badge = StatusBadge(
         label: 'Live',
         variant: StatusBadgeVariant.live,
-        accent: isCustom && !isDisabled ? palette.positive : null,
       );
     } else if (isNext) {
       badge = StatusBadge(
         label: 'Next',
         variant: StatusBadgeVariant.next,
-        accent: isCustom && !isDisabled ? palette.positive : null,
       );
     } else if (isPast) {
-      badge = const StatusBadge(label: 'Done', variant: StatusBadgeVariant.done);
+      badge =
+          const StatusBadge(label: 'Done', variant: StatusBadgeVariant.done);
     }
 
     return EntityTile(

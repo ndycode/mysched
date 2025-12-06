@@ -217,6 +217,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.newReminder),
+              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
                 padding: spacing.edgeInsetsSymmetric(
                   horizontal: spacing.lg,
@@ -259,6 +261,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.toggleCompleted),
+              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
                 padding: spacing.edgeInsetsSymmetric(
                   horizontal: spacing.lg,
@@ -323,6 +327,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             color: Colors.transparent,
             child: InkWell(
               onTap: () => Navigator.pop(context, _ReminderSummaryMenu.resetReminders),
+              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
               child: Padding(
                 padding: spacing.edgeInsetsSymmetric(
                   horizontal: spacing.lg,

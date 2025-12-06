@@ -263,6 +263,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return PopupMenuButton<ScheduleAction>(
       key: const ValueKey('schedule-actions-menu'),
@@ -285,7 +286,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
           child: Icon(
             Icons.more_vert_rounded,
             size: AppTokens.iconSize.md,
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
           ),
         ),
       ),
@@ -314,13 +315,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                           AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
                       decoration: BoxDecoration(
                         color:
-                            colors.error.withValues(alpha: AppOpacity.overlay),
+                            palette.danger.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
                       ),
                       child: Icon(
                         Icons.picture_as_pdf_outlined,
                         size: AppTokens.iconSize.md,
-                        color: colors.error,
+                        color: palette.danger,
                       ),
                     ),
                     SizedBox(
@@ -496,6 +497,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final spacing = AppTokens.spacing;
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final media = MediaQuery.of(context);
 
     return AnimatedBuilder(
@@ -609,7 +612,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                   onPrimary: () => _controller.retryPendingExport(
                     onInfo: (msg) => _notify(msg),
                   ),
-                  tintColor: colors.error,
+                  tintColor: palette.danger,
                 ),
               ),
             );
@@ -732,7 +735,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                         'Get started by adding your first class or scanning your student card using the buttons above',
                         style: AppTokens.typography.bodySecondary.copyWith(
                           height: AppLineHeight.body,
-                          color: colors.onSurfaceVariant,
+                          color: palette.muted,
                         ),
                         textAlign: TextAlign.center,
                       ),

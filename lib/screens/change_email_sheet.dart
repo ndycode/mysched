@@ -201,11 +201,11 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
                                   width: double.infinity,
                                   padding: spacing.edgeInsetsAll(spacing.lg),
                                   decoration: BoxDecoration(
-                                    color: colors.error.withValues(
+                                    color: palette.danger.withValues(
                                         alpha: AppOpacity.highlight),
                                     borderRadius: AppTokens.radius.lg,
                                     border: Border.all(
-                                      color: colors.error.withValues(
+                                      color: palette.danger.withValues(
                                           alpha: AppOpacity.overlay),
                                       width:
                                           AppTokens.componentSize.dividerThin,
@@ -217,7 +217,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
                                     children: [
                                       Icon(
                                         Icons.error_outline_rounded,
-                                        color: colors.error,
+                                        color: palette.danger,
                                         size: AppTokens.iconSize.md,
                                       ),
                                       SizedBox(width: spacing.md),

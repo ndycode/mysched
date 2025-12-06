@@ -34,6 +34,7 @@ class StatusRow extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = colors.primary;
 
     return GestureDetector(
@@ -87,7 +88,7 @@ class StatusRow extends StatelessWidget {
                   Text(
                     description,
                     style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                       fontSize: AppTokens.typography.caption.fontSize,
                     ),
                   ),
@@ -113,6 +114,7 @@ class _StatusPill extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final isOk = status == true;
     final isUnknown = status == null;
     final label = isUnknown
@@ -130,17 +132,17 @@ class _StatusPill extends StatelessWidget {
       bg = isDark
           ? colors.surfaceContainerHighest
           : colors.surfaceContainerHigh;
-      fg = colors.onSurfaceVariant;
+      fg = palette.muted;
     } else if (isOk) {
       bg = colors.primary.withValues(alpha: isDark ? AppOpacity.darkTint : AppOpacity.overlay);
       fg = colors.primary;
     } else {
       bg = optional
           ? (isDark
-              ? AppTokens.lightColors.warning.withValues(alpha: AppOpacity.darkTint)
-              : AppTokens.lightColors.warning.withValues(alpha: AppOpacity.overlay))
-          : colors.errorContainer;
-      fg = optional ? AppTokens.lightColors.warning : colors.error;
+              ? palette.warning.withValues(alpha: AppOpacity.darkTint)
+              : palette.warning.withValues(alpha: AppOpacity.overlay))
+          : palette.danger.withValues(alpha: AppOpacity.statusBg);
+      fg = optional ? palette.warning : palette.danger;
     }
 
     final spacing = AppTokens.spacing;

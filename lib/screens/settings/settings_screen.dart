@@ -28,7 +28,7 @@ class SettingsPage extends StatefulWidget {
   State<SettingsPage> createState() => _SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver {
   late final SettingsController _controller;
   final AuthService _auth = AuthService.instance;
   bool _adminSnackShown = false;
@@ -42,6 +42,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _controller = SettingsController();
     _bindControllerEvents();
     ConnectionMonitor.instance.startMonitoring();
@@ -64,9 +65,18 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     ConnectionMonitor.instance.stopMonitoring();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Auto-refresh alarm readiness when user returns from settings
+    if (state == AppLifecycleState.resumed) {
+      _controller.refreshAlarmReadiness();
+    }
   }
 
   void _bindControllerEvents() {
@@ -414,6 +424,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildNotificationCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Padding(
       padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -532,7 +544,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               ? 'Alert at due time'
                               : '${_controller.reminderLeadMinutes} min before',
                           style: AppTokens.typography.bodySecondary.copyWith(
-                            color: colors.onSurfaceVariant,
+                            color: palette.muted,
                           ),
                         ),
                       ],
@@ -540,7 +552,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   Icon(
                     Icons.chevron_right_rounded,
-                    color: colors.onSurfaceVariant,
+                    color: palette.muted,
                   ),
                 ],
               ),
@@ -555,7 +567,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Text(
             'Timing',
             style: AppTokens.typography.label.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
@@ -582,7 +594,7 @@ class _SettingsPageState extends State<SettingsPage> {
           Text(
             'Alarm',
             style: AppTokens.typography.label.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
@@ -807,47 +819,6 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             onTap: _openBatteryOptimizationSettings,
           ),
-          SizedBox(height: spacing.md),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: _controller.readinessLoading
-                    ? null
-                    : _controller.refreshAlarmReadiness,
-                borderRadius: AppTokens.radius.pill,
-                child: Container(
-                  width: AppTokens.componentSize.buttonXs,
-                  height: AppTokens.componentSize.buttonXs,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: colors.outline.withValues(alpha: AppOpacity.ghost),
-                      width: AppTokens.componentSize.dividerThin,
-                    ),
-                  ),
-                  child: Center(
-                    child: _controller.readinessLoading
-                        ? SizedBox(
-                            width: AppTokens.iconSize.sm,
-                            height: AppTokens.iconSize.sm,
-                            child: CircularProgressIndicator(
-                              strokeWidth: AppTokens.spacing.micro,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(colors.primary),
-                            ),
-                          )
-                        : Icon(
-                            Icons.refresh_rounded,
-                            size: AppTokens.iconSize.md,
-                            color: colors.onSurfaceVariant,
-                          ),
-                  ),
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );
@@ -945,6 +916,8 @@ class _SettingsPageState extends State<SettingsPage> {
     String badLabel = 'Blocked',
   }) {
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final isOk = ok == true;
     final isUnknown = ok == null;
     final label = isUnknown ? 'Unknown' : (isOk ? okLabel : badLabel);
@@ -952,12 +925,12 @@ class _SettingsPageState extends State<SettingsPage> {
         ? colors.surfaceContainerHighest
         : isOk
             ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-            : colors.errorContainer;
+            : palette.danger.withValues(alpha: AppOpacity.statusBg);
     final fg = isUnknown
-        ? colors.onSurfaceVariant
+        ? palette.muted
         : isOk
             ? colors.primary
-            : colors.error;
+            : palette.danger;
     return Container(
       padding: AppTokens.spacing.edgeInsetsSymmetric(
           horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
@@ -978,6 +951,8 @@ class _SettingsPageState extends State<SettingsPage> {
   Widget _buildSyncCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     String formatSync(DateTime? value) {
       if (value == null) return 'Never';
@@ -1060,14 +1035,14 @@ class _SettingsPageState extends State<SettingsPage> {
                             padding: AppTokens.spacing.edgeInsetsSymmetric(
                                 horizontal: spacing.sm, vertical: spacing.xs),
                             decoration: BoxDecoration(
-                              color: colors.error
+                              color: palette.danger
                                   .withValues(alpha: AppOpacity.overlay),
                               borderRadius: AppTokens.radius.pill,
                             ),
                             child: Text(
                               'Queue full',
                               style: AppTokens.typography.caption.copyWith(
-                                color: colors.error,
+                                color: palette.danger,
                                 fontWeight: AppTokens.fontWeight.bold,
                               ),
                             ),
@@ -1156,6 +1131,8 @@ class _SyncRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final accent = colors.primary;
@@ -1187,7 +1164,7 @@ class _SyncRow extends StatelessWidget {
           Text(
             value,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
         ],
@@ -1550,6 +1527,8 @@ class _DndTimePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     // Parse value
     final parts = value.split(':');
@@ -1589,7 +1568,7 @@ class _DndTimePicker extends StatelessWidget {
             Text(
               label,
               style: AppTokens.typography.caption.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             Text(

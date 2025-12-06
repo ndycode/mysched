@@ -39,13 +39,14 @@ class _SkeletonBlockState extends State<SkeletonBlock>
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final base = isDark
         ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle)
         : colors.surfaceContainerHighest
             .withValues(alpha: AppOpacity.skeletonLight);
     final highlight = isDark
-        ? colors.onSurfaceVariant.withValues(alpha: AppOpacity.border)
-        : colors.onSurfaceVariant.withValues(alpha: AppOpacity.highlight);
+        ? palette.muted.withValues(alpha: AppOpacity.border)
+        : palette.muted.withValues(alpha: AppOpacity.highlight);
 
     return AnimatedBuilder(
       animation: _controller,

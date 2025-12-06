@@ -709,14 +709,21 @@ class DashboardScreenState extends State<DashboardScreen>
       final media = MediaQuery.of(context);
       return ScreenShell(
         screenName: 'dashboard',
-        hero: const ScreenHeroCard(
-          title: 'Dashboard',
-          subtitle: 'Loading your schedule and reminders...',
+        hero: const ScreenBrandHeader(
+          loading: true,
         ),
-        sections: const [
-          ScreenSection(
+        sections: [
+          const ScreenSection(
             decorated: false,
             child: SkeletonDashboardCard(),
+          ),
+          ScreenSection(
+            decorated: false,
+            child: SizedBox(height: spacing.lg),
+          ),
+          const ScreenSection(
+            decorated: false,
+            child: SkeletonScheduleSection(),
           ),
         ],
         padding: spacing.edgeInsetsOnly(

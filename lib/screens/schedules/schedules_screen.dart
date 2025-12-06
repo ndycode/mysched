@@ -521,15 +521,17 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             screenName: 'schedules',
             hero: hero,
             sections: [
+              const ScreenSection(
+                decorated: false,
+                child: SkeletonDashboardCard(),
+              ),
               ScreenSection(
                 decorated: false,
-                child: Column(
-                  children: [
-                    const SkeletonCard(showAvatar: false, lineCount: 2),
-                    SizedBox(height: spacing.lg),
-                    const SkeletonList(itemCount: 3, showHeader: true),
-                  ],
-                ),
+                child: SizedBox(height: spacing.lg),
+              ),
+              const ScreenSection(
+                decorated: false,
+                child: SkeletonScheduleSection(),
               ),
             ],
             padding: shellPadding,

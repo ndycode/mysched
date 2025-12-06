@@ -555,9 +555,9 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
                 decorated: false,
                 child: Column(
                   children: [
-                    const SkeletonCard(showAvatar: false, lineCount: 2),
+                    const SkeletonSummaryCard(metricCount: 3),
                     SizedBox(height: spacing.lg),
-                    const SkeletonList(itemCount: 3, showHeader: true),
+                    const SkeletonListCard(itemCount: 3, showFilterChips: false),
                   ],
                 ),
               ),

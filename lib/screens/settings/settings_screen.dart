@@ -36,7 +36,6 @@ class _SettingsPageState extends State<SettingsPage> {
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
 
-
   @override
   void initState() {
     super.initState();
@@ -161,7 +160,7 @@ class _SettingsPageState extends State<SettingsPage> {
       showAppSnackBar(context, 'Loading ringtones...');
       return;
     }
-    
+
     final currentUri = _controller.alarmRingtone;
     final selected = await AppModal.alert<AlarmSound>(
       context: context,
@@ -171,7 +170,7 @@ class _SettingsPageState extends State<SettingsPage> {
         onPreview: (uri) => LocalNotifs.playRingtonePreview(uri),
       ),
     );
-    
+
     if (selected != null) {
       _controller.setAlarmRingtone(selected.uri);
     }
@@ -188,7 +187,7 @@ class _SettingsPageState extends State<SettingsPage> {
       builder: (context) {
         final theme = Theme.of(context);
         final spacing = AppTokens.spacing;
-        
+
         return Dialog(
           backgroundColor: Colors.transparent,
           insetPadding: spacing.edgeInsetsAll(spacing.lg),
@@ -200,13 +199,17 @@ class _SettingsPageState extends State<SettingsPage> {
               borderRadius: AppTokens.radius.xxl,
               border: Border.all(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline.withValues(alpha: AppOpacity.overlay)
+                    ? theme.colorScheme.outline
+                        .withValues(alpha: AppOpacity.overlay)
                     : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+                width: theme.brightness == Brightness.dark
+                    ? AppTokens.componentSize.divider
+                    : AppTokens.componentSize.dividerThin,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.statusBg),
+                  color: theme.colorScheme.shadow
+                      .withValues(alpha: AppOpacity.statusBg),
                   blurRadius: AppTokens.shadow.xxl,
                   offset: AppShadowOffset.modal,
                 ),
@@ -214,11 +217,11 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             child: ClipRRect(
               borderRadius: AppTokens.radius.xxl,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
                     padding: spacing.edgeInsetsAll(spacing.xxl),
                     child: Text(
                       title,
@@ -248,9 +251,11 @@ class _SettingsPageState extends State<SettingsPage> {
                                     child: Text(
                                       displayLabel,
                                       style: AppTokens.typography.body.copyWith(
-                                        fontWeight: isSelected ? AppTokens.fontWeight.semiBold : AppTokens.fontWeight.regular,
-                                        color: isSelected 
-                                            ? theme.colorScheme.primary 
+                                        fontWeight: isSelected
+                                            ? AppTokens.fontWeight.semiBold
+                                            : AppTokens.fontWeight.regular,
+                                        color: isSelected
+                                            ? theme.colorScheme.primary
                                             : theme.colorScheme.onSurface,
                                       ),
                                     ),
@@ -325,15 +330,12 @@ class _SettingsPageState extends State<SettingsPage> {
     await _controller.refreshAlarmReadiness();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
     final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
 
     return AnimatedBuilder(
       animation: _controller,
@@ -341,18 +343,17 @@ class _SettingsPageState extends State<SettingsPage> {
         if (_controller.loading) {
           return ScreenShell(
             screenName: 'settings',
-            hero: const ScreenHeroCard(
-              title: 'Settings',
-              subtitle: 'Loading your preferences…',
+            hero: const ScreenBrandHeader(
+              loading: true,
             ),
             sections: [
               ScreenSection(
                 decorated: false,
                 child: Column(
                   children: [
-                    const SkeletonCard(showAvatar: false, lineCount: 4),
+                    const SkeletonSettingsCard(rowCount: 4),
                     SizedBox(height: spacing.lg),
-                    const SkeletonCard(showAvatar: false, lineCount: 3),
+                    const SkeletonSettingsCard(rowCount: 3),
                   ],
                 ),
               ),
@@ -370,85 +371,12 @@ class _SettingsPageState extends State<SettingsPage> {
         );
 
         final sections = <Widget>[
-          // Premium Header
-          ScreenSection(
-            decorated: false,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: AppTokens.componentSize.avatarXl,
-                  width: AppTokens.componentSize.avatarXl,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        colors.primary.withValues(alpha: AppOpacity.statusBg),
-                        colors.primary.withValues(alpha: AppOpacity.overlay),
-                      ],
-                    ),
-                    borderRadius: AppTokens.radius.md,
-                    border: Border.all(
-                      color: colors.primary.withValues(alpha: AppOpacity.ghost),
-                      width: AppTokens.componentSize.dividerThick,
-                    ),
-                  ),
-                  child: Icon(
-                    Icons.settings_rounded,
-                    color: colors.primary,
-                    size: AppTokens.iconSize.xl,
-                  ),
-                ),
-                SizedBox(width: spacing.lg),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Settings',
-                        style: AppTokens.typography.headline.copyWith(
-                          fontWeight: AppTokens.fontWeight.bold,
-                          letterSpacing: AppLetterSpacing.tight,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                      SizedBox(height: spacing.xs),
-                      Text(
-                        'Control alarms, notifications, and app styling.',
-                        style: AppTokens.typography.body.copyWith(
-                          height: AppLineHeight.body,
-                          color: colors.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
           ScreenSection(
             title: 'Notifications',
             subtitle: 'Control alarms, quiet weeks, and push alerts.',
             decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
+            child: _buildCardContainer(
+              theme: theme,
               child: _buildNotificationCard(theme),
             ),
           ),
@@ -456,24 +384,8 @@ class _SettingsPageState extends State<SettingsPage> {
             title: 'Appearance',
             subtitle: 'Choose light, dark, or match system.',
             decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
+            child: _buildCardContainer(
+              theme: theme,
               child: _buildAppearanceCard(theme),
             ),
           ),
@@ -485,24 +397,8 @@ class _SettingsPageState extends State<SettingsPage> {
               title: 'Android tools',
               subtitle: 'Exact alarms and diagnostics.',
               decorated: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderRadius: AppTokens.radius.xl,
-                  border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                            blurRadius: AppTokens.shadow.lg,
-                            offset: AppShadowOffset.sm,
-                          ),
-                        ],
-                ),
+              child: _buildCardContainer(
+                theme: theme,
                 child: _buildAndroidToolsCard(theme),
               ),
             ),
@@ -515,24 +411,8 @@ class _SettingsPageState extends State<SettingsPage> {
               title: 'Admin tools',
               subtitle: 'Manage reports and send tests.',
               decorated: false,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderRadius: AppTokens.radius.xl,
-                  border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                  ),
-                  boxShadow: isDark
-                      ? null
-                      : [
-                          BoxShadow(
-                            color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                            blurRadius: AppTokens.shadow.lg,
-                            offset: AppShadowOffset.sm,
-                          ),
-                        ],
-                ),
+              child: _buildCardContainer(
+                theme: theme,
                 child: _buildAdminCard(theme),
               ),
             ),
@@ -546,7 +426,8 @@ class _SettingsPageState extends State<SettingsPage> {
                 title: 'Admin tools unavailable',
                 message: _controller.adminError!,
                 primaryActionLabel: 'Retry',
-                onPrimaryAction: () => AdminService.instance.refreshRole(force: true),
+                onPrimaryAction: () =>
+                    AdminService.instance.refreshRole(force: true),
                 compact: true,
               ),
             ),
@@ -558,24 +439,8 @@ class _SettingsPageState extends State<SettingsPage> {
             title: 'Sync & offline',
             subtitle: 'View cached data status and retry queued changes.',
             decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
+            child: _buildCardContainer(
+              theme: theme,
               child: _buildSyncCard(theme),
             ),
           ),
@@ -586,24 +451,8 @@ class _SettingsPageState extends State<SettingsPage> {
             title: 'Support',
             subtitle: 'Resync alarms or review policies.',
             decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
+            child: _buildCardContainer(
+              theme: theme,
               child: _buildSupportCard(theme),
             ),
           ),
@@ -627,6 +476,38 @@ class _SettingsPageState extends State<SettingsPage> {
           child: shell,
         );
       },
+    );
+  }
+
+  Widget _buildCardContainer({
+    required ThemeData theme,
+    required Widget child,
+  }) {
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
+      ),
+      child: child,
     );
   }
 
@@ -666,7 +547,7 @@ class _SettingsPageState extends State<SettingsPage> {
             SizedBox(height: spacing.md),
             Container(
               decoration: BoxDecoration(
-              color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                color: colors.primary.withValues(alpha: AppOpacity.overlay),
                 borderRadius: AppTokens.radius.md,
               ),
               padding: spacing.edgeInsetsAll(spacing.md),
@@ -842,8 +723,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     SliderTheme(
                       data: SliderThemeData(
                         trackHeight: AppSlider.trackHeight,
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: AppSlider.thumbRadius),
-                        overlayShape: const RoundSliderOverlayShape(overlayRadius: AppSlider.overlayRadius),
+                        thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: AppSlider.thumbRadius),
+                        overlayShape: const RoundSliderOverlayShape(
+                            overlayRadius: AppSlider.overlayRadius),
                       ),
                       child: Slider(
                         value: _controller.alarmVolume.toDouble(),
@@ -954,7 +837,9 @@ class _SettingsPageState extends State<SettingsPage> {
           ToggleRow(
             icon: Icons.schedule_rounded,
             title: 'Use 24-hour format',
-            description: _controller.use24HourFormat ? '08:00 - 17:30' : '8:00 AM - 5:30 PM',
+            description: _controller.use24HourFormat
+                ? '08:00 - 17:30'
+                : '8:00 AM - 5:30 PM',
             value: _controller.use24HourFormat,
             onChanged: _controller.toggle24HourFormat,
           ),
@@ -1032,11 +917,13 @@ class _SettingsPageState extends State<SettingsPage> {
                       height: AppTokens.componentSize.badgeMd,
                       child: CircularProgressIndicator(
                         strokeWidth: AppTokens.spacing.micro,
-                        valueColor: AlwaysStoppedAnimation<Color>(colors.primary),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(colors.primary),
                       ),
                     )
                   : const Icon(Icons.refresh_rounded),
-              label: _controller.readinessLoading ? 'Checking…' : 'Refresh status',
+              label:
+                  _controller.readinessLoading ? 'Checking…' : 'Refresh status',
               onPressed: _controller.readinessLoading
                   ? null
                   : _controller.refreshAlarmReadiness,
@@ -1092,7 +979,6 @@ class _SettingsPageState extends State<SettingsPage> {
             onPressed: () =>
                 _controller.triggerAlarmTest(_openExactAlarmSettings),
           ),
-
         ],
       ),
     );
@@ -1124,12 +1010,11 @@ class _SettingsPageState extends State<SettingsPage> {
             title: 'Privacy policy',
             onTap: _openPrivacy,
           ),
-          SizedBox(height: spacing.lg),
+          SizedBox(height: spacing.xl),
           PrimaryButton(
             label: 'Sign out',
-            onPressed: () {
-              context.go(AppRoutes.login);
-            },
+            onPressed: () => context.go(AppRoutes.login),
+            minHeight: AppTokens.componentSize.buttonMd,
           ),
         ],
       ),
@@ -1157,7 +1042,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ? colors.primary
             : colors.error;
     return Container(
-      padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
+      padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
       decoration: BoxDecoration(
         color: bg,
         borderRadius: AppTokens.radius.pill,
@@ -1224,7 +1110,9 @@ class _SettingsPageState extends State<SettingsPage> {
               return Row(
                 children: [
                   Container(
-                    padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
+                    padding: AppTokens.spacing.edgeInsetsSymmetric(
+                        horizontal: AppTokens.spacing.md,
+                        vertical: AppTokens.spacing.sm),
                     decoration: BoxDecoration(
                       color: colors.surfaceContainerHighest,
                       borderRadius: AppTokens.radius.pill,
@@ -1232,9 +1120,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     child: Row(
                       children: [
                         Icon(
-                          pending > 0 ? Icons.cloud_off_rounded : Icons.cloud_done_rounded,
+                          pending > 0
+                              ? Icons.cloud_off_rounded
+                              : Icons.cloud_done_rounded,
                           size: AppTokens.iconSize.sm,
-                          color: pending > 0 ? colors.secondary : colors.primary,
+                          color:
+                              pending > 0 ? colors.secondary : colors.primary,
                         ),
                         SizedBox(width: spacing.sm),
                         Text(
@@ -1249,9 +1140,11 @@ class _SettingsPageState extends State<SettingsPage> {
                         if (pending >= 100) ...[
                           SizedBox(width: spacing.sm),
                           Container(
-                            padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: spacing.sm, vertical: spacing.xs),
+                            padding: AppTokens.spacing.edgeInsetsSymmetric(
+                                horizontal: spacing.sm, vertical: spacing.xs),
                             decoration: BoxDecoration(
-                              color: colors.error.withValues(alpha: AppOpacity.overlay),
+                              color: colors.error
+                                  .withValues(alpha: AppOpacity.overlay),
                               borderRadius: AppTokens.radius.pill,
                             ),
                             child: Text(
@@ -1273,19 +1166,21 @@ class _SettingsPageState extends State<SettingsPage> {
                       onPressed: () => OfflineQueue.instance.processQueue(),
                       minHeight: AppTokens.componentSize.buttonMd,
                       expanded: true,
+                    ),
                   ),
-                ),
-                SizedBox(width: AppTokens.spacing.sm),
-                SecondaryButton(
-                  label: 'Clear',
-                  onPressed: pending > 0 ? () => OfflineQueue.instance.clear() : null,
-                  minHeight: AppTokens.componentSize.buttonMd,
-                  expanded: false,
-                ),
-              ],
-            );
-          },
-        ),
+                  SizedBox(width: AppTokens.spacing.sm),
+                  SecondaryButton(
+                    label: 'Clear',
+                    onPressed: pending > 0
+                        ? () => OfflineQueue.instance.clear()
+                        : null,
+                    minHeight: AppTokens.componentSize.buttonMd,
+                    expanded: false,
+                  ),
+                ],
+              );
+            },
+          ),
           SizedBox(height: spacing.md),
           Row(
             children: [
@@ -1408,7 +1303,9 @@ class _ThemeOption extends StatelessWidget {
                         : (showBorder
                             ? colors.outline.withValues(alpha: AppOpacity.dim)
                             : (borderColor ?? Colors.transparent))),
-                width: selected ? AppTokens.spacing.micro : AppTokens.componentSize.divider,
+                width: selected
+                    ? AppTokens.spacing.micro
+                    : AppTokens.componentSize.divider,
               ),
             ),
             child: Stack(
@@ -1448,7 +1345,9 @@ class _ThemeOption extends StatelessWidget {
           Text(
             label,
             style: AppTokens.typography.caption.copyWith(
-              fontWeight: selected ? AppTokens.fontWeight.bold : AppTokens.fontWeight.medium,
+              fontWeight: selected
+                  ? AppTokens.fontWeight.bold
+                  : AppTokens.fontWeight.medium,
               color: selected ? colors.primary : colors.onSurface,
             ),
           ),
@@ -1565,7 +1464,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                       onTap: () => Navigator.of(context).pop(ringtone),
                       child: Container(
                         color: isPlaying
-                            ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                            ? colors.primary
+                                .withValues(alpha: AppOpacity.overlay)
                             : null,
                         padding: spacing.edgeInsetsSymmetric(
                           horizontal: spacing.xl,
@@ -1582,7 +1482,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                                 decoration: BoxDecoration(
                                   color: isPlaying
                                       ? colors.primary
-                                      : colors.primary.withValues(alpha: AppOpacity.overlay),
+                                      : colors.primary.withValues(
+                                          alpha: AppOpacity.overlay),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
@@ -1674,13 +1575,13 @@ class _DndTimePicker extends StatelessWidget {
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
-    
+
     // Parse value
     final parts = value.split(':');
     final hour = int.tryParse(parts[0]) ?? 0;
     final minute = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
     final timeOfDay = TimeOfDay(hour: hour, minute: minute);
-    
+
     // Format for display
     final displayTime = timeOfDay.format(context);
 
@@ -1708,7 +1609,8 @@ class _DndTimePicker extends StatelessWidget {
           },
         );
         if (picked != null) {
-          final formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+          final formatted =
+              '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
           onChanged(formatted);
         }
       },

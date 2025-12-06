@@ -263,7 +263,7 @@ class ScreenHeroCard extends StatelessWidget {
     ];
 
     return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

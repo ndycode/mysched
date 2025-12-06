@@ -218,7 +218,7 @@ class _ChangeEmailPageState extends State<ChangeEmailPage> {
           subtitle: 'We\'ll send a 6-digit code to confirm the change.',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh

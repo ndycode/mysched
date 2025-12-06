@@ -1133,7 +1133,7 @@ class _AddClassFormState extends State<AddClassForm> {
 
     formSections.addAll([
       Container(
-        padding: spacing.edgeInsetsAll(spacing.xl),
+        padding: spacing.edgeInsetsAll(spacing.xxl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
@@ -1195,7 +1195,7 @@ class _AddClassFormState extends State<AddClassForm> {
       ),
       SizedBox(height: AppTokens.spacing.lg),
       Container(
-        padding: spacing.edgeInsetsAll(spacing.xl),
+        padding: spacing.edgeInsetsAll(spacing.xxl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
@@ -1306,7 +1306,7 @@ class _AddClassFormState extends State<AddClassForm> {
       ),
       SizedBox(height: AppTokens.spacing.lg),
       Container(
-        padding: spacing.edgeInsetsAll(spacing.xl),
+        padding: spacing.edgeInsetsAll(spacing.xxl),
         decoration: BoxDecoration(
           color: theme.brightness == Brightness.dark
               ? colors.surfaceContainerHigh
@@ -1434,7 +1434,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Padding(
-                    padding: spacing.edgeInsetsAll(spacing.xl),
+                    padding: spacing.edgeInsetsAll(spacing.xxl),
                     child: Text(
                       'Select day',
                       style: theme.textTheme.titleLarge?.copyWith(

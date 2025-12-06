@@ -623,7 +623,7 @@ class ReminderGroupCard extends StatelessWidget {
         group.items.where((item) => queuedIds.contains(item.id)).length;
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -1110,7 +1110,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
     final spacing = AppTokens.spacing;
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,

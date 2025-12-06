@@ -79,7 +79,7 @@ class AuthShell extends StatelessWidget {
     );
 
     final card = Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh

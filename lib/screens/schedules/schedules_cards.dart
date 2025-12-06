@@ -158,7 +158,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
     final isFilterActive = widget.filter != ScheduleFilter.all;
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -633,7 +633,7 @@ class ScheduleGroupCard extends StatelessWidget {
     final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
     final spacing = AppTokens.spacing;
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.xl,

@@ -88,7 +88,7 @@ class AlarmPage extends StatelessWidget {
           subtitle: 'Alarm scheduling overview',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
               borderRadius: AppTokens.radius.md,
@@ -119,7 +119,7 @@ class AlarmPage extends StatelessWidget {
           subtitle: 'Keep your alarms reliable.',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
               borderRadius: AppTokens.radius.md,
@@ -151,7 +151,7 @@ class AlarmPage extends StatelessWidget {
           subtitle: 'Open notifications settings to adjust preferences.',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surface,
               borderRadius: AppTokens.radius.md,

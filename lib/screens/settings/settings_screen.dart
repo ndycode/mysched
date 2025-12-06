@@ -219,7 +219,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                    padding: spacing.edgeInsetsAll(spacing.xl),
+                    padding: spacing.edgeInsetsAll(spacing.xxl),
                     child: Text(
                       title,
                       style: AppTokens.typography.headline.copyWith(
@@ -635,7 +635,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -888,7 +888,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -977,7 +977,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1054,7 +1054,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final colors = theme.colorScheme;
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1102,7 +1102,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final spacing = AppTokens.spacing;
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1187,7 +1187,7 @@ class _SettingsPageState extends State<SettingsPage> {
     }
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1534,7 +1534,7 @@ class _RingtonePickerState extends State<_RingtonePicker> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: spacing.edgeInsetsAll(spacing.xl),
+                padding: spacing.edgeInsetsAll(spacing.xxl),
                 child: Row(
                   children: [
                     Icon(

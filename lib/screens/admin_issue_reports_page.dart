@@ -261,7 +261,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
         : '$newCount new report${newCount == 1 ? '' : 's'}';
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: background,
         borderRadius: AppTokens.radius.xxl,
@@ -416,7 +416,7 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     }
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark
             ? colors.surfaceContainerHigh

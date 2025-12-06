@@ -246,7 +246,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   Widget _buildProfileCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -359,7 +359,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   Widget _buildSecurityCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,

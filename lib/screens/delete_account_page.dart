@@ -186,7 +186,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           title: 'Before you delete',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh
@@ -228,7 +228,7 @@ class _DeleteAccountPageState extends State<DeleteAccountPage> {
           title: 'Confirm with password',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh

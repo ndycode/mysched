@@ -46,7 +46,7 @@ class PrivacySheet extends StatelessWidget {
           maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
         ),
         child: Container(
-          padding: spacing.edgeInsetsAll(spacing.xl),
+          padding: spacing.edgeInsetsAll(spacing.xxl),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.xl,

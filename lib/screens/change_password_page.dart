@@ -178,7 +178,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
           subtitle: 'At least ${AppConstants.minPasswordLength} characters with letters, numbers, or symbols.',
           decorated: false,
           child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xl),
+            padding: spacing.edgeInsetsAll(spacing.xxl),
             decoration: BoxDecoration(
               color: theme.brightness == Brightness.dark
                   ? colors.surfaceContainerHigh

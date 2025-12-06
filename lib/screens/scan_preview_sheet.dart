@@ -216,7 +216,7 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
               maxWidth: AppLayout.sheetMaxWidth,
             ),
             child: Container(
-              padding: spacing.edgeInsetsAll(spacing.xl),
+              padding: spacing.edgeInsetsAll(spacing.xxl),
               decoration: BoxDecoration(
                 color: theme.brightness == Brightness.dark
                     ? colors.surfaceContainerHigh

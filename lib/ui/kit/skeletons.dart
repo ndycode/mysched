@@ -103,7 +103,7 @@ class SkeletonCard extends StatelessWidget {
 
     return Container(
       height: height,
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark
             ? colors.surfaceContainerHigh.withValues(alpha: AppOpacity.subtle)
@@ -171,7 +171,7 @@ class SkeletonDashboardCard extends StatelessWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.xl),
+      padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
         color: isDark
             ? colors.surfaceContainerHigh.withValues(alpha: AppOpacity.subtle)

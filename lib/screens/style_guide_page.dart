@@ -39,7 +39,7 @@ class StyleGuidePage extends StatelessWidget {
         subtitle: 'Standard surface with padding and shadow.',
         decorated: false,
         child: CardX(
-          padding: spacing.edgeInsetsAll(spacing.xl),
+          padding: spacing.edgeInsetsAll(spacing.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

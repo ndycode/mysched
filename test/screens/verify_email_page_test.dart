@@ -19,7 +19,6 @@ void main() {
     );
   }
 
-
   test('overrideVerifyOtp intercepts auth service call', () async {
     String? capturedEmail;
     AuthService.overrideVerifyOtp(({required email, required token}) async {
@@ -45,6 +44,7 @@ void main() {
     await tester.pumpWidget(
       wrapWithApp(const VerifyEmailPage(email: 'student@example.com')),
     );
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField), '123456');
     await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -59,8 +59,12 @@ void main() {
     await tester.pumpWidget(
       wrapWithApp(const VerifyEmailPage(email: 'validate@example.com')),
     );
+    await tester.pumpAndSettle();
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Verify email'));
+    // Find and tap the verify button using text
+    final verifyButton = find.text('Verify email');
+    await tester.ensureVisible(verifyButton);
+    await tester.tap(verifyButton);
     await tester.pump();
 
     expect(find.text('Enter the 6-digit code'), findsOneWidget);
@@ -75,9 +79,9 @@ void main() {
     await tester.pumpWidget(
       wrapWithApp(const VerifyEmailPage(email: 'resend@example.com')),
     );
+    await tester.pumpAndSettle();
 
-    final resendButton =
-        find.widgetWithText(FilledButton, 'Send another code');
+    final resendButton = find.text('Send another code');
     await tester.ensureVisible(resendButton);
     await tester.pumpAndSettle();
     await tester.tap(resendButton);
@@ -89,8 +93,10 @@ void main() {
 
   testWidgets('email change intent verifies via change OTP', (tester) async {
     String? capturedEmail;
-    AuthService.overrideVerifyEmailChangeOtp((
-        {required email, required token}) async {
+    AuthService.overrideVerifyEmailChangeOtp(({
+      required email,
+      required token,
+    }) async {
       capturedEmail = email;
     });
 
@@ -100,6 +106,7 @@ void main() {
         intent: VerificationIntent.emailChange,
       )),
     );
+    await tester.pumpAndSettle();
 
     await tester.enterText(find.byType(TextFormField), '654321');
     await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -120,9 +127,9 @@ void main() {
         intent: VerificationIntent.emailChange,
       )),
     );
+    await tester.pumpAndSettle();
 
-    final resendButton =
-        find.widgetWithText(FilledButton, 'Send another code');
+    final resendButton = find.text('Send another code');
     await tester.ensureVisible(resendButton);
     await tester.pumpAndSettle();
     await tester.tap(resendButton);

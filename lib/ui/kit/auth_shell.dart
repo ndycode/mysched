@@ -5,6 +5,12 @@ import '../theme/tokens.dart';
 import 'layout.dart';
 
 /// Shared, centered layout for auth flows with a branded top bar.
+///
+/// Follows the dashboard screen's design patterns:
+/// - Card structure with proper border radius and shadow
+/// - Hero-style header with brand accent
+/// - Consistent spacing gaps using design tokens
+/// - Typography hierarchy matching dashboard cards
 class AuthShell extends StatelessWidget {
   const AuthShell({
     super.key,
@@ -28,76 +34,95 @@ class AuthShell extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final colors = Theme.of(context).colorScheme;
     final theme = Theme.of(context);
-    final textTheme = theme.textTheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    final header = Stack(
-      alignment: Alignment.center,
+    // Hero-style brand header matching dashboard's ScreenBrandHeader
+    final brandBadge = Container(
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.md,
+        vertical: spacing.sm - spacing.micro,
+      ),
+      decoration: BoxDecoration(
+        color: colors.primary.withValues(alpha: AppOpacity.dim),
+        borderRadius: AppTokens.radius.pill,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.calendar_month_rounded,
+            size: AppTokens.iconSize.sm,
+            color: colors.primary,
+          ),
+          SizedBox(width: spacing.xs + spacing.micro),
+          Text(
+            AppConstants.appName,
+            style: AppTokens.typography.caption.copyWith(
+              color: colors.primary,
+              fontWeight: AppTokens.fontWeight.bold,
+              letterSpacing: AppLetterSpacing.wider,
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // Title section matching dashboard card typography hierarchy
+    final header = Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              AppConstants.appName,
-              textAlign: TextAlign.center,
-              style: AppTokens.typography.subtitle.copyWith(
-                color: colors.primary,
-                fontWeight: AppTokens.fontWeight.bold,
-                letterSpacing: AppLetterSpacing.normal,
-              ),
-            ),
-            SizedBox(height: spacing.sm),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: textTheme.headlineSmall?.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                    color: colors.onSurface,
-                  ) ??
-                  AppTokens.typography.headline
-                      .copyWith(color: colors.onSurface),
-            ),
-            SizedBox(height: spacing.sm),
-            Text(
-              subtitle,
-              textAlign: TextAlign.center,
-              style: textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                    height: AppTypography.bodyLineHeight,
-                  ) ??
-                  AppTokens.typography.body.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-            ),
-          ],
-        ),
+        brandBadge,
+        SizedBox(height: spacing.xl),
         if (headerAction != null)
           Align(
             alignment: Alignment.topRight,
             child: headerAction!,
           ),
+        Text(
+          title,
+          textAlign: TextAlign.center,
+          style: AppTokens.typography.title.copyWith(
+            fontWeight: AppTokens.fontWeight.bold,
+            letterSpacing: AppLetterSpacing.snug,
+            color: colors.onSurface,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          subtitle,
+          textAlign: TextAlign.center,
+          style: AppTokens.typography.body.copyWith(
+            color: palette.muted,
+            height: AppTypography.bodyLineHeight,
+          ),
+        ),
       ],
     );
 
+    // Card container matching dashboard's _DashboardSummaryCard structure
     final card = Container(
       padding: spacing.edgeInsetsAll(spacing.xxl),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : colors.surface,
-        borderRadius: AppTokens.radius.xxl,
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: theme.brightness == Brightness.dark
+          color: isDark
               ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outlineVariant,
-          width: theme.brightness == Brightness.dark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.shadow.withValues(alpha: AppOpacity.medium),
-            blurRadius: AppTokens.shadow.xxl,
-            offset: AppShadowOffset.modal,
-          ),
-        ],
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                  blurRadius: AppTokens.shadow.lg,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

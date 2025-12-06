@@ -172,6 +172,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
 
@@ -192,7 +193,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
         child: Icon(
           Icons.arrow_back_rounded,
           size: AppTokens.iconSize.md,
-          color: colors.onSurfaceVariant,
+          color: palette.muted,
         ),
       ),
     );
@@ -232,11 +233,11 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       sections: [
         ScreenSection(
           decorated: false,
-          child: _buildAccountSummaryCard(colors, isDark),
+          child: _buildAccountSummaryCard(colors, isDark, palette),
         ),
         ScreenSection(
           decorated: false,
-          child: _buildSecurityCard(colors, isDark),
+          child: _buildSecurityCard(colors, isDark, palette),
         ),
         ScreenSection(
           decorated: false,
@@ -256,7 +257,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildAccountSummaryCard(ColorScheme colors, bool isDark) {
+  Widget _buildAccountSummaryCard(
+      ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
 
     return CardX(
@@ -278,7 +280,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           Text(
             'Manage your profile and security preferences.',
             style: AppTokens.typography.body.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xl),
@@ -294,7 +296,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           Text(
             'Update your avatar, name, and student ID.',
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.lg),
@@ -373,7 +375,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                         Text(
                           _sid,
                           style: AppTokens.typography.bodySecondary.copyWith(
-                            color: colors.onSurfaceVariant,
+                            color: palette.muted,
                             fontWeight: AppTokens.fontWeight.medium,
                           ),
                         ),
@@ -381,7 +383,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                         Text(
                           _email,
                           style: AppTokens.typography.bodySecondary.copyWith(
-                            color: colors.onSurfaceVariant,
+                            color: palette.muted,
                           ),
                         ),
                     ],
@@ -395,7 +397,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildSecurityCard(ColorScheme colors, bool isDark) {
+  Widget _buildSecurityCard(
+      ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
     return CardX(
       variant: CardVariant.elevated,
@@ -414,7 +417,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           Text(
             'Keep your login details up to date.',
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.lg),
@@ -448,7 +451,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           InfoTile(
             icon: Icons.delete_forever_outlined,
             title: 'Delete account',
-            tint: colors.error,
+            tint: palette.danger,
             iconInContainer: true,
             showChevron: true,
             onTap: () async {

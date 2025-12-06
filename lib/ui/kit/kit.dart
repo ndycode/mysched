@@ -39,3 +39,4 @@ export 'switch.dart';
 export 'queued_badge.dart';
 export 'time_picker.dart';
 export 'option_picker.dart';
+export 'date_picker.dart';

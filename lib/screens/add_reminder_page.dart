@@ -40,7 +40,8 @@ class AddReminderPage extends StatelessWidget {
               editing: editing,
               isSheet: false,
               onCancel: () => Navigator.of(context).maybePop(),
-              onSaved: (reminderId) => Navigator.of(context).pop(reminderId),
+              onSaved: (reminderId) =>
+                  Navigator.of(context, rootNavigator: true).pop(reminderId),
             ),
           ),
         ),
@@ -146,16 +147,17 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                           ),
                           child: AddReminderForm(
                             key: _formKey,
-                            api: widget.api,
-                            editing: widget.editing,
-                            isSheet: true,
-                            includeButtons: false,
-                            onCancel: () => Navigator.of(context).maybePop(),
-                            onSaved: (reminderId) =>
-                                Navigator.of(context).pop(reminderId),
-                          ),
+                          api: widget.api,
+                          editing: widget.editing,
+                          isSheet: true,
+                          includeButtons: false,
+                          onCancel: () => Navigator.of(context).maybePop(),
+                          onSaved: (reminderId) =>
+                              Navigator.of(context, rootNavigator: true)
+                                  .pop(reminderId),
                         ),
                       ),
+                    ),
                       // Action buttons
                       Container(
                         padding: spacing.edgeInsetsOnly(
@@ -259,6 +261,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
   late TimeOfDay _selectedTime;
   String? _whenError;
   bool _submitting = false;
+  String? _formError;
 
   final _dateFormat = DateFormat('EEE, MMM d');
   final _timeFormat = DateFormat('h:mm a');
@@ -337,6 +340,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final editing = widget.editing;
     final fieldFill = isDark
         ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.prominent)
@@ -381,6 +385,41 @@ class _AddReminderFormState extends State<AddReminderForm> {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (_formError != null) ...[
+            Container(
+              width: double.infinity,
+              padding: spacing.edgeInsetsAll(spacing.lg),
+              decoration: BoxDecoration(
+                color: palette.danger.withValues(alpha: AppOpacity.highlight),
+                borderRadius: AppTokens.radius.lg,
+                border: Border.all(
+                  color: palette.danger.withValues(alpha: AppOpacity.overlay),
+                  width: AppTokens.componentSize.dividerThin,
+                ),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    color: palette.danger,
+                    size: AppTokens.iconSize.md,
+                  ),
+                  SizedBox(width: spacing.md),
+                  Expanded(
+                    child: Text(
+                      _formError!,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: colors.onErrorContainer,
+                        fontWeight: AppTokens.fontWeight.semiBold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: AppTokens.spacing.md),
+          ],
           // Reminder details card
           Container(
             padding: spacing.edgeInsetsAll(spacing.xxl),
@@ -495,7 +534,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
                   Text(
                     _whenError!,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.error,
+                      color: palette.danger,
                     ),
                   ),
                 ],
@@ -557,11 +596,12 @@ class _AddReminderFormState extends State<AddReminderForm> {
     final initial = _selectedDate.isBefore(_roundToNearestDate(now))
         ? _roundToNearestDate(now)
         : _selectedDate;
-    final picked = await showDatePicker(
+    final picked = await showAppDatePicker(
       context: context,
       initialDate: initial,
       firstDate: DateTime(now.year - 1),
       lastDate: DateTime(now.year + 5),
+      helpText: 'Select date',
     );
     if (picked != null) {
       setState(() {
@@ -572,15 +612,10 @@ class _AddReminderFormState extends State<AddReminderForm> {
   }
 
   Future<void> _pickTime() async {
-    final picked = await showTimePicker(
+    final picked = await showAppTimePicker(
       context: context,
       initialTime: _selectedTime,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
-        );
-      },
+      helpText: 'Select time',
     );
     if (picked != null) {
       setState(() {
@@ -620,6 +655,9 @@ class _AddReminderFormState extends State<AddReminderForm> {
   Future<void> _submit() async {
     final form = _formKey.currentState;
     if (form == null) return;
+    setState(() {
+      _formError = null;
+    });
     if (!form.validate()) return;
 
     final dueAt = _combine();
@@ -627,6 +665,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
     if (dueAt.isBefore(now.add(const Duration(minutes: 1)))) {
       setState(() {
         _whenError = 'Pick a time in the future.';
+        _formError = null;
       });
       return;
     }
@@ -634,6 +673,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
     setState(() {
       _whenError = null;
       _submitting = true;
+      _formError = null;
     });
     try {
       FocusScope.of(context).unfocus();
@@ -665,6 +705,9 @@ class _AddReminderFormState extends State<AddReminderForm> {
         'Save failed: $error',
         type: AppSnackBarType.error,
       );
+      setState(() {
+        _formError = 'Save failed: $error';
+      });
       setState(() => _submitting = false);
     }
   }
@@ -688,6 +731,8 @@ class _TimeField extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     return InkWell(
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
@@ -724,7 +769,7 @@ class _TimeField extends StatelessWidget {
                   Text(
                     label,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant,
+                      color: palette.muted,
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.xs),
@@ -747,7 +792,7 @@ class _TimeField extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               size: AppTokens.iconSize.md,
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
+              color: palette.muted.withValues(alpha: AppOpacity.soft),
             ),
           ],
         ),

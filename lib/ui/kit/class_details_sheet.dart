@@ -317,7 +317,6 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
@@ -325,6 +324,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return SafeArea(
       child: Center(
@@ -383,7 +383,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                                       message,
                                       style:
                                           theme.textTheme.bodyMedium?.copyWith(
-                                        color: colors.error,
+                                        color: palette.danger,
                                       ),
                                     ),
                                     SizedBox(height: spacing.lg),
@@ -678,6 +678,7 @@ class _InstructorDetail extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final name = details.instructorName ?? '';
 
     return Container(
@@ -700,7 +701,7 @@ class _InstructorDetail extends StatelessWidget {
           Text(
             'Instructor',
             style: theme.textTheme.labelMedium?.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
@@ -820,7 +821,8 @@ class _ClassDetailActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final children = <Widget>[];
 
     if (onEdit != null) {
@@ -879,7 +881,7 @@ class _ClassDetailActions extends StatelessWidget {
         Text(
           'Linked classes can only be edited by an administrator.',
           style: theme.textTheme.bodyMedium?.copyWith(
-            color: colors.onSurfaceVariant,
+            color: palette.muted,
           ),
         ),
       );

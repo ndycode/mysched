@@ -59,7 +59,7 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.tap(
-      find.byIcon(Icons.arrow_drop_down_rounded),
+      find.byIcon(Icons.arrow_drop_down_rounded).first,
       warnIfMissed: false,
     );
     await tester.pumpAndSettle();

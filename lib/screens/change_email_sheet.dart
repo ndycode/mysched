@@ -1,14 +1,12 @@
 // coverage:ignore-file
 // lib/screens/change_email_sheet.dart
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
-import '../app/routes.dart';
 import '../services/auth_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
-import 'verify_email_page.dart';
+import 'verify_email_sheet.dart';
 
 class ChangeEmailSheetArgs {
   const ChangeEmailSheetArgs({required this.currentEmail});
@@ -94,9 +92,10 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
         'Enter the 6-digit code we sent to $newEmail to finish updating your email.',
         type: AppSnackBarType.info,
       );
-      final result = await context.push(
-        AppRoutes.verify,
-        extra: VerifyEmailPageArgs(
+      final result = await AppModal.sheet<bool>(
+        context: context,
+        dismissible: false,
+        builder: (_) => VerifyEmailSheet(
           email: newEmail,
           intent: VerificationIntent.emailChange,
         ),
@@ -128,6 +127,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     return SafeArea(
@@ -196,25 +196,56 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              if (_errorText != null) ...[
+                                Container(
+                                  width: double.infinity,
+                                  padding: spacing.edgeInsetsAll(spacing.lg),
+                                  decoration: BoxDecoration(
+                                    color: colors.error.withValues(
+                                        alpha: AppOpacity.highlight),
+                                    borderRadius: AppTokens.radius.lg,
+                                    border: Border.all(
+                                      color: colors.error.withValues(
+                                          alpha: AppOpacity.overlay),
+                                      width:
+                                          AppTokens.componentSize.dividerThin,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Icons.error_outline_rounded,
+                                        color: colors.error,
+                                        size: AppTokens.iconSize.md,
+                                      ),
+                                      SizedBox(width: spacing.md),
+                                      Expanded(
+                                        child: Text(
+                                          _errorText!,
+                                          style: AppTokens.typography.body
+                                              .copyWith(
+                                            color: colors.onErrorContainer,
+                                            fontWeight:
+                                                AppTokens.fontWeight.semiBold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(height: spacing.md),
+                              ],
                               Text(
                                 'Currently signed in as ${widget.currentEmail}',
                                 style:
                                     AppTokens.typography.bodySecondary.copyWith(
-                                  color: colors.onSurfaceVariant,
+                                  color: palette.muted,
                                 ),
                               ),
                               SizedBox(height: spacing.lg),
                               _buildForm(theme, colors, spacing),
-                              if (_errorText != null) ...[
-                                SizedBox(height: spacing.md),
-                                Text(
-                                  _errorText!,
-                                  style: AppTokens.typography.body.copyWith(
-                                    color: colors.error,
-                                    fontWeight: AppTokens.fontWeight.semiBold,
-                                  ),
-                                ),
-                              ],
                             ],
                           ),
                         ),

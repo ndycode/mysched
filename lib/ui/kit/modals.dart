@@ -128,8 +128,12 @@ class AppModal {
     required WidgetBuilder builder,
     bool dismissible = true,
     Color? barrierColor,
+    bool useRootNavigator = true,
   }) {
-    return Navigator.of(context).push<T>(
+    final navigator = useRootNavigator
+        ? Navigator.of(context, rootNavigator: true)
+        : Navigator.of(context);
+    return navigator.push<T>(
       _AppModalRoute<T>(
         builder: builder,
         barrierDismissible: dismissible,
@@ -150,7 +154,10 @@ class AppModal {
     bool useRootNavigator = true,
     Color? barrierColor,
   }) {
-    return Navigator.of(context, rootNavigator: useRootNavigator).push<T>(
+    final navigator = useRootNavigator
+        ? Navigator.of(context, rootNavigator: true)
+        : Navigator.of(context);
+    return navigator.push<T>(
       _AppModalRoute<T>(
         builder: builder,
         barrierDismissible: dismissible,
@@ -169,64 +176,136 @@ class AppModal {
     String confirmLabel = 'Confirm',
     String cancelLabel = 'Cancel',
     bool isDanger = false,
+    IconData? icon,
   }) async {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     return alert<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
-        titlePadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          top: spacing.xl,
-          bottom: spacing.sm,
-        ),
-        contentPadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: spacing.lg,
-        ),
-        actionsPadding: spacing.edgeInsetsAll(spacing.lg),
-        title: Text(
-          title,
-          style: AppTokens.typography.title.copyWith(
-            fontWeight: AppTokens.fontWeight.bold,
-            color: colors.onSurface,
-          ),
-        ),
-        content: Text(
-          message,
-          style: AppTokens.typography.body.copyWith(
-            color: colors.onSurfaceVariant,
-          ),
-        ),
-        actions: [
-          SecondaryButton(
-            label: cancelLabel,
-            onPressed: () => Navigator.of(context).pop(false),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-          if (isDanger)
-            DestructiveButton(
-              label: confirmLabel,
-              onPressed: () => Navigator.of(context).pop(true),
-              minHeight: AppTokens.componentSize.buttonSm,
-              expanded: false,
-            )
-          else
-            PrimaryButton(
-              label: confirmLabel,
-              onPressed: () => Navigator.of(context).pop(true),
-              minHeight: AppTokens.componentSize.buttonSm,
-              expanded: false,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: spacing.edgeInsetsAll(spacing.xl),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 340),
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.xl,
+            border: Border.all(
+              color: isDark
+                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                  : colors.outline.withValues(alpha: AppOpacity.faint),
+              width: AppTokens.componentSize.dividerThin,
             ),
-        ],
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                      blurRadius: AppTokens.shadow.xl,
+                      offset: AppShadowOffset.md,
+                    ),
+                  ],
+          ),
+          child: ClipRRect(
+            borderRadius: AppTokens.radius.xl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with icon
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: spacing.edgeInsetsAll(spacing.sm),
+                        decoration: BoxDecoration(
+                          color: (isDanger ? palette.danger : colors.primary)
+                              .withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.sm,
+                        ),
+                        child: Icon(
+                          icon ?? (isDanger ? Icons.warning_rounded : Icons.help_outline_rounded),
+                          color: isDanger ? palette.danger : colors.primary,
+                          size: AppTokens.iconSize.md,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTokens.typography.subtitle.copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Message content
+                Padding(
+                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  child: Text(
+                    message,
+                    style: AppTokens.typography.body.copyWith(
+                      color: palette.muted,
+                    ),
+                  ),
+                ),
+                // Footer with buttons
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.lg),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: SecondaryButton(
+                          label: cancelLabel,
+                          onPressed: () => Navigator.of(context).pop(false),
+                          minHeight: AppTokens.componentSize.buttonSm,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md),
+                      Expanded(
+                        child: isDanger
+                            ? DestructiveButton(
+                                label: confirmLabel,
+                                onPressed: () => Navigator.of(context).pop(true),
+                                minHeight: AppTokens.componentSize.buttonSm,
+                              )
+                            : PrimaryButton(
+                                label: confirmLabel,
+                                onPressed: () => Navigator.of(context).pop(true),
+                                minHeight: AppTokens.componentSize.buttonSm,
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -242,59 +321,115 @@ class AppModal {
   }) async {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
+    final effectiveIconColor = iconColor ?? colors.primary;
 
     return alert<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: colors.surface,
-        surfaceTintColor: Colors.transparent,
-        shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
-        titlePadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          top: spacing.xl,
-          bottom: spacing.sm,
-        ),
-        contentPadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: spacing.lg,
-        ),
-        actionsPadding: spacing.edgeInsetsAll(spacing.lg),
-        title: Row(
-          children: [
-            if (icon != null) ...[
-              Icon(icon,
-                  color: iconColor ?? colors.primary,
-                  size: AppTokens.iconSize.lg),
-              SizedBox(width: spacing.md),
-            ],
-            Expanded(
-              child: Text(
-                title,
-                style: AppTokens.typography.title.copyWith(
-                  fontWeight: AppTokens.fontWeight.bold,
-                  color: colors.onSurface,
-                ),
-              ),
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: spacing.edgeInsetsAll(spacing.xl),
+        child: Container(
+          constraints: const BoxConstraints(maxWidth: 340),
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.xl,
+            border: Border.all(
+              color: isDark
+                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                  : colors.outline.withValues(alpha: AppOpacity.faint),
+              width: AppTokens.componentSize.dividerThin,
             ),
-          ],
-        ),
-        content: Text(
-          message,
-          style: AppTokens.typography.body.copyWith(
-            color: colors.onSurfaceVariant,
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                      blurRadius: AppTokens.shadow.xl,
+                      offset: AppShadowOffset.md,
+                    ),
+                  ],
+          ),
+          child: ClipRRect(
+            borderRadius: AppTokens.radius.xl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with icon
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: spacing.edgeInsetsAll(spacing.sm),
+                        decoration: BoxDecoration(
+                          color: effectiveIconColor.withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.sm,
+                        ),
+                        child: Icon(
+                          icon ?? Icons.info_outline_rounded,
+                          color: effectiveIconColor,
+                          size: AppTokens.iconSize.md,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTokens.typography.subtitle.copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Message content
+                Padding(
+                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  child: Text(
+                    message,
+                    style: AppTokens.typography.body.copyWith(
+                      color: palette.muted,
+                    ),
+                  ),
+                ),
+                // Footer with button
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.lg),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      label: actionLabel,
+                      onPressed: () => Navigator.of(context).pop(),
+                      minHeight: AppTokens.componentSize.buttonSm,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-        actions: [
-          PrimaryButton(
-            label: actionLabel,
-            onPressed: () => Navigator.of(context).pop(),
-            minHeight: AppTokens.componentSize.buttonSm,
-            expanded: false,
-          ),
-        ],
       ),
     );
   }
@@ -313,6 +448,8 @@ class AppModal {
   }) async {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final controller = TextEditingController(text: initialValue);
 
@@ -349,7 +486,7 @@ class AppModal {
               Text(
                 message,
                 style: AppTokens.typography.body.copyWith(
-                  color: colors.onSurfaceVariant,
+                  color: palette.muted,
                 ),
               ),
               SizedBox(height: spacing.lg),

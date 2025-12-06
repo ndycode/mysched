@@ -27,8 +27,6 @@ class _LoginPageState extends State<LoginPage> {
   String? _globalError;
   String? _pendingVerificationEmail;
 
-
-
   @override
   void dispose() {
     _email.dispose();
@@ -113,7 +111,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final form = AutofillGroup(
@@ -124,20 +124,36 @@ class _LoginPageState extends State<LoginPage> {
           children: [
             if (_globalError != null) ...[
               Container(
-                padding: spacing.edgeInsetsAll(spacing.md),
+                padding: spacing.edgeInsetsAll(spacing.lg),
                 decoration: BoxDecoration(
-                  color: colors.error.withValues(alpha: AppOpacity.highlight),
+                  color: palette.danger.withValues(alpha: AppOpacity.dim),
                   borderRadius: AppTokens.radius.md,
-                ),
-                child: Text(
-                  _globalError!,
-                  style: AppTokens.typography.body.copyWith(
-                    color: colors.error,
-                    fontWeight: AppTokens.fontWeight.semiBold,
+                  border: Border.all(
+                    color: palette.danger.withValues(alpha: AppOpacity.ghost),
+                    width: AppTokens.componentSize.dividerThin,
                   ),
                 ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: palette.danger,
+                      size: AppTokens.iconSize.md,
+                    ),
+                    SizedBox(width: spacing.md),
+                    Expanded(
+                      child: Text(
+                        _globalError!,
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          color: palette.danger,
+                          fontWeight: AppTokens.fontWeight.medium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: spacing.lg),
+              SizedBox(height: spacing.xl),
             ],
             TextFormField(
               controller: _email,
@@ -175,12 +191,12 @@ class _LoginPageState extends State<LoginPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'At least ${AppConstants.minPasswordLengthLogin} characters.',
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: AppTokens.typography.caption.copyWith(
+                  color: palette.muted,
                 ),
               ),
             ),
-            SizedBox(height: spacing.xl),
+            SizedBox(height: spacing.xxl),
             PrimaryButton(
               label: 'Sign in',
               loading: _saving,
@@ -202,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
           expanded: false,
         ),
         if (_pendingVerificationEmail != null) ...[
-          SizedBox(height: spacing.sm),
+          SizedBox(height: spacing.md),
           SecondaryButton(
             label: 'Enter verification code',
             onPressed: _saving ? null : _openVerificationFlow,
@@ -217,7 +233,6 @@ class _LoginPageState extends State<LoginPage> {
       title: 'Welcome back',
       subtitle: 'Sign in to keep your reminders and schedules in sync.',
       bottom: bottomActions,
-
       child: form,
     );
   }

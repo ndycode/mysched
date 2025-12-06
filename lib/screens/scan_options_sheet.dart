@@ -259,6 +259,8 @@ class _FieldColumn extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final content = Column(
@@ -269,7 +271,7 @@ class _FieldColumn extends StatelessWidget {
           style: TextStyle(
             fontSize: 9,
             fontWeight: AppTokens.fontWeight.medium,
-            color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
+            color: palette.muted.withValues(alpha: AppOpacity.soft),
             letterSpacing: 0.3,
           ),
         ),
@@ -304,7 +306,10 @@ class _TableLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final text = Text(
       label,
@@ -312,7 +317,7 @@ class _TableLabel extends StatelessWidget {
       style: TextStyle(
         fontSize: 8,
         fontWeight: AppTokens.fontWeight.semiBold,
-        color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.soft),
+        color: palette.muted.withValues(alpha: AppOpacity.soft),
         letterSpacing: 0.2,
       ),
     );

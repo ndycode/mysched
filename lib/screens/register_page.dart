@@ -117,7 +117,8 @@ class _RegisterPageState extends State<RegisterPage> {
     final hasEmailOrIdCode = message.contains('emailorid');
     final studentIdConflict =
         message.contains('student id') || message.contains('student_id');
-    if (studentIdConflict || (hasEmailOrIdCode && message.contains('student'))) {
+    if (studentIdConflict ||
+        (hasEmailOrIdCode && message.contains('student'))) {
       return 'Student ID already in use';
     }
     final emailConflict = hasEmailOrIdCode ||
@@ -138,7 +139,9 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
     final form = AutofillGroup(
@@ -149,20 +152,36 @@ class _RegisterPageState extends State<RegisterPage> {
           children: [
             if (_globalError != null) ...[
               Container(
-                padding: spacing.edgeInsetsAll(spacing.md),
+                padding: spacing.edgeInsetsAll(spacing.lg),
                 decoration: BoxDecoration(
-                  color: colors.error.withValues(alpha: AppOpacity.highlight),
+                  color: palette.danger.withValues(alpha: AppOpacity.dim),
                   borderRadius: AppTokens.radius.md,
-                ),
-                child: Text(
-                  _globalError!,
-                  style: AppTokens.typography.body.copyWith(
-                    color: colors.error,
-                    fontWeight: AppTokens.fontWeight.semiBold,
+                  border: Border.all(
+                    color: palette.danger.withValues(alpha: AppOpacity.ghost),
+                    width: AppTokens.componentSize.dividerThin,
                   ),
                 ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: palette.danger,
+                      size: AppTokens.iconSize.md,
+                    ),
+                    SizedBox(width: spacing.md),
+                    Expanded(
+                      child: Text(
+                        _globalError!,
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          color: palette.danger,
+                          fontWeight: AppTokens.fontWeight.medium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SizedBox(height: spacing.lg),
+              SizedBox(height: spacing.xl),
             ],
             TextFormField(
               controller: _name,
@@ -226,12 +245,12 @@ class _RegisterPageState extends State<RegisterPage> {
               alignment: Alignment.centerLeft,
               child: Text(
                 'At least ${AppConstants.minPasswordLength} characters.',
-                style: AppTokens.typography.bodySecondary.copyWith(
-                  color: colors.onSurfaceVariant,
+                style: AppTokens.typography.caption.copyWith(
+                  color: palette.muted,
                 ),
               ),
             ),
-            SizedBox(height: spacing.xl),
+            SizedBox(height: spacing.xxl),
             PrimaryButton(
               label: 'Create account',
               loading: _saving,
@@ -249,8 +268,7 @@ class _RegisterPageState extends State<RegisterPage> {
       children: [
         SecondaryButton(
           label: 'Already have an account? Sign in',
-          onPressed:
-              _saving ? null : () => context.go(AppRoutes.login),
+          onPressed: _saving ? null : () => context.go(AppRoutes.login),
           minHeight: AppTokens.componentSize.buttonMd,
         ),
       ],

@@ -97,6 +97,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     return SafeArea(
@@ -134,9 +135,9 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                 child: Material(
                   type: MaterialType.transparency,
                   child: _completed
-                      ? _buildSuccessContent(theme, colors, spacing)
-                      : _buildDeleteContent(
-                          theme, colors, spacing, cardBackground, isDark),
+                      ? _buildSuccessContent(theme, colors, spacing, palette)
+                      : _buildDeleteContent(theme, colors, spacing,
+                          cardBackground, isDark, palette),
                 ),
               ),
             ),
@@ -152,6 +153,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     AppSpacing spacing,
     Color cardBackground,
     bool isDark,
+    ColorPalette palette,
   ) {
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -168,7 +170,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
             title: 'Delete account',
             subtitle: 'This action cannot be undone.',
             icon: Icons.delete_forever_outlined,
-            iconColor: colors.error,
+            iconColor: palette.danger,
             onClose: _busy ? () {} : () => Navigator.of(context).pop(),
           ),
         ),
@@ -187,15 +189,11 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                 Container(
                   padding: spacing.edgeInsetsAll(spacing.lg),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? colors.errorContainer
-                            .withValues(alpha: AppOpacity.overlay)
-                        : colors.errorContainer
-                            .withValues(alpha: AppOpacity.subtle),
+                    color: palette.danger.withValues(alpha: AppOpacity.dim),
                     borderRadius: AppTokens.radius.lg,
                     border: Border.all(
-                      color: colors.error.withValues(alpha: AppOpacity.medium),
-                      width: AppTokens.componentSize.divider,
+                      color: palette.danger.withValues(alpha: AppOpacity.ghost),
+                      width: AppTokens.componentSize.dividerThin,
                     ),
                   ),
                   child: Column(
@@ -203,15 +201,17 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                     children: [
                       Text(
                         'Deleting your account removes your schedules, reminders, and offline backups immediately.',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          color: colors.onSurfaceVariant,
+                        style: AppTokens.typography.body.copyWith(
+                          color: palette.muted,
+                          height: AppTypography.bodyLineHeight,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
                       Text(
                         'Export your timetable first if you think you might need it later.',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          color: colors.onSurfaceVariant,
+                        style: AppTokens.typography.body.copyWith(
+                          color: palette.muted,
+                          height: AppTypography.bodyLineHeight,
                         ),
                       ),
                     ],
@@ -219,7 +219,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
                 ),
                 SizedBox(height: spacing.lg),
                 // Password form
-                _buildForm(theme, colors, spacing),
+                _buildForm(theme, colors, spacing, palette),
               ],
             ),
           ),
@@ -272,6 +272,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     ThemeData theme,
     ColorScheme colors,
     AppSpacing spacing,
+    ColorPalette palette,
   ) {
     return Padding(
       padding: spacing.edgeInsetsAll(spacing.xl),
@@ -285,14 +286,14 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: colors.primary,
+                color: palette.positive,
                 width: AppTokens.componentSize.strokeHeavy,
               ),
             ),
             child: Icon(
               Icons.check,
               size: AppTokens.iconSize.display,
-              color: colors.primary,
+              color: palette.positive,
             ),
           ),
           SizedBox(height: spacing.xl),
@@ -307,7 +308,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
             'Your account and schedule data have been removed.',
             textAlign: TextAlign.center,
             style: AppTokens.typography.body.copyWith(
-              color: colors.onSurfaceVariant,
+              color: palette.muted,
             ),
           ),
           SizedBox(height: spacing.xxl),
@@ -322,7 +323,8 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     );
   }
 
-  Widget _buildForm(ThemeData theme, ColorScheme colors, AppSpacing spacing) {
+  Widget _buildForm(ThemeData theme, ColorScheme colors, AppSpacing spacing,
+      ColorPalette palette) {
     return Form(
       key: _formKey,
       child: Column(
@@ -363,9 +365,9 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
             SizedBox(height: spacing.md),
             Text(
               _error!,
-              style: AppTokens.typography.body.copyWith(
-                color: colors.error,
-                fontWeight: AppTokens.fontWeight.semiBold,
+              style: AppTokens.typography.bodySecondary.copyWith(
+                color: palette.danger,
+                fontWeight: AppTokens.fontWeight.medium,
               ),
             ),
           ],

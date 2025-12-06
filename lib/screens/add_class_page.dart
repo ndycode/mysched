@@ -1,4 +1,6 @@
 // add_class_page.dart
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -240,7 +242,8 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
             initialClass: widget.initialClass,
             isSheet: false,
             onCancel: () => Navigator.of(context).maybePop(),
-            onSaved: (day) => Navigator.of(context).pop(day),
+            onSaved: (day) =>
+                Navigator.of(context, rootNavigator: true).pop(day),
           ),
         ),
       ),
@@ -377,7 +380,8 @@ class _AddClassSheetState extends State<AddClassSheet> {
                           isSheet: true,
                           includeButtons: false,
                           onCancel: () => Navigator.of(context).maybePop(),
-                          onSaved: (day) => Navigator.of(context).pop(day),
+                          onSaved: (day) =>
+                              Navigator.of(context, rootNavigator: true).pop(day),
                         ),
                       ),
                     ),
@@ -596,6 +600,7 @@ class _AddClassFormState extends State<AddClassForm> {
   TimeOfDay _start = const TimeOfDay(hour: 7, minute: 30);
   TimeOfDay _end = const TimeOfDay(hour: 9, minute: 0);
   bool _submitting = false;
+  String? _formError;
 
   bool get _isEditing => widget.isEditing;
 
@@ -794,15 +799,12 @@ class _AddClassFormState extends State<AddClassForm> {
   void triggerAutofill() => _fillWithTestData();
 
   Future<void> _save() async {
+    setState(() => _formError = null);
     if (!_form.currentState!.validate()) return;
 
     // Validate that end time is after start time
     if (!isValidClassTimeRange(_start, _end)) {
-      showAppSnackBar(
-        context,
-        'End time must be after start time.',
-        type: AppSnackBarType.error,
-      );
+      setState(() => _formError = 'End time must be after start time.');
       return;
     }
 
@@ -838,11 +840,8 @@ class _AddClassFormState extends State<AddClassForm> {
       if (classesOverlap(proposed, existing)) {
         final conflictLabel =
             existing.title ?? existing.code ?? 'another class';
-        showAppSnackBar(
-          context,
-          'This class overlaps with $conflictLabel. Adjust the time or day.',
-          type: AppSnackBarType.error,
-        );
+        setState(() => _formError =
+            'This class overlaps with $conflictLabel. Adjust the time or day.');
         return;
       }
     }
@@ -876,23 +875,29 @@ class _AddClassFormState extends State<AddClassForm> {
         );
       }
 
-      // Ensure the new class is visible to the scheduler
-      await widget.api.refreshMyClasses();
-      // Short delay to allow DB propagation if needed
-      await Future.delayed(AppMotionSystem.deliberate);
-
-      await NotifScheduler.resync(api: widget.api);
-      if (!mounted) return;
-      widget.onSaved(day);
+      if (mounted) {
+        widget.onSaved(day);
+      }
+      unawaited(_postSaveSync());
     } catch (e) {
       if (!mounted) return;
-      showAppSnackBar(
-        context,
-        _isEditing ? 'Update failed: $e' : 'Save failed: $e',
-        type: AppSnackBarType.error,
-      );
+      setState(() {
+        _formError = _isEditing
+            ? 'Update failed: $e'
+            : 'Save failed: $e';
+      });
     } finally {
       if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  Future<void> _postSaveSync() async {
+    try {
+      await widget.api.refreshMyClasses();
+      await Future.delayed(AppMotionSystem.deliberate);
+      await NotifScheduler.resync(api: widget.api);
+    } catch (error, stack) {
+      AppLog.error(_scope, 'post_save_sync_failed', error: error, stack: stack);
     }
   }
 
@@ -976,41 +981,84 @@ class _AddClassFormState extends State<AddClassForm> {
           banner,
           SizedBox(height: AppTokens.spacing.md),
         ],
-        DropdownButtonFormField<String?>(
-          key: ValueKey<String?>(_selectedInstructorId),
-          initialValue: _selectedInstructorId,
-          decoration: decorationBuilder('Instructor (optional)'),
-          items: [
-            const DropdownMenuItem<String?>(
-              value: null,
-              child: Text('No instructor'),
+        InkWell(
+          onTap: _loadingInstructors
+              ? null
+              : () async {
+                  // Build options list: null for "No instructor" + all instructors
+                  final options = <String?>[null, ..._instructors.map((i) => i.id)];
+                  final picked = await showAppOptionPicker<String?>(
+                    context: context,
+                    options: options,
+                    selectedValue: _selectedInstructorId,
+                    labelBuilder: (value) {
+                      if (value == null) return 'No instructor';
+                      final instructor = _findInstructorById(value);
+                      return instructor?.name ?? 'Unknown';
+                    },
+                    title: 'Select instructor',
+                    icon: Icons.person_rounded,
+                  );
+                  if (picked != _selectedInstructorId) {
+                    setState(() {
+                      _selectedInstructorId = picked;
+                      final selected = _findInstructorById(picked);
+                      if (selected != null) {
+                        _instructorManuallyEdited = false;
+                        _instructorText.text = selected.name;
+                        _selectedInstructorAvatar = selected.avatarUrl;
+                      } else {
+                        _instructorText.clear();
+                        _instructorManuallyEdited = false;
+                        _selectedInstructorAvatar = null;
+                      }
+                    });
+                  }
+                },
+          borderRadius: AppTokens.radius.lg,
+          child: Container(
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.lg,
+              vertical: spacing.lg,
             ),
-            ..._instructors.map(
-              (option) => DropdownMenuItem<String?>(
-                value: option.id,
-                child: Text(option.name),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHigh,
+              borderRadius: AppTokens.radius.lg,
+              border: Border.all(
+                color: colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder),
               ),
             ),
-          ],
-          isDense: true,
-          isExpanded: true,
-          onChanged: _loadingInstructors
-              ? null
-              : (value) {
-                  setState(() {
-                    _selectedInstructorId = value;
-                    final selected = _findInstructorById(value);
-                    if (selected != null) {
-                      _instructorManuallyEdited = false;
-                      _instructorText.text = selected.name;
-                      _selectedInstructorAvatar = selected.avatarUrl;
-                    } else {
-                      _instructorText.clear();
-                      _instructorManuallyEdited = false;
-                      _selectedInstructorAvatar = null;
-                    }
-                  });
-                },
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Instructor (optional)',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                        ),
+                      ),
+                      SizedBox(height: spacing.xs),
+                      Text(
+                        _selectedInstructorId == null
+                            ? 'No instructor'
+                            : _findInstructorById(_selectedInstructorId)?.name ?? 'Unknown',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_drop_down_rounded,
+                  color: colors.onSurfaceVariant,
+                ),
+              ],
+            ),
+          ),
         ),
         SizedBox(height: AppTokens.spacing.md),
         TextFormField(
@@ -1100,6 +1148,41 @@ class _AddClassFormState extends State<AddClassForm> {
     final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
 
     formSections.addAll([
+      if (_formError != null) ...[
+        Container(
+          width: double.infinity,
+          padding: spacing.edgeInsetsAll(spacing.lg),
+          decoration: BoxDecoration(
+            color: colors.error.withValues(alpha: AppOpacity.highlight),
+            borderRadius: AppTokens.radius.lg,
+            border: Border.all(
+              color: colors.error.withValues(alpha: AppOpacity.overlay),
+              width: AppTokens.componentSize.dividerThin,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: colors.error,
+                size: AppTokens.iconSize.md,
+              ),
+              SizedBox(width: spacing.md),
+              Expanded(
+                child: Text(
+                  _formError!,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: colors.onErrorContainer,
+                    fontWeight: AppTokens.fontWeight.semiBold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: spacing.md),
+      ],
       Container(
         padding: spacing.edgeInsetsAll(spacing.xxl),
         decoration: BoxDecoration(

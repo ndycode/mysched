@@ -524,11 +524,11 @@ class DashboardScreenState extends State<DashboardScreen>
   }
 
   Future<void> _openAddReminder() async {
-    final created = await AppModal.sheet<bool>(
+    final created = await AppModal.sheet<int?>(
       context: context,
       builder: (_) => AddReminderSheet(api: _remindersApi),
     );
-    if (created == true && mounted) {
+    if (created != null && mounted) {
       await _loadReminders();
     }
   }

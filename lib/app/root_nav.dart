@@ -178,11 +178,11 @@ class _RootNavState extends State<RootNav>
   Future<void> _openAddClass() async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     _closeQuickActions();
-    final created = await AppModal.sheet<bool?>(
+    final addedDay = await AppModal.sheet<int?>(
       context: context,
       builder: (context) => AddClassSheet(api: _api),
     );
-    if (created == true) {
+    if (addedDay != null) {
       await _schedulesKey.currentState?.reload();
       await _dashboardKey.currentState?.refreshOnTabVisit();
     }
@@ -191,11 +191,11 @@ class _RootNavState extends State<RootNav>
   Future<void> _openAddReminder() async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     _closeQuickActions();
-    final result = await AppModal.sheet<bool?>(
+    final result = await AppModal.sheet<int?>(
       context: context,
       builder: (context) => AddReminderSheet(api: _remindersApi),
     );
-    if (result == true) {
+    if (result != null) {
       await _remindersKey.currentState?.refreshOnTabVisit();
       await _dashboardKey.currentState?.refreshOnTabVisit();
     }

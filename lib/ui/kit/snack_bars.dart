@@ -12,6 +12,7 @@ void showAppSnackBar(
   VoidCallback? onAction,
   Duration? duration,
   bool replaceQueue = true,
+  bool useRootScaffold = true,
 }) {
   final theme = Theme.of(context);
   final colors = theme.colorScheme;
@@ -126,15 +127,25 @@ void showAppSnackBar(
         : null,
   );
 
-  final messenger = ScaffoldMessenger.of(context);
+  ScaffoldMessengerState? messenger;
+  if (useRootScaffold) {
+    final rootContext = Navigator.of(context, rootNavigator: true).context;
+    messenger = ScaffoldMessenger.maybeOf(rootContext);
+  }
+  messenger ??= ScaffoldMessenger.maybeOf(context);
+
   if (replaceQueue) {
     messenger
-      ..clearSnackBars()
+      ?..clearSnackBars()
       ..hideCurrentSnackBar();
   }
-  messenger.showSnackBar(snackBar);
+  messenger?.showSnackBar(snackBar);
 }
 
 void hideAppSnackBars(BuildContext context) {
   ScaffoldMessenger.maybeOf(context)?.clearSnackBars();
+  final rootContext = Navigator.of(context, rootNavigator: true).context;
+  if (rootContext != context) {
+    ScaffoldMessenger.maybeOf(rootContext)?.clearSnackBars();
+  }
 }

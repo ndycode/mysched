@@ -810,25 +810,42 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(height: spacing.md),
           Align(
             alignment: Alignment.centerLeft,
-            child: SecondaryButton(
-              leading: _controller.readinessLoading
-                  ? SizedBox(
-                      width: AppTokens.componentSize.badgeMd,
-                      height: AppTokens.componentSize.badgeMd,
-                      child: CircularProgressIndicator(
-                        strokeWidth: AppTokens.spacing.micro,
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(colors.primary),
-                      ),
-                    )
-                  : const Icon(Icons.refresh_rounded),
-              label:
-                  _controller.readinessLoading ? 'Checking…' : 'Refresh status',
-              onPressed: _controller.readinessLoading
-                  ? null
-                  : _controller.refreshAlarmReadiness,
-              expanded: false,
-              minHeight: AppTokens.componentSize.buttonSm,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: _controller.readinessLoading
+                    ? null
+                    : _controller.refreshAlarmReadiness,
+                borderRadius: AppTokens.radius.pill,
+                child: Container(
+                  width: AppTokens.componentSize.buttonXs,
+                  height: AppTokens.componentSize.buttonXs,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: colors.outline.withValues(alpha: AppOpacity.ghost),
+                      width: AppTokens.componentSize.dividerThin,
+                    ),
+                  ),
+                  child: Center(
+                    child: _controller.readinessLoading
+                        ? SizedBox(
+                            width: AppTokens.iconSize.sm,
+                            height: AppTokens.iconSize.sm,
+                            child: CircularProgressIndicator(
+                              strokeWidth: AppTokens.spacing.micro,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(colors.primary),
+                            ),
+                          )
+                        : Icon(
+                            Icons.refresh_rounded,
+                            size: AppTokens.iconSize.md,
+                            color: colors.onSurfaceVariant,
+                          ),
+                  ),
+                ),
+              ),
             ),
           ),
         ],

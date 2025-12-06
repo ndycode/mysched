@@ -162,6 +162,23 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
     );
   }
 
+  Future<void> _confirmResetReminders() async {
+    if (_controller.loading) return;
+    final confirm = await AppModal.confirm(
+      context: context,
+      title: 'Reset reminders?',
+      message:
+          'This will remove all reminders for this account. Scheduled notifications will be cancelled.',
+      confirmLabel: 'Reset',
+      isDanger: true,
+    );
+    if (confirm != true) return;
+
+    await _controller.resetReminders();
+    _toast('Reminders reset');
+    await _controller.refresh();
+  }
+
   Future<void> _snoozeReminder(ReminderEntry entry) async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     final duration = await AppModal.sheet<Duration>(
@@ -223,10 +240,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             );
             break;
           case _ReminderSummaryMenu.resetReminders:
-            _controller.resetReminders().then((_) {
-              _toast('Reminders reset');
-              _controller.refresh();
-            });
+            _confirmResetReminders();
             break;
         }
       },

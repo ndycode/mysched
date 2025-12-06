@@ -251,6 +251,7 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     final borderColor = elevatedCardBorder(theme, solid: true);
     final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     final heroSubtitle = _hasEmail
@@ -328,7 +329,8 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
                             icon: _isEmailChange
                                 ? Icons.mail_outline_rounded
                                 : Icons.person_add_outlined,
-                            label: _isEmailChange ? 'Email change' : 'New account',
+                            label:
+                                _isEmailChange ? 'Email change' : 'New account',
                           ),
                         ),
                       ),
@@ -345,11 +347,11 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
                             children: [
                               // Verification code section
                               _buildVerificationSection(
-                                  theme, colors, spacing, isDark),
+                                  theme, colors, spacing, isDark, palette),
                               SizedBox(height: spacing.lg),
                               // Resend section
                               _buildResendSection(
-                                  theme, colors, spacing, isDark),
+                                  theme, colors, spacing, isDark, palette),
                             ],
                           ),
                         ),
@@ -370,6 +372,7 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     ColorScheme colors,
     AppSpacing spacing,
     bool isDark,
+    ColorPalette palette,
   ) {
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
@@ -397,22 +400,30 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             SizedBox(height: spacing.md),
             if (_errorText != null) ...[
               Container(
-                padding: spacing.edgeInsetsAll(spacing.md),
+                padding: spacing.edgeInsetsAll(spacing.lg),
                 margin: EdgeInsets.only(bottom: spacing.lg),
                 decoration: BoxDecoration(
-                  color: colors.error.withValues(alpha: AppOpacity.highlight),
+                  color: palette.danger.withValues(alpha: AppOpacity.dim),
                   borderRadius: AppTokens.radius.md,
+                  border: Border.all(
+                    color: palette.danger.withValues(alpha: AppOpacity.ghost),
+                    width: AppTokens.componentSize.dividerThin,
+                  ),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.error_outline_rounded, color: colors.error),
-                    SizedBox(width: spacing.sm),
+                    Icon(
+                      Icons.error_outline_rounded,
+                      color: palette.danger,
+                      size: AppTokens.iconSize.md,
+                    ),
+                    SizedBox(width: spacing.md),
                     Expanded(
                       child: Text(
                         _errorText!,
-                        style: AppTokens.typography.body.copyWith(
-                          color: colors.error,
-                          fontWeight: AppTokens.fontWeight.semiBold,
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          color: palette.danger,
+                          fontWeight: AppTokens.fontWeight.medium,
                         ),
                       ),
                     ),
@@ -423,14 +434,14 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             Text(
               'Email',
               style: AppTokens.typography.caption.copyWith(
-                color: colors.onSurfaceVariant,
+                color: palette.muted,
               ),
             ),
             SizedBox(height: spacing.xs),
             SelectableText(
               _hasEmail ? widget.email : 'Missing email',
               style: AppTokens.typography.subtitle.copyWith(
-                color: _hasEmail ? colors.onSurface : colors.error,
+                color: _hasEmail ? colors.onSurface : palette.danger,
                 fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
@@ -467,11 +478,11 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             SizedBox(height: spacing.md),
             Text(
               'Codes expire after a few minutes. Enter digits only.',
-              style: AppTokens.typography.bodySecondary.copyWith(
-                color: colors.onSurfaceVariant,
+              style: AppTokens.typography.caption.copyWith(
+                color: palette.muted,
               ),
             ),
-            SizedBox(height: spacing.xl),
+            SizedBox(height: spacing.xxl),
             PrimaryButton(
               label: _verifying ? 'Verifying...' : 'Verify email',
               onPressed:
@@ -489,6 +500,7 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     ColorScheme colors,
     AppSpacing spacing,
     bool isDark,
+    ColorPalette palette,
   ) {
     final cardBackground = elevatedCardBackground(theme, solid: true);
     final borderColor = elevatedCardBorder(theme, solid: true);
@@ -515,8 +527,9 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
           SizedBox(height: spacing.md),
           Text(
             'Make sure you can access ${widget.email}. Check spam or promotions folders if you do not see the email.',
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant,
+            style: AppTokens.typography.body.copyWith(
+              color: palette.muted,
+              height: AppTypography.bodyLineHeight,
             ),
           ),
           SizedBox(height: spacing.lg),

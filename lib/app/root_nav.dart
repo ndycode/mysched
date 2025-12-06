@@ -255,27 +255,36 @@ class _RootNavState extends State<RootNav>
   Widget _buildQuickActions(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: AppLayout.pagePaddingHorizontal),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
         child: Container(
           width: double.infinity,
-          margin: EdgeInsets.only(bottom: AppTokens.spacing.lg),
-          padding: EdgeInsets.symmetric(horizontal: AppLayout.pagePaddingHorizontal, vertical: AppLayout.pagePaddingHorizontal),
+          margin: EdgeInsets.only(bottom: spacing.lg),
+          padding: spacing.edgeInsetsAll(spacing.xxl),
           decoration: BoxDecoration(
-            color: colors.surface,
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.xl,
             border: Border.all(
-              color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+              color: isDark
+                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                  : colors.outline,
+              width: isDark
+                  ? AppTokens.componentSize.divider
+                  : AppTokens.componentSize.dividerThin,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: colors.shadow.withValues(alpha: AppOpacity.border),
-                blurRadius: AppTokens.shadow.xxl,
-                offset: AppShadowOffset.panel,
-              ),
-            ],
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                      blurRadius: AppTokens.shadow.lg,
+                      offset: AppShadowOffset.sm,
+                    ),
+                  ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -297,21 +306,21 @@ class _RootNavState extends State<RootNav>
                   ),
                 ],
               ),
-              SizedBox(height: AppTokens.spacing.md),
+            SizedBox(height: spacing.lg),
               QuickActionTile(
                 icon: Icons.library_add_outlined,
                 label: 'Add custom class',
                 description: 'Create a class manually.',
                 onTap: _openAddClass,
               ),
-              SizedBox(height: AppTokens.spacing.md),
+            SizedBox(height: spacing.md),
               QuickActionTile(
                 icon: Icons.alarm_add_outlined,
                 label: 'Add reminder',
                 description: 'Plan an assignment or task.',
                 onTap: _openAddReminder,
               ),
-              SizedBox(height: AppTokens.spacing.md),
+            SizedBox(height: spacing.md),
               QuickActionTile(
                 icon: Icons.camera_alt_outlined,
                 label: 'Scan schedule',

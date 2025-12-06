@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../services/admin_service.dart';
@@ -96,16 +97,22 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
 
-    final backButton = IconButton(
-      splashRadius: AppInteraction.splashRadius,
-      onPressed: () => Navigator.of(context).maybePop(),
-      icon: CircleAvatar(
-        radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
+    final backButton = PressableScale(
+      onTap: () {
+        if (context.canPop()) {
+          context.pop();
+        }
+      },
+      child: Container(
+        padding: EdgeInsets.all(spacing.sm),
+        decoration: BoxDecoration(
+          color: colors.onSurface.withValues(alpha: AppOpacity.faint),
+          borderRadius: AppTokens.radius.md,
+        ),
         child: Icon(
           Icons.arrow_back_rounded,
-          color: colors.primary,
-          size: AppTokens.iconSize.sm,
+          size: AppTokens.iconSize.md,
+          color: colors.onSurfaceVariant,
         ),
       ),
     );
@@ -125,15 +132,9 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
             screenName: 'admin_issue_reports',
             hero: hero,
             sections: [
-              ScreenSection(
+              const ScreenSection(
                 decorated: false,
-                child: Column(
-                  children: [
-                    const SkeletonCard(showAvatar: false, lineCount: 3),
-                    SizedBox(height: spacing.lg),
-                    const SkeletonList(itemCount: 3, showHeader: true),
-                  ],
-                ),
+                child: SkeletonAdminIssueReports(reportCount: 3),
               ),
             ],
             padding: EdgeInsets.fromLTRB(
@@ -341,48 +342,52 @@ class _ClassIssueReportsPageState extends State<ClassIssueReportsPage> {
   Widget _buildFilterChips(ThemeData theme) {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final chips = <Widget>[];
-
-    for (final value in _filters) {
-      final bool selected = _controller.filter == value;
-      chips.add(
-        ChoiceChip(
-          label: Text(_filterLabel(value)),
-          selected: selected,
-          onSelected: (bool active) {
-            if (!active || value == _controller.filter) return;
-            _controller.setFilter(value);
-          },
-          selectedColor: colors.primary.withValues(alpha: AppOpacity.statusBg),
-          backgroundColor: colors.surface,
-          labelStyle: theme.textTheme.bodyMedium?.copyWith(
-            color: selected ? colors.primary : colors.onSurfaceVariant,
-            fontWeight: selected ? AppTokens.fontWeight.semiBold : AppTokens.fontWeight.medium,
+    return SizedBox(
+      width: double.infinity,
+      child: SegmentedButton<String>(
+        showSelectedIcon: false,
+        expandedInsets: EdgeInsets.zero,
+        style: ButtonStyle(
+          padding: WidgetStateProperty.all(
+            spacing.edgeInsetsSymmetric(
+              horizontal: spacing.md,
+              vertical: spacing.md,
+            ),
+          ),
+          side: WidgetStateProperty.resolveWith(
+            (states) => BorderSide(
+              color: states.contains(WidgetState.selected)
+                  ? colors.primary
+                  : colors.outline.withValues(alpha: AppOpacity.barrier),
+              width: AppTokens.componentSize.dividerMedium,
+            ),
+          ),
+          backgroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colors.primary.withValues(alpha: AppOpacity.statusBg)
+                : colors.surfaceContainerHighest
+                    .withValues(alpha: AppOpacity.barrier),
+          ),
+          foregroundColor: WidgetStateProperty.resolveWith(
+            (states) => states.contains(WidgetState.selected)
+                ? colors.primary
+                : colors.onSurfaceVariant
+                    .withValues(alpha: AppOpacity.prominent),
           ),
         ),
-      );
-    }
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.md),
-      decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
-            ? colors.surfaceContainerHigh
-            : colors.surfaceContainerHighest,
-        borderRadius: AppTokens.radius.xxl,
-        border: Border.all(
-          color: theme.brightness == Brightness.dark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: theme.brightness == Brightness.dark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-      ),
-      child: Wrap(
-        spacing: spacing.sm,
-        runSpacing: spacing.sm,
-        children: chips,
+        segments: _filters.map((value) {
+          return ButtonSegment<String>(
+            value: value,
+            label: Text(
+              _filterLabel(value),
+              softWrap: false,
+            ),
+          );
+        }).toList(),
+        selected: <String>{_controller.filter},
+        onSelectionChanged: (value) {
+          if (value.isNotEmpty) _controller.setFilter(value.first);
+        },
       ),
     );
   }

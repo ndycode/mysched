@@ -33,9 +33,9 @@ class QuickActionTile extends StatelessWidget {
       onTap: onTap,
       borderRadius: AppTokens.radius.lg,
       child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: AppTokens.spacing.lg + AppTokens.spacing.micro,
-          vertical: AppTokens.spacing.md + AppTokens.spacing.micro,
+        padding: AppTokens.spacing.edgeInsetsSymmetric(
+          horizontal: AppTokens.spacing.lg,
+          vertical: AppTokens.spacing.md,
         ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
@@ -63,15 +63,16 @@ class QuickActionTile extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: AppTokens.typography.subtitle.copyWith(
                       fontWeight: AppTokens.fontWeight.semiBold,
+                      color: colors.onSurface,
                     ),
                   ),
                   SizedBox(height: AppTokens.spacing.xs),
                   Text(
                     description,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+                    style: AppTokens.typography.caption.copyWith(
+                      color: colors.onSurfaceVariant,
                     ),
                   ),
                 ],

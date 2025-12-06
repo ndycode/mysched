@@ -203,6 +203,29 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       loading: !_profileHydrated,
     );
 
+    final shellPadding = EdgeInsets.fromLTRB(
+      spacing.xl,
+      media.padding.top + spacing.xxxl,
+      spacing.xl,
+      spacing.quad + AppLayout.bottomNavSafePadding,
+    );
+
+    // Show skeleton loading state
+    if (!_profileHydrated) {
+      return ScreenShell(
+        screenName: 'account_overview',
+        hero: heroContent,
+        sections: [
+          ScreenSection(
+            decorated: false,
+            child: const SkeletonAccountOverview(),
+          ),
+        ],
+        padding: shellPadding,
+        safeArea: false,
+      );
+    }
+
     return ScreenShell(
       screenName: 'account_overview',
       hero: heroContent,
@@ -228,12 +251,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           ),
         ),
       ],
-      padding: EdgeInsets.fromLTRB(
-        spacing.xl,
-        media.padding.top + spacing.xxxl,
-        spacing.xl,
-        spacing.quad + AppLayout.bottomNavSafePadding,
-      ),
+      padding: shellPadding,
       safeArea: false,
     );
   }

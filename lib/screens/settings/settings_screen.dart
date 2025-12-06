@@ -119,6 +119,7 @@ class _SettingsPageState extends State<SettingsPage> {
       options: _leadOptions,
       selected: _controller.leadMinutes,
       suffix: 'minutes',
+      icon: Icons.alarm_rounded,
     );
     if (value == null) return;
     _controller.setLeadMinutes(value);
@@ -130,6 +131,7 @@ class _SettingsPageState extends State<SettingsPage> {
       options: _snoozeOptions,
       selected: _controller.snoozeMinutes,
       suffix: 'minutes',
+      icon: Icons.snooze_rounded,
     );
     if (value == null) return;
     _controller.setSnoozeMinutes(value);
@@ -141,6 +143,7 @@ class _SettingsPageState extends State<SettingsPage> {
       options: const [0, 5, 10, 15, 30, 60],
       selected: _controller.reminderLeadMinutes,
       suffix: 'minutes before',
+      icon: Icons.schedule_rounded,
     );
     if (value == null) return;
     _controller.setReminderLeadMinutes(value);
@@ -181,91 +184,150 @@ class _SettingsPageState extends State<SettingsPage> {
     required List<int> options,
     required int selected,
     required String suffix,
+    IconData? icon,
   }) {
     return AppModal.alert<int>(
       context: context,
       builder: (context) {
         final theme = Theme.of(context);
+        final colors = theme.colorScheme;
+        final isDark = theme.brightness == Brightness.dark;
         final spacing = AppTokens.spacing;
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: spacing.edgeInsetsAll(spacing.lg),
+          insetPadding: spacing.edgeInsetsAll(spacing.xl),
           child: Container(
             decoration: BoxDecoration(
-              color: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.surfaceContainerHigh
-                  : theme.colorScheme.surface,
-              borderRadius: AppTokens.radius.xxl,
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+              borderRadius: AppTokens.radius.xl,
               border: Border.all(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.outline
-                        .withValues(alpha: AppOpacity.overlay)
-                    : theme.colorScheme.outline,
-                width: theme.brightness == Brightness.dark
-                    ? AppTokens.componentSize.divider
-                    : AppTokens.componentSize.dividerThin,
+                color: isDark
+                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                    : colors.outline.withValues(alpha: AppOpacity.faint),
+                width: AppTokens.componentSize.dividerThin,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: theme.colorScheme.shadow
-                      .withValues(alpha: AppOpacity.statusBg),
-                  blurRadius: AppTokens.shadow.xxl,
-                  offset: AppShadowOffset.modal,
-                ),
-              ],
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                        blurRadius: AppTokens.shadow.xl,
+                        offset: AppShadowOffset.md,
+                      ),
+                    ],
             ),
             child: ClipRRect(
-              borderRadius: AppTokens.radius.xxl,
+              borderRadius: AppTokens.radius.xl,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: spacing.edgeInsetsAll(spacing.xxl),
-                    child: Text(
-                      title,
-                      style: AppTokens.typography.headline.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
+                  // Header with icon
+                  Container(
+                    padding: spacing.edgeInsetsAll(spacing.xl),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        bottom: BorderSide(
+                          color: colors.outline.withValues(alpha: AppOpacity.faint),
+                          width: AppTokens.componentSize.dividerThin,
+                        ),
                       ),
                     ),
+                    child: Row(
+                      children: [
+                        if (icon != null) ...[
+                          Container(
+                            padding: spacing.edgeInsetsAll(spacing.sm),
+                            decoration: BoxDecoration(
+                              color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                              borderRadius: AppTokens.radius.sm,
+                            ),
+                            child: Icon(
+                              icon,
+                              color: colors.primary,
+                              size: AppTokens.iconSize.md,
+                            ),
+                          ),
+                          SizedBox(width: spacing.md),
+                        ],
+                        Expanded(
+                          child: Text(
+                            title,
+                            style: AppTokens.typography.subtitle.copyWith(
+                              fontWeight: AppTokens.fontWeight.semiBold,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
+                  // Options
                   Flexible(
                     child: SingleChildScrollView(
+                      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: options.map((value) {
                           final displayLabel = '$value $suffix';
                           final isSelected = value == selected;
 
-                          return InkWell(
+                          return PressableScale(
                             onTap: () => Navigator.of(context).pop(value),
-                            child: Padding(
+                            child: Container(
+                              margin: spacing.edgeInsetsSymmetric(
+                                horizontal: spacing.sm,
+                                vertical: spacing.xs,
+                              ),
                               padding: spacing.edgeInsetsSymmetric(
-                                horizontal: spacing.xl,
+                                horizontal: spacing.lg,
                                 vertical: spacing.md,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                                    : Colors.transparent,
+                                borderRadius: AppTokens.radius.md,
                               ),
                               child: Row(
                                 children: [
+                                  // Radio button
+                                  Container(
+                                    width: AppTokens.iconSize.md,
+                                    height: AppTokens.iconSize.md,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: isSelected ? colors.primary : colors.outline,
+                                        width: isSelected ? 5 : 2,
+                                      ),
+                                      color: isSelected ? colors.primary : Colors.transparent,
+                                    ),
+                                    child: isSelected
+                                        ? Center(
+                                            child: Container(
+                                              width: 6,
+                                              height: 6,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: colors.onPrimary,
+                                              ),
+                                            ),
+                                          )
+                                        : null,
+                                  ),
+                                  SizedBox(width: spacing.md),
                                   Expanded(
                                     child: Text(
                                       displayLabel,
                                       style: AppTokens.typography.body.copyWith(
                                         fontWeight: isSelected
-                                            ? AppTokens.fontWeight.semiBold
+                                            ? AppTokens.fontWeight.medium
                                             : AppTokens.fontWeight.regular,
-                                        color: isSelected
-                                            ? theme.colorScheme.primary
-                                            : theme.colorScheme.onSurface,
+                                        color: isSelected ? colors.primary : colors.onSurface,
                                       ),
                                     ),
                                   ),
-                                  if (isSelected)
-                                    Icon(
-                                      Icons.check_rounded,
-                                      color: theme.colorScheme.primary,
-                                      size: AppTokens.iconSize.md,
-                                    ),
                                 ],
                               ),
                             ),
@@ -274,16 +336,24 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: spacing.md),
-                  Padding(
-                    padding: spacing.edgeInsetsAll(spacing.md),
+                  // Footer
+                  Container(
+                    padding: spacing.edgeInsetsAll(spacing.lg),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(
+                          color: colors.outline.withValues(alpha: AppOpacity.faint),
+                          width: AppTokens.componentSize.dividerThin,
+                        ),
+                      ),
+                    ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         SecondaryButton(
                           label: 'Cancel',
                           onPressed: () => Navigator.of(context).pop(),
-                          minHeight: AppTokens.componentSize.buttonMd,
+                          minHeight: AppTokens.componentSize.buttonSm,
                           expanded: false,
                         ),
                       ],
@@ -1402,74 +1472,98 @@ class _RingtonePickerState extends State<_RingtonePicker> {
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsAll(spacing.lg),
+      insetPadding: spacing.edgeInsetsAll(spacing.xl),
       child: Container(
         constraints: BoxConstraints(
           maxHeight: MediaQuery.of(context).size.height * 0.6,
         ),
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,
-          borderRadius: AppTokens.radius.xxl,
+          borderRadius: AppTokens.radius.xl,
           border: Border.all(
             color: isDark
                 ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                : colors.outline,
-            width: isDark
-                ? AppTokens.componentSize.divider
-                : AppTokens.componentSize.dividerThin,
+                : colors.outline.withValues(alpha: AppOpacity.faint),
+            width: AppTokens.componentSize.dividerThin,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: colors.shadow.withValues(alpha: AppOpacity.statusBg),
-              blurRadius: AppTokens.shadow.xxl,
-              offset: AppShadowOffset.modal,
-            ),
-          ],
+          boxShadow: isDark
+              ? null
+              : [
+                  BoxShadow(
+                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+                    blurRadius: AppTokens.shadow.xl,
+                    offset: AppShadowOffset.md,
+                  ),
+                ],
         ),
         child: ClipRRect(
-          borderRadius: AppTokens.radius.xxl,
+          borderRadius: AppTokens.radius.xl,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Padding(
-                padding: spacing.edgeInsetsAll(spacing.xxl),
+              // Header with divider
+              Container(
+                padding: spacing.edgeInsetsAll(spacing.xl),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      color: colors.outline.withValues(alpha: AppOpacity.faint),
+                      width: AppTokens.componentSize.dividerThin,
+                    ),
+                  ),
+                ),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.music_note_rounded,
-                      color: colors.primary,
-                      size: AppTokens.iconSize.lg,
+                    Container(
+                      padding: spacing.edgeInsetsAll(spacing.sm),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                        borderRadius: AppTokens.radius.sm,
+                      ),
+                      child: Icon(
+                        Icons.music_note_rounded,
+                        color: colors.primary,
+                        size: AppTokens.iconSize.md,
+                      ),
                     ),
                     SizedBox(width: spacing.md),
                     Text(
                       'Select Ringtone',
-                      style: AppTokens.typography.headline.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
+                      style: AppTokens.typography.subtitle.copyWith(
+                        fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
                   ],
                 ),
               ),
+              // Ringtone list
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
+                  padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
                   itemCount: widget.ringtones.length,
                   itemBuilder: (context, index) {
                     final ringtone = widget.ringtones[index];
                     final isSelected = ringtone.uri == widget.selectedUri;
                     final isPlaying = ringtone.uri == _playingUri;
 
-                    return InkWell(
+                    return PressableScale(
                       onTap: () => Navigator.of(context).pop(ringtone),
                       child: Container(
-                        color: isPlaying
-                            ? colors.primary
-                                .withValues(alpha: AppOpacity.overlay)
-                            : null,
+                        margin: spacing.edgeInsetsSymmetric(
+                          horizontal: spacing.sm,
+                          vertical: spacing.xs,
+                        ),
                         padding: spacing.edgeInsetsSymmetric(
-                          horizontal: spacing.xl,
+                          horizontal: spacing.lg,
                           vertical: spacing.md,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isSelected || isPlaying
+                              ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                              : Colors.transparent,
+                          borderRadius: AppTokens.radius.md,
                         ),
                         child: Row(
                           children: [
@@ -1482,18 +1576,13 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                                 decoration: BoxDecoration(
                                   color: isPlaying
                                       ? colors.primary
-                                      : colors.primary.withValues(
-                                          alpha: AppOpacity.overlay),
+                                      : colors.primary.withValues(alpha: AppOpacity.overlay),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
-                                  isPlaying
-                                      ? Icons.volume_up_rounded
-                                      : Icons.play_arrow_rounded,
+                                  isPlaying ? Icons.volume_up_rounded : Icons.play_arrow_rounded,
                                   size: AppTokens.iconSize.sm,
-                                  color: isPlaying
-                                      ? colors.onPrimary
-                                      : colors.primary,
+                                  color: isPlaying ? colors.onPrimary : colors.primary,
                                 ),
                               ),
                             ),
@@ -1503,11 +1592,9 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                                 ringtone.title,
                                 style: AppTokens.typography.body.copyWith(
                                   fontWeight: isSelected || isPlaying
-                                      ? AppTokens.fontWeight.semiBold
+                                      ? AppTokens.fontWeight.medium
                                       : AppTokens.fontWeight.regular,
-                                  color: isSelected
-                                      ? colors.primary
-                                      : colors.onSurface,
+                                  color: isSelected ? colors.primary : colors.onSurface,
                                 ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -1534,16 +1621,24 @@ class _RingtonePickerState extends State<_RingtonePicker> {
                   },
                 ),
               ),
-              SizedBox(height: spacing.md),
-              Padding(
-                padding: spacing.edgeInsetsAll(spacing.md),
+              // Footer with divider
+              Container(
+                padding: spacing.edgeInsetsAll(spacing.lg),
+                decoration: BoxDecoration(
+                  border: Border(
+                    top: BorderSide(
+                      color: colors.outline.withValues(alpha: AppOpacity.faint),
+                      width: AppTokens.componentSize.dividerThin,
+                    ),
+                  ),
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     SecondaryButton(
                       label: 'Cancel',
                       onPressed: () => Navigator.of(context).pop(),
-                      minHeight: AppTokens.componentSize.buttonMd,
+                      minHeight: AppTokens.componentSize.buttonSm,
                       expanded: false,
                     ),
                   ],

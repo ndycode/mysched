@@ -30,6 +30,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
   late final SettingsController _controller;
   bool _adminSnackShown = false;
+  List<AlarmSound> _deviceRingtones = [];
+  bool _ringtonesLoading = true;
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
@@ -42,7 +44,20 @@ class _SettingsPageState extends State<SettingsPage> {
     _bindControllerEvents();
     ConnectionMonitor.instance.startMonitoring();
     OfflineQueue.instance.init();
+    _loadDeviceRingtones();
+  }
 
+  Future<void> _loadDeviceRingtones() async {
+    final sounds = await LocalNotifs.getAlarmSounds();
+    if (!mounted) return;
+    setState(() {
+      // Add default option at the start
+      _deviceRingtones = [
+        const AlarmSound(title: 'Default System Alarm', uri: 'default'),
+        ...sounds,
+      ];
+      _ringtonesLoading = false;
+    });
   }
 
   @override
@@ -121,30 +136,44 @@ class _SettingsPageState extends State<SettingsPage> {
     _controller.setSnoozeMinutes(value);
   }
 
-  final List<Map<String, String>> _availableRingtones = const [
-    {'uri': 'default', 'title': 'Default System Ringtone'},
-    {'uri': 'content://settings/system/alarm_alert', 'title': 'Classic Alarm'},
-    {'uri': 'content://media/internal/audio/media/123', 'title': 'Digital Beep'},
-  ];
+  Future<void> _pickReminderLeadMinutes() async {
+    final value = await _pickOption(
+      title: 'Reminder lead time',
+      options: const [0, 5, 10, 15, 30, 60],
+      selected: _controller.reminderLeadMinutes,
+      suffix: 'minutes before',
+    );
+    if (value == null) return;
+    _controller.setReminderLeadMinutes(value);
+  }
 
   String _getRingtoneLabel(String uri) {
-    final found = _availableRingtones.firstWhere(
-      (e) => e['uri'] == uri,
-      orElse: () => {'title': 'Default'},
+    if (_deviceRingtones.isEmpty) return 'Default';
+    final found = _deviceRingtones.firstWhere(
+      (e) => e.uri == uri,
+      orElse: () => const AlarmSound(title: 'Default', uri: 'default'),
     );
-    return found['title'] ?? 'Default';
+    return found.title;
   }
 
   Future<void> _pickRingtone() async {
-    final selected = await _pickOption(
-      title: 'Select Ringtone',
-      options: List.generate(_availableRingtones.length, (i) => i),
-      selected: _availableRingtones.indexWhere((e) => e['uri'] == _controller.alarmRingtone),
-      suffix: '',
+    if (_ringtonesLoading || _deviceRingtones.isEmpty) {
+      showAppSnackBar(context, 'Loading ringtones...');
+      return;
+    }
+    
+    final currentUri = _controller.alarmRingtone;
+    final selected = await showSmoothDialog<AlarmSound>(
+      context: context,
+      builder: (context) => _RingtonePicker(
+        ringtones: _deviceRingtones,
+        selectedUri: currentUri,
+        onPreview: (uri) => LocalNotifs.playRingtonePreview(uri),
+      ),
     );
     
-    if (selected != null && selected >= 0 && selected < _availableRingtones.length) {
-      _controller.setAlarmRingtone(_availableRingtones[selected]['uri']!);
+    if (selected != null) {
+      _controller.setAlarmRingtone(selected.uri);
     }
   }
 
@@ -193,7 +222,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     padding: spacing.edgeInsetsAll(spacing.xl),
                     child: Text(
                       title,
-                      style: theme.textTheme.titleLarge?.copyWith(
+                      style: AppTokens.typography.headline.copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
@@ -203,16 +232,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: options.map((value) {
-                          // Handle both int options (minutes) and index options (ringtones)
-                          final isRingtone = suffix.isEmpty;
-                          
-                          final displayLabel = isRingtone 
-                              ? _availableRingtones[value]['title']!
-                              : '$value $suffix';
-                          
-                          final isSelected = isRingtone 
-                              ? _availableRingtones[value]['uri'] == _controller.alarmRingtone
-                              : value == selected;
+                          final displayLabel = '$value $suffix';
+                          final isSelected = value == selected;
 
                           return InkWell(
                             onTap: () => Navigator.of(context).pop(value),
@@ -226,7 +247,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   Expanded(
                                     child: Text(
                                       displayLabel,
-                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                      style: AppTokens.typography.body.copyWith(
                                         fontWeight: isSelected ? AppTokens.fontWeight.semiBold : AppTokens.fontWeight.regular,
                                         color: isSelected 
                                             ? theme.colorScheme.primary 
@@ -396,7 +417,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       Text(
                         'Control alarms, notifications, and app styling.',
                         style: AppTokens.typography.body.copyWith(
-                          height: AppTypography.bodyLineHeight - 0.1,
+                          height: AppLineHeight.body,
                           color: colors.onSurfaceVariant,
                         ),
                       ),
@@ -429,56 +450,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       ],
               ),
               child: _buildNotificationCard(theme),
-            ),
-          ),
-          ScreenSection(
-            title: 'Schedule preferences',
-            subtitle: 'Heads-up timing and snooze length.',
-            decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
-              child: _buildScheduleCard(theme),
-            ),
-          ),
-          ScreenSection(
-            title: 'Alarm settings',
-            subtitle: 'Volume, vibration, and ringtone.',
-            decorated: false,
-            child: Container(
-              decoration: BoxDecoration(
-                color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-                  width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        BoxShadow(
-                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                          blurRadius: AppTokens.shadow.lg,
-                          offset: AppShadowOffset.sm,
-                        ),
-                      ],
-              ),
-              child: _buildAlarmSettingsCard(theme),
             ),
           ),
           ScreenSection(
@@ -668,8 +639,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildToggleRow(
-            theme: theme,
+          ToggleRow(
             icon: Icons.alarm_rounded,
             title: 'Class reminders',
             description: 'Alarm-style alerts before classes begin.',
@@ -677,8 +647,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: _controller.toggleClassAlarms,
           ),
           SizedBox(height: spacing.lg),
-          _buildToggleRow(
-            theme: theme,
+          ToggleRow(
             icon: Icons.notifications_active_outlined,
             title: 'App notifications',
             description: 'Allow MySched to send notifications.',
@@ -686,8 +655,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onChanged: _controller.toggleAppNotifs,
           ),
           SizedBox(height: spacing.lg),
-          _buildToggleRow(
-            theme: theme,
+          ToggleRow(
             icon: Icons.nightlight_rounded,
             title: 'Quiet week',
             description: 'Pause alarm scheduling for one week.',
@@ -704,60 +672,149 @@ class _SettingsPageState extends State<SettingsPage> {
               padding: spacing.edgeInsetsAll(spacing.md),
               child: Text(
                 'Quiet week is on. Alarm reminders are paused until you turn it off.',
-                style: theme.textTheme.bodySmall?.copyWith(
+                style: AppTokens.typography.caption.copyWith(
                   color: colors.primary,
                   fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-
-  Widget _buildScheduleCard(ThemeData theme) {
-    final spacing = AppTokens.spacing;
-
-    return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildNavigationRow(
-            theme: theme,
+          SizedBox(height: spacing.xl),
+          // Do Not Disturb toggle
+          ToggleRow(
+            icon: Icons.do_not_disturb_on_rounded,
+            title: 'Do Not Disturb',
+            description: 'Delay alarms during quiet hours.',
+            value: _controller.dndEnabled,
+            onChanged: _controller.toggleDndEnabled,
+          ),
+          if (_controller.dndEnabled) ...[
+            SizedBox(height: spacing.md),
+            Row(
+              children: [
+                SizedBox(width: spacing.xl + AppTokens.iconSize.lg),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _DndTimePicker(
+                          label: 'Start',
+                          value: _controller.dndStartTime,
+                          onChanged: _controller.setDndStartTime,
+                          theme: theme,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md),
+                      Expanded(
+                        child: _DndTimePicker(
+                          label: 'End',
+                          value: _controller.dndEndTime,
+                          onChanged: _controller.setDndEndTime,
+                          theme: theme,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+          SizedBox(height: spacing.xl),
+          // Reminder lead time
+          GestureDetector(
+            onTap: _pickReminderLeadMinutes,
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.timer_outlined,
+                    size: AppTokens.iconSize.md,
+                    color: colors.primary,
+                  ),
+                  SizedBox(width: spacing.lg),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Reminder lead time',
+                          style: AppTokens.typography.subtitle.copyWith(
+                            color: colors.onSurface,
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                          ),
+                        ),
+                        SizedBox(height: spacing.xs),
+                        Text(
+                          _controller.reminderLeadMinutes == 0
+                              ? 'Alert at due time'
+                              : '${_controller.reminderLeadMinutes} min before',
+                          style: AppTokens.typography.bodySecondary.copyWith(
+                            color: colors.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: colors.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // ────────────────────────────────────────────────────────────────
+          // Schedule Preferences Section
+          // ────────────────────────────────────────────────────────────────
+          SizedBox(height: spacing.xl),
+          Divider(color: colors.outlineVariant),
+          SizedBox(height: spacing.lg),
+          Text(
+            'Timing',
+            style: AppTokens.typography.label.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: AppTokens.fontWeight.semiBold,
+            ),
+          ),
+          SizedBox(height: spacing.lg),
+          NavigationRow(
             icon: Icons.snooze_outlined,
             title: 'Heads-up before class',
             description: '${_controller.leadMinutes} minutes before class',
             onTap: _pickLeadMinutes,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.schedule_rounded,
             title: 'Snooze length',
             description: '${_controller.snoozeMinutes} minutes',
             onTap: _pickSnoozeMinutes,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildAlarmSettingsCard(ThemeData theme) {
-    final spacing = AppTokens.spacing;
-    final colors = theme.colorScheme;
-
-    return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+          // ────────────────────────────────────────────────────────────────
+          // Alarm Settings Section
+          // ────────────────────────────────────────────────────────────────
+          SizedBox(height: spacing.xl),
+          Divider(color: colors.outlineVariant),
+          SizedBox(height: spacing.lg),
+          Text(
+            'Alarm',
+            style: AppTokens.typography.label.copyWith(
+              color: colors.onSurfaceVariant,
+              fontWeight: AppTokens.fontWeight.semiBold,
+            ),
+          ),
+          SizedBox(height: spacing.lg),
           // Volume slider
           Row(
             children: [
-              _buildIconBadge(theme, Icons.volume_up_rounded, colors.primary),
-              SizedBox(width: spacing.md),
+              Icon(
+                Icons.volume_up_rounded,
+                size: AppTokens.iconSize.md,
+                color: colors.primary,
+              ),
+              SizedBox(width: spacing.lg),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -774,7 +831,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         const Spacer(),
                         Text(
                           '${_controller.alarmVolume}%',
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: AppTokens.typography.body.copyWith(
                             color: colors.primary,
                             fontWeight: AppTokens.fontWeight.bold,
                           ),
@@ -807,8 +864,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           SizedBox(height: spacing.lg),
           // Vibration toggle
-          _buildToggleRow(
-            theme: theme,
+          ToggleRow(
             icon: Icons.vibration_rounded,
             title: 'Use vibration',
             description: 'Vibrate when alarm rings.',
@@ -817,8 +873,7 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
           SizedBox(height: spacing.lg),
           // Ringtone selection
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.music_note_rounded,
             title: 'Ringtone',
             description: _getRingtoneLabel(_controller.alarmRingtone),
@@ -890,9 +945,27 @@ class _SettingsPageState extends State<SettingsPage> {
           SizedBox(height: spacing.md),
           Text(
             'Switch between light, dark, or void mode (ultra dark). Changes animate instantly.',
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
+          ),
+          SizedBox(height: spacing.xl),
+          // Time format toggle
+          ToggleRow(
+            icon: Icons.schedule_rounded,
+            title: 'Use 24-hour format',
+            description: _controller.use24HourFormat ? '08:00 - 17:30' : '8:00 AM - 5:30 PM',
+            value: _controller.use24HourFormat,
+            onChanged: _controller.toggle24HourFormat,
+          ),
+          SizedBox(height: spacing.lg),
+          // Haptic feedback toggle
+          ToggleRow(
+            icon: Icons.vibration_rounded,
+            title: 'Haptic feedback',
+            description: 'Vibrate on button taps',
+            value: _controller.hapticFeedback,
+            onChanged: _controller.toggleHapticFeedback,
           ),
         ],
       ),
@@ -908,8 +981,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.alarm_on_rounded,
             title: 'Exact alarms',
             description: 'Required for on-time class reminders.',
@@ -923,8 +995,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _openExactAlarmSettings,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.notifications_active_outlined,
             title: 'Notifications',
             description: 'Backup banner if full-screen alarms are blocked.',
@@ -938,8 +1009,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _openNotificationSettings,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.battery_alert_rounded,
             title: 'Battery optimization',
             description: 'Allow background delivery so alarms are not killed.',
@@ -988,8 +1058,7 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.flag_outlined,
             title: 'Class issue reports',
             description: 'Review flagged classes and keep details accurate.',
@@ -1000,8 +1069,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _openClassIssueReports,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.notification_important_outlined,
             title: 'Send test heads-up',
             description: 'Preview the quick heads-up alert.',
@@ -1010,8 +1078,7 @@ class _SettingsPageState extends State<SettingsPage> {
             onTap: _controller.sendTestNotification,
           ),
           SizedBox(height: spacing.lg),
-          _buildToggleRow(
-            theme: theme,
+          ToggleRow(
             icon: Icons.bug_report_outlined,
             title: 'Verbose alarm logging (debug)',
             description: 'Print exact alarm scheduling details.',
@@ -1039,23 +1106,20 @@ class _SettingsPageState extends State<SettingsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.refresh_rounded,
             title: 'Resync class reminders',
             description: 'Regenerate alarms after schedule changes.',
             onTap: _controller.resyncReminders,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.info_outline_rounded,
             title: 'About',
             onTap: _openAbout,
           ),
           SizedBox(height: spacing.lg),
-          _buildNavigationRow(
-            theme: theme,
+          NavigationRow(
             icon: Icons.privacy_tip_outlined,
             title: 'Privacy policy',
             onTap: _openPrivacy,
@@ -1068,70 +1132,6 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildToggleRow({
-    required ThemeData theme,
-    required IconData icon,
-    required String title,
-    required String description,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    final spacing = AppTokens.spacing;
-    final colors = theme.colorScheme;
-    final accent = colors.primary;
-
-    return GestureDetector(
-      onTap: () => onChanged(!value),
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _buildIconBadge(theme, icon, accent),
-            SizedBox(width: spacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTokens.typography.subtitle.copyWith(
-                      color: colors.onSurface,
-                      fontWeight: AppTokens.fontWeight.semiBold,
-                    ),
-                  ),
-                  SizedBox(height: spacing.xs),
-                  Text(
-                    description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(width: spacing.md),
-            Switch.adaptive(
-              value: value,
-              onChanged: onChanged,
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              thumbColor: WidgetStateProperty.resolveWith(
-                (states) =>
-                    states.contains(WidgetState.selected) ? accent : null,
-              ),
-              trackColor: WidgetStateProperty.resolveWith(
-                (states) => states.contains(WidgetState.selected)
-                    ? accent.withValues(alpha: AppOpacity.track)
-                    : null,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
@@ -1164,92 +1164,11 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       child: Text(
         label,
-        style: theme.textTheme.labelMedium?.copyWith(
+        style: AppTokens.typography.caption.copyWith(
           color: fg,
           fontWeight: AppTokens.fontWeight.bold,
         ),
       ),
-    );
-  }
-
-  Widget _buildNavigationRow({
-    required ThemeData theme,
-    required IconData icon,
-    required String title,
-    String? description,
-    VoidCallback? onTap,
-    Color? accentColor,
-    Widget? trailing,
-  }) {
-    final spacing = AppTokens.spacing;
-    final colors = theme.colorScheme;
-    final accent = accentColor ?? colors.primary;
-
-    final row = Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        _buildIconBadge(theme, icon, accent),
-        SizedBox(width: spacing.md),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: AppTokens.typography.subtitle.copyWith(
-                  color: colors.onSurface,
-                  fontWeight: AppTokens.fontWeight.semiBold,
-                ),
-              ),
-              if (description != null) ...[
-                SizedBox(height: spacing.xs),
-                Text(
-                  description,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onSurfaceVariant,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-        SizedBox(width: spacing.md),
-        trailing ??
-            Icon(
-              Icons.chevron_right_rounded,
-              color: colors.onSurfaceVariant,
-            ),
-      ],
-    );
-
-    if (onTap == null) {
-      return Padding(
-        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-        child: row,
-      );
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-        child: row,
-      ),
-    );
-  }
-
-  Widget _buildIconBadge(ThemeData theme, IconData icon, Color accent) {
-
-    return Container(
-      height: AppTokens.componentSize.avatarLg,
-      width: AppTokens.componentSize.avatarLg,
-      decoration: BoxDecoration(
-        color: accent.withValues(alpha: AppOpacity.medium),
-        borderRadius: AppTokens.radius.sm,
-      ),
-      alignment: Alignment.center,
-      child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
     );
   }
 
@@ -1322,7 +1241,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           pending > 0
                               ? '$pending change${pending == 1 ? '' : 's'} queued'
                               : 'No queued changes',
-                          style: theme.textTheme.labelMedium?.copyWith(
+                          style: AppTokens.typography.caption.copyWith(
                             color: colors.onSurface,
                             fontWeight: AppTokens.fontWeight.semiBold,
                           ),
@@ -1337,7 +1256,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             ),
                             child: Text(
                               'Queue full',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 color: colors.error,
                                 fontWeight: AppTokens.fontWeight.bold,
                               ),
@@ -1432,7 +1351,7 @@ class _SyncRow extends StatelessWidget {
           const Spacer(),
           Text(
             value,
-            style: theme.textTheme.bodyMedium?.copyWith(
+            style: AppTokens.typography.bodySecondary.copyWith(
               color: colors.onSurfaceVariant,
             ),
           ),
@@ -1528,12 +1447,299 @@ class _ThemeOption extends StatelessWidget {
           SizedBox(height: spacing.sm),
           Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: selected ? AppTokens.fontWeight.bold : AppTokens.fontWeight.medium,
               color: selected ? colors.primary : colors.onSurface,
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _RingtonePicker extends StatefulWidget {
+  const _RingtonePicker({
+    required this.ringtones,
+    required this.selectedUri,
+    required this.onPreview,
+  });
+
+  final List<AlarmSound> ringtones;
+  final String selectedUri;
+  final void Function(String uri) onPreview;
+
+  @override
+  State<_RingtonePicker> createState() => _RingtonePickerState();
+}
+
+class _RingtonePickerState extends State<_RingtonePicker> {
+  String? _playingUri;
+
+  @override
+  void dispose() {
+    // Stop any playing preview when dialog closes
+    LocalNotifs.stopRingtonePreview();
+    super.dispose();
+  }
+
+  void _preview(String uri) {
+    setState(() => _playingUri = uri);
+    widget.onPreview(uri);
+    // Clear playing state after ~2.5 seconds (sound plays for ~2 seconds)
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted && _playingUri == uri) {
+        setState(() => _playingUri = null);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final spacing = AppTokens.spacing;
+
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      insetPadding: spacing.edgeInsetsAll(spacing.lg),
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.6,
+        ),
+        decoration: BoxDecoration(
+          color: isDark ? colors.surfaceContainerHigh : colors.surface,
+          borderRadius: AppTokens.radius.xxl,
+          border: Border.all(
+            color: isDark
+                ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                : colors.outline,
+            width: isDark
+                ? AppTokens.componentSize.divider
+                : AppTokens.componentSize.dividerThin,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: colors.shadow.withValues(alpha: AppOpacity.statusBg),
+              blurRadius: AppTokens.shadow.xxl,
+              offset: AppShadowOffset.modal,
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: AppTokens.radius.xxl,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: spacing.edgeInsetsAll(spacing.xl),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.music_note_rounded,
+                      color: colors.primary,
+                      size: AppTokens.iconSize.lg,
+                    ),
+                    SizedBox(width: spacing.md),
+                    Text(
+                      'Select Ringtone',
+                      style: AppTokens.typography.headline.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Flexible(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: widget.ringtones.length,
+                  itemBuilder: (context, index) {
+                    final ringtone = widget.ringtones[index];
+                    final isSelected = ringtone.uri == widget.selectedUri;
+                    final isPlaying = ringtone.uri == _playingUri;
+
+                    return InkWell(
+                      onTap: () => Navigator.of(context).pop(ringtone),
+                      child: Container(
+                        color: isPlaying
+                            ? colors.primary.withValues(alpha: AppOpacity.overlay)
+                            : null,
+                        padding: spacing.edgeInsetsSymmetric(
+                          horizontal: spacing.xl,
+                          vertical: spacing.md,
+                        ),
+                        child: Row(
+                          children: [
+                            // Preview button
+                            GestureDetector(
+                              onTap: () => _preview(ringtone.uri),
+                              child: Container(
+                                width: AppTokens.componentSize.avatarMd,
+                                height: AppTokens.componentSize.avatarMd,
+                                decoration: BoxDecoration(
+                                  color: isPlaying
+                                      ? colors.primary
+                                      : colors.primary.withValues(alpha: AppOpacity.overlay),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  isPlaying
+                                      ? Icons.volume_up_rounded
+                                      : Icons.play_arrow_rounded,
+                                  size: AppTokens.iconSize.sm,
+                                  color: isPlaying
+                                      ? colors.onPrimary
+                                      : colors.primary,
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: spacing.md),
+                            Expanded(
+                              child: Text(
+                                ringtone.title,
+                                style: AppTokens.typography.body.copyWith(
+                                  fontWeight: isSelected || isPlaying
+                                      ? AppTokens.fontWeight.semiBold
+                                      : AppTokens.fontWeight.regular,
+                                  color: isSelected
+                                      ? colors.primary
+                                      : colors.onSurface,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            if (isPlaying)
+                              Text(
+                                'Playing...',
+                                style: AppTokens.typography.caption.copyWith(
+                                  color: colors.primary,
+                                  fontWeight: AppTokens.fontWeight.medium,
+                                ),
+                              )
+                            else if (isSelected)
+                              Icon(
+                                Icons.check_rounded,
+                                color: colors.primary,
+                                size: AppTokens.iconSize.md,
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: spacing.md),
+              Padding(
+                padding: spacing.edgeInsetsAll(spacing.md),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    SecondaryButton(
+                      label: 'Cancel',
+                      onPressed: () => Navigator.of(context).pop(),
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      expanded: false,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Time picker for DND start/end times.
+class _DndTimePicker extends StatelessWidget {
+  const _DndTimePicker({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+    required this.theme,
+  });
+
+  final String label;
+  final String value; // "HH:mm" format
+  final ValueChanged<String> onChanged;
+  final ThemeData theme;
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = AppTokens.spacing;
+    final colors = theme.colorScheme;
+    
+    // Parse value
+    final parts = value.split(':');
+    final hour = int.tryParse(parts[0]) ?? 0;
+    final minute = int.tryParse(parts.length > 1 ? parts[1] : '0') ?? 0;
+    final timeOfDay = TimeOfDay(hour: hour, minute: minute);
+    
+    // Format for display
+    final displayTime = timeOfDay.format(context);
+
+    return InkWell(
+      onTap: () async {
+        final picked = await showTimePicker(
+          context: context,
+          initialTime: timeOfDay,
+          helpText: '$label time',
+          builder: (context, child) {
+            return Theme(
+              data: theme.copyWith(
+                timePickerTheme: TimePickerThemeData(
+                  backgroundColor: colors.surface,
+                  hourMinuteShape: RoundedRectangleBorder(
+                    borderRadius: AppTokens.radius.md,
+                  ),
+                  dayPeriodShape: RoundedRectangleBorder(
+                    borderRadius: AppTokens.radius.sm,
+                  ),
+                ),
+              ),
+              child: child!,
+            );
+          },
+        );
+        if (picked != null) {
+          final formatted = '${picked.hour.toString().padLeft(2, '0')}:${picked.minute.toString().padLeft(2, '0')}';
+          onChanged(formatted);
+        }
+      },
+      borderRadius: AppTokens.radius.sm,
+      child: Container(
+        padding: spacing.edgeInsetsSymmetric(
+          horizontal: spacing.md,
+          vertical: spacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: colors.surfaceContainerHighest,
+          borderRadius: AppTokens.radius.sm,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              label,
+              style: AppTokens.typography.caption.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+            ),
+            Text(
+              displayTime,
+              style: AppTokens.typography.subtitle.copyWith(
+                color: colors.onSurface,
+                fontWeight: AppTokens.fontWeight.semiBold,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

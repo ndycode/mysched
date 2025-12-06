@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/reminder_scope.dart';
-import '../../services/reminder_scope_store.dart';
 import '../../services/reminders_api.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
@@ -36,12 +35,22 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
   final DateFormat _timeFormat = DateFormat('h:mm a');
   final DateFormat _dateLine = DateFormat('EEEE, MMM d');
 
+  /// ID of the newly added reminder to highlight and scroll to.
+  int? _highlightReminderId;
+  /// Keys for each reminder row, keyed by reminder ID.
+  final Map<int, GlobalKey> _reminderKeys = {};
+
+  GlobalKey _keyForReminder(int reminderId) {
+    return _reminderKeys.putIfAbsent(reminderId, () => GlobalKey());
+  }
+
   @override
   void initState() {
     super.initState();
     _controller = RemindersController(
       api: widget._apiOverride,
-      initialScope: widget.initialScope,
+      // Default to 'All' scope so users see all reminders when opening this screen
+      initialScope: widget.initialScope ?? ReminderScope.all,
     );
     _dismissKeyboard();
   }
@@ -89,7 +98,7 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
   Future<void> _openAddPage([ReminderEntry? editing]) async {
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
-    final changed = await showOverlaySheet<bool>(
+    final result = await showOverlaySheet<int?>(
       context: context,
       alignment: Alignment.center,
       padding: spacing.edgeInsetsOnly(
@@ -103,10 +112,39 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         editing: editing,
       ),
     );
-    if (changed == true) {
+    // result is the new reminder ID when creating, or null when editing/cancelled
+    if (result != null || editing != null) {
       _controller.notifyDirty();
       await _controller.load(silent: false);
+      // Scroll to the newly added reminder
+      if (result != null) {
+        _scrollToAddedReminder(result);
+      }
     }
+  }
+
+  void _scrollToAddedReminder(int reminderId) {
+    setState(() => _highlightReminderId = reminderId);
+    // Wait for the next frame so the list is rebuilt with the new data
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final reminderKey = _reminderKeys[reminderId];
+      final keyContext = reminderKey?.currentContext;
+      if (keyContext != null) {
+        Scrollable.ensureVisible(
+          keyContext,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.easeOutCubic,
+          alignment: 0.5, // Center the reminder on screen
+        );
+      }
+      // Clear highlight after 1.5 seconds
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        if (mounted && _highlightReminderId == reminderId) {
+          setState(() => _highlightReminderId = null);
+        }
+      });
+    });
   }
 
   Future<void> _openAccount() async {
@@ -181,6 +219,18 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             break;
           case _ReminderSummaryMenu.toggleCompleted:
             _controller.showCompleted = !_controller.showCompleted;
+            break;
+          case _ReminderSummaryMenu.exportCsv:
+            _controller.handleExportAction(
+              ReminderExportFormat.csv,
+              onInfo: (msg) => _toast(msg),
+            );
+            break;
+          case _ReminderSummaryMenu.exportPdf:
+            _controller.handleExportAction(
+              ReminderExportFormat.pdf,
+              onInfo: (msg) => _toast(msg),
+            );
             break;
           case _ReminderSummaryMenu.resetReminders:
             _controller.resetReminders().then((_) {
@@ -321,6 +371,114 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
           ),
         ),
         PopupMenuItem<_ReminderSummaryMenu>(
+          value: _ReminderSummaryMenu.exportCsv,
+          padding: EdgeInsets.zero,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.exportCsv),
+              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
+              child: Padding(
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.lg,
+                  vertical: spacing.md,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: spacing.edgeInsetsAll(spacing.sm),
+                      decoration: BoxDecoration(
+                        color: colors.tertiary.withValues(alpha: AppOpacity.overlay),
+                        borderRadius: AppTokens.radius.sm,
+                      ),
+                      child: Icon(
+                        Icons.table_chart_outlined,
+                        size: AppTokens.iconSize.md,
+                        color: colors.tertiary,
+                      ),
+                    ),
+                    SizedBox(width: spacing.md + spacing.micro),
+                    Flexible(
+                      child: Text(
+                        'Export as CSV',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: AppTokens.fontWeight.medium,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<_ReminderSummaryMenu>(
+          value: _ReminderSummaryMenu.exportPdf,
+          padding: EdgeInsets.zero,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.exportPdf),
+              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
+              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
+              child: Padding(
+                padding: spacing.edgeInsetsSymmetric(
+                  horizontal: spacing.lg,
+                  vertical: spacing.md,
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: spacing.edgeInsetsAll(spacing.sm),
+                      decoration: BoxDecoration(
+                        color: colors.error.withValues(alpha: AppOpacity.overlay),
+                        borderRadius: AppTokens.radius.sm,
+                      ),
+                      child: Icon(
+                        Icons.picture_as_pdf_outlined,
+                        size: AppTokens.iconSize.md,
+                        color: colors.error,
+                      ),
+                    ),
+                    SizedBox(width: spacing.md + spacing.micro),
+                    Flexible(
+                      child: Text(
+                        'Export as PDF',
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          fontWeight: AppTokens.fontWeight.medium,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<_ReminderSummaryMenu>(
+          enabled: false,
+          height: AppTokens.componentSize.divider,
+          padding: spacing.edgeInsetsSymmetric(
+            horizontal: spacing.md,
+            vertical: spacing.sm,
+          ),
+          child: Container(
+            height: AppTokens.componentSize.divider,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
+                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
+                  colors.outline.withValues(alpha: AppOpacity.transparent),
+                ],
+              ),
+            ),
+          ),
+        ),
+        PopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.resetReminders,
           padding: EdgeInsets.zero,
           child: Material(
@@ -381,7 +539,6 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
         final media = MediaQuery.of(context);
-        final isDark = theme.brightness == Brightness.dark;
 
         final spacing = AppTokens.spacing;
         final hero = ScreenBrandHeader(
@@ -455,109 +612,44 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
               },
               showCompleted: _controller.showCompleted,
               menuButton: menuButton,
-              scope: _controller.scope,
-              onScopeChanged: (scope) {
-                if (scope == _controller.scope) return;
-                ReminderScopeStore.instance.update(scope);
-              },
             ),
           ),
         );
 
-
-
-        if (groups.isEmpty) {
-          sections.add(
-            ScreenSection(
-              decorated: false,
-              child: Container(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.xxl,
-                  vertical: spacing.quad,
-                ),
-                decoration: BoxDecoration(
-                  color: isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderRadius: AppTokens.radius.xl,
-                  border: Border.all(
-                    color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline.withValues(alpha: AppOpacity.divider),
-                    width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Container(
-                      width: spacing.emptyStateSize,
-                      height: spacing.emptyStateSize,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            colors.primary.withValues(alpha: AppOpacity.medium),
-                            colors.primary.withValues(alpha: AppOpacity.highlight),
-                          ],
-                        ),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colors.primary.withValues(alpha: AppOpacity.accent),
-                          width: AppTokens.componentSize.dividerThick,
-                        ),
-                      ),
-                      child: Icon(
-                        Icons.notifications_none_rounded,
-                        size: spacing.quad,
-                        color: colors.primary,
-                      ),
-                    ),
-                    SizedBox(height: spacing.xxlPlus),
-                    Text(
-                      'No reminders yet',
-                      style: AppTokens.typography.headline.copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                        letterSpacing: AppLetterSpacing.tight,
-                        color: colors.onSurface,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: spacing.md),
-                    Text(
-                      'Tap "New reminder" to create one. We\'ll keep it in sync across devices.',
-                      style: AppTokens.typography.bodySecondary.copyWith(
-                        height: AppLineHeight.body,
-                        color: colors.onSurfaceVariant,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
+        // Always show ReminderListCard with filter/search/sort - it handles empty state internally
+        sections.add(
+          ScreenSection(
+            decorated: false,
+            child: ReminderListCard(
+              groups: groups,
+              timeFormat: _timeFormat,
+              onToggle: (entry, isActive) => _controller.toggleCompleted(
+                  entry, !isActive,
+                  onMessage: (msg) =>
+                      _toast(msg, isError: msg.contains('wrong'))),
+              onEdit: (entry) => _openAddPage(entry),
+              onDelete: _deleteReminder,
+              onSnooze: _snoozeReminder,
+              queuedIds: queuedIds,
+              scope: _controller.scope,
+              onScopeChanged: (scope) {
+                if (scope == _controller.scope) return;
+                _controller.setScope(scope);
+              },
+              searchQuery: _controller.searchQuery,
+              onSearchChanged: _controller.setSearchQuery,
+              sortOption: _controller.sortOption,
+              onSortChanged: _controller.setSortOption,
+              highlightReminderId: _highlightReminderId,
+              reminderKeyBuilder: _keyForReminder,
             ),
-          );
-        } else {
-          sections.add(
-            ScreenSection(
-              decorated: false,
-              child: ReminderListCard(
-                groups: groups,
-                timeFormat: _timeFormat,
-                onToggle: (entry, isActive) => _controller.toggleCompleted(
-                    entry, !isActive,
-                    onMessage: (msg) =>
-                        _toast(msg, isError: msg.contains('wrong'))),
-                onEdit: (entry) => _openAddPage(entry),
-                onDelete: _deleteReminder,
-                onSnooze: _snoozeReminder,
-                queuedIds: queuedIds,
-              ),
-            ),
-          );
-          sections.add(
-            SizedBox(
-              height: spacing.quad + media.padding.bottom + spacing.xl,
-            ),
-          );
-        }
+          ),
+        );
+        sections.add(
+          SizedBox(
+            height: spacing.quad + media.padding.bottom + spacing.xl,
+          ),
+        );
 
         if (sections.isEmpty) {
           sections.add(const SizedBox.shrink());
@@ -586,4 +678,4 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
   }
 }
 
-enum _ReminderSummaryMenu { newReminder, toggleCompleted, resetReminders }
+enum _ReminderSummaryMenu { newReminder, toggleCompleted, exportCsv, exportPdf, resetReminders }

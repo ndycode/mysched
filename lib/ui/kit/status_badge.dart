@@ -14,6 +14,26 @@ enum StatusBadgeVariant {
   overdue,
   /// Snoozed item (warning accent)
   snoozed,
+  /// Enabled state (primary accent)
+  enabled,
+  /// Disabled/off state (error accent)
+  disabled,
+  /// Custom class tag (positive accent)
+  custom,
+}
+
+extension StatusBadgeVariantLabels on StatusBadgeVariant {
+  /// Display label for the badge.
+  String get label => switch (this) {
+    StatusBadgeVariant.live => 'Live',
+    StatusBadgeVariant.next => 'Next',
+    StatusBadgeVariant.done => 'Done',
+    StatusBadgeVariant.overdue => 'Overdue',
+    StatusBadgeVariant.snoozed => 'Snoozed',
+    StatusBadgeVariant.enabled => 'On',
+    StatusBadgeVariant.disabled => 'Off',
+    StatusBadgeVariant.custom => 'Custom',
+  };
 }
 
 /// A unified status badge component used across dashboard, schedules, and reminders.
@@ -72,10 +92,23 @@ class StatusBadge extends StatelessWidget {
         resolvedAccent = accent ?? palette.warning;
         resolvedBgAlpha = AppOpacity.overlay;
         break;
+      case StatusBadgeVariant.enabled:
+        resolvedAccent = accent ?? colors.primary;
+        resolvedBgAlpha = AppOpacity.statusBg;
+        break;
+      case StatusBadgeVariant.disabled:
+        resolvedAccent = accent ?? colors.error;
+        resolvedBgAlpha = AppOpacity.statusBg;
+        break;
+      case StatusBadgeVariant.custom:
+        resolvedAccent = accent ?? palette.positive;
+        resolvedBgAlpha = AppOpacity.highlight;
+        break;
     }
 
     final backgroundColor = switch (variant) {
       StatusBadgeVariant.done => colors.surfaceContainerHighest,
+      StatusBadgeVariant.disabled => colors.error.withValues(alpha: resolvedBgAlpha),
       _ => resolvedAccent.withValues(alpha: resolvedBgAlpha),
     };
 

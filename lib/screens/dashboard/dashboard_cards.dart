@@ -206,8 +206,7 @@ class _UpcomingHeroTile extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
     final subject = occurrence.item.subject;
-    final timeLabel =
-        '${DateFormat('h:mm a').format(occurrence.start).toUpperCase()} - ${DateFormat('h:mm a').format(occurrence.end).toUpperCase()}';
+    final timeLabel = AppTimeFormat.formatTimeRange(occurrence.start, occurrence.end);
     final dateLabel = DateFormat('EEEE, MMMM d').format(occurrence.start);
     final location = occurrence.item.room.trim();
     final statusLabel = isLive ? 'Live Now' : 'Coming Up';
@@ -218,10 +217,15 @@ class _UpcomingHeroTile extends StatelessWidget {
     final timeUntil = occurrence.start.difference(now);
     String timeUntilText = '';
     if (!isLive && timeUntil.inMinutes > 0) {
-      if (timeUntil.inHours > 0) {
-        timeUntilText = 'in ${timeUntil.inHours}h ${timeUntil.inMinutes % 60}m';
+      final days = timeUntil.inDays;
+      final hours = timeUntil.inHours % 24;
+      final minutes = timeUntil.inMinutes % 60;
+      if (days > 0) {
+        timeUntilText = 'in ${days}d ${hours}h';
+      } else if (hours > 0) {
+        timeUntilText = 'in ${hours}h ${minutes}m';
       } else {
-        timeUntilText = 'in ${timeUntil.inMinutes}m';
+        timeUntilText = 'in ${minutes}m';
       }
     }
 
@@ -293,7 +297,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                             size: AppTokens.iconSize.sm,
                             color: foreground,
                           ),
-                        if (!isLive) SizedBox(width: spacing.xsPlus),
+                        if (!isLive) SizedBox(width: spacing.xs + AppTokens.spacing.micro),
                         Text(
                           statusLabel,
                           style: AppTokens.typography.caption.copyWith(
@@ -306,7 +310,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                     ),
                   ),
                   if (timeUntilText.isNotEmpty) ...[
-                    SizedBox(width: spacing.smMd),
+                    SizedBox(width: spacing.sm + AppTokens.spacing.micro),
                     Text(
                       timeUntilText,
                       style: AppTokens.typography.caption.copyWith(
@@ -332,7 +336,7 @@ class _UpcomingHeroTile extends StatelessWidget {
                   letterSpacing: AppLetterSpacing.tight,
                 ),
               ),
-              SizedBox(height: spacing.lgPlus),
+              SizedBox(height: spacing.lg + AppTokens.spacing.micro),
 
               // Time
               Row(
@@ -551,9 +555,7 @@ class _UpcomingListTile extends StatelessWidget {
         : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final subject = occurrence.item.subject;
-    final timeFormat = DateFormat('h:mm a');
-    final timeRange =
-        '${timeFormat.format(occurrence.start)} - ${timeFormat.format(occurrence.end)}';
+    final timeRange = AppTimeFormat.formatTimeRange(occurrence.start, occurrence.end);
     final location = occurrence.item.room.trim();
     final instructor = occurrence.item.instructor;
     final isCustom = occurrence.item.isCustom;
@@ -639,9 +641,8 @@ class _UpcomingListTile extends StatelessWidget {
                         if (isCustom && !disabled) ...[
                           SizedBox(height: spacing.microHalf),
                           StatusBadge(
-                            label: 'Custom',
-                            variant: StatusBadgeVariant.next,
-                            accent: palette.positive,
+                            label: StatusBadgeVariant.custom.label,
+                            variant: StatusBadgeVariant.custom,
                             compact: true,
                           ),
                         ],
@@ -654,25 +655,19 @@ class _UpcomingListTile extends StatelessWidget {
                     height: AppTokens.componentSize.listItemSm,
                     child: Center(
                       child: disabled
-                          ? _StatusPill(
-                              label: 'Off',
-                              color: colors.onSurfaceVariant,
-                              background: colors.error
-                                  .withValues(alpha: AppOpacity.overlay),
+                          ? StatusBadge(
+                              label: StatusBadgeVariant.disabled.label,
+                              variant: StatusBadgeVariant.disabled,
                             )
                           : isLive
-                              ? _StatusPill(
-                                  label: 'Live',
-                                  color: colors.primary,
-                                  background: colors.primary
-                                      .withValues(alpha: AppOpacity.statusBg),
+                              ? StatusBadge(
+                                  label: StatusBadgeVariant.live.label,
+                                  variant: StatusBadgeVariant.live,
                                 )
                               : isPast
-                                  ? _StatusPill(
-                                      label: 'Done',
-                                      color: colors.onSurfaceVariant,
-                                      background:
-                                          colors.surfaceContainerHighest,
+                                  ? StatusBadge(
+                                      label: StatusBadgeVariant.done.label,
+                                      variant: StatusBadgeVariant.done,
                                     )
                                   : Transform.scale(
                                       scale: AppScale.dense,
@@ -824,40 +819,6 @@ class _InstructorRow extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _StatusPill extends StatelessWidget {
-  const _StatusPill({
-    required this.label,
-    required this.color,
-    required this.background,
-  });
-
-  final String label;
-  final Color color;
-  final Color background;
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = AppTokens.spacing;
-    return Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.sm,
-        vertical: spacing.xs,
-      ),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.pill,
-      ),
-      child: Text(
-        label,
-        style: AppTokens.typography.caption.copyWith(
-          color: color,
-          fontWeight: AppTokens.fontWeight.semiBold,
-        ),
-      ),
     );
   }
 }

@@ -3,15 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
+import '../../models/schedule_filter.dart';
 import '../../services/schedule_api.dart' as sched;
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
+import '../../utils/time_format.dart';
 import '../../widgets/instructor_avatar.dart';
 import 'schedules_data.dart';
 
 /// Unified card container for the class list - matches dashboard style.
-class ScheduleClassListCard extends StatelessWidget {
+class ScheduleClassListCard extends StatefulWidget {
   const ScheduleClassListCard({
     super.key,
     required this.groups,
@@ -20,6 +22,10 @@ class ScheduleClassListCard extends StatelessWidget {
     required this.onOpenDetails,
     required this.onToggleEnabled,
     required this.pendingToggleIds,
+    required this.searchQuery,
+    required this.onSearchChanged,
+    required this.filter,
+    required this.onFilterChanged,
     this.onDelete,
     this.onRefresh,
     this.refreshing = false,
@@ -42,6 +48,13 @@ class ScheduleClassListCard extends StatelessWidget {
   final Future<void> Function(int id)? onDelete;
   final Future<void> Function()? onRefresh;
   final bool refreshing;
+  final String searchQuery;
+  final ValueChanged<String> onSearchChanged;
+  final ScheduleFilter filter;
+  final ValueChanged<ScheduleFilter> onFilterChanged;
+
+  @override
+  State<ScheduleClassListCard> createState() => _ScheduleClassListCardState();
 
   // Helper functions for time calculations
   static int _minutesFromText(String text) {
@@ -105,6 +118,31 @@ class ScheduleClassListCard extends StatelessWidget {
     }
     return end;
   }
+}
+
+class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.searchQuery);
+  }
+
+  @override
+  void didUpdateWidget(ScheduleClassListCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.searchQuery != oldWidget.searchQuery &&
+        widget.searchQuery != _searchController.text) {
+      _searchController.text = widget.searchQuery;
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,10 +150,12 @@ class ScheduleClassListCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
-    final dateLabel = DateFormat('EEEE, MMM d').format(now);
+    final dateLabel = DateFormat('EEEE, MMM d').format(widget.now);
 
     final hasClasses =
-        groups.isNotEmpty && groups.any((g) => g.items.isNotEmpty);
+        widget.groups.isNotEmpty && widget.groups.any((g) => g.items.isNotEmpty);
+    final isSearchActive = widget.searchQuery.isNotEmpty;
+    final isFilterActive = widget.filter != ScheduleFilter.all;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
@@ -196,11 +236,11 @@ class ScheduleClassListCard extends StatelessWidget {
                   ],
                 ),
               ),
-              if (onRefresh != null) ...[
+              if (widget.onRefresh != null) ...[
                 SizedBox(
                   height: AppTokens.componentSize.buttonXs,
                   child: IconButton(
-                    onPressed: refreshing ? null : onRefresh,
+                    onPressed: widget.refreshing ? null : widget.onRefresh,
                     tooltip: 'Refresh',
                     style: IconButton.styleFrom(
                       minimumSize:
@@ -213,7 +253,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         borderRadius: AppTokens.radius.md,
                       ),
                     ),
-                    icon: refreshing
+                    icon: widget.refreshing
                         ? SizedBox(
                             width: AppTokens.componentSize.badgeMd,
                             height: AppTokens.componentSize.badgeMd,
@@ -241,74 +281,139 @@ class ScheduleClassListCard extends StatelessWidget {
           ),
           SizedBox(height: spacing.xl),
 
-          // Class list
-          if (!hasClasses) ...[
-            Container(
-              padding: spacing.edgeInsetsAll(spacing.xxl),
-              decoration: BoxDecoration(
-                color: isDark
-                    ? colors.surfaceContainerHighest
-                        .withValues(alpha: AppOpacity.divider)
-                    : colors.primary.withValues(alpha: AppOpacity.micro),
-                borderRadius: AppTokens.radius.lg,
-                border: Border.all(
-                  color: isDark
-                      ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                      : colors.primary.withValues(alpha: AppOpacity.dim),
-                  width: AppTokens.componentSize.divider,
+          // Filter pills
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<ScheduleFilter>(
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(
+                  spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.md,
+                    vertical: spacing.md,
+                  ),
+                ),
+                side: WidgetStateProperty.resolveWith(
+                  (states) => BorderSide(
+                    color: states.contains(WidgetState.selected)
+                        ? colors.primary
+                        : colors.outline.withValues(alpha: AppOpacity.barrier),
+                    width: AppTokens.componentSize.dividerMedium,
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
+                      : colors.surfaceContainerHighest
+                          .withValues(alpha: AppOpacity.barrier),
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.prominent),
                 ),
               ),
-              child: Column(
-                children: [
-                  Container(
-                    padding: spacing.edgeInsetsAll(spacing.lg),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? colors.primary.withValues(alpha: AppOpacity.medium)
-                          : colors.primary.withValues(alpha: AppOpacity.dim),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.event_available_outlined,
-                      size: AppTokens.iconSize.xxl,
-                      color: colors.primary,
-                    ),
+              segments: ScheduleFilter.values.map((option) {
+                return ButtonSegment<ScheduleFilter>(
+                  value: option,
+                  label: Text(
+                    option.label,
+                    softWrap: false,
                   ),
-                  SizedBox(height: spacing.xl),
-                  Text(
-                    'No classes scheduled',
-                    style: AppTokens.typography.subtitle.copyWith(
-                      fontWeight: AppTokens.fontWeight.bold,
-                      color: colors.onSurfaceVariant,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: spacing.sm),
-                  Text(
-                    'Add a class or scan your student card to get started.',
-                    style: AppTokens.typography.bodySecondary.copyWith(
-                      color: colors.onSurfaceVariant
-                          .withValues(alpha: AppOpacity.secondary),
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                );
+              }).toList(),
+              selected: <ScheduleFilter>{widget.filter},
+              onSelectionChanged: (value) {
+                if (value.isNotEmpty) widget.onFilterChanged(value.first);
+              },
+            ),
+          ),
+          SizedBox(height: spacing.lg),
+
+          // Search bar
+          TextField(
+            controller: _searchController,
+            style: AppTokens.typography.body.copyWith(color: colors.onSurface),
+            decoration: InputDecoration(
+              hintText: 'Search classes...',
+              hintStyle: AppTokens.typography.body.copyWith(
+                color: colors.onSurfaceVariant,
+              ),
+              prefixIcon: Icon(
+                Icons.search_rounded,
+                color: colors.onSurfaceVariant,
+                size: AppTokens.iconSize.md,
+              ),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(
+                        Icons.clear_rounded,
+                        color: colors.onSurfaceVariant,
+                        size: AppTokens.iconSize.md,
+                      ),
+                      onPressed: () {
+                        _searchController.clear();
+                        widget.onSearchChanged('');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: colors.surfaceContainerHigh,
+              contentPadding: spacing.edgeInsetsSymmetric(
+                horizontal: spacing.md,
+                vertical: spacing.sm,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: AppTokens.radius.lg,
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: AppTokens.radius.lg,
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: AppTokens.radius.lg,
+                borderSide: BorderSide(
+                  color: colors.primary,
+                  width: AppTokens.componentSize.dividerThick,
+                ),
               ),
             ),
+            onChanged: widget.onSearchChanged,
+          ),
+          SizedBox(height: spacing.xl),
+
+          // Class list
+          if (!hasClasses) ...[
+            _EmptyHeroPlaceholder(
+              icon: isSearchActive || isFilterActive
+                  ? Icons.search_off_rounded
+                  : Icons.event_available_outlined,
+              title: isSearchActive
+                  ? 'No matching classes'
+                  : isFilterActive
+                      ? 'No ${widget.filter.label.toLowerCase()} classes'
+                      : 'No classes scheduled',
+              subtitle: isSearchActive || isFilterActive
+                  ? 'Try a different search term or clear the filter.'
+                  : 'Add a class or scan your student card to get started.',
+            ),
           ] else ...[
-            for (var g = 0; g < groups.length; g++) ...[
-              if (groups[g].items.isNotEmpty) ...[
+            for (var g = 0; g < widget.groups.length; g++) ...[
+              if (widget.groups[g].items.isNotEmpty) ...[
                 // Day Header - Premium redesign with highlight support for newly added classes
                 Builder(builder: (context) {
-                  final dayNumber = groups[g].day;
-                  final isHighlightedDay = highlightDay == dayNumber;
+                  final dayNumber = widget.groups[g].day;
+                  final isHighlightedDay = widget.highlightDay == dayNumber;
                   final palette =
                       isDark ? AppTokens.darkColors : AppTokens.lightColors;
                   final accentColor =
                       isHighlightedDay ? palette.positive : colors.primary;
 
                   return Container(
-                    key: dayKeyBuilder?.call(dayNumber),
+                    key: widget.dayKeyBuilder?.call(dayNumber),
                     padding: spacing.edgeInsetsAll(spacing.md),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -353,7 +458,7 @@ class ScheduleClassListCard extends StatelessWidget {
                         SizedBox(width: spacing.md),
                         Expanded(
                           child: Text(
-                            groups[g].label,
+                            widget.groups[g].label,
                             style: AppTokens.typography.subtitle.copyWith(
                               fontWeight: AppTokens.fontWeight.extraBold,
                               letterSpacing: AppLetterSpacing.snug,
@@ -376,7 +481,7 @@ class ScheduleClassListCard extends StatelessWidget {
                           child: Text(
                             isHighlightedDay
                                 ? 'Added!'
-                                : '${groups[g].items.length} ${groups[g].items.length == 1 ? 'class' : 'classes'}',
+                                : '${widget.groups[g].items.length} ${widget.groups[g].items.length == 1 ? 'class' : 'classes'}',
                             style: AppTokens.typography.caption.copyWith(
                               fontWeight: AppTokens.fontWeight.bold,
                               color: accentColor,
@@ -390,24 +495,24 @@ class ScheduleClassListCard extends StatelessWidget {
                 SizedBox(height: spacing.md),
 
                 // Classes for this day
-                for (var i = 0; i < groups[g].items.length; i++) ...[
+                for (var i = 0; i < widget.groups[g].items.length; i++) ...[
                   ScheduleRow(
-                    item: groups[g].items[i],
-                    isLast: i == groups[g].items.length - 1,
-                    highlight: highlightClassId == groups[g].items[i].id,
-                    onOpenDetails: () => onOpenDetails(groups[g].items[i]),
+                    item: widget.groups[g].items[i],
+                    isLast: i == widget.groups[g].items.length - 1,
+                    highlight: widget.highlightClassId == widget.groups[g].items[i].id,
+                    onOpenDetails: () => widget.onOpenDetails(widget.groups[g].items[i]),
                     onToggleEnabled: (enable) =>
-                        onToggleEnabled(groups[g].items[i], enable),
+                        widget.onToggleEnabled(widget.groups[g].items[i], enable),
                     toggleBusy:
-                        pendingToggleIds.contains(groups[g].items[i].id),
-                    onDelete: onDelete != null
-                        ? () => onDelete!(groups[g].items[i].id)
+                        widget.pendingToggleIds.contains(widget.groups[g].items[i].id),
+                    onDelete: widget.onDelete != null
+                        ? () => widget.onDelete!(widget.groups[g].items[i].id)
                         : null,
                   ),
-                  if (i != groups[g].items.length - 1)
+                  if (i != widget.groups[g].items.length - 1)
                     SizedBox(height: spacing.sm + AppTokens.spacing.micro),
                 ],
-                if (g != groups.length - 1) SizedBox(height: spacing.xl),
+                if (g != widget.groups.length - 1) SizedBox(height: spacing.xl),
               ],
             ],
           ],
@@ -551,8 +656,9 @@ class ScheduleGroupCard extends StatelessWidget {
           if (showHeader) ...[
             Text(
               group.label,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: AppTokens.typography.subtitle.copyWith(
                 fontWeight: AppTokens.fontWeight.bold,
+                color: colors.onSurface,
               ),
             ),
             SizedBox(height: spacing.md + AppTokens.spacing.micro),
@@ -758,8 +864,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
     final hasInstructor = instructor.isNotEmpty;
     final isLive = highlight.status == ScheduleHighlightStatus.ongoing;
     final statusLabel = isLive ? 'Live Now' : 'Coming Up';
-    final timeLabel =
-        '${DateFormat('h:mm a').format(highlight.start)} - ${DateFormat('h:mm a').format(highlight.end)}';
+    final timeLabel = AppTimeFormat.formatTimeRange(highlight.start, highlight.end);
     final dateLabel = DateFormat('EEEE, MMMM d').format(highlight.start);
     final isDark = theme.brightness == Brightness.dark;
     final foreground = colors.onPrimary;
@@ -769,10 +874,15 @@ class _ScheduleHighlightHero extends StatelessWidget {
     final timeUntil = highlight.start.difference(now);
     String timeUntilText = '';
     if (!isLive && timeUntil.inMinutes > 0) {
-      if (timeUntil.inHours > 0) {
-        timeUntilText = 'in ${timeUntil.inHours}h ${timeUntil.inMinutes % 60}m';
+      final days = timeUntil.inDays;
+      final hours = timeUntil.inHours % 24;
+      final minutes = timeUntil.inMinutes % 60;
+      if (days > 0) {
+        timeUntilText = 'in ${days}d ${hours}h';
+      } else if (hours > 0) {
+        timeUntilText = 'in ${hours}h ${minutes}m';
       } else {
-        timeUntilText = 'in ${timeUntil.inMinutes}m';
+        timeUntilText = 'in ${minutes}m';
       }
     }
 
@@ -1141,9 +1251,7 @@ class ScheduleRow extends StatelessWidget {
     final isLive = urgency == UrgencyLevel.live;
     final isNext = urgency == UrgencyLevel.imminent;
 
-    final timeFormat = DateFormat('h:mm a');
-    final timeRange =
-        '${timeFormat.format(nextStart)} - ${timeFormat.format(nextEnd)}';
+    final timeRange = AppTimeFormat.formatTimeRange(nextStart, nextEnd);
 
     // Build metadata items
     final metadata = <MetadataItem>[
@@ -1159,52 +1267,26 @@ class ScheduleRow extends StatelessWidget {
 
     if (isLive) {
       badge = StatusBadge(
-        label: 'Live',
+        label: StatusBadgeVariant.live.label,
         variant: StatusBadgeVariant.live,
       );
     } else if (isNext) {
       badge = StatusBadge(
-        label: 'Next',
+        label: StatusBadgeVariant.next.label,
         variant: StatusBadgeVariant.next,
       );
-    } else {
-      final accent = colors.primary;
-      final disabledThumb =
-          palette.danger.withValues(alpha: AppOpacity.secondary);
-      final disabledTrack =
-          colors.errorContainer.withValues(alpha: AppOpacity.medium);
-      final trackColor = WidgetStateProperty.resolveWith<Color?>(
-        (states) {
-          if (states.contains(WidgetState.selected)) return accent;
-          return isHidden ? disabledTrack : colors.surfaceContainerHighest;
-        },
-      );
-      final thumbColor = WidgetStateProperty.resolveWith<Color?>(
-        (states) {
-          if (states.contains(WidgetState.selected)) return colors.onPrimary;
-          return isHidden ? disabledThumb : colors.surface;
-        },
-      );
-      final outlineColor = WidgetStateProperty.resolveWith<Color?>(
-        (states) {
-          if (isHidden) {
-            return palette.danger.withValues(alpha: AppOpacity.borderEmphasis);
-          }
-          return Colors.transparent;
-        },
-      );
-      trailing = Transform.scale(
-        scale: AppScale.dense,
-        child: Switch(
-          value: !isHidden,
-          onChanged: toggleBusy ? null : onToggleEnabled,
-          thumbColor: thumbColor,
-          trackColor: trackColor,
-          trackOutlineColor: outlineColor,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        ),
-      );
     }
+
+    // Always show toggle switch - red when disabled
+    trailing = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: () {}, // Absorb tap to prevent row tap
+      child: AppSwitch(
+        value: !isHidden,
+        onChanged: toggleBusy ? null : onToggleEnabled,
+        showDangerWhenOff: true,
+      ),
+    );
 
     final child = EntityTile(
       title: subject,
@@ -1214,11 +1296,10 @@ class ScheduleRow extends StatelessWidget {
       tags: isCustom
           ? [
               StatusBadge(
-                label: 'Custom',
+                label: StatusBadgeVariant.custom.label,
                 variant: isHidden
                     ? StatusBadgeVariant.overdue
-                    : StatusBadgeVariant.next,
-                accent: isHidden ? null : palette.positive,
+                    : StatusBadgeVariant.custom,
                 compact: true,
               ),
             ]
@@ -1278,7 +1359,7 @@ class ScheduleRow extends StatelessWidget {
                   Text(
                     'Delete',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.labelMedium?.copyWith(
+                    style: AppTokens.typography.label.copyWith(
                       color: colors.onError,
                       fontWeight: AppTokens.fontWeight.semiBold,
                     ),

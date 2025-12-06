@@ -168,6 +168,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
 
@@ -212,13 +213,13 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           title: 'Profile',
           subtitle: 'Update your avatar, name, and student ID.',
           decorated: false,
-          child: _buildProfileCard(theme, colors),
+          child: _buildProfileCard(colors, isDark),
         ),
         ScreenSection(
           title: 'Security actions',
           subtitle: 'Keep your login details up to date.',
           decorated: false,
-          child: _buildSecurityCard(theme, colors),
+          child: _buildSecurityCard(colors, isDark),
         ),
         ScreenSection(
           decorated: false,
@@ -242,10 +243,31 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildProfileCard(ThemeData theme, ColorScheme colors) {
+  Widget _buildProfileCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                  blurRadius: AppTokens.shadow.md,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -301,9 +323,9 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
           SizedBox(height: spacing.md),
           Text(
             _name.isEmpty ? 'Student' : _name,
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: AppTokens.typography.title.copyWith(
               fontWeight: AppTokens.fontWeight.bold,
-              fontSize: AppTokens.typography.title.fontSize,
+              color: colors.onSurface,
             ),
             textAlign: TextAlign.center,
           ),
@@ -314,7 +336,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                 if (_sid.isNotEmpty)
                   Text(
                     _sid,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: colors.onSurfaceVariant,
                       fontWeight: AppTokens.fontWeight.semiBold,
                     ),
@@ -322,7 +344,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                 if (_email.isNotEmpty)
                   Text(
                     _email,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: colors.onSurfaceVariant,
                     ),
                   ),
@@ -334,10 +356,31 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildSecurityCard(ThemeData theme, ColorScheme colors) {
+  Widget _buildSecurityCard(ColorScheme colors, bool isDark) {
     final spacing = AppTokens.spacing;
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsAll(spacing.xl),
+      decoration: BoxDecoration(
+        color: isDark ? colors.surfaceContainerHigh : colors.surface,
+        borderRadius: AppTokens.radius.xl,
+        border: Border.all(
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
+        ),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                  blurRadius: AppTokens.shadow.md,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
+      ),
       child: Column(
         children: [
           InfoTile(

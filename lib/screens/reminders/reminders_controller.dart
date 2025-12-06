@@ -1,27 +1,57 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../models/reminder_scope.dart';
 import '../../services/profile_cache.dart';
-import '../../services/reminder_scope_store.dart';
 import '../../services/reminders_api.dart';
 import '../../services/telemetry_service.dart';
 import '../../services/data_sync.dart';
 import '../../services/offline_queue.dart';
+import '../../services/export_queue.dart';
+import '../../services/share_service.dart';
 import 'reminders_data.dart';
+
+/// Export format options for reminders.
+enum ReminderExportFormat { csv, pdf }
+
+/// Sort options for reminders.
+enum ReminderSortOption { dueDate, title, createdAt }
+
+extension ReminderSortOptionLabels on ReminderSortOption {
+  /// Display label for dropdown menus.
+  String get label => switch (this) {
+    ReminderSortOption.dueDate => 'Sort by due date',
+    ReminderSortOption.title => 'Sort by title',
+    ReminderSortOption.createdAt => 'Sort by created',
+  };
+
+  /// Group header label when sorting by this option.
+  String get groupLabel => switch (this) {
+    ReminderSortOption.dueDate => 'All reminders',
+    ReminderSortOption.title => 'Sorted by title',
+    ReminderSortOption.createdAt => 'Sorted by created date',
+  };
+}
 
 class RemindersController extends ChangeNotifier {
   RemindersController({
     RemindersApi? api,
     ReminderScope? initialScope,
+    Future<bool> Function()? connectivityOverride,
   })  : _api = api ?? RemindersApi(),
-        _scope = initialScope ?? ReminderScopeStore.instance.value {
+        _scope = initialScope ?? ReminderScope.all,
+        _connectivityOverride = connectivityOverride {
+    _exportQueue = ExportQueue(connectivity: _hasConnectivity);
     _init();
   }
 
   final RemindersApi _api;
+  final Future<bool> Function()? _connectivityOverride;
+  late final ExportQueue _exportQueue;
   
   bool _loading = true;
   bool get loading => _loading;
@@ -59,7 +89,25 @@ class RemindersController extends ChangeNotifier {
   
   ReminderScope _scope;
   ReminderScope get scope => _scope;
-  
+
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  ReminderSortOption _sortOption = ReminderSortOption.dueDate;
+  ReminderSortOption get sortOption => _sortOption;
+
+  bool _exporting = false;
+  bool get exporting => _exporting;
+
+  String? _exportError;
+  String? get exportError => _exportError;
+
+  ReminderExportFormat? _pendingExport;
+  ReminderExportFormat? get pendingExport => _pendingExport;
+
+  final bool _offlineMode = false;
+  bool get offlineMode => _offlineMode;
+
   int _itemsVersion = 0;
   int _scopedVersion = -1;
   int _groupedVersion = -1;
@@ -78,12 +126,11 @@ class RemindersController extends ChangeNotifier {
     ProfileCache.notifier.addListener(_onProfileChanged);
     _applyProfile(ProfileCache.notifier.value);
     
-    ReminderScopeStore.instance.update(_scope);
-    ReminderScopeStore.instance.addListener(_onScopeChanged);
+    // Don't sync with shared scope store - Reminders screen manages its own scope
     OfflineQueue.instance.pendingCount.addListener(_onPendingQueueChanged);
     
     loadProfile();
-    load();
+    _loadWithRetry();
     _syncSub = DataSync.instance.remindersEvents.listen((event) async {
       if (event.type == RemindersChangeType.refresh ||
           event.type == RemindersChangeType.reminderAdded ||
@@ -96,10 +143,19 @@ class RemindersController extends ChangeNotifier {
     });
   }
 
+  /// Initial load with automatic retry if first attempt fails.
+  Future<void> _loadWithRetry() async {
+    await load();
+    // If initial load failed, retry after a short delay
+    if (_error != null) {
+      await Future<void>.delayed(const Duration(milliseconds: 800));
+      await load();
+    }
+  }
+
   @override
   void dispose() {
     ProfileCache.notifier.removeListener(_onProfileChanged);
-    ReminderScopeStore.instance.removeListener(_onScopeChanged);
     OfflineQueue.instance.pendingCount.removeListener(_onPendingQueueChanged);
     _syncSub?.cancel();
     super.dispose();
@@ -109,10 +165,29 @@ class RemindersController extends ChangeNotifier {
     _applyProfile(ProfileCache.notifier.value);
   }
 
-  void _onScopeChanged() {
-    final next = ReminderScopeStore.instance.value;
-    if (next == _scope) return;
-    _scope = next;
+  void setScope(ReminderScope scope) {
+    if (scope == _scope) return;
+    _scope = scope;
+    notifyListeners();
+  }
+
+  void setSearchQuery(String query) {
+    if (query == _searchQuery) return;
+    _searchQuery = query;
+    // Invalidate grouped cache since search affects the entries
+    _groupedVersion = -1;
+    _groupedCache = const <ReminderGroup>[];
+    _groupedSource = const <ReminderEntry>[];
+    notifyListeners();
+  }
+
+  void setSortOption(ReminderSortOption option) {
+    if (option == _sortOption) return;
+    _sortOption = option;
+    // Invalidate grouped cache since grouping logic depends on sort option
+    _groupedVersion = -1;
+    _groupedCache = const <ReminderGroup>[];
+    _groupedSource = const <ReminderEntry>[];
     notifyListeners();
   }
 
@@ -396,7 +471,7 @@ class RemindersController extends ChangeNotifier {
         _cachedReferenceDay != null &&
         _isSameDay(referenceDay, _cachedReferenceDay!);
     if (canReuse) {
-      return _scopedCache;
+      return _applySortAndSearch(_scopedCache);
     }
     final filtered = _items.where((entry) {
       if (!_showCompleted && entry.isCompleted) return false;
@@ -408,7 +483,38 @@ class RemindersController extends ChangeNotifier {
     _cachedScopeForEntries = _scope;
     _cachedShowCompleted = _showCompleted;
     _cachedReferenceDay = referenceDay;
-    return filtered;
+    return _applySortAndSearch(filtered);
+  }
+
+  List<ReminderEntry> _applySortAndSearch(List<ReminderEntry> entries) {
+    var result = entries;
+    
+    // Apply search filter
+    if (_searchQuery.isNotEmpty) {
+      final query = _searchQuery.toLowerCase();
+      result = result.where((entry) {
+        return entry.title.toLowerCase().contains(query) ||
+            (entry.details?.toLowerCase().contains(query) ?? false);
+      }).toList(growable: false);
+    }
+    
+    // Apply sort
+    switch (_sortOption) {
+      case ReminderSortOption.dueDate:
+        result = List<ReminderEntry>.from(result)
+          ..sort((a, b) => a.dueAt.compareTo(b.dueAt));
+        break;
+      case ReminderSortOption.title:
+        result = List<ReminderEntry>.from(result)
+          ..sort((a, b) => a.title.toLowerCase().compareTo(b.title.toLowerCase()));
+        break;
+      case ReminderSortOption.createdAt:
+        result = List<ReminderEntry>.from(result)
+          ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+        break;
+    }
+    
+    return result;
   }
 
   List<ReminderGroup> groupedEntries(List<ReminderEntry> entries) {
@@ -417,6 +523,14 @@ class RemindersController extends ChangeNotifier {
       _groupedSource = entries;
       _groupedVersion = _scopedVersion;
       return const <ReminderGroup>[];
+    }
+
+    // When sorting by title or createdAt, don't group by date - show as single flat list
+    if (_sortOption != ReminderSortOption.dueDate) {
+      _groupedCache = [ReminderGroup(label: _sortOption.groupLabel, items: entries)];
+      _groupedSource = entries;
+      _groupedVersion = _scopedVersion;
+      return _groupedCache;
     }
 
     final canReuse = _groupedVersion == _scopedVersion &&
@@ -433,7 +547,7 @@ class RemindersController extends ChangeNotifier {
     final groups = <ReminderGroup>[];
     for (final key in keys) {
       final list = List<ReminderEntry>.from(map[key]!);
-      list.sort((a, b) => a.dueAt.compareTo(b.dueAt));
+      // Keep the order from _applySortAndSearch (already sorted by dueAt)
       groups.add(ReminderGroup(label: _labelForDate(key), items: list));
     }
     _groupedCache = groups;
@@ -458,5 +572,125 @@ class RemindersController extends ChangeNotifier {
   
   void notifyDirty() {
     _dirty = true;
+  }
+
+  Future<bool> _hasConnectivity() async {
+    if (_connectivityOverride != null) {
+      return _connectivityOverride();
+    }
+    try {
+      // Using the offline queue's pending count as a proxy for connectivity
+      // If there are pending items, we might be offline
+      return OfflineQueue.instance.pendingCount.value == 0 || _items.isNotEmpty;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  /// Export reminders in the specified format.
+  Future<void> handleExportAction(
+    ReminderExportFormat format, {
+    required Function(String) onInfo,
+  }) async {
+    if (_exporting) return;
+    final entries = _items.where((e) => !e.isCompleted).toList();
+    if (entries.isEmpty) {
+      onInfo('Nothing to export just yet.');
+      return;
+    }
+
+    _exporting = true;
+    _exportError = null;
+    _pendingExport = format;
+    notifyListeners();
+
+    final now = DateTime.now();
+    ShareParams params;
+    if (format == ReminderExportFormat.csv) {
+      final csv = buildRemindersCsv(entries, now: now);
+      params = ShareParams(
+        text: csv,
+        subject: 'MySched reminders',
+        files: [
+          XFile.fromData(
+            Uint8List.fromList(utf8.encode(csv)),
+            mimeType: 'text/csv',
+            name: 'mysched-reminders.csv',
+          ),
+        ],
+        fileNameOverrides: ['mysched-reminders.csv'],
+      );
+      TelemetryService.instance.logEvent(
+        'reminder_export_csv',
+        data: {'count': entries.length},
+      );
+    } else {
+      final pdfBytes = await buildRemindersPdf(entries, now: now);
+      final text = buildRemindersPlainText(entries, now: now);
+      params = ShareParams(
+        text: text,
+        subject: 'MySched reminders',
+        files: [
+          XFile.fromData(
+            pdfBytes,
+            mimeType: 'application/pdf',
+            name: 'mysched-reminders.pdf',
+          ),
+          XFile.fromData(
+            Uint8List.fromList(utf8.encode(text)),
+            mimeType: 'text/plain',
+            name: 'mysched-reminders.txt',
+          ),
+        ],
+        fileNameOverrides: [
+          'mysched-reminders.pdf',
+          'mysched-reminders.txt',
+        ],
+      );
+      TelemetryService.instance.logEvent(
+        'reminder_export_pdf',
+        data: {'count': entries.length},
+      );
+    }
+
+    final completer = Completer<void>();
+    _exportQueue.enqueue(() async {
+      try {
+        await ShareService.share(params);
+        if (!completer.isCompleted) {
+          completer.complete();
+        }
+      } catch (error, stack) {
+        if (!completer.isCompleted) {
+          completer.completeError(error, stack);
+        }
+      }
+    });
+
+    await _exportQueue.flush();
+
+    try {
+      await completer.future;
+      _exporting = false;
+      _exportError = null;
+      _pendingExport = null;
+      notifyListeners();
+    } catch (error, stack) {
+      _exporting = false;
+      _exportError = 'Export failed. Please try again.';
+      notifyListeners();
+      TelemetryService.instance.logError(
+        'reminder_export_failed',
+        error: error,
+        stack: stack,
+        data: {'format': format.name},
+      );
+    }
+  }
+
+  void retryPendingExport({required Function(String) onInfo}) {
+    final pending = _pendingExport;
+    if (pending == null || _exporting) return;
+    handleExportAction(pending, onInfo: onInfo);
   }
 }

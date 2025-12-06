@@ -15,6 +15,7 @@ class AlarmPage extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     final backButton = IconButton(
       splashRadius: AppInteraction.splashRadius,
@@ -86,8 +87,24 @@ class AlarmPage extends StatelessWidget {
           title: 'How reminders work',
           subtitle: 'Alarm scheduling overview',
           decorated: false,
-          child: CardX(
+          child: Container(
             padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+              borderRadius: AppTokens.radius.md,
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                        blurRadius: AppTokens.shadow.sm,
+                        offset: AppShadowOffset.sm,
+                      ),
+                    ],
+            ),
             child: Text(
               'MySched syncs your timetable to Android\'s exact alarm API. '
               'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
@@ -101,8 +118,24 @@ class AlarmPage extends StatelessWidget {
           title: 'Heads-up tips',
           subtitle: 'Keep your alarms reliable.',
           decorated: false,
-          child: CardX(
+          child: Container(
             padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+              borderRadius: AppTokens.radius.md,
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                        blurRadius: AppTokens.shadow.sm,
+                        offset: AppShadowOffset.sm,
+                      ),
+                    ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
@@ -117,8 +150,24 @@ class AlarmPage extends StatelessWidget {
           title: 'Need to change something?',
           subtitle: 'Open notifications settings to adjust preferences.',
           decorated: false,
-          child: CardX(
+          child: Container(
             padding: spacing.edgeInsetsAll(spacing.xl),
+            decoration: BoxDecoration(
+              color: isDark ? colors.surfaceContainerHigh : colors.surface,
+              borderRadius: AppTokens.radius.md,
+              border: Border.all(
+                color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+              ),
+              boxShadow: isDark
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                        blurRadius: AppTokens.shadow.sm,
+                        offset: AppShadowOffset.sm,
+                      ),
+                    ],
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

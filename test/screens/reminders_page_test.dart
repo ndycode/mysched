@@ -136,6 +136,9 @@ void main() {
 
     await _pumpReminders(tester, api);
     await tester.pumpAndSettle();
+    // Wait for the retry timer to complete and settle again
+    await tester.pump(const Duration(milliseconds: 900));
+    await tester.pumpAndSettle();
 
     expect(find.text('Reminders not refreshed'), findsOneWidget);
     expect(find.text('Retry'), findsOneWidget);
@@ -143,6 +146,9 @@ void main() {
 
   testWidgets('toggle button switches completed visibility label',
       (tester) async {
+    // Use a larger surface to ensure all elements are visible
+    await tester.binding.setSurfaceSize(const Size(800, 1200));
+    
     final today = DateTime.now();
     final active = buildReminder(
       id: 1,
@@ -154,16 +160,15 @@ void main() {
     await _pumpReminders(tester, api);
     await tester.pumpAndSettle();
 
-    final showCompletedButton =
-        find.widgetWithText(OutlinedButton, 'Show completed');
-    expect(showCompletedButton, findsOneWidget);
-    await tester.tap(showCompletedButton);
+    // Find the "Show completed" text in the SecondaryButton
+    expect(find.text('Show completed'), findsOneWidget);
+    await tester.tap(find.text('Show completed'));
     await tester.pumpAndSettle();
 
-    expect(
-      find.widgetWithText(OutlinedButton, 'Hide completed'),
-      findsOneWidget,
-    );
+    expect(find.text('Hide completed'), findsOneWidget);
+    
+    // Reset surface size
+    await tester.binding.setSurfaceSize(null);
   });
 
   testWidgets('shows empty state when no reminders', (tester) async {
@@ -195,7 +200,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Queued'), findsOneWidget);
+    // ReminderRow now shows a CircularProgressIndicator instead of text when queued
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
   });
 
   testWidgets('shows queued count on group header', (tester) async {

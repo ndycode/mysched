@@ -21,11 +21,28 @@ class AppConstants {
   static const String keyAlarmVolume = 'alarm_volume';
   static const String keyAlarmVibration = 'alarm_vibration';
   static const String keyAlarmRingtone = 'alarm_ringtone';
+  static const String keyUse24HourFormat = 'use_24_hour_format';
+  static const String keyWeekStartDay = 'week_start_day';
+  static const String keyHapticFeedback = 'haptic_feedback';
+  static const String keyReminderLeadMinutes = 'reminder_lead_minutes';
+  static const String keyDndEnabled = 'dnd_enabled';
+  static const String keyDndStartTime = 'dnd_start_time';
+  static const String keyDndEndTime = 'dnd_end_time';
+  static const String keyAutoRefreshMinutes = 'auto_refresh_minutes';
 
   /// Default alarm settings
   static const int defaultAlarmVolume = 80;
   static const bool defaultAlarmVibration = true;
   static const String defaultAlarmRingtone = 'default';
+
+  /// Default new settings
+  static const String defaultWeekStartDay = 'monday';
+  static const bool defaultHapticFeedback = true;
+  static const int defaultReminderLeadMinutes = 0;
+  static const bool defaultDndEnabled = false;
+  static const String defaultDndStartTime = '22:00';
+  static const String defaultDndEndTime = '07:00';
+  static const int defaultAutoRefreshMinutes = 30;
 
   // ─────────────────────────────────────────────────────────────────────────
   // Validation Constants (non-UI)

@@ -215,8 +215,28 @@ id, section_id, day, start, end, code, title, room, units, instructor_id, instru
             constraints: BoxConstraints(
               maxWidth: AppLayout.sheetMaxWidth,
             ),
-            child: CardX(
+            child: Container(
               padding: spacing.edgeInsetsAll(spacing.xl),
+              decoration: BoxDecoration(
+                color: theme.brightness == Brightness.dark
+                    ? colors.surfaceContainerHigh
+                    : colors.surface,
+                borderRadius: AppTokens.radius.md,
+                border: Border.all(
+                  color: theme.brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+                boxShadow: theme.brightness == Brightness.dark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          blurRadius: AppTokens.shadow.sm,
+                          offset: AppShadowOffset.sm,
+                        ),
+                      ],
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,

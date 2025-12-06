@@ -840,6 +840,67 @@ class LocalNotifs {
       stack: stack,
     );
   }
+
+  /// Get available alarm sounds from device.
+  /// Returns list of maps with 'title' and 'uri' keys.
+  static Future<List<AlarmSound>> getAlarmSounds() async {
+    if (!isAndroidContext) return [];
+    if (debugForceAndroid) {
+      return [
+        const AlarmSound(title: 'Default Alarm', uri: 'default'),
+      ];
+    }
+    try {
+      final result = await _channel.invokeMethod<List<dynamic>>('getAlarmSounds');
+      if (result == null) return [];
+      return result
+          .whereType<Map>()
+          .map((m) => AlarmSound(
+                title: m['title']?.toString() ?? 'Unknown',
+                uri: m['uri']?.toString() ?? 'default',
+              ))
+          .toList();
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'getAlarmSounds failed',
+          error: err,
+        );
+      }
+      return [];
+    }
+  }
+
+  /// Preview a ringtone by URI. Plays for ~2 seconds.
+  static Future<void> playRingtonePreview(String ringtoneUri) async {
+    if (!isAndroidContext) return;
+    if (debugForceAndroid) return;
+    try {
+      await _channel.invokeMethod('playRingtonePreview', {
+        'ringtoneType': ringtoneUri,
+      });
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'playRingtonePreview failed',
+          error: err,
+        );
+      }
+    }
+  }
+
+  /// Stop any currently playing ringtone preview.
+  static Future<void> stopRingtonePreview() async {
+    if (!isAndroidContext) return;
+    if (debugForceAndroid) return;
+    try {
+      await _channel.invokeMethod('stopRingtonePreview');
+    } on PlatformException catch (_) {
+      // Ignore errors
+    }
+  }
 }
 
 class AlarmReadiness {
@@ -874,3 +935,25 @@ class AlarmReadiness {
     );
   }
 }
+
+/// Represents an alarm sound available on the device.
+class AlarmSound {
+  final String title;
+  final String uri;
+
+  const AlarmSound({
+    required this.title,
+    required this.uri,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AlarmSound &&
+          runtimeType == other.runtimeType &&
+          uri == other.uri;
+
+  @override
+  int get hashCode => uri.hashCode;
+}
+

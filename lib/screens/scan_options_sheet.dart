@@ -51,15 +51,26 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
           ),
           child: Container(
             margin: EdgeInsets.symmetric(horizontal: spacing.xl),
-            child: CardX(
-              padding: EdgeInsets.zero,
-              backgroundColor: theme.brightness == Brightness.dark
-                  ? theme.colorScheme.surfaceContainerHigh
-                  : theme.colorScheme.surface,
-              borderColor: theme.colorScheme.outline.withValues(
-                  alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
-              borderRadius: AppTokens.radius.xl,
-              elevation: AppTokens.shadow.elevationLight,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : theme.colorScheme.surface,
+                borderRadius: AppTokens.radius.xl,
+                border: Border.all(
+                  color: theme.colorScheme.outline.withValues(
+                      alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.divider),
+                ),
+                boxShadow: theme.brightness == Brightness.dark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.faint),
+                          blurRadius: AppTokens.shadow.sm,
+                          offset: AppShadowOffset.sm,
+                        ),
+                      ],
+              ),
               child: ClipRRect(
                 borderRadius: AppTokens.radius.xl,
                 child: SingleChildScrollView(

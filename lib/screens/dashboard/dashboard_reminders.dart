@@ -145,14 +145,16 @@ class _DashboardReminderCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: spacing.lg),
-          Center(
+          SizedBox(
+            width: double.infinity,
             child: SegmentedButton<ReminderScope>(
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
               style: ButtonStyle(
-                visualDensity: VisualDensity.compact,
                 padding: WidgetStateProperty.all(
                   spacing.edgeInsetsSymmetric(
                     horizontal: spacing.md,
-                    vertical: spacing.sm,
+                    vertical: spacing.md,
                   ),
                 ),
                 side: WidgetStateProperty.resolveWith(

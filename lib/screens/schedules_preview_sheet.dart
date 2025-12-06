@@ -396,13 +396,16 @@ class _SectionCard extends StatelessWidget {
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
 
-    return CardX(
+    return Container(
       padding: spacing.edgeInsetsSymmetric(
         horizontal: spacing.xl,
         vertical: spacing.lgPlus,
       ),
-      backgroundColor: colors.surfaceContainerHighest.withValues(
-        alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.micro,
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest.withValues(
+          alpha: theme.brightness == Brightness.dark ? AppOpacity.overlay : AppOpacity.micro,
+        ),
+        borderRadius: AppTokens.radius.md,
       ),
       child: Row(
         children: [

@@ -6,9 +6,10 @@ import 'package:intl/intl.dart';
 import '../../models/reminder_scope.dart';
 import '../../services/reminders_api.dart';
 import '../../ui/kit/kit.dart';
-import '../../ui/kit/queued_badge.dart';
 import '../../ui/kit/reminder_details_sheet.dart';
 import '../../ui/theme/tokens.dart';
+import '../../utils/time_format.dart';
+import 'reminders_controller.dart';
 import 'reminders_data.dart';
 
 class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
@@ -38,24 +39,24 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
-    // This build method is for non-sliver usage (if any), 
+    // This build method is for non-sliver usage (if any),
     // but ScreenShell uses buildSlivers.
     // We'll just return a Column of cards.
     return Column(
       children: [
         header,
         ...group.items.map((entry) => Padding(
-          padding: spacing.edgeInsetsOnly(bottom: spacing.md),
-          child: ReminderRow(
-            entry: entry,
-            timeFormat: timeFormat,
-            onToggle: (v) => onToggle(entry, v),
-            onEdit: () => onEdit(entry),
-            onDelete: () => onDelete(entry),
-            onSnooze: () => onSnooze(entry),
-            showQueuedBadge: queuedIds.contains(entry.id),
-          ),
-        )),
+              padding: spacing.edgeInsetsOnly(bottom: spacing.md),
+              child: ReminderRow(
+                entry: entry,
+                timeFormat: timeFormat,
+                onToggle: (v) => onToggle(entry, v),
+                onEdit: () => onEdit(entry),
+                onDelete: () => onDelete(entry),
+                onSnooze: () => onSnooze(entry),
+                showQueuedBadge: queuedIds.contains(entry.id),
+              ),
+            )),
       ],
     );
   }
@@ -67,7 +68,7 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
     EdgeInsetsGeometry horizontalPadding,
   ) {
     final spacing = AppTokens.spacing;
-    // We use SliverToBoxAdapter for the header to avoid sticky behavior 
+    // We use SliverToBoxAdapter for the header to avoid sticky behavior
     // overlapping with the box style headers.
     return [
       SliverPadding(
@@ -177,7 +178,8 @@ class _EmptyHeroPlaceholder extends StatelessWidget {
           Text(
             subtitle,
             style: AppTokens.typography.bodySecondary.copyWith(
-              color: colors.onSurfaceVariant.withValues(alpha: AppOpacity.secondary),
+              color: colors.onSurfaceVariant
+                  .withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
           ),
@@ -196,8 +198,6 @@ class ReminderSummaryCard extends StatelessWidget {
     required this.onToggleCompleted,
     required this.showCompleted,
     this.menuButton,
-    required this.scope,
-    required this.onScopeChanged,
   });
 
   final ReminderSummary summary;
@@ -206,8 +206,6 @@ class ReminderSummaryCard extends StatelessWidget {
   final VoidCallback onToggleCompleted;
   final bool showCompleted;
   final Widget? menuButton;
-  final ReminderScope scope;
-  final ValueChanged<ReminderScope> onScopeChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -223,8 +221,12 @@ class ReminderSummaryCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -388,9 +390,8 @@ class ReminderHighlightHero extends StatelessWidget {
     ];
     final shadowColor = baseColor.withValues(alpha: AppOpacity.ghost);
     final foreground = colors.onPrimary;
-    final scheduleWindow = DateFormat("EEE, MMM d 'at' h:mm a")
-        .format(target)
-        .replaceAll('\u202f', ' ');
+    final timeLabel = AppTimeFormat.formatTime(target);
+    final dateLabel = DateFormat('EEEE, MMMM d').format(target);
     final subtitle = _formatRelativeDuration(target.difference(now)) ??
         (highlight.status == ReminderHighlightStatus.overdue
             ? 'Just overdue'
@@ -424,14 +425,13 @@ class ReminderHighlightHero extends StatelessWidget {
               ReminderHeroChip(
                 icon: labelIcon,
                 label: label,
-                background: foreground.withValues(alpha: AppOpacity.accent),
                 foreground: foreground,
               ),
-              SizedBox(width: spacing.md),
+              SizedBox(width: spacing.sm + AppTokens.spacing.micro),
               if (subtitle.isNotEmpty)
                 Text(
                   subtitle,
-                  style: AppTokens.typography.bodySecondary.copyWith(
+                  style: AppTokens.typography.caption.copyWith(
                     color: foreground.withValues(alpha: AppOpacity.prominent),
                     fontWeight: AppTokens.fontWeight.medium,
                   ),
@@ -450,7 +450,7 @@ class ReminderHighlightHero extends StatelessWidget {
               letterSpacing: AppLetterSpacing.tight,
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.lg + AppTokens.spacing.micro),
           Row(
             children: [
               Container(
@@ -467,18 +467,31 @@ class ReminderHighlightHero extends StatelessWidget {
               ),
               SizedBox(width: spacing.md),
               Expanded(
-                child: Text(
-                  scheduleWindow,
-                  style: AppTokens.typography.body.copyWith(
-                    color: foreground,
-                    fontWeight: AppTokens.fontWeight.semiBold,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      timeLabel,
+                      style: AppTokens.typography.subtitle.copyWith(
+                        color: foreground,
+                        fontWeight: AppTokens.fontWeight.semiBold,
+                      ),
+                    ),
+                    SizedBox(height: AppTokens.spacing.xs),
+                    Text(
+                      dateLabel,
+                      style: AppTokens.typography.caption.copyWith(
+                        color:
+                            foreground.withValues(alpha: AppOpacity.secondary),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
           if (details.isNotEmpty) ...[
-            SizedBox(height: spacing.lg),
+            SizedBox(height: spacing.md + AppTokens.spacing.micro),
             Row(
               children: [
                 Container(
@@ -499,7 +512,7 @@ class ReminderHighlightHero extends StatelessWidget {
                     details,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTokens.typography.bodySecondary.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: foreground.withValues(alpha: AppOpacity.high),
                       fontWeight: AppTokens.fontWeight.medium,
                     ),
@@ -516,11 +529,17 @@ class ReminderHighlightHero extends StatelessWidget {
   String? _formatRelativeDuration(Duration delta) {
     if (delta.inMinutes.abs() < 1) return null;
     final positive = delta.isNegative ? -delta : delta;
-    final hours = positive.inHours;
+    final days = positive.inDays;
+    final hours = positive.inHours % 24;
     final minutes = positive.inMinutes % 60;
     final parts = <String>[];
-    if (hours > 0) parts.add('${hours}h');
-    if (minutes > 0) parts.add('${minutes}m');
+    if (days > 0) {
+      parts.add('${days}d');
+      parts.add('${hours}h');
+    } else {
+      if (hours > 0) parts.add('${hours}h');
+      if (minutes > 0) parts.add('${minutes}m');
+    }
     final formatted = parts.isEmpty ? 'moments' : parts.join(' ');
     if (delta.isNegative) {
       return 'Overdue by $formatted';
@@ -534,38 +553,36 @@ class ReminderHeroChip extends StatelessWidget {
     super.key,
     required this.icon,
     required this.label,
-    required this.background,
     required this.foreground,
   });
 
   final IconData icon;
   final String label;
-  final Color background;
   final Color foreground;
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final spacing = AppTokens.spacing;
     return Container(
-      padding: AppTokens.spacing.edgeInsetsSymmetric(
-        horizontal: AppTokens.spacing.sm + AppTokens.spacing.micro,
-        vertical: AppTokens.spacing.xs + AppTokens.spacing.microHalf,
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.md,
+        vertical: spacing.sm - spacing.micro,
       ),
       decoration: BoxDecoration(
-        color: background,
+        color: foreground.withValues(alpha: AppOpacity.border),
         borderRadius: AppTokens.radius.pill,
-        border: Border.all(color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
-          SizedBox(width: AppTokens.spacing.xs + AppTokens.spacing.micro),
+          Icon(icon, size: AppTokens.iconSize.sm, color: foreground),
+          SizedBox(width: spacing.xs + spacing.micro),
           Text(
             label,
             style: AppTokens.typography.caption.copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
               color: foreground,
+              letterSpacing: AppLetterSpacing.wider,
             ),
           ),
         ],
@@ -573,7 +590,6 @@ class ReminderHeroChip extends StatelessWidget {
     );
   }
 }
-
 
 class ReminderGroupCard extends StatelessWidget {
   const ReminderGroupCard({
@@ -612,8 +628,12 @@ class ReminderGroupCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -634,14 +654,15 @@ class ReminderGroupCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     group.label,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: AppTokens.typography.subtitle.copyWith(
                       fontWeight: AppTokens.fontWeight.bold,
+                      color: colors.onSurface,
                     ),
                   ),
                 ),
                 Text(
                   '${group.items.length} reminder${group.items.length == 1 ? '' : 's'}',
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  style: AppTokens.typography.caption.copyWith(
                     color: colors.onSurfaceVariant,
                     fontWeight: AppTokens.fontWeight.medium,
                   ),
@@ -651,8 +672,7 @@ class ReminderGroupCard extends StatelessWidget {
                   child: queuedCount > 0
                       ? Padding(
                           key: ValueKey('queued-$queuedCount'),
-                          padding:
-                              EdgeInsets.only(left: AppTokens.spacing.sm),
+                          padding: EdgeInsets.only(left: AppTokens.spacing.sm),
                           child: QueuedBadge(label: 'Queued $queuedCount'),
                         )
                       : Row(
@@ -668,7 +688,7 @@ class ReminderGroupCard extends StatelessWidget {
                             SizedBox(width: AppTokens.spacing.xs),
                             Text(
                               'Synced',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 color: colors.onSurfaceVariant,
                                 fontWeight: AppTokens.fontWeight.semiBold,
                               ),
@@ -708,6 +728,7 @@ class ReminderRow extends StatelessWidget {
     required this.onDelete,
     required this.onSnooze,
     this.showQueuedBadge = false,
+    this.highlight = false,
   });
 
   final ReminderEntry entry;
@@ -717,111 +738,156 @@ class ReminderRow extends StatelessWidget {
   final VoidCallback onDelete;
   final VoidCallback onSnooze;
   final bool showQueuedBadge;
+  /// Whether to show a highlight effect on this row (newly added).
+  final bool highlight;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final localDue = entry.dueAt.toLocal();
-    final timeLabel = timeFormat.format(localDue);
-    final details = (entry.details ?? '').trim();
-    final snoozeUntil = entry.snoozeUntil?.toLocal();
-    final isActive = !entry.isCompleted;
-    final isOverdue =
-        isActive && snoozeUntil == null && localDue.isBefore(DateTime.now());
-
-    final palette = theme.brightness == Brightness.dark
-        ? AppTokens.darkColors
-        : AppTokens.lightColors;
+    final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
-    
-    // Build tags
-    final tags = <Widget>[];
-    if (showQueuedBadge) {
-      tags.add(
-        AnimatedSwitcher(
-          duration: AppTokens.motion.fast,
-          child: const QueuedBadge(key: ValueKey('queued-tag')),
-        ),
-      );
-    }
-    if (!isActive) {
-      tags.add(
-        ReminderStatusTag(
-          label: 'Completed',
-          tint: palette.positive,
-        ),
-      );
-    } else if (snoozeUntil != null) {
-      tags.add(
-        ReminderStatusTag(
-          label: 'Snoozed',
-          tint: palette.warning,
-        ),
-      );
-    } else if (isOverdue) {
-      tags.add(
-        ReminderStatusTag(
-          label: 'Overdue',
-          tint: colors.error,
-        ),
-      );
-    }
+    final localDue = entry.dueAt.toLocal();
+    final dueLabel = 'Due ${DateFormat('MMM d').format(localDue)}, ${AppTimeFormat.formatTime(localDue)}';
+    final details = (entry.details ?? '').trim();
+    final isDone = entry.isCompleted;
 
-    // Build metadata items
-    final metadata = <MetadataItem>[
-      MetadataItem(icon: Icons.access_time_rounded, label: timeLabel),
-      if (details.isNotEmpty)
-        MetadataItem(icon: Icons.notes_rounded, label: details, expanded: true),
-    ];
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final highlightColor = highlight ? palette.positive : null;
 
-    // Build trailing toggle
-    final trailing = Semantics(
-      label: entry.title,
-      hint: isActive ? 'Mark as done' : 'Move back to pending',
-      toggled: isActive,
-      child: Transform.scale(
-        scale: AppScale.dense,
-        child: Switch.adaptive(
-          value: isActive,
-          onChanged: onToggle,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    final child = Material(
+      color: Colors.transparent,
+      borderRadius: AppTokens.radius.lg,
+      child: InkWell(
+        onTap: () => _showDetails(context),
+        borderRadius: AppTokens.radius.lg,
+        splashColor: colors.primary.withValues(alpha: AppOpacity.faint),
+        highlightColor: colors.primary.withValues(alpha: AppOpacity.ultraMicro),
+        child: Container(
+          padding: spacing.edgeInsetsAll(spacing.lg),
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.lg,
+            border: Border.all(
+              color: highlight
+                  ? highlightColor!.withValues(alpha: AppOpacity.medium)
+                  : colors.outlineVariant,
+              width: highlight
+                  ? AppTokens.componentSize.dividerThick
+                  : AppTokens.componentSize.dividerThin,
+            ),
+            boxShadow: highlight
+                ? [
+                    BoxShadow(
+                      color: highlightColor!.withValues(alpha: AppOpacity.medium),
+                      blurRadius: AppTokens.shadow.lg,
+                      spreadRadius: AppTokens.componentSize.divider,
+                    ),
+                  ]
+                : isDark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                          blurRadius: AppTokens.shadow.sm,
+                          offset: AppShadowOffset.xs,
+                        ),
+                      ],
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: AppTokens.componentSize.badgeLg,
+                width: AppTokens.componentSize.badgeLg,
+                child: Transform.scale(
+                  scale: AppScale.enlarged,
+                  child: Checkbox(
+                    value: isDone,
+                    onChanged: (value) {
+                      if (value == null) return;
+                      onToggle(!value);
+                    },
+                    shape: RoundedRectangleBorder(
+                      borderRadius: AppTokens.radius.sm,
+                    ),
+                    side: BorderSide(
+                      color: colors.primary.withValues(alpha: AppOpacity.subtle),
+                      width: AppTokens.componentSize.dividerThick,
+                    ),
+                    activeColor: colors.primary,
+                  ),
+                ),
+              ),
+              SizedBox(width: spacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.title,
+                      style: AppTokens.typography.subtitle.copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                        letterSpacing: AppLetterSpacing.compact,
+                        color: isDone ? colors.onSurfaceVariant : colors.onSurface,
+                        decoration: isDone ? TextDecoration.lineThrough : null,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (details.isNotEmpty) ...[
+                      SizedBox(height: spacing.xsPlus),
+                      Text(
+                        details,
+                        style: AppTokens.typography.bodySecondary.copyWith(
+                          color: colors.onSurfaceVariant
+                              .withValues(alpha: AppOpacity.muted),
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                    SizedBox(height: spacing.md),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: AppTokens.iconSize.xs,
+                          color: colors.onSurfaceVariant
+                              .withValues(alpha: AppOpacity.muted),
+                        ),
+                        SizedBox(width: spacing.xsPlus),
+                        Expanded(
+                          child: Text(
+                            dueLabel,
+                            style: AppTokens.typography.caption.copyWith(
+                              color: colors.onSurfaceVariant
+                                  .withValues(alpha: AppOpacity.prominent),
+                              fontWeight: AppTokens.fontWeight.medium,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              if (showQueuedBadge) ...[
+                SizedBox(width: spacing.md),
+                SizedBox(
+                  width: AppTokens.componentSize.badgeMd,
+                  height: AppTokens.componentSize.badgeMd,
+                  child: CircularProgressIndicator(
+                    strokeWidth: AppInteraction.progressStrokeWidth,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
-    );
-
-    // Build snooze info as bottom content
-    Widget? bottomContent;
-    if (snoozeUntil != null) {
-      bottomContent = Row(
-        children: [
-          Icon(
-            Icons.snooze_rounded,
-            size: AppTokens.iconSize.xs,
-            color: palette.warning,
-          ),
-          SizedBox(width: spacing.sm),
-          Text(
-            'Snoozed until ${DateFormat('h:mm a').format(snoozeUntil)}',
-            style: AppTokens.typography.caption.copyWith(
-              color: palette.warning,
-              fontWeight: AppTokens.fontWeight.semiBold,
-            ),
-          ),
-        ],
-      );
-    }
-
-    final child = EntityTile(
-      title: entry.title,
-      isActive: isActive,
-      isStrikethrough: !isActive,
-      isHighlighted: false,
-      metadata: metadata,
-      tags: tags,
-      trailing: trailing,
-      bottomContent: bottomContent,
-      onTap: () => _showDetails(context),
     );
 
     return Slidable(
@@ -833,11 +899,11 @@ class ReminderRow extends StatelessWidget {
           CustomSlidableAction(
             autoClose: true,
             padding: EdgeInsets.zero,
-            onPressed: (_) => _handleDelete(),
+            onPressed: (_) => onDelete(),
             backgroundColor: Colors.transparent,
             foregroundColor: colors.onError,
             child: Container(
-              margin: EdgeInsets.only(left: AppTokens.spacing.sm),
+              margin: EdgeInsets.only(left: spacing.sm),
               decoration: BoxDecoration(
                 color: colors.error,
                 borderRadius: AppTokens.radius.lg,
@@ -847,11 +913,11 @@ class ReminderRow extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Icon(Icons.delete_outline_rounded, color: colors.onError),
-                  SizedBox(height: AppTokens.spacing.xs),
+                  SizedBox(height: spacing.xs),
                   Text(
                     'Delete',
                     textAlign: TextAlign.center,
-                    style: theme.textTheme.labelMedium?.copyWith(
+                    style: AppTokens.typography.label.copyWith(
                       color: colors.onError,
                       fontWeight: AppTokens.fontWeight.semiBold,
                     ),
@@ -865,10 +931,6 @@ class ReminderRow extends StatelessWidget {
       ),
       child: child,
     );
-  }
-
-  void _handleDelete() {
-    onDelete();
   }
 
   Future<void> _showDetails(BuildContext context) async {
@@ -906,7 +968,8 @@ class ReminderStatusTag extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final background = tint.withValues(alpha: isDark ? AppOpacity.darkTint : AppOpacity.statusBg);
+    final background = tint.withValues(
+        alpha: isDark ? AppOpacity.darkTint : AppOpacity.statusBg);
 
     return Container(
       padding: AppTokens.spacing.edgeInsetsSymmetric(
@@ -919,7 +982,7 @@ class ReminderStatusTag extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: theme.textTheme.bodySmall?.copyWith(
+        style: AppTokens.typography.caption.copyWith(
           fontWeight: AppTokens.fontWeight.semiBold,
           color: tint,
         ),
@@ -972,9 +1035,7 @@ class _PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
   }
 }
 
-
-
-class ReminderListCard extends StatelessWidget {
+class ReminderListCard extends StatefulWidget {
   const ReminderListCard({
     super.key,
     required this.groups,
@@ -984,6 +1045,14 @@ class ReminderListCard extends StatelessWidget {
     required this.onDelete,
     required this.onSnooze,
     required this.queuedIds,
+    required this.scope,
+    required this.onScopeChanged,
+    required this.searchQuery,
+    required this.onSearchChanged,
+    required this.sortOption,
+    required this.onSortChanged,
+    this.highlightReminderId,
+    this.reminderKeyBuilder,
   });
 
   final List<ReminderGroup> groups;
@@ -993,6 +1062,45 @@ class ReminderListCard extends StatelessWidget {
   final Future<void> Function(ReminderEntry entry) onDelete;
   final Future<void> Function(ReminderEntry entry) onSnooze;
   final Set<int> queuedIds;
+  final ReminderScope scope;
+  final ValueChanged<ReminderScope> onScopeChanged;
+  final String searchQuery;
+  final ValueChanged<String> onSearchChanged;
+  final ReminderSortOption sortOption;
+  final ValueChanged<ReminderSortOption> onSortChanged;
+  /// ID of the reminder to highlight (newly added).
+  final int? highlightReminderId;
+  /// Callback to get a GlobalKey for a specific reminder ID, used for scroll-to.
+  final GlobalKey Function(int reminderId)? reminderKeyBuilder;
+
+  @override
+  State<ReminderListCard> createState() => _ReminderListCardState();
+}
+
+class _ReminderListCardState extends State<ReminderListCard> {
+  late TextEditingController _searchController;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController = TextEditingController(text: widget.searchQuery);
+  }
+
+  @override
+  void didUpdateWidget(ReminderListCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Only update if parent changed the query (e.g., clear button pressed externally)
+    if (widget.searchQuery != oldWidget.searchQuery &&
+        widget.searchQuery != _searchController.text) {
+      _searchController.text = widget.searchQuery;
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -1007,8 +1115,12 @@ class ReminderListCard extends StatelessWidget {
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
+          color: isDark
+              ? colors.outline.withValues(alpha: AppOpacity.overlay)
+              : colors.outline,
+          width: isDark
+              ? AppTokens.componentSize.divider
+              : AppTokens.componentSize.dividerThin,
         ),
         boxShadow: isDark
             ? null
@@ -1041,7 +1153,8 @@ class ReminderListCard extends StatelessWidget {
                   ),
                   borderRadius: AppTokens.radius.md,
                   border: Border.all(
-                    color: colors.primary.withValues(alpha: AppOpacity.borderEmphasis),
+                    color: colors.primary
+                        .withValues(alpha: AppOpacity.borderEmphasis),
                     width: AppTokens.componentSize.dividerThick,
                   ),
                 ),
@@ -1077,28 +1190,182 @@ class ReminderListCard extends StatelessWidget {
               ),
             ],
           ),
+          SizedBox(height: AppTokens.spacing.xl),
+
+          // Scope filter pills
+          SizedBox(
+            width: double.infinity,
+            child: SegmentedButton<ReminderScope>(
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
+              style: ButtonStyle(
+                padding: WidgetStateProperty.all(
+                  spacing.edgeInsetsSymmetric(
+                    horizontal: spacing.md,
+                    vertical: spacing.md,
+                  ),
+                ),
+                side: WidgetStateProperty.resolveWith(
+                  (states) => BorderSide(
+                    color: states.contains(WidgetState.selected)
+                        ? colors.primary
+                        : colors.outline.withValues(alpha: AppOpacity.barrier),
+                    width: AppTokens.componentSize.dividerMedium,
+                  ),
+                ),
+                backgroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
+                      : colors.surfaceContainerHighest
+                          .withValues(alpha: AppOpacity.barrier),
+                ),
+                foregroundColor: WidgetStateProperty.resolveWith(
+                  (states) => states.contains(WidgetState.selected)
+                      ? colors.primary
+                      : colors.onSurfaceVariant
+                          .withValues(alpha: AppOpacity.prominent),
+                ),
+              ),
+              segments: ReminderScope.values.map((option) {
+                return ButtonSegment<ReminderScope>(
+                  value: option,
+                  label: Text(
+                    option.label,
+                    softWrap: false,
+                  ),
+                );
+              }).toList(),
+              selected: <ReminderScope>{widget.scope},
+              onSelectionChanged: (value) {
+                if (value.isNotEmpty) widget.onScopeChanged(value.first);
+              },
+            ),
+          ),
+          SizedBox(height: spacing.lg),
+
+          // Search bar
+          TextField(
+            controller: _searchController,
+            style: AppTokens.typography.body.copyWith(
+              color: colors.onSurface,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Search reminders...',
+              prefixIcon: const Icon(Icons.search_rounded),
+              suffixIcon: _searchController.text.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () {
+                        _searchController.clear();
+                        widget.onSearchChanged('');
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: colors.surfaceContainerHigh,
+              contentPadding: spacing.edgeInsetsSymmetric(
+                horizontal: spacing.mdLg,
+                vertical: spacing.md,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: AppTokens.radius.lg,
+                borderSide: BorderSide.none,
+              ),
+            ),
+            onChanged: widget.onSearchChanged,
+          ),
+          SizedBox(height: spacing.md),
+
+          // Sort dropdown
+          Container(
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.mdLg,
+              vertical: spacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHigh,
+              borderRadius: AppTokens.radius.lg,
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<ReminderSortOption>(
+                value: widget.sortOption,
+                isDense: true,
+                isExpanded: true,
+                icon: Icon(
+                  Icons.sort_rounded,
+                  size: AppTokens.iconSize.md,
+                  color: colors.onSurfaceVariant,
+                ),
+                style: AppTokens.typography.body.copyWith(
+                  color: colors.onSurface,
+                ),
+                dropdownColor: isDark ? colors.surfaceContainerHigh : colors.surface,
+                borderRadius: AppTokens.radius.lg,
+                items: ReminderSortOption.values
+                    .map((opt) => DropdownMenuItem(
+                          value: opt,
+                          child: Text(opt.label),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  if (value != null) widget.onSortChanged(value);
+                },
+              ),
+            ),
+          ),
           SizedBox(height: AppTokens.spacing.xxl),
 
-          // Groups
-          for (var g = 0; g < groups.length; g++) ...[
-            _buildGroupHeader(context, groups[g]),
-            SizedBox(height: AppTokens.spacing.md),
-            for (var i = 0; i < groups[g].items.length; i++) ...[
-              ReminderRow(
-                entry: groups[g].items[i],
-                timeFormat: timeFormat,
-                onToggle: (v) => onToggle(groups[g].items[i], v),
-                onEdit: () => onEdit(groups[g].items[i]),
-                onDelete: () => onDelete(groups[g].items[i]),
-                onSnooze: () => onSnooze(groups[g].items[i]),
-                showQueuedBadge: queuedIds.contains(groups[g].items[i].id),
-              ),
-              if (i != groups[g].items.length - 1) SizedBox(height: AppTokens.spacing.sm + AppTokens.spacing.micro),
+          // Groups or empty state
+          if (widget.groups.isEmpty)
+            _buildEmptyState(context)
+          else
+            for (var g = 0; g < widget.groups.length; g++) ...[
+              _buildGroupHeader(context, widget.groups[g]),
+              SizedBox(height: AppTokens.spacing.md),
+              for (var i = 0; i < widget.groups[g].items.length; i++) ...[
+                Builder(builder: (context) {
+                  final item = widget.groups[g].items[i];
+                  final isHighlighted = widget.highlightReminderId == item.id;
+                  return ReminderRow(
+                    key: widget.reminderKeyBuilder?.call(item.id),
+                    entry: item,
+                    timeFormat: widget.timeFormat,
+                    onToggle: (v) => widget.onToggle(item, v),
+                    onEdit: () => widget.onEdit(item),
+                    onDelete: () => widget.onDelete(item),
+                    onSnooze: () => widget.onSnooze(item),
+                    showQueuedBadge: widget.queuedIds.contains(item.id),
+                    highlight: isHighlighted,
+                  );
+                }),
+                if (i != widget.groups[g].items.length - 1)
+                  SizedBox(
+                      height: AppTokens.spacing.sm + AppTokens.spacing.micro),
+              ],
+              if (g != widget.groups.length - 1) SizedBox(height: AppTokens.spacing.xl),
             ],
-            if (g != groups.length - 1) SizedBox(height: AppTokens.spacing.xl),
-          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildEmptyState(BuildContext context) {
+    final title = switch (widget.scope) {
+      ReminderScope.today => 'No reminders in this filter',
+      ReminderScope.week => 'No reminders in this filter',
+      ReminderScope.all => 'No reminders yet',
+    };
+
+    final subtitle = switch (widget.scope) {
+      ReminderScope.today => 'Create or rescope to see reminders here.',
+      ReminderScope.week => 'Create or rescope to see reminders here.',
+      ReminderScope.all => 'Tap "New reminder" above to create one.',
+    };
+
+    return _EmptyHeroPlaceholder(
+      icon: Icons.notifications_none_rounded,
+      title: title,
+      subtitle: subtitle,
     );
   }
 
@@ -1152,7 +1419,9 @@ class ReminderListCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm + AppTokens.spacing.micro, vertical: spacing.xs + AppTokens.spacing.microHalf),
+            padding: spacing.edgeInsetsSymmetric(
+                horizontal: spacing.sm + AppTokens.spacing.micro,
+                vertical: spacing.xs + AppTokens.spacing.microHalf),
             decoration: BoxDecoration(
               color: colors.primary.withValues(alpha: AppOpacity.overlay),
               borderRadius: AppTokens.radius.sm,

@@ -39,7 +39,7 @@ class AddReminderPage extends StatelessWidget {
               editing: editing,
               isSheet: false,
               onCancel: () => Navigator.of(context).maybePop(),
-              onSaved: (changed) => Navigator.of(context).pop(changed),
+              onSaved: (reminderId) => Navigator.of(context).pop(reminderId),
             ),
           ),
         ),
@@ -119,8 +119,8 @@ class _AddReminderSheetState extends State<AddReminderSheet> {
                           isSheet: true,
                           includeButtons: false,
                           onCancel: () => Navigator.of(context).maybePop(),
-                          onSaved: (changed) =>
-                              Navigator.of(context).pop(changed),
+                          onSaved: (reminderId) =>
+                              Navigator.of(context).pop(reminderId),
                         ),
                       ),
                     ),
@@ -201,7 +201,8 @@ class AddReminderForm extends StatefulWidget {
   final ReminderEntry? editing;
   final bool isSheet;
   final VoidCallback onCancel;
-  final ValueChanged<bool> onSaved;
+  /// Called with the new reminder ID when creating, or null when editing.
+  final ValueChanged<int?> onSaved;
   final bool includeButtons;
 
   @override
@@ -645,12 +646,14 @@ class _AddReminderFormState extends State<AddReminderForm> {
       final notes = _notesController.text.trim().isEmpty
           ? null
           : _notesController.text.trim();
+      int? newReminderId;
       if (widget.editing == null) {
-        await widget.api.createReminder(
+        final created = await widget.api.createReminder(
           title: _titleController.text.trim(),
           details: notes,
           dueAt: dueAt,
         );
+        newReminderId = created.id;
       } else {
         await widget.api.updateReminder(
           widget.editing!.id,
@@ -660,7 +663,7 @@ class _AddReminderFormState extends State<AddReminderForm> {
         );
       }
       if (!mounted) return;
-      widget.onSaved(true);
+      widget.onSaved(newReminderId);
     } catch (error) {
       if (!mounted) return;
       showAppSnackBar(

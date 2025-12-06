@@ -651,11 +651,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             ),
           );
 
-          final flattened = [
-            for (final group in groups) ...group.items,
-          ];
-
-          if (flattened.isNotEmpty) {
+          if (_controller.classes.isNotEmpty) {
             // Unified card container for class list - matches dashboard style
             sections.add(
               ScreenSection(
@@ -684,6 +680,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                   ),
                   onRefresh: () => _controller.refresh(),
                   refreshing: _controller.loading,
+                  searchQuery: _controller.searchQuery,
+                  onSearchChanged: _controller.setSearchQuery,
+                  filter: _controller.filter,
+                  onFilterChanged: _controller.setFilter,
                 ),
               ),
             );
@@ -697,16 +697,20 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             sections.add(
               ScreenSection(
                 decorated: false,
-                child: CardX(
+                child: Container(
                   padding: spacing.edgeInsetsSymmetric(
                     horizontal: spacing.xxl,
                     vertical: spacing.quad,
                   ),
-                  backgroundColor:
-                      isDark ? colors.surfaceContainerHigh : colors.surface,
-                  borderColor: colors.outline.withValues(
-                      alpha: isDark ? AppOpacity.overlay : AppOpacity.divider),
-                  borderRadius: AppTokens.radius.xl,
+                  decoration: BoxDecoration(
+                    color:
+                        isDark ? colors.surfaceContainerHigh : colors.surface,
+                    borderRadius: AppTokens.radius.xl,
+                    border: Border.all(
+                      color: colors.outline.withValues(
+                          alpha: isDark ? AppOpacity.overlay : AppOpacity.divider),
+                    ),
+                  ),
                   child: Column(
                     children: [
                       Container(

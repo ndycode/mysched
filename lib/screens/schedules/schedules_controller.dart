@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../models/schedule_filter.dart';
 import '../../services/export_queue.dart';
 import '../../services/notif_scheduler.dart';
 import '../../services/offline_cache_service.dart';
@@ -74,6 +75,26 @@ class SchedulesController extends ChangeNotifier {
 
   final Set<int> _pendingToggleClassIds = <int>{};
   Set<int> get pendingToggleClassIds => _pendingToggleClassIds;
+
+  String _searchQuery = '';
+  String get searchQuery => _searchQuery;
+
+  void setSearchQuery(String query) {
+    if (_searchQuery == query) return;
+    _searchQuery = query;
+    _groupedVersion = -1; // Invalidate cache
+    notifyListeners();
+  }
+
+  ScheduleFilter _filter = ScheduleFilter.all;
+  ScheduleFilter get filter => _filter;
+
+  void setFilter(ScheduleFilter filter) {
+    if (_filter == filter) return;
+    _filter = filter;
+    _groupedVersion = -1; // Invalidate cache
+    notifyListeners();
+  }
 
   int _classesVersion = 0;
   int _groupedVersion = -1;
@@ -166,7 +187,31 @@ class SchedulesController extends ChangeNotifier {
 
   List<DayGroup> groupedDays() {
     if (_groupedVersion != _classesVersion) {
-      _groupedCache = groupClassesByDay(_classes);
+      var filtered = _classes;
+
+      // Apply schedule filter
+      if (_filter != ScheduleFilter.all) {
+        filtered = filtered.where((c) {
+          return _filter.includes(enabled: c.enabled, isCustom: c.isCustom);
+        }).toList();
+      }
+      
+      // Apply search filter
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        filtered = filtered.where((c) {
+          final title = (c.title ?? '').toLowerCase();
+          final code = (c.code ?? '').toLowerCase();
+          final room = (c.room ?? '').toLowerCase();
+          final instructor = (c.instructor ?? '').toLowerCase();
+          return title.contains(query) ||
+              code.contains(query) ||
+              room.contains(query) ||
+              instructor.contains(query);
+        }).toList();
+      }
+      
+      _groupedCache = groupClassesByDay(filtered);
       _groupedVersion = _classesVersion;
     }
     return _groupedCache;
@@ -266,7 +311,8 @@ class SchedulesController extends ChangeNotifier {
     try {
       await _api.setClassEnabled(item, enable);
       _applyClassEnabled(item.id, enable);
-      await NotifScheduler.resync(api: _api);
+      // Fire-and-forget notification resync to avoid blocking UI
+      NotifScheduler.resync(api: _api);
       // Widgets removed: no widget update
     } catch (error) {
       onError(enable
@@ -285,7 +331,7 @@ class SchedulesController extends ChangeNotifier {
           .toList(growable: false),
     );
     dirty = true;
-    notifyListeners();
+    // notifyListeners() called by caller in finally block
   }
 
   // Public version for external use (e.g. sheet callbacks)

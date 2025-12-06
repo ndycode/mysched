@@ -82,6 +82,9 @@ class _RootNavState extends State<RootNav>
     if (tab != null) {
       final clamped = tab.clamp(0, 3);
       await _switchTab(clamped, forceRefresh: true);
+    } else {
+      // Ensure the default tab (dashboard) gets refreshed on startup
+      await _refreshTab(_idx);
     }
     if (widget.fromScan) {
       await _schedulesKey.currentState?.reload();

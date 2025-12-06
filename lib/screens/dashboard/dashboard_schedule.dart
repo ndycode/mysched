@@ -194,19 +194,18 @@ class _DashboardSchedulePeek extends StatelessWidget {
               ],
             ],
           ),
-          SizedBox(height: spacing.md),
+          SizedBox(height: spacing.sm),
           Text(
             scopeLabel == 'Today'
                 ? 'Stay on top of today\'s classes and make changes instantly.'
                 : scopeLabel == 'All'
                     ? 'View all your scheduled classes at a glance.'
                     : 'Review your weekly plan, add sessions, or rescan as needed.',
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color:
-                  colors.onSurfaceVariant.withValues(alpha: AppOpacity.muted),
+            style: AppTokens.typography.caption.copyWith(
+              color: colors.onSurfaceVariant,
             ),
           ),
-          SizedBox(height: spacing.lg),
+          SizedBox(height: spacing.xl),
           TextField(
             controller: searchController,
             focusNode: searchFocusNode,
@@ -243,14 +242,16 @@ class _DashboardSchedulePeek extends StatelessWidget {
             ),
           ),
           SizedBox(height: spacing.md),
-          Center(
+          SizedBox(
+            width: double.infinity,
             child: SegmentedButton<String>(
+              showSelectedIcon: false,
+              expandedInsets: EdgeInsets.zero,
               style: ButtonStyle(
-                visualDensity: VisualDensity.compact,
                 padding: WidgetStateProperty.all(
                   spacing.edgeInsetsSymmetric(
                     horizontal: spacing.md,
-                    vertical: spacing.sm,
+                    vertical: spacing.md,
                   ),
                 ),
                 side: WidgetStateProperty.resolveWith(
@@ -622,17 +623,19 @@ class _ScheduleRow extends StatelessWidget {
     StatusBadge? badge;
     if (isOngoing) {
       badge = StatusBadge(
-        label: 'Live',
+        label: StatusBadgeVariant.live.label,
         variant: StatusBadgeVariant.live,
       );
     } else if (isNext) {
       badge = StatusBadge(
-        label: 'Next',
+        label: StatusBadgeVariant.next.label,
         variant: StatusBadgeVariant.next,
       );
     } else if (isPast) {
-      badge =
-          const StatusBadge(label: 'Done', variant: StatusBadgeVariant.done);
+      badge = StatusBadge(
+        label: StatusBadgeVariant.done.label,
+        variant: StatusBadgeVariant.done,
+      );
     }
 
     return EntityTile(
@@ -645,9 +648,8 @@ class _ScheduleRow extends StatelessWidget {
       tags: isCustom && !isDisabled
           ? [
               StatusBadge(
-                label: 'Custom',
-                variant: StatusBadgeVariant.next,
-                accent: palette.positive,
+                label: StatusBadgeVariant.custom.label,
+                variant: StatusBadgeVariant.custom,
                 compact: true,
               ),
             ]

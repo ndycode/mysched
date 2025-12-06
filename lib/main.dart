@@ -21,6 +21,8 @@ import 'ui/kit/theme_transition_host.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/theme/tokens.dart';
 import 'utils/app_log.dart';
+import 'utils/time_format.dart';
+import 'services/user_settings_service.dart';
 
 Future<void> main() async {
   await runZonedGuarded(() async {
@@ -46,6 +48,8 @@ Future<void> main() async {
     await NavigationChannel.instance.init();
     await DataSync.instance.init();
     await ThemeController.instance.init();
+    await AppTimeFormat.init();
+    await UserSettingsService.instance.init();
     runApp(const MySchedApp());
   }, (error, stack) {
     TelemetryService.instance.logError(
@@ -106,17 +110,23 @@ class MySchedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<AppThemeMode>(
-      valueListenable: ThemeController.instance.mode,
-      builder: (context, mode, _) {
-        return AnimatedSwitcher(
-          duration: AppTokens.motion.slow,
-          switchInCurve: AppTokens.motion.ease,
-          switchOutCurve: AppTokens.motion.ease,
-          child: _ThemedApp(
-            key: ValueKey<AppThemeMode>(mode),
-            mode: mode,
-          ),
+    // Listen to time format changes to rebuild all descendants
+    return ValueListenableBuilder<bool>(
+      valueListenable: AppTimeFormat.notifier,
+      builder: (context, _, __) {
+        return ValueListenableBuilder<AppThemeMode>(
+          valueListenable: ThemeController.instance.mode,
+          builder: (context, mode, _) {
+            return AnimatedSwitcher(
+              duration: AppTokens.motion.slow,
+              switchInCurve: AppTokens.motion.ease,
+              switchOutCurve: AppTokens.motion.ease,
+              child: _ThemedApp(
+                key: ValueKey<AppThemeMode>(mode),
+                mode: mode,
+              ),
+            );
+          },
         );
       },
     );

@@ -190,6 +190,14 @@ class MainActivity : FlutterActivity() {
                             result.error("get_alarm_sounds_failed", e.message, null)
                         }
                     }
+                    "stopRingtonePreview" -> {
+                        try {
+                            stopRingtonePreview()
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.error("stop_ringtone_failed", e.message, null)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -507,42 +515,46 @@ class MainActivity : FlutterActivity() {
         return alarmSounds
     }
 
+    private var currentPreviewRingtone: android.media.Ringtone? = null
+
     private fun playRingtonePreview(ringtoneUriString: String) {
-        val prefs = getSharedPreferences("FlutterSharedPreferences", Context.MODE_PRIVATE)
-        val volumePercent = prefs.getInt("flutter.alarm_volume", 80)
-        val volume = volumePercent / 100.0f
+        try { currentPreviewRingtone?.stop() } catch (_: Exception) {}
 
         try {
-            // Parse URI string - if it's "default", use default alarm
             val uri = if (ringtoneUriString == "default") {
                 RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM)
             } else {
                 Uri.parse(ringtoneUriString)
             }
 
-            val mediaPlayer = MediaPlayer().apply {
-                setAudioAttributes(
-                    AudioAttributes.Builder()
+            val ringtone = RingtoneManager.getRingtone(this, uri)
+            if (ringtone != null) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                    ringtone.audioAttributes = AudioAttributes.Builder()
                         .setUsage(AudioAttributes.USAGE_ALARM)
                         .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                         .build()
-                )
-                setDataSource(this@MainActivity, uri)
-                setVolume(volume, volume)
-                prepare()
-                start()
-            }
+                }
+                currentPreviewRingtone = ringtone
+                ringtone.play()
 
-            // Stop after 2 seconds
-            Handler(Looper.getMainLooper()).postDelayed({
-                try {
-                    mediaPlayer.stop()
-                    mediaPlayer.release()
-                } catch (_: Exception) {}
-            }, 2000)
-        } catch (_: Exception) {
-            // Ignore errors
+                Handler(Looper.getMainLooper()).postDelayed({
+                    try {
+                        ringtone.stop()
+                        if (currentPreviewRingtone == ringtone) { currentPreviewRingtone = null }
+                    } catch (_: Exception) {}
+                }, 2500)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("MySched", "Ringtone preview failed: ${e.message}")
         }
+    }
+
+    private fun stopRingtonePreview() {
+        try {
+            currentPreviewRingtone?.stop()
+            currentPreviewRingtone = null
+        } catch (_: Exception) {}
     }
 }
 

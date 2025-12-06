@@ -28,13 +28,14 @@ class PrivacySheet extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
     final maxHeight = MediaQuery.of(context).size.height -
         (AppTokens.spacing.xxxl * 2 +
             MediaQuery.of(context).padding.top +
             MediaQuery.of(context).padding.bottom);
 
     Color filledBackground() => colors.surfaceContainerHighest.withValues(
-          alpha: theme.brightness == Brightness.dark ? AppOpacity.ghost : AppOpacity.soft,
+          alpha: isDark ? AppOpacity.ghost : AppOpacity.soft,
         );
 
     return Material(
@@ -44,9 +45,24 @@ class PrivacySheet extends StatelessWidget {
           maxWidth: AppLayout.sheetMaxWidth,
           maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
         ),
-        child: CardX(
+        child: Container(
           padding: spacing.edgeInsetsAll(spacing.xl),
-          borderRadius: AppTokens.radius.xl,
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.xl,
+            border: Border.all(
+              color: isDark ? Colors.white.withValues(alpha: 0.1) : Colors.black.withValues(alpha: 0.05),
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    BoxShadow(
+                      color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                      blurRadius: AppTokens.shadow.sm,
+                      offset: AppShadowOffset.sm,
+                    ),
+                  ],
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
@@ -92,13 +108,15 @@ class PrivacySheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      CardX(
-                        variant: CardVariant.filled,
-                        backgroundColor: filledBackground(),
-                        borderColor:
-                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                        borderRadius: AppTokens.radius.lg,
+                      Container(
                         padding: spacing.edgeInsetsAll(spacing.md),
+                        decoration: BoxDecoration(
+                          color: filledBackground(),
+                          borderRadius: AppTokens.radius.lg,
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                          ),
+                        ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -145,13 +163,15 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      CardX(
-                        variant: CardVariant.filled,
-                        backgroundColor: filledBackground(),
-                        borderColor:
-                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                        borderRadius: AppTokens.radius.lg,
+                      Container(
                         padding: spacing.edgeInsetsAll(spacing.md),
+                        decoration: BoxDecoration(
+                          color: filledBackground(),
+                          borderRadius: AppTokens.radius.lg,
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
@@ -180,13 +200,15 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      CardX(
-                        variant: CardVariant.filled,
-                        backgroundColor: filledBackground(),
-                        borderColor:
-                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                        borderRadius: AppTokens.radius.lg,
+                      Container(
                         padding: spacing.edgeInsetsAll(spacing.md),
+                        decoration: BoxDecoration(
+                          color: filledBackground(),
+                          borderRadius: AppTokens.radius.lg,
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -223,16 +245,18 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      CardX(
-                        variant: CardVariant.filled,
-                        backgroundColor: filledBackground(),
-                        borderColor:
-                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                        borderRadius: AppTokens.radius.lg,
+                      Container(
                         padding: spacing.edgeInsetsAll(spacing.md),
+                        decoration: BoxDecoration(
+                          color: filledBackground(),
+                          borderRadius: AppTokens.radius.lg,
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             SimpleBullet(
                               text:
                                   'Delete schedules or reminders individually, or sign out to clear local cache.',
@@ -249,13 +273,15 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: spacing.xxxl),
-                      CardX(
-                        variant: CardVariant.filled,
-                        backgroundColor: filledBackground(),
-                        borderColor:
-                            colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                        borderRadius: AppTokens.radius.lg,
+                      Container(
                         padding: spacing.edgeInsetsAll(spacing.md),
+                        decoration: BoxDecoration(
+                          color: filledBackground(),
+                          borderRadius: AppTokens.radius.lg,
+                          border: Border.all(
+                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
+                          ),
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

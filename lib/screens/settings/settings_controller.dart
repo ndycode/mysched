@@ -8,7 +8,9 @@ import '../../services/admin_service.dart';
 import '../../services/notif_scheduler.dart';
 import '../../services/profile_cache.dart';
 import '../../services/theme_controller.dart';
+import '../../services/user_settings_service.dart';
 import '../../utils/local_notifs.dart';
+import '../../utils/time_format.dart';
 
 class SettingsController extends ChangeNotifier {
   SettingsController() {
@@ -49,6 +51,31 @@ class SettingsController extends ChangeNotifier {
 
   String _alarmRingtone = AppConstants.defaultAlarmRingtone;
   String get alarmRingtone => _alarmRingtone;
+
+  bool _use24HourFormat = false;
+  bool get use24HourFormat => _use24HourFormat;
+
+  // New settings
+  String _weekStartDay = AppConstants.defaultWeekStartDay;
+  String get weekStartDay => _weekStartDay;
+
+  bool _hapticFeedback = AppConstants.defaultHapticFeedback;
+  bool get hapticFeedback => _hapticFeedback;
+
+  int _reminderLeadMinutes = AppConstants.defaultReminderLeadMinutes;
+  int get reminderLeadMinutes => _reminderLeadMinutes;
+
+  bool _dndEnabled = AppConstants.defaultDndEnabled;
+  bool get dndEnabled => _dndEnabled;
+
+  String _dndStartTime = AppConstants.defaultDndStartTime;
+  String get dndStartTime => _dndStartTime;
+
+  String _dndEndTime = AppConstants.defaultDndEndTime;
+  String get dndEndTime => _dndEndTime;
+
+  int _autoRefreshMinutes = AppConstants.defaultAutoRefreshMinutes;
+  int get autoRefreshMinutes => _autoRefreshMinutes;
 
   String? _studentName;
   String? get studentName => _studentName;
@@ -125,9 +152,41 @@ class SettingsController extends ChangeNotifier {
     _alarmVolume = (sp.getInt(AppConstants.keyAlarmVolume) ?? AppConstants.defaultAlarmVolume).clamp(0, 100);
     _alarmVibration = sp.getBool(AppConstants.keyAlarmVibration) ?? AppConstants.defaultAlarmVibration;
     _alarmRingtone = sp.getString(AppConstants.keyAlarmRingtone) ?? AppConstants.defaultAlarmRingtone;
+    _use24HourFormat = sp.getBool(AppConstants.keyUse24HourFormat) ?? false;
+    
+    // New settings
+    _weekStartDay = sp.getString(AppConstants.keyWeekStartDay) ?? AppConstants.defaultWeekStartDay;
+    _hapticFeedback = sp.getBool(AppConstants.keyHapticFeedback) ?? AppConstants.defaultHapticFeedback;
+    _reminderLeadMinutes = sp.getInt(AppConstants.keyReminderLeadMinutes) ?? AppConstants.defaultReminderLeadMinutes;
+    _dndEnabled = sp.getBool(AppConstants.keyDndEnabled) ?? AppConstants.defaultDndEnabled;
+    _dndStartTime = sp.getString(AppConstants.keyDndStartTime) ?? AppConstants.defaultDndStartTime;
+    _dndEndTime = sp.getString(AppConstants.keyDndEndTime) ?? AppConstants.defaultDndEndTime;
+    _autoRefreshMinutes = sp.getInt(AppConstants.keyAutoRefreshMinutes) ?? AppConstants.defaultAutoRefreshMinutes;
     
     _loading = false;
     notifyListeners();
+  }
+
+  /// Sync all current settings to cloud (fire-and-forget).
+  void _syncToCloud() {
+    UserSettingsService.instance.update((current) => current.copyWith(
+      use24HourFormat: _use24HourFormat,
+      hapticFeedback: _hapticFeedback,
+      classAlarms: _classAlarms,
+      appNotifs: _appNotifs,
+      quietWeek: _quietWeek,
+      verboseLogging: _verboseLogging,
+      classLeadMinutes: _leadMinutes,
+      snoozeMinutes: _snoozeMinutes,
+      reminderLeadMinutes: _reminderLeadMinutes,
+      dndEnabled: _dndEnabled,
+      dndStartTime: _dndStartTime,
+      dndEndTime: _dndEndTime,
+      alarmVolume: _alarmVolume,
+      alarmVibration: _alarmVibration,
+      alarmRingtone: _alarmRingtone,
+      autoRefreshMinutes: _autoRefreshMinutes,
+    ));
   }
 
   void _listenToProfile() {
@@ -345,6 +404,74 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
     final sp = await SharedPreferences.getInstance();
     await sp.setString(AppConstants.keyAlarmRingtone, value);
+  }
+
+  Future<void> toggle24HourFormat(bool value) async {
+    _use24HourFormat = value;
+    // Sync static AppTimeFormat immediately so all screens update
+    AppTimeFormat.updateValue(value);
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(AppConstants.keyUse24HourFormat, value);
+    _syncToCloud();
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // New Settings Toggle Methods
+  // ─────────────────────────────────────────────────────────────────────────
+
+  Future<void> setWeekStartDay(String value) async {
+    _weekStartDay = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(AppConstants.keyWeekStartDay, value);
+  }
+
+  Future<void> toggleHapticFeedback(bool value) async {
+    _hapticFeedback = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(AppConstants.keyHapticFeedback, value);
+    _syncToCloud();
+  }
+
+  Future<void> setReminderLeadMinutes(int value) async {
+    _reminderLeadMinutes = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(AppConstants.keyReminderLeadMinutes, value);
+    _syncToCloud();
+  }
+
+  Future<void> toggleDndEnabled(bool value) async {
+    _dndEnabled = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(AppConstants.keyDndEnabled, value);
+    _syncToCloud();
+  }
+
+  Future<void> setDndStartTime(String value) async {
+    _dndStartTime = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(AppConstants.keyDndStartTime, value);
+    _syncToCloud();
+  }
+
+  Future<void> setDndEndTime(String value) async {
+    _dndEndTime = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setString(AppConstants.keyDndEndTime, value);
+    _syncToCloud();
+  }
+
+  Future<void> setAutoRefreshMinutes(int value) async {
+    _autoRefreshMinutes = value;
+    notifyListeners();
+    final sp = await SharedPreferences.getInstance();
+    await sp.setInt(AppConstants.keyAutoRefreshMinutes, value);
   }
 
   Future<void> refreshProfile() async {

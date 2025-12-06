@@ -433,13 +433,26 @@ class _RemindersStyleShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
     final cardBackground = elevatedCardBackground(theme);
     final borderColor = elevatedCardBorder(theme);
 
-    return CardX(
+    return Container(
       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
-      backgroundColor: cardBackground,
-      borderColor: borderColor,
+      decoration: BoxDecoration(
+        color: cardBackground,
+        borderRadius: AppTokens.radius.md,
+        border: Border.all(color: borderColor),
+        boxShadow: isDark
+            ? null
+            : [
+                BoxShadow(
+                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
+                  blurRadius: AppTokens.shadow.sm,
+                  offset: AppShadowOffset.sm,
+                ),
+              ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1395,8 +1408,27 @@ class _AddClassFormState extends State<AddClassForm> {
               maxWidth: AppLayout.sheetMaxWidth,
               maxHeight: MediaQuery.of(dialogContext).size.height * 0.6,
             ),
-            child: CardX(
-              padding: EdgeInsets.zero,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.surfaceContainerHigh
+                    : theme.colorScheme.surface,
+                borderRadius: AppTokens.radius.md,
+                border: Border.all(
+                  color: theme.brightness == Brightness.dark
+                      ? Colors.white.withValues(alpha: 0.1)
+                      : Colors.black.withValues(alpha: 0.05),
+                ),
+                boxShadow: theme.brightness == Brightness.dark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withValues(alpha: AppOpacity.faint),
+                          blurRadius: AppTokens.shadow.sm,
+                          offset: AppShadowOffset.sm,
+                        ),
+                      ],
+              ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,

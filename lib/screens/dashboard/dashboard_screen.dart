@@ -21,6 +21,7 @@ import '../../ui/kit/kit.dart';
 import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
+import '../../utils/time_format.dart';
 import '../../widgets/instructor_avatar.dart';
 
 import '../add_class_page.dart';
@@ -728,8 +729,12 @@ class DashboardScreenState extends State<DashboardScreen>
     if (absDelta.inMinutes < 60) {
       return '${absDelta.inMinutes}m';
     }
-    final hours = absDelta.inHours;
-    final minutes = absDelta.inMinutes - hours * 60;
+    final days = absDelta.inDays;
+    final hours = absDelta.inHours % 24;
+    final minutes = absDelta.inMinutes % 60;
+    if (days > 0) {
+      return '${days}d ${hours}h';
+    }
     if (minutes == 0) return '${hours}h';
     return '${hours}h ${minutes}m';
   }

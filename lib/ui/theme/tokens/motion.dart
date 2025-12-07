@@ -122,6 +122,12 @@ class AppDurations {
   /// 500ms - Delay before form submission feedback.
   final Duration submitDelay = const Duration(milliseconds: 500);
 
+  /// 1s - Duration for UI highlight effects (e.g., scroll-to-day).
+  final Duration highlightDuration = const Duration(seconds: 1);
+
+  /// 2.5s - Duration for audio preview playback indicator.
+  final Duration previewDuration = const Duration(milliseconds: 2500);
+
   /// 8px - Small slide offset for fast/subtle animations.
   final double slideOffsetSm = 8;
 

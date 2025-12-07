@@ -1302,8 +1302,8 @@ class _RingtonePickerState extends State<_RingtonePicker> {
   void _preview(String uri) {
     setState(() => _playingUri = uri);
     widget.onPreview(uri);
-    // Clear playing state after ~2.5 seconds (sound plays for ~2 seconds)
-    Future.delayed(const Duration(milliseconds: 2500), () {
+    // Clear playing state after preview finishes
+    Future.delayed(AppTokens.durations.previewDuration, () {
       if (mounted && _playingUri == uri) {
         setState(() => _playingUri = null);
       }

@@ -112,85 +112,6 @@ class ReminderGroupSliver extends StatelessWidget implements ScreenShellSliver {
   }
 }
 
-class _EmptyHeroPlaceholder extends StatelessWidget {
-  const _EmptyHeroPlaceholder({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-  });
-
-  final IconData icon;
-  final String title;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final spacing = AppTokens.spacing;
-    return Container(
-      width: double.infinity,
-      padding: spacing.edgeInsetsAll(spacing.xxxl),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: AppOpacity.micro),
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: colors.primary.withValues(alpha: AppOpacity.dim),
-          width: AppTokens.componentSize.divider,
-        ),
-      ),
-      child: Column(
-        children: [
-          Container(
-            width: spacing.emptyStateSize,
-            height: spacing.emptyStateSize,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  colors.primary.withValues(alpha: AppOpacity.medium),
-                  colors.primary.withValues(alpha: AppOpacity.highlight),
-                ],
-              ),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: colors.primary.withValues(alpha: AppOpacity.accent),
-                width: AppTokens.componentSize.dividerThick,
-              ),
-            ),
-            child: Icon(
-              icon,
-              size: AppTokens.iconSize.xxl,
-              color: colors.primary,
-            ),
-          ),
-          SizedBox(height: spacing.xl),
-          Text(
-            title,
-            style: AppTokens.typography.subtitle.copyWith(
-              fontWeight: AppTokens.fontWeight.bold,
-              color: palette.muted,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: spacing.sm),
-          Text(
-            subtitle,
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color: palette.muted
-                  .withValues(alpha: AppOpacity.secondary),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class ReminderSummaryCard extends StatelessWidget {
   const ReminderSummaryCard({
     super.key,
@@ -278,7 +199,7 @@ class ReminderSummaryCard extends StatelessWidget {
             ReminderHighlightHero(highlight: highlight, now: now),
             SizedBox(height: spacing.xl),
           ] else ...[
-            _EmptyHeroPlaceholder(
+            EmptyHeroPlaceholder(
               icon: Icons.task_alt_rounded,
               title: 'All caught up',
               subtitle: 'Create a reminder to stay on top of tasks.',
@@ -1358,7 +1279,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
       ReminderScope.all => 'Tap "New reminder" above to create one.',
     };
 
-    return _EmptyHeroPlaceholder(
+    return EmptyHeroPlaceholder(
       icon: Icons.notifications_none_rounded,
       title: title,
       subtitle: subtitle,

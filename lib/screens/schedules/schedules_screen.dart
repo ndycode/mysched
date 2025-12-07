@@ -143,8 +143,8 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
           alignment: 0.5, // Center the day section on screen
         );
       }
-      // Clear highlight after 1 second
-      Future.delayed(const Duration(seconds: 1), () {
+      // Clear highlight after duration
+      Future.delayed(AppTokens.durations.highlightDuration, () {
         if (mounted && _highlightDay == day) {
           setState(() => _highlightDay = null);
         }

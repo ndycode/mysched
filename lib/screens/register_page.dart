@@ -61,7 +61,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (value == null || value.trim().isEmpty) {
       return 'Enter your email';
     }
-    if (!value.contains('@')) {
+    if (!ValidationUtils.looksLikeEmail(value)) {
       return 'Enter a valid email address';
     }
     return null;

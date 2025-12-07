@@ -8,6 +8,7 @@ import '../services/auth_service.dart';
 import '../services/reminder_scope_store.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
+import '../utils/validation_utils.dart';
 import 'verify_email_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -38,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
     if (value == null || value.trim().isEmpty) {
       return 'Enter your email';
     }
-    if (!value.contains('@')) {
+    if (!ValidationUtils.looksLikeEmail(value)) {
       return 'Enter a valid email address';
     }
     return null;

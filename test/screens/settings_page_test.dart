@@ -55,10 +55,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Heads-up before class'), findsWidgets);
-    // The picker uses InkWell with Text, not ListTile
-    final tenMinutesOption = find.text('10 minutes');
-    await tester.ensureVisible(tenMinutesOption);
-    await tester.tap(tenMinutesOption);
+    // The picker uses ListWheelScrollView - scroll to the desired option
+    // Options are: [5, 10, 15, 20, 30, 45, 60], currently at 20 (index 3)
+    // Need to scroll to 10 (index 1), which is 2 items up
+    final scrollWheel = find.byType(ListWheelScrollView);
+    expect(scrollWheel, findsOneWidget);
+    // Scroll up to select 10 minutes (each item is 50px tall, scroll 2 items up)
+    await tester.drag(scrollWheel, const Offset(0, 100));
+    await tester.pumpAndSettle();
+
+    // Tap OK to confirm selection
+    await tester.tap(find.text('OK'));
     await tester.pumpAndSettle();
 
     final prefs = await SharedPreferences.getInstance();

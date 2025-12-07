@@ -176,12 +176,14 @@ void main() {
 
       await tester.ensureVisible(find.text('Delete class'));
       await tester.tap(find.text('Delete class'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
+      // AppModal.confirm uses a custom Dialog widget, not AlertDialog
+      expect(find.byType(Dialog), findsOneWidget);
+      expect(find.text('Delete custom class?'), findsOneWidget);
 
       await tester.tap(find.text('Delete'));
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       expect(api.deleteCalled, isTrue);
       expect(deleteCallbackCalled, isTrue);

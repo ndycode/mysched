@@ -6,6 +6,7 @@ import '../services/auth_service.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
+import '../utils/validation_utils.dart';
 import 'verify_email_sheet.dart';
 
 class ChangeEmailSheetArgs {
@@ -323,7 +324,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
               if (value == null || value.trim().isEmpty) {
                 return 'Enter your new email';
               }
-              if (!value.contains('@')) {
+              if (!ValidationUtils.looksLikeEmail(value)) {
                 return 'Enter a valid email address';
               }
               return null;

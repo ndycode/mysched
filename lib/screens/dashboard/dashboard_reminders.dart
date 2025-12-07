@@ -202,7 +202,7 @@ class _DashboardReminderCard extends StatelessWidget {
           ),
           SizedBox(height: spacing.md),
           if (display.isEmpty) ...[
-            _EmptyHeroPlaceholder(
+            EmptyHeroPlaceholder(
               icon: Icons.notifications_none_rounded,
               title: total == 0
                   ? 'No reminders in this filter'

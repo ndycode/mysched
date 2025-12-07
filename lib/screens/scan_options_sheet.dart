@@ -280,7 +280,7 @@ class _FieldColumn extends StatelessWidget {
           height: 6,
           decoration: BoxDecoration(
             color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-            borderRadius: BorderRadius.circular(3),
+            borderRadius: AppTokens.radius.micro,
           ),
         ),
       ],
@@ -351,7 +351,7 @@ class _ScheduleRow extends StatelessWidget {
               height: 5,
               decoration: BoxDecoration(
                 color: barColor,
-                borderRadius: BorderRadius.circular(2.5),
+                borderRadius: AppTokens.radius.micro,
               ),
             ),
           ),
@@ -362,7 +362,7 @@ class _ScheduleRow extends StatelessWidget {
               height: 5,
               decoration: BoxDecoration(
                 color: barColor,
-                borderRadius: BorderRadius.circular(2.5),
+                borderRadius: AppTokens.radius.micro,
               ),
             ),
           ),
@@ -374,7 +374,7 @@ class _ScheduleRow extends StatelessWidget {
               height: 5,
               decoration: BoxDecoration(
                 color: barColor,
-                borderRadius: BorderRadius.circular(2.5),
+                borderRadius: AppTokens.radius.micro,
               ),
             ),
           ),

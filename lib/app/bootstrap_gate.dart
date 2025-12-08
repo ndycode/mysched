@@ -640,9 +640,17 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                     minHeight: AppTokens.componentSize.buttonLg,
                     onPressed: _busy
                         ? null
-                        : () {
+                        : () async {
+                            // Show battery guide first if not yet optimized
+                            if (!(_readiness?.ignoringBatteryOptimizations ?? false)) {
+                              await _showBatteryGuide(context);
+                              await _refresh();
+                              if (!mounted) return;
+                            }
                             widget.onComplete();
-                            Navigator.of(context).pop();
+                            if (mounted && context.mounted) {
+                              Navigator.of(context).pop();
+                            }
                           },
                   ),
                 )

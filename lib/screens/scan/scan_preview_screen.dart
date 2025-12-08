@@ -8,6 +8,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import '../../env.dart';
 import '../../models/schedule_class.dart';
 import '../../models/section.dart' as model;
+import '../../services/semester_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/motion.dart';
@@ -138,10 +139,19 @@ class _ScanPreviewSheetState extends State<ScanPreviewSheet> {
     final normalized = normalize(rawCode);
     final compact = normalized.replaceAll(' ', '');
 
+    // Get active semester ID to filter sections
+    final semesterId = await SemesterService.instance.getActiveSemesterId();
+    if (semesterId == null) {
+      AppLog.warn(_scope, 'No active semester found for section lookup');
+      return null;
+    }
+
+    // Direct match with semester filter
     final direct = await Env.supa
         .from('sections')
         .select('id, code')
         .eq('code', normalized)
+        .eq('semester_id', semesterId)
         .maybeSingle();
     if (direct is Map<String, dynamic>) {
       return model.Section.fromMap(direct);
@@ -155,12 +165,14 @@ class _ScanPreviewSheetState extends State<ScanPreviewSheet> {
       if (compact != normalized) compact,
     ];
 
+    // Fuzzy match with semester filter
     final builder = patterns.length == 1
         ? Env.supa
             .from('sections')
             .select('id, code')
+            .eq('semester_id', semesterId)
             .ilike('code', '%${escape(patterns.first)}%')
-        : Env.supa.from('sections').select('id, code').or(
+        : Env.supa.from('sections').select('id, code').eq('semester_id', semesterId).or(
               patterns
                   .map((pattern) => 'code.ilike.%${escape(pattern)}%')
                   .join(','),

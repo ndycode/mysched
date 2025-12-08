@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../models/schedule_filter.dart';
 import '../../services/schedule_repository.dart' as sched;
 import '../../ui/kit/kit.dart';
+import '../../ui/semester_badge.dart';
 import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/time_format.dart';
@@ -342,7 +343,11 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
             ),
             onChanged: widget.onSearchChanged,
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.lg),
+
+          // Semester badge
+          const SemesterBadge(compact: true),
+          SizedBox(height: spacing.lg),
 
           // Class list
           if (!hasClasses) ...[

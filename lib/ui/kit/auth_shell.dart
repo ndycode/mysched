@@ -149,6 +149,7 @@ class AuthShell extends StatelessWidget {
 
     return AppScaffold(
       screenName: screenName,
+      safeArea: false, // Edge-to-edge mode
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,

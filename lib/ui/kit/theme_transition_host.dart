@@ -52,29 +52,52 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
     if (_animating) return;
     final boundary = _boundaryKey.currentContext?.findRenderObject()
         as RenderRepaintBoundary?;
-    if (boundary == null) {
+    if (boundary == null || !boundary.hasSize) {
+      // Fallback: no animation if boundary not ready
       await ThemeController.instance.setMode(mode);
       return;
     }
 
-    final pixelRatio =
-        ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
-    final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
-    setState(() {
-      _snapshot?.dispose();
-      _snapshot = image;
-      _animating = true;
-    });
+    try {
+      final pixelRatio =
+          ui.PlatformDispatcher.instance.views.first.devicePixelRatio;
+      final ui.Image image = await boundary.toImage(pixelRatio: pixelRatio);
+      
+      if (!mounted) {
+        image.dispose();
+        return;
+      }
+      
+      setState(() {
+        _snapshot?.dispose();
+        _snapshot = image;
+        _animating = true;
+      });
 
-    await Future<void>.delayed(AppTokens.motion.instant ~/ 5); // ~16ms frame
-    await ThemeController.instance.setMode(mode);
-    await _controller.forward();
-    _controller.reset();
-    setState(() {
+      await Future<void>.delayed(AppTokens.motion.instant ~/ 5); // ~16ms frame
+      await ThemeController.instance.setMode(mode);
+      
+      if (!mounted) {
+        _snapshot?.dispose();
+        _snapshot = null;
+        return;
+      }
+      
+      await _controller.forward();
+      _controller.reset();
+      setState(() {
+        _snapshot?.dispose();
+        _snapshot = null;
+        _animating = false;
+      });
+    } catch (e) {
+      // Fallback: apply theme without animation if snapshot fails
       _snapshot?.dispose();
       _snapshot = null;
       _animating = false;
-    });
+      await ThemeController.instance.setMode(mode);
+      if (mounted) setState(() {});
+    }
   }
 
   @override

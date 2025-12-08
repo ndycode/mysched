@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'app/app_router.dart';
@@ -28,6 +29,17 @@ Future<void> main() async {
   await runZonedGuarded(() async {
     final bootstrapStopwatch = Stopwatch()..start();
     final binding = WidgetsFlutterBinding.ensureInitialized();
+    
+    // Enable edge-to-edge and transparent system navigation bar
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        systemNavigationBarColor: Colors.transparent,
+        systemNavigationBarDividerColor: Colors.transparent,
+      ),
+    );
+    
     _installErrorHandlers();
     _installTelemetryRecorder();
     binding.addPostFrameCallback((_) {

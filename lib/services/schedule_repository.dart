@@ -8,6 +8,7 @@ import '../ui/theme/motion.dart';
 import 'connection_monitor.dart';
 import 'data_sync.dart';
 import 'offline_queue.dart';
+import 'semester_service.dart';
 import 'telemetry_service.dart';
 import 'user_scope.dart';
 
@@ -688,18 +689,63 @@ class ScheduleApi {
   Future<int?> getCurrentSectionId() async {
     final uid = UserScope.currentUserId();
     if (uid == null) return null;
-    final res = await _s
+
+    // Get active semester ID - if no active semester, return null
+    final activeSemesterId = await SemesterService.instance.getActiveSemesterId();
+    if (activeSemesterId == null) {
+      AppLog.warn(_scope, 'No active semester - skipping section lookup');
+      return null;
+    }
+
+    // Step 1: Get user's most recently linked section with its code
+    final userSectionRes = await _s
         .from('user_sections')
-        .select('section_id, added_at')
+        .select('section_id, sections(code)')
         .eq('user_id', uid)
         .order('added_at', ascending: false)
         .limit(1);
-    final list = (res as List?) ?? const [];
-    if (list.isEmpty) return null;
-    final row = Map<String, dynamic>.from(list.first as Map);
-    final value = row['section_id'];
-    if (value is num) return value.toInt();
-    if (value is String) return int.tryParse(value);
+
+    final userSectionList = (userSectionRes as List?) ?? const [];
+    if (userSectionList.isEmpty) return null;
+
+    final userRow = Map<String, dynamic>.from(userSectionList.first as Map);
+    final sectionsData = userRow['sections'];
+    String? sectionCode;
+    if (sectionsData is Map) {
+      sectionCode = sectionsData['code'] as String?;
+    } else if (sectionsData is List && sectionsData.isNotEmpty) {
+      sectionCode = (sectionsData.first as Map)['code'] as String?;
+    }
+
+    if (sectionCode == null || sectionCode.isEmpty) {
+      // Fallback: just return the user's linked section_id
+      final value = userRow['section_id'];
+      if (value is num) return value.toInt();
+      if (value is String) return int.tryParse(value);
+      return null;
+    }
+
+    // Step 2: Find the section with same code in the active semester
+    final activeSectionRes = await _s
+        .from('sections')
+        .select('id')
+        .eq('code', sectionCode)
+        .eq('semester_id', activeSemesterId)
+        .limit(1);
+
+    final activeSectionList = (activeSectionRes as List?) ?? const [];
+    if (activeSectionList.isNotEmpty) {
+      final activeRow = Map<String, dynamic>.from(activeSectionList.first as Map);
+      final activeId = activeRow['id'];
+      if (activeId is num) return activeId.toInt();
+      if (activeId is String) return int.tryParse(activeId);
+    }
+
+    // Fallback: no matching section in active semester, return user's original
+    AppLog.info(_scope, 'No section "$sectionCode" found in active semester');
+    final fallbackValue = userRow['section_id'];
+    if (fallbackValue is num) return fallbackValue.toInt();
+    if (fallbackValue is String) return int.tryParse(fallbackValue);
     return null;
   }
 

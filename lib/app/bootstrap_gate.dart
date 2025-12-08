@@ -6,7 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../env.dart';
-import '../services/notif_scheduler.dart';
+import '../services/notification_scheduler.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
@@ -20,7 +20,7 @@ class BootstrapGate extends StatefulWidget {
 
   /// When true (typically under widget tests), skips the permission dialogs
   /// so FakeAsync timers do not linger.
-  static bool debugBypassPermissions = true;
+  static bool debugBypassPermissions = false;
   static bool _alarmPromptCompleted = false;
 
   @override
@@ -40,6 +40,11 @@ class _BootstrapGateState extends State<BootstrapGate> {
 
   Future<void> _bootstrap() async {
     if (!mounted) return;
+    
+    // Ensure splash branding is visible for minimum display time
+    await Future.delayed(AppTokens.durations.splashMinDisplay);
+    if (!mounted) return;
+    
     try {
       await _requestPermissionFlow();
     } catch (error, stackTrace) {
@@ -526,9 +531,8 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
   bool get _ready {
     final r = _readiness;
     if (_loading || r == null) return false;
-    return r.exactAlarmAllowed &&
-        r.notificationsAllowed &&
-        r.ignoringBatteryOptimizations;
+    // Only exact alarms + notifications are required; battery is optional
+    return r.exactAlarmAllowed && r.notificationsAllowed;
   }
 
   bool get _exactAllowed => _readiness?.exactAlarmAllowed ?? false;
@@ -580,7 +584,6 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 label: 'Exact alarms',
                 description: 'Required for time-sensitive reminders.',
                 status: _readiness?.exactAlarmAllowed,
-                onTap: _busy ? null : _openExactAlarms,
               ),
               SizedBox(height: spacing.sm),
               StatusRow(
@@ -588,7 +591,6 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 label: 'Notifications',
                 description: 'Backup alert if full-screen alarms are blocked.',
                 status: _readiness?.notificationsAllowed,
-                onTap: _busy ? null : _requestNotifications,
               ),
               SizedBox(height: spacing.md),
               StatusRow(
@@ -597,7 +599,6 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 description: 'Set MySched to Unrestricted so alarms are not killed.',
                 status: _readiness?.ignoringBatteryOptimizations,
                 optional: true,
-                onTap: _busy ? null : _openBatterySettings,
               ),
               SizedBox(height: spacing.xl),
               if (_loading)

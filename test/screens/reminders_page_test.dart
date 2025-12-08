@@ -7,7 +7,7 @@ import 'package:mysched/screens/reminders/reminders_data.dart';
 import 'package:mysched/services/auth_service.dart';
 import 'package:mysched/services/offline_cache_service.dart';
 import 'package:mysched/services/profile_cache.dart';
-import 'package:mysched/services/reminders_api.dart';
+import 'package:mysched/services/reminders_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

@@ -1,16 +1,14 @@
-﻿// coverage:ignore-file
-// lib/screens/delete_account_page.dart
+// coverage:ignore-file
 import 'package:flutter/material.dart';
 
-import '../ui/kit/kit.dart';
+import '../../ui/kit/kit.dart';
 import 'delete_account_sheet.dart';
 
 /// Shows the [DeleteAccountSheet] modal via [AppModal.sheet].
-/// Use [DeleteAccountPage.show] for direct invocation.
-class DeleteAccountPage extends StatefulWidget {
-  const DeleteAccountPage({super.key});
+class DeleteAccountScreen extends StatefulWidget {
+  const DeleteAccountScreen({super.key});
 
-  /// Shows the delete account sheet and returns 	rue if account was deleted.
+  /// Shows the delete account sheet and returns true if account was deleted.
   static Future<bool?> show(BuildContext context) {
     return AppModal.sheet<bool>(
       context: context,
@@ -20,16 +18,16 @@ class DeleteAccountPage extends StatefulWidget {
   }
 
   @override
-  State<DeleteAccountPage> createState() => _DeleteAccountPageState();
+  State<DeleteAccountScreen> createState() => _DeleteAccountScreenState();
 }
 
-class _DeleteAccountPageState extends State<DeleteAccountPage> {
+class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
   @override
   void initState() {
     super.initState();
     // Show the sheet immediately when this page is pushed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await DeleteAccountPage.show(context);
+      final result = await DeleteAccountScreen.show(context);
       if (mounted) Navigator.of(context).pop(result);
     });
   }

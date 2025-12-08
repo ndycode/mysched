@@ -7,7 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../models/reminder_scope.dart';
 import '../../services/profile_cache.dart';
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../../services/telemetry_service.dart';
 import '../../ui/theme/tokens.dart';
 import '../../services/data_sync.dart';

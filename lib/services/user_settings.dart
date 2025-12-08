@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../app/constants.dart';
-import 'notif_scheduler.dart';
+import 'notification_scheduler.dart';
 
 /// User settings service with persistence and change notifications.
 class UserSettings {

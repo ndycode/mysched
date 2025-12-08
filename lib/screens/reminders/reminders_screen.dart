@@ -3,12 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/reminder_scope.dart';
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
 import '../../app/routes.dart';
-import '../add_reminder_page.dart';
+import 'add_reminder_screen.dart';
 import 'reminders_controller.dart';
 import 'reminders_data.dart';
 import 'reminders_cards.dart';

@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:mysched/app/routes.dart';
-import 'package:mysched/screens/register_page.dart';
+import 'package:mysched/screens/auth/register_screen.dart';
 import 'package:mysched/services/auth_service.dart';
 import 'package:mysched/services/telemetry_service.dart';
 

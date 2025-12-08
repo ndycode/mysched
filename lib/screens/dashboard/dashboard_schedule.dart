@@ -243,58 +243,11 @@ class _DashboardSchedulePeek extends StatelessWidget {
             ),
           ),
           SizedBox(height: spacing.md),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<String>(
-              showSelectedIcon: false,
-              expandedInsets: EdgeInsets.zero,
-              style: ButtonStyle(
-                padding: WidgetStateProperty.all(
-                  spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.md,
-                    vertical: spacing.md,
-                  ),
-                ),
-                side: WidgetStateProperty.resolveWith(
-                  (states) => BorderSide(
-                    color: states.contains(WidgetState.selected)
-                        ? colors.primary
-                        : colors.outline.withValues(alpha: AppOpacity.barrier),
-                    width: AppTokens.componentSize.dividerMedium,
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-                      : colors.surfaceContainerHighest
-                          .withValues(alpha: AppOpacity.barrier),
-                ),
-                foregroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : palette.muted
-                          .withValues(alpha: AppOpacity.prominent),
-                ),
-              ),
-              segments: const [
-                ButtonSegment(
-                  value: 'Today',
-                  label: Text('Today', softWrap: false),
-                ),
-                ButtonSegment(
-                  value: 'This week',
-                  label: Text('This week', softWrap: false),
-                ),
-                ButtonSegment(
-                  value: 'All',
-                  label: Text('All', softWrap: false),
-                ),
-              ],
-              selected: <String>{selectedScope},
-              onSelectionChanged: (value) {
-                if (value.isNotEmpty) onScopeChanged(value.first);
-              },
-            ),
+          SegmentedPills<String>(
+            value: selectedScope,
+            options: const ['Today', 'This week', 'All'],
+            onChanged: onScopeChanged,
+            labelBuilder: (option) => option,
           ),
           SizedBox(height: spacing.md),
           AnimatedSize(

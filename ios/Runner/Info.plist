@@ -47,5 +47,11 @@
 		<true/>
 		<key>UIStatusBarHidden</key>
 		<false/>
+		<key>NSCameraUsageDescription</key>
+		<string>MySched needs camera access to capture schedule images.</string>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>MySched needs photo library access to choose schedule images.</string>
+		<key>NSCalendarsUsageDescription</key>
+		<string>MySched needs calendar access to save reminders for your classes.</string>
 	</dict>
 </plist>

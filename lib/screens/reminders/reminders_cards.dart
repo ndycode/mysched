@@ -4,7 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/reminder_scope.dart';
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/kit/reminder_details_sheet.dart';
 import '../../ui/theme/tokens.dart';
@@ -1110,53 +1110,11 @@ class _ReminderListCardState extends State<ReminderListCard> {
           SizedBox(height: AppTokens.spacing.xl),
 
           // Scope filter pills
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<ReminderScope>(
-              showSelectedIcon: false,
-              expandedInsets: EdgeInsets.zero,
-              style: ButtonStyle(
-                padding: WidgetStateProperty.all(
-                  spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.md,
-                    vertical: spacing.md,
-                  ),
-                ),
-                side: WidgetStateProperty.resolveWith(
-                  (states) => BorderSide(
-                    color: states.contains(WidgetState.selected)
-                        ? colors.primary
-                        : colors.outline.withValues(alpha: AppOpacity.barrier),
-                    width: AppTokens.componentSize.dividerMedium,
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-                      : colors.surfaceContainerHighest
-                          .withValues(alpha: AppOpacity.barrier),
-                ),
-                foregroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : palette.muted
-                          .withValues(alpha: AppOpacity.prominent),
-                ),
-              ),
-              segments: ReminderScope.values.map((option) {
-                return ButtonSegment<ReminderScope>(
-                  value: option,
-                  label: Text(
-                    option.label,
-                    softWrap: false,
-                  ),
-                );
-              }).toList(),
-              selected: <ReminderScope>{widget.scope},
-              onSelectionChanged: (value) {
-                if (value.isNotEmpty) widget.onScopeChanged(value.first);
-              },
-            ),
+          SegmentedPills<ReminderScope>(
+            value: widget.scope,
+            options: ReminderScope.values,
+            onChanged: widget.onScopeChanged,
+            labelBuilder: (option) => option.label,
           ),
           SizedBox(height: spacing.lg),
 

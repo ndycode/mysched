@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/screens/add_class_page.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/screens/schedules/add_class_screen.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:mysched/ui/kit/modals.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

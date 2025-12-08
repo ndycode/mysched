@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/screens/schedules/schedules_controller.dart';
 import 'package:mysched/services/auth_service.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:mysched/services/share_service.dart';
 import 'package:mysched/services/user_scope.dart';
 import 'package:share_plus/share_plus.dart';

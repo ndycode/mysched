@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/screens/add_reminder_page.dart';
-import 'package:mysched/services/reminders_api.dart';
+import 'package:mysched/screens/reminders/add_reminder_screen.dart';
+import 'package:mysched/services/reminders_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../test_helpers/supabase_stub.dart';
 

@@ -1,13 +1,13 @@
 import 'package:go_router/go_router.dart';
 
 import '../models/reminder_scope.dart';
-import '../screens/account_overview_page.dart';
-import '../screens/change_email_page.dart';
-import '../screens/change_password_page.dart';
-import '../screens/delete_account_page.dart';
-import '../screens/login_page.dart';
-import '../screens/register_page.dart';
-import '../screens/verify_email_page.dart';
+import '../screens/account/account_screen.dart';
+import '../screens/account/change_email_screen.dart';
+import '../screens/account/change_password_screen.dart';
+import '../screens/account/delete_account_screen.dart';
+import '../screens/auth/login_screen.dart';
+import '../screens/auth/register_screen.dart';
+import '../screens/account/verify_email_screen.dart';
 import '../screens/reminders_page.dart';
 import '../screens/style_guide_page.dart';
 import '../utils/nav.dart';
@@ -40,8 +40,8 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.verify,
       builder: (context, state) {
         final extra = state.extra;
-        if (extra is VerifyEmailPageArgs) {
-          return VerifyEmailPage(
+        if (extra is VerifyEmailScreenArgs) {
+          return VerifyEmailScreen(
             email: extra.email,
             intent: extra.intent,
             fromLogin: extra.fromLogin,
@@ -49,7 +49,7 @@ final GoRouter appRouter = GoRouter(
           );
         }
         final email = state.uri.queryParameters['email'] ?? '';
-        return VerifyEmailPage(email: email);
+        return VerifyEmailScreen(email: email);
       },
     ),
     GoRoute(
@@ -102,21 +102,21 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) {
         final extra = state.extra;
         String currentEmail = '';
-        if (extra is ChangeEmailPageArgs) {
+        if (extra is ChangeEmailScreenArgs) {
           currentEmail = extra.currentEmail;
         } else {
           currentEmail = state.uri.queryParameters['currentEmail'] ?? '';
         }
-        return ChangeEmailPage(currentEmail: currentEmail);
+        return ChangeEmailScreen(currentEmail: currentEmail);
       },
     ),
     GoRoute(
       path: AppRoutes.changePassword,
-      builder: (context, state) => const ChangePasswordPage(),
+      builder: (context, state) => const ChangePasswordScreen(),
     ),
     GoRoute(
       path: AppRoutes.deleteAccount,
-      builder: (context, state) => const DeleteAccountPage(),
+      builder: (context, state) => const DeleteAccountScreen(),
     ),
     GoRoute(
       path: AppRoutes.styleGuide,

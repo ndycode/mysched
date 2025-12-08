@@ -1,24 +1,22 @@
-﻿// coverage:ignore-file
-// lib/screens/change_email_page.dart
+// coverage:ignore-file
 import 'package:flutter/material.dart';
 
-import '../ui/kit/kit.dart';
+import '../../ui/kit/kit.dart';
 import 'change_email_sheet.dart';
 
-class ChangeEmailPageArgs {
-  const ChangeEmailPageArgs({required this.currentEmail});
+class ChangeEmailScreenArgs {
+  const ChangeEmailScreenArgs({required this.currentEmail});
 
   final String currentEmail;
 }
 
 /// Shows the [ChangeEmailSheet] modal via [AppModal.sheet].
-/// Use [ChangeEmailPage.show] for direct invocation.
-class ChangeEmailPage extends StatefulWidget {
-  const ChangeEmailPage({super.key, required this.currentEmail});
+class ChangeEmailScreen extends StatefulWidget {
+  const ChangeEmailScreen({super.key, required this.currentEmail});
 
   final String currentEmail;
 
-  /// Shows the change email sheet and returns `true` if the email was updated.
+  /// Shows the change email sheet and returns true if the email was updated.
   static Future<bool?> show(
     BuildContext context, {
     required String currentEmail,
@@ -30,16 +28,16 @@ class ChangeEmailPage extends StatefulWidget {
   }
 
   @override
-  State<ChangeEmailPage> createState() => _ChangeEmailPageState();
+  State<ChangeEmailScreen> createState() => _ChangeEmailScreenState();
 }
 
-class _ChangeEmailPageState extends State<ChangeEmailPage> {
+class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
   @override
   void initState() {
     super.initState();
     // Show the sheet immediately when this page is pushed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await ChangeEmailPage.show(
+      final result = await ChangeEmailScreen.show(
         context,
         currentEmail: widget.currentEmail,
       );

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/services/auth_service.dart';
-import 'package:mysched/services/schedule_api.dart' as sched;
+import 'package:mysched/services/schedule_repository.dart' as sched;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

@@ -1,4 +1,4 @@
-import '../services/schedule_api.dart';
+import '../services/schedule_repository.dart';
 
 /// Returns true when two class sessions overlap in time on the calendar.
 ///

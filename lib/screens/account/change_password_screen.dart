@@ -1,16 +1,14 @@
-﻿// coverage:ignore-file
-// lib/screens/change_password_page.dart
+// coverage:ignore-file
 import 'package:flutter/material.dart';
 
-import '../ui/kit/kit.dart';
+import '../../ui/kit/kit.dart';
 import 'change_password_sheet.dart';
 
 /// Shows the [ChangePasswordSheet] modal via [AppModal.sheet].
-/// Use [ChangePasswordPage.show] for direct invocation.
-class ChangePasswordPage extends StatefulWidget {
-  const ChangePasswordPage({super.key});
+class ChangePasswordScreen extends StatefulWidget {
+  const ChangePasswordScreen({super.key});
 
-  /// Shows the change password sheet and returns 	rue if password was updated.
+  /// Shows the change password sheet and returns true if password was updated.
   static Future<bool?> show(BuildContext context) {
     return AppModal.sheet<bool>(
       context: context,
@@ -19,16 +17,16 @@ class ChangePasswordPage extends StatefulWidget {
   }
 
   @override
-  State<ChangePasswordPage> createState() => _ChangePasswordPageState();
+  State<ChangePasswordScreen> createState() => _ChangePasswordScreenState();
 }
 
-class _ChangePasswordPageState extends State<ChangePasswordPage> {
+class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   void initState() {
     super.initState();
     // Show the sheet immediately when this page is pushed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await ChangePasswordPage.show(context);
+      final result = await ChangePasswordScreen.show(context);
       if (mounted) Navigator.of(context).pop(result);
     });
   }

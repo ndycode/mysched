@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../services/schedule_api.dart' as sched;
-import '../../services/notif_scheduler.dart';
+import '../../services/schedule_repository.dart' as sched;
+import '../../services/notification_scheduler.dart';
 import '../../widgets/instructor_avatar.dart';
 import '../../services/telemetry_service.dart';
 import '../theme/card_styles.dart';

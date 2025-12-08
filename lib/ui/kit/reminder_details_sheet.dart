@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../theme/card_styles.dart';
 import '../theme/tokens.dart';
 import 'kit.dart';

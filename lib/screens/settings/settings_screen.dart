@@ -10,9 +10,9 @@ import '../../services/auth_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/local_notifs.dart';
-import '../about_sheet.dart';
-import '../admin_issue_reports_page.dart';
-import '../privacy_sheet.dart';
+import '../about_screen.dart';
+import '../admin/issue_reports_screen.dart';
+import '../privacy_screen.dart';
 import 'settings_controller.dart';
 import '../../services/theme_controller.dart';
 import '../../services/data_sync.dart';
@@ -75,7 +75,12 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Auto-refresh alarm readiness when user returns from settings
     if (state == AppLifecycleState.resumed) {
-      _controller.refreshAlarmReadiness();
+      // Small delay to ensure native side has updated battery/permission status
+      Future.delayed(AppTokens.durations.settingsRefreshDelay, () {
+        if (mounted) {
+          _controller.refreshAlarmReadiness();
+        }
+      });
     }
   }
 
@@ -120,7 +125,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   Future<void> _openClassIssueReports() async {
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const ClassIssueReportsPage()),
+      MaterialPageRoute(builder: (_) => const IssueReportsScreen()),
     );
     if (!mounted) return;
     AdminService.instance.refreshNewReportCount();
@@ -1322,7 +1327,7 @@ class _RingtonePickerState extends State<_RingtonePicker> {
       insetPadding: spacing.edgeInsetsAll(spacing.xl),
       child: Container(
         constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.6,
+          maxHeight: MediaQuery.of(context).size.height * AppLayout.dialogMaxHeightRatio,
         ),
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,

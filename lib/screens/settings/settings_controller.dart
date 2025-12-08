@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/constants.dart';
 import '../../services/admin_service.dart';
-import '../../services/notif_scheduler.dart';
+import '../../services/notification_scheduler.dart';
 import '../../services/profile_cache.dart';
 import '../../services/theme_controller.dart';
 import '../../services/user_settings_service.dart';

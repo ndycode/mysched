@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/services/reminders_api.dart';
+import 'package:mysched/services/reminders_repository.dart';
 
 void main() {
   group('ReminderStatus', () {

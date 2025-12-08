@@ -3,19 +3,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/reminder_scope.dart';
 import '../ui/theme/motion.dart';
-import '../screens/add_class_page.dart';
-import '../screens/add_reminder_page.dart';
+import '../screens/schedules/add_class_screen.dart';
+import '../screens/reminders/add_reminder_screen.dart';
 import '../screens/dashboard/dashboard_screen.dart';
 import '../screens/reminders_page.dart';
 import '../screens/schedules_page.dart';
-import '../screens/scan_options_sheet.dart';
-import '../screens/scan_preview_sheet.dart';
-import '../screens/schedules_preview_sheet.dart';
+import '../screens/scan/scan_options_screen.dart';
+import '../screens/scan/scan_preview_screen.dart';
+import '../screens/scan/schedule_import_screen.dart';
 import '../screens/settings_page.dart';
 import '../services/reminder_scope_store.dart';
-import '../services/reminders_api.dart';
+import '../services/reminders_repository.dart';
 import '../services/root_nav_controller.dart';
-import '../services/schedule_api.dart';
+import '../services/schedule_repository.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
 

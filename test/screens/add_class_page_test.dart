@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../test_helpers/supabase_stub.dart';
-import 'package:mysched/screens/add_class_page.dart';
-import 'package:mysched/services/schedule_api.dart' as sched;
+import 'package:mysched/screens/schedules/add_class_screen.dart';
+import 'package:mysched/services/schedule_repository.dart' as sched;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

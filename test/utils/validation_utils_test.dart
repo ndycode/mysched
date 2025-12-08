@@ -52,4 +52,30 @@ void main() {
       expect(ValidationUtils.isValidStudentId('2023-1234-IC-extra'), false);
     });
   });
+
+  group('ValidationUtils.isValidEmail', () {
+    test('accepts common emails', () {
+      expect(ValidationUtils.isValidEmail('user@example.com'), isTrue);
+      expect(ValidationUtils.isValidEmail('first.last+tag@sub.domain.co'), isTrue);
+    });
+
+    test('rejects invalid emails', () {
+      expect(ValidationUtils.isValidEmail('no-at-symbol'), isFalse);
+      expect(ValidationUtils.isValidEmail('user@'), isFalse);
+      expect(ValidationUtils.isValidEmail('user@example'), isFalse);
+      expect(ValidationUtils.isValidEmail(null), isFalse);
+    });
+  });
+
+  group('ValidationUtils.looksLikeEmail', () {
+    test('is lenient check for presence of @', () {
+      expect(ValidationUtils.looksLikeEmail('user@example.com'), isTrue);
+      expect(ValidationUtils.looksLikeEmail('user@sub'), isTrue);
+    });
+
+    test('rejects null or empty', () {
+      expect(ValidationUtils.looksLikeEmail(null), isFalse);
+      expect(ValidationUtils.looksLikeEmail(''), isFalse);
+    });
+  });
 }

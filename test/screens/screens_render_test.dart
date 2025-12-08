@@ -8,8 +8,8 @@ import 'package:mysched/screens/reminders_page.dart';
 import 'package:mysched/screens/schedules_page.dart';
 import 'package:mysched/screens/settings_page.dart';
 import 'package:mysched/services/offline_cache_service.dart';
-import 'package:mysched/services/schedule_api.dart' as sched;
-import 'package:mysched/services/reminders_api.dart';
+import 'package:mysched/services/schedule_repository.dart' as sched;
+import 'package:mysched/services/reminders_repository.dart';
 import 'package:mysched/ui/theme/app_theme.dart';
 
 import '../test_helpers/supabase_stub.dart';

@@ -12,10 +12,10 @@ import '../../app/routes.dart';
 import '../../models/reminder_scope.dart';
 import '../../services/profile_cache.dart';
 import '../../services/reminder_scope_store.dart';
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../../services/telemetry_service.dart';
 import '../../services/root_nav_controller.dart';
-import '../../services/schedule_api.dart' as sched;
+import '../../services/schedule_repository.dart' as sched;
 import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/motion.dart';
@@ -24,8 +24,8 @@ import '../../utils/nav.dart';
 import '../../utils/time_format.dart';
 import '../../widgets/instructor_avatar.dart';
 
-import '../add_class_page.dart';
-import '../add_reminder_page.dart';
+import '../schedules/add_class_screen.dart';
+import '../reminders/add_reminder_screen.dart';
 import '../reminders_page.dart';
 import '../schedules_page.dart';
 

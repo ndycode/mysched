@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../services/schedule_api.dart' as sched;
+import '../../services/schedule_repository.dart' as sched;
 import 'package:flutter/material.dart' show Color;
 
 import '../../ui/theme/tokens.dart';

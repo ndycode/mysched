@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-import '../services/reminder_scope_store.dart';
-import '../ui/kit/alarm_preview.dart';
-import '../ui/kit/kit.dart';
-import '../ui/theme/tokens.dart';
-import '../utils/nav.dart';
+import '../../services/reminder_scope_store.dart';
+import '../../ui/kit/alarm_preview.dart';
+import '../../ui/kit/kit.dart';
+import '../../ui/theme/tokens.dart';
+import '../../utils/nav.dart';
 
 class AlarmPage extends StatelessWidget {
   const AlarmPage({super.key});
@@ -151,9 +151,9 @@ class AlarmPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
-                _Bullet('Keep notifications enabled so alarms can fire on time.'),
-                _Bullet('Use Quiet week when you want to pause reminders temporarily.'),
-                _Bullet('Re-run "Resync class reminders" in Settings after editing your schedule.'),
+                SimpleBullet(text: 'Keep notifications enabled so alarms can fire on time.'),
+                SimpleBullet(text: 'Use Quiet week when you want to pause reminders temporarily.'),
+                SimpleBullet(text: 'Re-run "Resync class reminders" in Settings after editing your schedule.'),
               ],
             ),
           ),
@@ -206,34 +206,6 @@ class AlarmPage extends StatelessWidget {
         spacing.quad + AppLayout.bottomNavSafePadding,
       ),
       safeArea: false,
-    );
-  }
-}
-
-class _Bullet extends StatelessWidget {
-  const _Bullet(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: EdgeInsets.only(bottom: AppTokens.spacing.sm),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.check_circle_outline,
-              size: AppTokens.iconSize.sm, color: theme.colorScheme.primary),
-          SizedBox(width: AppTokens.spacing.md),
-          Expanded(
-            child: Text(
-              text,
-              style: theme.textTheme.bodyMedium,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

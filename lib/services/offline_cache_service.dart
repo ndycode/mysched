@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'schedule_api.dart';
+import 'schedule_repository.dart';
 
 class OfflineCacheService {
   OfflineCacheService._(this._prefs);

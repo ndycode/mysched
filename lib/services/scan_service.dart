@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../env.dart';
-import 'schedule_api.dart';
+import 'schedule_repository.dart';
 import 'user_scope.dart';
 
 class ScanService {

@@ -190,7 +190,7 @@ class AppModal {
         backgroundColor: Colors.transparent,
         insetPadding: spacing.edgeInsetsAll(spacing.xl),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 340),
+          constraints: const BoxConstraints(maxWidth: AppLayout.dialogWidthSmall),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.xl,
@@ -332,7 +332,7 @@ class AppModal {
         backgroundColor: Colors.transparent,
         insetPadding: spacing.edgeInsetsAll(spacing.xl),
         child: Container(
-          constraints: const BoxConstraints(maxWidth: 340),
+          constraints: const BoxConstraints(maxWidth: AppLayout.dialogWidthSmall),
           decoration: BoxDecoration(
             color: isDark ? colors.surfaceContainerHigh : colors.surface,
             borderRadius: AppTokens.radius.xl,

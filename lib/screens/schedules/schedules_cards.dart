@@ -4,7 +4,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
 
 import '../../models/schedule_filter.dart';
-import '../../services/schedule_api.dart' as sched;
+import '../../services/schedule_repository.dart' as sched;
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
@@ -283,53 +283,11 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
           SizedBox(height: spacing.xl),
 
           // Filter pills
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<ScheduleFilter>(
-              showSelectedIcon: false,
-              expandedInsets: EdgeInsets.zero,
-              style: ButtonStyle(
-                padding: WidgetStateProperty.all(
-                  spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.md,
-                    vertical: spacing.md,
-                  ),
-                ),
-                side: WidgetStateProperty.resolveWith(
-                  (states) => BorderSide(
-                    color: states.contains(WidgetState.selected)
-                        ? colors.primary
-                        : colors.outline.withValues(alpha: AppOpacity.barrier),
-                    width: AppTokens.componentSize.dividerMedium,
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-                      : colors.surfaceContainerHighest
-                          .withValues(alpha: AppOpacity.barrier),
-                ),
-                foregroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : palette.muted
-                          .withValues(alpha: AppOpacity.prominent),
-                ),
-              ),
-              segments: ScheduleFilter.values.map((option) {
-                return ButtonSegment<ScheduleFilter>(
-                  value: option,
-                  label: Text(
-                    option.label,
-                    softWrap: false,
-                  ),
-                );
-              }).toList(),
-              selected: <ScheduleFilter>{widget.filter},
-              onSelectionChanged: (value) {
-                if (value.isNotEmpty) widget.onFilterChanged(value.first);
-              },
-            ),
+          SegmentedPills<ScheduleFilter>(
+            value: widget.filter,
+            options: ScheduleFilter.values,
+            onChanged: widget.onFilterChanged,
+            labelBuilder: (option) => option.label,
           ),
           SizedBox(height: spacing.lg),
 

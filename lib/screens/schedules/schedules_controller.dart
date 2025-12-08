@@ -7,10 +7,10 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../models/schedule_filter.dart';
 import '../../services/export_queue.dart';
-import '../../services/notif_scheduler.dart';
+import '../../services/notification_scheduler.dart';
 import '../../services/offline_cache_service.dart';
 import '../../services/profile_cache.dart';
-import '../../services/schedule_api.dart' as sched;
+import '../../services/schedule_repository.dart' as sched;
 import '../../services/share_service.dart';
 import '../../services/telemetry_service.dart';
 import '../../services/user_scope.dart';

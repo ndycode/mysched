@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
-import '../services/schedule_api.dart';
+import '../services/schedule_repository.dart';
 
 /// Reusable schedule list widget (grouped by day, toggle, delete, refresh, optional edit for custom)
 class ScheduleList extends StatelessWidget {

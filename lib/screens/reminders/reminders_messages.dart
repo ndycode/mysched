@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 

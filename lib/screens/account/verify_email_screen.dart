@@ -1,15 +1,14 @@
-﻿// coverage:ignore-file
-// lib/screens/verify_email_page.dart
+// coverage:ignore-file
 import 'package:flutter/material.dart';
 
-import '../ui/kit/kit.dart';
+import '../../ui/kit/kit.dart';
 import 'verify_email_sheet.dart';
 
 // Re-export for backward compatibility
 export 'verify_email_sheet.dart' show VerificationIntent;
 
-class VerifyEmailPageArgs {
-  const VerifyEmailPageArgs({
+class VerifyEmailScreenArgs {
+  const VerifyEmailScreenArgs({
     required this.email,
     this.intent = VerificationIntent.signup,
     this.fromLogin = false,
@@ -23,9 +22,8 @@ class VerifyEmailPageArgs {
 }
 
 /// Shows the [VerifyEmailSheet] modal via [AppModal.sheet].
-/// Use [VerifyEmailPage.show] for direct invocation.
-class VerifyEmailPage extends StatefulWidget {
-  const VerifyEmailPage({
+class VerifyEmailScreen extends StatefulWidget {
+  const VerifyEmailScreen({
     super.key,
     required this.email,
     this.intent = VerificationIntent.signup,
@@ -38,7 +36,7 @@ class VerifyEmailPage extends StatefulWidget {
   final bool fromLogin;
   final VoidCallback? onVerified;
 
-  /// Shows the verify email sheet and returns 	rue if verified.
+  /// Shows the verify email sheet and returns true if verified.
   static Future<bool?> show(
     BuildContext context, {
     required String email,
@@ -59,16 +57,16 @@ class VerifyEmailPage extends StatefulWidget {
   }
 
   @override
-  State<VerifyEmailPage> createState() => _VerifyEmailPageState();
+  State<VerifyEmailScreen> createState() => _VerifyEmailScreenState();
 }
 
-class _VerifyEmailPageState extends State<VerifyEmailPage> {
+class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
   @override
   void initState() {
     super.initState();
     // Show the sheet immediately when this page is pushed.
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final result = await VerifyEmailPage.show(
+      final result = await VerifyEmailScreen.show(
         context,
         email: widget.email,
         intent: widget.intent,

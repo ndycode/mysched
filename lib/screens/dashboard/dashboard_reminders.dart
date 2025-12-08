@@ -146,53 +146,11 @@ class _DashboardReminderCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: spacing.lg),
-          SizedBox(
-            width: double.infinity,
-            child: SegmentedButton<ReminderScope>(
-              showSelectedIcon: false,
-              expandedInsets: EdgeInsets.zero,
-              style: ButtonStyle(
-                padding: WidgetStateProperty.all(
-                  spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.md,
-                    vertical: spacing.md,
-                  ),
-                ),
-                side: WidgetStateProperty.resolveWith(
-                  (states) => BorderSide(
-                    color: states.contains(WidgetState.selected)
-                        ? colors.primary
-                        : colors.outline.withValues(alpha: AppOpacity.barrier),
-                    width: AppTokens.componentSize.dividerMedium,
-                  ),
-                ),
-                backgroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary.withValues(alpha: AppOpacity.statusBg)
-                      : colors.surfaceContainerHighest
-                          .withValues(alpha: AppOpacity.barrier),
-                ),
-                foregroundColor: WidgetStateProperty.resolveWith(
-                  (states) => states.contains(WidgetState.selected)
-                      ? colors.primary
-                      : palette.muted
-                          .withValues(alpha: AppOpacity.prominent),
-                ),
-              ),
-              segments: ReminderScope.values.map((option) {
-                return ButtonSegment<ReminderScope>(
-                  value: option,
-                  label: Text(
-                    option.label,
-                    softWrap: false,
-                  ),
-                );
-              }).toList(),
-              selected: <ReminderScope>{scope},
-              onSelectionChanged: (value) {
-                if (value.isNotEmpty) onScopeChanged(value.first);
-              },
-            ),
+          SegmentedPills<ReminderScope>(
+            value: scope,
+            options: ReminderScope.values,
+            onChanged: onScopeChanged,
+            labelBuilder: (option) => option.label,
           ),
           SizedBox(height: spacing.md),
           _ReminderProgressPill(

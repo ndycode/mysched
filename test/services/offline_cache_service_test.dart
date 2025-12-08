@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/services/offline_cache_service.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 ClassItem _sampleItem(int id) {

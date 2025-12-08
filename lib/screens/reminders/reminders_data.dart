@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 
 String friendlyError(Object error) {
   final text = error.toString();

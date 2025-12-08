@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/services/notif_scheduler.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/services/notification_scheduler.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:mysched/utils/local_notifs.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

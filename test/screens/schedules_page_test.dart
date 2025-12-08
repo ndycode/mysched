@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mysched/screens/schedules_page.dart';
 import 'package:mysched/services/offline_cache_service.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:mysched/screens/schedules/schedules_data.dart';
 import '../test_helpers/supabase_stub.dart';
 import 'package:mysched/services/share_service.dart';

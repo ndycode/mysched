@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../app/constants.dart';
 import '../utils/app_log.dart';
 import '../utils/local_notifs.dart';
-import 'schedule_api.dart';
+import 'schedule_repository.dart';
 import 'user_scope.dart';
 
 class NotifScheduler {

@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/services/schedule_api.dart';
+import 'package:mysched/services/schedule_repository.dart';
 import 'package:mysched/services/telemetry_service.dart';
 import 'package:mysched/services/user_scope.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

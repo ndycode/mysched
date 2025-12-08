@@ -128,6 +128,12 @@ class AppDurations {
   /// 2.5s - Duration for audio preview playback indicator.
   final Duration previewDuration = const Duration(milliseconds: 2500);
 
+  /// 800ms - Minimum splash screen display time.
+  final Duration splashMinDisplay = const Duration(milliseconds: 800);
+
+  /// 500ms - Delay before refreshing settings after returning from system settings.
+  final Duration settingsRefreshDelay = const Duration(milliseconds: 500);
+
   /// 8px - Small slide offset for fast/subtle animations.
   final double slideOffsetSm = 8;
 

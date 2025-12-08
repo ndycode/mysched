@@ -1,0 +1,54 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../theme/tokens.dart';
+import 'pressable_scale.dart';
+
+/// A styled back button for navigation.
+///
+/// Used across detail pages and sheets for consistent back navigation.
+class NavBackButton extends StatelessWidget {
+  const NavBackButton({
+    super.key,
+    this.onTap,
+    this.disabled = false,
+  });
+
+  /// Optional custom tap handler. If null, uses `context.pop()`.
+  final VoidCallback? onTap;
+
+  /// Whether the button is disabled.
+  final bool disabled;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+
+    return PressableScale(
+      onTap: disabled
+          ? null
+          : onTap ??
+              () {
+                if (context.canPop()) {
+                  context.pop();
+                }
+              },
+      child: Container(
+        padding: spacing.edgeInsetsAll(spacing.sm),
+        decoration: BoxDecoration(
+          color: colors.onSurface.withValues(alpha: AppOpacity.faint),
+          borderRadius: AppTokens.radius.md,
+        ),
+        child: Icon(
+          Icons.arrow_back_rounded,
+          size: AppTokens.iconSize.md,
+          color: palette.muted,
+        ),
+      ),
+    );
+  }
+}

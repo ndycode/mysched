@@ -1,4 +1,4 @@
-import '../../services/reminders_api.dart';
+import '../../services/reminders_repository.dart';
 
 extension ReminderEntryJson on ReminderEntry {
   Map<String, dynamic> toJson() {

@@ -9,7 +9,7 @@ import '../ui/theme/tokens.dart';
 import '../utils/local_notifs.dart';
 import '../utils/validation_utils.dart';
 import 'offline_cache_service.dart';
-import 'schedule_api.dart';
+import 'schedule_repository.dart';
 import 'telemetry_service.dart';
 
 abstract class AuthBackend {

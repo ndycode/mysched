@@ -19,6 +19,12 @@ class AppLayout {
   /// Maximum width for dialogs.
   static const double dialogMaxWidth = 400.0;
 
+  /// Standard width for small confirmation dialogs.
+  static const double dialogWidthSmall = 340.0;
+
+  /// Maximum height ratio for dialogs (60% of screen).
+  static const double dialogMaxHeightRatio = 0.6;
+
   /// Maximum width for main content areas.
   static const double contentMaxWidth = 600.0;
 

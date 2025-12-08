@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mysched/services/reminders_api.dart';
+import 'package:mysched/services/reminders_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../test_helpers/supabase_stub.dart';
 

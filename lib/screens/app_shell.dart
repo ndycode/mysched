@@ -7,14 +7,14 @@ import '../services/reminder_scope_store.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/tokens.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class AppShell extends StatefulWidget {
+  const AppShell({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<AppShell> createState() => _AppShellState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _AppShellState extends State<AppShell> {
   @override
   void initState() {
     super.initState();

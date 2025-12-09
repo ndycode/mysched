@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../models/reminder_scope.dart';
@@ -26,15 +27,25 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: AppRoutes.splash,
-      builder: (context, state) => const BootstrapGate(),
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: BootstrapGate(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.login,
-      builder: (context, state) => const LoginPage(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: const LoginPage(),
+        transitionDuration: const Duration(milliseconds: 400),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
     ),
     GoRoute(
       path: AppRoutes.register,
-      builder: (context, state) => const RegisterPage(),
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: RegisterPage(),
+      ),
     ),
     GoRoute(
       path: AppRoutes.verify,
@@ -54,7 +65,7 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.app,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final extra = state.extra;
         int? tab;
         bool fromScan = false;
@@ -70,10 +81,16 @@ final GoRouter appRouter = GoRouter(
             );
           }
         }
-        return RootNav(
-          initialTab: tab,
-          fromScan: fromScan,
-          reminderScopeOverride: scope,
+        return CustomTransitionPage(
+          child: RootNav(
+            initialTab: tab,
+            fromScan: fromScan,
+            reminderScopeOverride: scope,
+          ),
+          transitionDuration: const Duration(milliseconds: 400),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(opacity: animation, child: child);
+          },
         );
       },
     ),

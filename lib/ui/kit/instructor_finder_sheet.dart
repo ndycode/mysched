@@ -1023,7 +1023,7 @@ class _ScheduleTile extends StatelessWidget {
           SizedBox(width: spacing.md),
           // Time
           SizedBox(
-            width: AppTokens.componentSize.skeletonWidthMd,
+            width: 90, // Enough for "7:30 AM - 9:00 AM"
             child: Text(
               item.timeRange,
               style: AppTokens.typography.caption.copyWith(

@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../env.dart';
 import '../services/instructor_service.dart';
 import '../services/notification_scheduler.dart';
+import '../services/theme_controller.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
@@ -257,10 +258,26 @@ class _SplashContentState extends State<_SplashContent>
 
   @override
   Widget build(BuildContext context) {
-    final brightness = MediaQuery.of(context).platformBrightness;
-    final isDark = brightness == Brightness.dark;
+    final platformBrightness = MediaQuery.of(context).platformBrightness;
+    final themeMode = ThemeController.instance.currentMode;
+    // Resolve actual brightness based on user's theme preference
+    final bool isDark;
+    switch (themeMode) {
+      case AppThemeMode.dark:
+      case AppThemeMode.voidMode:
+        isDark = true;
+        break;
+      case AppThemeMode.light:
+        isDark = false;
+        break;
+      case AppThemeMode.system:
+        isDark = platformBrightness == Brightness.dark;
+        break;
+    }
     final colors = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
+    // Use custom accent color if set, otherwise default brand color
+    final accent = ThemeController.instance.accentColor.value ?? colors.brand;
 
     return Container(
       color: colors.surface, // Clean solid background
@@ -276,7 +293,7 @@ class _SplashContentState extends State<_SplashContent>
                 Text(
                   AppConstants.appName,
                   style: AppTokens.typography.brand.copyWith(
-                    color: colors.brand,
+                    color: accent,
                     letterSpacing: AppLetterSpacing.tight,
                   ),
                 ),
@@ -296,8 +313,8 @@ class _SplashContentState extends State<_SplashContent>
                   height: AppInteraction.loaderSizeLarge,
                   child: CircularProgressIndicator(
                     strokeWidth: AppInteraction.progressStrokeWidthLarge,
-                    color: colors.brand.withValues(alpha: AppOpacity.prominent),
-                    backgroundColor: colors.brand.withValues(alpha: AppOpacity.overlay),
+                    color: accent.withValues(alpha: AppOpacity.prominent),
+                    backgroundColor: accent.withValues(alpha: AppOpacity.overlay),
                   ),
                 ),
               ],

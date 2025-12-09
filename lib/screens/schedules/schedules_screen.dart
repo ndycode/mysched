@@ -4,6 +4,7 @@ import '../../app/routes.dart';
 import '../../services/notification_scheduler.dart';
 import '../../services/schedule_repository.dart' as sched;
 import '../../ui/kit/class_details_sheet.dart';
+import '../../ui/kit/instructor_finder_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
@@ -214,6 +215,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
       builder: (_) => ClassDetailsSheet(
         api: widget.api,
         item: initial,
+        isInstructor: _controller.isInstructor,
         onDetailsChanged: (details) async {
           _controller.applyClassEnabled(details.id, details.enabled);
           await NotifScheduler.resync(api: widget.api);
@@ -248,6 +250,13 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
               }
             : null,
       ),
+    );
+  }
+
+  void _openInstructorFinder(BuildContext context) {
+    AppModal.sheet<void>(
+      context: context,
+      builder: (_) => const InstructorFinderSheet(),
     );
   }
 
@@ -410,6 +419,58 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
             ),
           ),
         ),
+        // Find Instructor - only show for students (non-instructors)
+        if (!_controller.isInstructor)
+          PopupMenuItem<ScheduleAction>(
+            key: const ValueKey('schedule-find-instructor-item'),
+            value: ScheduleAction.findInstructor,
+            padding: EdgeInsets.zero,
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: () => Navigator.pop(context, ScheduleAction.findInstructor),
+                splashColor:
+                    colors.primary.withValues(alpha: AppOpacity.highlight),
+                highlightColor:
+                    colors.primary.withValues(alpha: AppOpacity.micro),
+                child: Padding(
+                  padding: AppTokens.spacing.edgeInsetsSymmetric(
+                      horizontal: AppTokens.spacing.lg,
+                      vertical: AppTokens.spacing.md),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding:
+                            AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
+                        decoration: BoxDecoration(
+                          color: colors.secondary
+                              .withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.sm,
+                        ),
+                        child: Icon(
+                          Icons.person_search_rounded,
+                          size: AppTokens.iconSize.md,
+                          color: colors.secondary,
+                        ),
+                      ),
+                      SizedBox(
+                          width: AppTokens.spacing.md + AppTokens.spacing.micro),
+                      Flexible(
+                        child: Text(
+                          'Find instructor',
+                          style: AppTokens.typography.bodySecondary.copyWith(
+                            fontWeight: AppTokens.fontWeight.medium,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
         PopupMenuItem<ScheduleAction>(
           value: ScheduleAction.reset,
           padding: EdgeInsets.zero,
@@ -466,6 +527,10 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
   Future<void> _handleAction(ScheduleAction action) async {
     if (action == ScheduleAction.reset) {
       await _confirmResetSchedules();
+      return;
+    }
+    if (action == ScheduleAction.findInstructor) {
+      _openInstructorFinder(context);
       return;
     }
     await _controller.handleExportAction(

@@ -286,6 +286,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
                           targetIndex: targetIndex,
                           now: now,
                           onOccurrenceTap: (occ) => onViewDetails(occ.item),
+                          isInstructor: isInstructor,
                         ),
                         if (display.length > totalToShow) ...[
                           SizedBox(height: spacing.md),
@@ -384,6 +385,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     required int targetIndex,
     required DateTime now,
     required ValueChanged<ClassOccurrence> onOccurrenceTap,
+    required bool isInstructor,
   }) {
     final widgets = <Widget>[];
     final theme = Theme.of(context);
@@ -497,6 +499,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
           highlight: i == targetIndex,
           now: now,
           onTap: () => onOccurrenceTap(display[i]),
+          isInstructor: isInstructor,
         ),
       );
 
@@ -550,12 +553,14 @@ class _ScheduleRow extends StatelessWidget {
     required this.highlight,
     required this.now,
     required this.onTap,
+    this.isInstructor = false,
   });
 
   final ClassOccurrence occurrence;
   final bool highlight;
   final DateTime now;
   final VoidCallback onTap;
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -626,6 +631,7 @@ class _ScheduleRow extends StatelessWidget {
           ? InstructorRow(
               name: instructor,
               avatarUrl: instructorAvatar.isNotEmpty ? instructorAvatar : null,
+              showSectionIcon: isInstructor,
             )
           : null,
       onTap: onTap,

@@ -10,7 +10,7 @@ import 'package:flutter/material.dart' show Color;
 import '../../ui/theme/tokens.dart';
 import '../../utils/schedule_overlap.dart' as schedule_overlap;
 
-enum ScheduleAction { reset, pdf, csv }
+enum ScheduleAction { reset, pdf, csv, findInstructor }
 
 class DayGroup {
   const DayGroup({

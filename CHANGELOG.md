@@ -1,5 +1,35 @@
 # Changelog
 
+## 2.0.2 - 2024-12-10
+
+### ✨ New Features
+- **Instructor Mode**: Instructors now see their assigned classes instead of student schedules
+  - Auto-detects instructor role on login via `public.instructors` table
+  - Fetches classes from `instructor_schedule` view filtered by active semester
+  - Section names (e.g., "BSCS 4-1") displayed instead of instructor names
+- **Find Instructor**: Students can find professors and see their current class/room
+  - Modal accessible via 3-dot menu → "Find instructor"
+  - Displays instructor list filtered by user's academic department
+  - Shows "TEACHING NOW" status with countdown (e.g., "ends in 30m")
+  - Today's full schedule shown with current class highlighted
+  - Skeleton loading matching actual content structure
+
+### 🎨 Instructor UI Customizations
+- **Class Details Modal**: Hidden student-specific elements (Synced badge, Disable/Report buttons)
+- **Section Icon**: Replaced circular avatars with `Icons.class_outlined` in rounded container
+- **Centered Message**: "Linked classes can only be edited by an administrator" now centered
+- **Empty States**: Custom messaging for instructors ("No classes assigned")
+
+### 🛠️ Code Changes
+- Added `InstructorService` for role detection and class fetching
+- Added `isInstructor` parameter to dashboard and schedule widgets
+- Added `showSectionIcon` parameter to `InstructorRow` widget
+- Updated `SchedulesController` to conditionally fetch instructor classes
+- Added `InstructorFinderSheet` modal with department-based filtering
+- Added `findInstructor` action to `ScheduleAction` enum
+
+---
+
 ## 2.0.1 - 2024-12-09
 
 ### ✨ New Features

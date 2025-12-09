@@ -15,6 +15,7 @@ class _DashboardSummaryCard extends StatelessWidget {
     required this.onViewDetails,
     required this.onToggleEnabled,
     this.onViewSchedule,
+    this.isInstructor = false,
   });
 
   final String greeting;
@@ -29,6 +30,7 @@ class _DashboardSummaryCard extends StatelessWidget {
   final ValueChanged<ClassItem> onViewDetails;
   final void Function(int id, bool enabled) onToggleEnabled;
   final VoidCallback? onViewSchedule;
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -111,6 +113,7 @@ class _DashboardSummaryCard extends StatelessWidget {
               occurrence: hero,
               isLive: upcoming.isActive,
               onViewDetails: onViewDetails,
+              isInstructor: isInstructor,
             ),
             SizedBox(height: spacing.xl),
           ] else ...[
@@ -193,11 +196,13 @@ class _UpcomingHeroTile extends StatelessWidget {
     required this.occurrence,
     required this.isLive,
     required this.onViewDetails,
+    this.isInstructor = false,
   });
 
   final ClassOccurrence occurrence;
   final bool isLive;
   final ValueChanged<ClassItem> onViewDetails;
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -422,16 +427,31 @@ class _UpcomingHeroTile extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      InstructorAvatar(
-                        name: occurrence.item.instructor,
-                        avatarUrl:
-                            (occurrence.item.instructorAvatar?.isEmpty ?? true)
-                                ? null
-                                : occurrence.item.instructorAvatar,
-                        tint: foreground,
-                        inverse: true,
-                        size: AppTokens.componentSize.avatarSmDense,
-                      ),
+                      if (isInstructor)
+                        Container(
+                          width: AppTokens.componentSize.avatarSmDense,
+                          height: AppTokens.componentSize.avatarSmDense,
+                          decoration: BoxDecoration(
+                            color: foreground.withValues(alpha: AppOpacity.border),
+                            borderRadius: BorderRadius.circular(AppTokens.radius.sm.topLeft.x),
+                          ),
+                          child: Icon(
+                            Icons.class_outlined,
+                            size: AppTokens.componentSize.avatarSmDense * 0.6,
+                            color: foreground,
+                          ),
+                        )
+                      else
+                        InstructorAvatar(
+                          name: occurrence.item.instructor,
+                          avatarUrl:
+                              (occurrence.item.instructorAvatar?.isEmpty ?? true)
+                                  ? null
+                                  : occurrence.item.instructorAvatar,
+                          tint: foreground,
+                          inverse: true,
+                          size: AppTokens.componentSize.avatarSmDense,
+                        ),
                       SizedBox(width: spacing.sm),
                       Expanded(
                         child: Text(

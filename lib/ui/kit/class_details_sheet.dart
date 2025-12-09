@@ -19,6 +19,7 @@ class ClassDetailsSheet extends StatefulWidget {
     this.onEditCustom,
     this.onDeleteCustom,
     this.onDetailsChanged,
+    this.isInstructor = false,
   });
 
   final sched.ScheduleApi api;
@@ -28,6 +29,7 @@ class ClassDetailsSheet extends StatefulWidget {
   final Future<void> Function(sched.ClassDetails details)? onEditCustom;
   final Future<void> Function(sched.ClassDetails details)? onDeleteCustom;
   final void Function(sched.ClassDetails details)? onDetailsChanged;
+  final bool isInstructor;
 
   @override
   State<ClassDetailsSheet> createState() => _ClassDetailsSheetState();
@@ -406,10 +408,11 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                               final details = snapshot.data!;
                               return _ClassDetailsContent(
                                 details: details,
-                                onToggle: () => _toggleEnabled(details),
-                                onReport: details.isCustom
+                                isInstructor: widget.isInstructor,
+                                onToggle: widget.isInstructor ? null : () => _toggleEnabled(details),
+                                onReport: widget.isInstructor ? null : (details.isCustom
                                     ? null
-                                    : () => _reportLinkedIssue(details),
+                                    : () => _reportLinkedIssue(details)),
                                 toggleBusy: _toggleBusy,
                                 onEdit: details.isCustom &&
                                         widget.onEditCustom != null
@@ -444,6 +447,7 @@ class _ClassDetailsContent extends StatelessWidget {
   const _ClassDetailsContent({
     required this.details,
     required this.onClose,
+    this.isInstructor = false,
     this.onToggle,
     this.onEdit,
     this.onDelete,
@@ -455,6 +459,7 @@ class _ClassDetailsContent extends StatelessWidget {
 
   final sched.ClassDetails details;
   final VoidCallback onClose;
+  final bool isInstructor;
   final VoidCallback? onToggle;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -508,13 +513,15 @@ class _ClassDetailsContent extends StatelessWidget {
                   spacing: AppTokens.spacing.sm,
                   runSpacing: AppTokens.spacing.sm,
                   children: [
-                    StatusInfoChip(
-                      icon: details.isCustom
-                          ? Icons.edit_note_rounded
-                          : Icons.cloud_sync_rounded,
-                      label: details.isCustom ? 'Custom class' : 'Synced class',
-                      color: colors.primary,
-                    ),
+                    // Hide "Synced class" badge for instructors
+                    if (!isInstructor)
+                      StatusInfoChip(
+                        icon: details.isCustom
+                            ? Icons.edit_note_rounded
+                            : Icons.cloud_sync_rounded,
+                        label: details.isCustom ? 'Custom class' : 'Synced class',
+                        color: colors.primary,
+                      ),
                     if (!details.enabled)
                       StatusInfoChip(
                         icon: Icons.pause_circle_outline_rounded,
@@ -637,7 +644,9 @@ class _ClassDetailsContent extends StatelessWidget {
                   ),
                 ),
 
-                if (details.instructorName != null &&
+                // Hide instructor info for instructors (they know it's them)
+                if (!isInstructor &&
+                    details.instructorName != null &&
                     details.instructorName!.isNotEmpty) ...[
                   SizedBox(height: spacing.lg),
                   _InstructorDetail(details: details),
@@ -887,6 +896,7 @@ class _ClassDetailActions extends StatelessWidget {
       children.add(
         Text(
           'Linked classes can only be edited by an administrator.',
+          textAlign: TextAlign.center,
           style: theme.textTheme.bodyMedium?.copyWith(
             color: palette.muted,
           ),

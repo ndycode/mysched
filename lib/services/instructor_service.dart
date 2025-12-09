@@ -105,54 +105,34 @@ class InstructorService {
     }
 
     try {
-      // Get active semester
-      final semester = await SemesterService.instance.getActiveSemester();
-      if (semester == null) {
-        return [];
-      }
-
-      // Query classes where instructor_id matches and semester is active
-      // Use explicit FK name to avoid ambiguous embed error
+      // Query instructor_schedule view which includes semester info
+      // This properly filters by active semester
       final rows = await Env.supa
-          .from('classes')
-          .select('''
-            id,
-            code,
-            title,
-            units,
-            room,
-            day,
-            start,
-            end,
-            section_id,
-            sections!classes_section_id_fkey(
-              id,
-              code,
-              section_number,
-              semester_id
-            ),
-            instructors(
-              id,
-              full_name,
-              avatar_url
-            )
-          ''')
+          .from('instructor_schedule')
+          .select()
           .eq('instructor_id', instructor.id)
-          .eq('sections.semester_id', semester.id)
-          .isFilter('archived_at', null);
+          .eq('semester_active', true);
 
       final list = (rows as List).cast<Map<String, dynamic>>();
       
       return list.map((json) {
-        final instructorData = json['instructors'] as Map<String, dynamic>?;
+        // For instructors, show section name instead of instructor name
+        final sectionCode = json['section_code'] as String? ?? '';
+        final sectionNumber = json['section_number'] as String? ?? '';
+        final sectionName = sectionCode.isNotEmpty && sectionNumber.isNotEmpty
+            ? '$sectionCode $sectionNumber'
+            : sectionCode.isNotEmpty
+                ? sectionCode
+                : '';
+        
         return ClassItem(
-          id: json['id'] as int,
+          id: json['class_id'] as int,
           code: json['code'] as String? ?? '',
           title: json['title'] as String? ?? '',
           units: json['units'] as int? ?? 0,
           room: json['room'] as String? ?? '',
-          instructor: instructorData?['full_name'] as String? ?? '',
-          instructorAvatar: instructorData?['avatar_url'] as String?,
+          instructor: sectionName, // Show section instead of instructor
+          instructorAvatar: null, // No avatar for section
           day: _parseDay(json['day']),
           start: json['start'] as String? ?? '00:00',
           end: json['end'] as String? ?? '00:00',

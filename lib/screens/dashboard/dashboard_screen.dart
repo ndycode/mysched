@@ -498,6 +498,7 @@ class DashboardScreenState extends State<DashboardScreen>
         api: widget.api,
         item: schedItem,
         initial: cached,
+        isInstructor: InstructorService.instance.isInstructor,
         onLoaded: (details) {
           _classDetailsCache[item.id] = details;
         },
@@ -868,6 +869,7 @@ class DashboardScreenState extends State<DashboardScreen>
         onViewDetails: _openClassDetails,
         onToggleEnabled: _applyClassEnabled,
         onViewSchedule: _openSchedules,
+        isInstructor: InstructorService.instance.isInstructor,
       ),
     );
 

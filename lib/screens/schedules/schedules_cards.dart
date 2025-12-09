@@ -479,6 +479,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                     onDelete: widget.onDelete != null
                         ? () => widget.onDelete!(widget.groups[g].items[i].id)
                         : null,
+                    isInstructor: widget.isInstructor,
                   ),
                   if (i != widget.groups[g].items.length - 1)
                     SizedBox(height: spacing.sm + AppTokens.spacing.micro),
@@ -741,7 +742,11 @@ class ScheduleSummaryCard extends StatelessWidget {
           ),
           SizedBox(height: spacing.xl),
           if (highlight != null) ...[
-            _ScheduleHighlightHero(highlight: highlight, now: now),
+            _ScheduleHighlightHero(
+              highlight: highlight,
+              now: now,
+              isInstructor: isInstructor,
+            ),
             SizedBox(height: spacing.xl),
           ] else ...[
             EmptyHeroPlaceholder(
@@ -826,10 +831,12 @@ class _ScheduleHighlightHero extends StatelessWidget {
   const _ScheduleHighlightHero({
     required this.highlight,
     required this.now,
+    this.isInstructor = false,
   });
 
   final ScheduleHighlight highlight;
   final DateTime now;
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -1056,6 +1063,7 @@ class _ScheduleHighlightHero extends StatelessWidget {
                 tint: foreground,
                 inverse: true,
                 dense: false,
+                hideAvatar: isInstructor,
               ),
             ),
           ],
@@ -1120,6 +1128,7 @@ class ScheduleRow extends StatelessWidget {
     required this.onToggleEnabled,
     required this.toggleBusy,
     this.onDelete,
+    this.isInstructor = false,
   });
 
   final sched.ClassItem item;
@@ -1129,6 +1138,7 @@ class ScheduleRow extends StatelessWidget {
   final void Function(bool enable) onToggleEnabled;
   final bool toggleBusy;
   final VoidCallback? onDelete;
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -1216,6 +1226,7 @@ class ScheduleRow extends StatelessWidget {
           ? InstructorRow(
               name: instructor,
               avatarUrl: instructorAvatar.isNotEmpty ? instructorAvatar : null,
+              showSectionIcon: isInstructor,
             )
           : null,
       onTap: onOpenDetails,
@@ -1288,6 +1299,7 @@ class _ScheduleInstructorRow extends StatelessWidget {
     this.avatarUrl,
     this.inverse = false,
     this.dense = true,
+    this.hideAvatar = false,
   });
 
   final String name;
@@ -1295,6 +1307,7 @@ class _ScheduleInstructorRow extends StatelessWidget {
   final String? avatarUrl;
   final bool inverse;
   final bool dense;
+  final bool hideAvatar;
 
   @override
   Widget build(BuildContext context) {
@@ -1314,13 +1327,28 @@ class _ScheduleInstructorRow extends StatelessWidget {
     final sizes = AppTokens.componentSize;
     return Row(
       children: [
-        InstructorAvatar(
-          name: name,
-          avatarUrl: avatarUrl,
-          tint: tint,
-          inverse: inverse,
-          size: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
-        ),
+        if (hideAvatar)
+          Container(
+            width: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
+            height: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
+            decoration: BoxDecoration(
+              color: tint.withValues(alpha: inverse ? AppOpacity.border : AppOpacity.medium),
+              borderRadius: BorderRadius.circular(AppTokens.radius.sm.topLeft.x),
+            ),
+            child: Icon(
+              Icons.class_outlined,
+              size: (dense ? sizes.avatarXsDense : sizes.avatarSmDense) * 0.6,
+              color: tint,
+            ),
+          )
+        else
+          InstructorAvatar(
+            name: name,
+            avatarUrl: avatarUrl,
+            tint: tint,
+            inverse: inverse,
+            size: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
+          ),
         SizedBox(width: dense ? spacing.xsPlus : spacing.sm),
         Expanded(
           child: Text(

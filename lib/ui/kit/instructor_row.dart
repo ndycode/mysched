@@ -11,6 +11,7 @@ class InstructorRow extends StatelessWidget {
     required this.name,
     this.avatarUrl,
     this.avatarSize,
+    this.showSectionIcon = false,
   });
 
   /// Instructor name
@@ -21,6 +22,9 @@ class InstructorRow extends StatelessWidget {
 
   /// Custom avatar size (defaults to badgeLg = 24)
   final double? avatarSize;
+
+  /// Show section icon instead of avatar (for instructors viewing their own classes)
+  final bool showSectionIcon;
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +37,22 @@ class InstructorRow extends StatelessWidget {
 
     return Row(
       children: [
-        if (avatarUrl != null && avatarUrl!.isNotEmpty)
+        // Show section icon for instructors instead of avatar
+        if (showSectionIcon)
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              color: colors.primary.withValues(alpha: AppOpacity.medium),
+              borderRadius: BorderRadius.circular(AppTokens.radius.sm.topLeft.x),
+            ),
+            child: Icon(
+              Icons.class_outlined,
+              size: size * 0.6,
+              color: colors.primary,
+            ),
+          )
+        else if (avatarUrl != null && avatarUrl!.isNotEmpty)
           Container(
             width: size,
             height: size,

@@ -122,10 +122,8 @@ class _AppDatePickerState extends State<_AppDatePicker> {
           boxShadow: isDark
               ? null
               : [
-                  BoxShadow(
-                    color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                    blurRadius: AppTokens.shadow.xl,
-                    offset: AppShadowOffset.md,
+                  AppTokens.shadow.modal(
+                    colors.shadow.withValues(alpha: AppOpacity.border),
                   ),
                 ],
         ),

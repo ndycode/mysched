@@ -203,10 +203,8 @@ class AppModal {
             boxShadow: isDark
                 ? null
                 : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                      blurRadius: AppTokens.shadow.xl,
-                      offset: AppShadowOffset.md,
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.border),
                     ),
                   ],
           ),
@@ -345,10 +343,8 @@ class AppModal {
             boxShadow: isDark
                 ? null
                 : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                      blurRadius: AppTokens.shadow.xl,
-                      offset: AppShadowOffset.md,
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.border),
                     ),
                   ],
           ),

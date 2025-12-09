@@ -310,10 +310,8 @@ class _GlassNavItemState extends State<_GlassNavItem>
                     borderRadius: AppTokens.radius.pill,
                     boxShadow: widget.selected
                         ? [
-                            BoxShadow(
-                              color: activeColor.withValues(alpha: AppOpacity.divider),
-                              blurRadius: AppTokens.shadow.xs,
-                              spreadRadius: AppTokens.shadow.spreadXs,
+                            AppTokens.shadow.elevation1(
+                              activeColor.withValues(alpha: AppOpacity.divider),
                             ),
                           ]
                         : [],
@@ -464,7 +462,7 @@ class _FloatingQuickActionButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
               color: accent,
             ),

@@ -104,27 +104,25 @@ class _SemesterBadgeState extends State<SemesterBadge> {
       return const SizedBox.shrink();
     }
 
-    final textStyle = widget.compact
-        ? AppTokens.typography.caption
-        : AppTokens.typography.bodySecondary;
-
     Widget buildBadge({
       required String text,
       required IconData icon,
       required Color color,
     }) {
+      // Match StatusBadge styling from dashboard
       return Container(
-        padding: spacing.edgeInsetsSymmetric(
-          horizontal: widget.compact ? spacing.sm : spacing.md,
-          vertical: widget.compact ? spacing.xs : spacing.sm,
-        ),
+        padding: widget.compact
+            ? spacing.edgeInsetsSymmetric(
+                horizontal: spacing.sm,
+                vertical: spacing.micro,
+              )
+            : spacing.edgeInsetsSymmetric(
+                horizontal: spacing.smMd,
+                vertical: spacing.xs,
+              ),
         decoration: BoxDecoration(
-          color: color.withValues(alpha: AppOpacity.statusBg),
+          color: color.withValues(alpha: AppOpacity.highlight),
           borderRadius: AppTokens.radius.sm,
-          border: Border.all(
-            color: color.withValues(alpha: AppOpacity.overlay),
-            width: AppTokens.componentSize.dividerThin,
-          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -139,9 +137,9 @@ class _SemesterBadgeState extends State<SemesterBadge> {
             SizedBox(width: spacing.xs),
             Text(
               text,
-              style: textStyle.copyWith(
+              style: AppTokens.typography.caption.copyWith(
+                fontWeight: AppTokens.fontWeight.bold,
                 color: color,
-                fontWeight: AppTokens.fontWeight.semiBold,
               ),
             ),
           ],

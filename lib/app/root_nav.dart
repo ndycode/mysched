@@ -279,10 +279,8 @@ class _RootNavState extends State<RootNav>
             boxShadow: isDark
                 ? null
                 : [
-                    BoxShadow(
-                      color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                      blurRadius: AppTokens.shadow.lg,
-                      offset: AppShadowOffset.sm,
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.border),
                     ),
                   ],
           ),

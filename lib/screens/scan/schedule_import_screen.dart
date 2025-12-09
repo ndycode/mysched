@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 
 import '../../services/scan_service.dart';
 import '../../ui/kit/kit.dart';
+import '../../ui/semester_badge.dart';
 import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 
@@ -193,6 +194,9 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
+                              // Section and Semester context badges
+                              const SemesterBadge(compact: true),
+                              SizedBox(height: spacing.md),
                               if (_error != null) ...[
                                 StateDisplay(
                                   variant: StateVariant.error,

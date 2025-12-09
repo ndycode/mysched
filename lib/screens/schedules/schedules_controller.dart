@@ -7,6 +7,7 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../models/schedule_filter.dart';
 import '../../services/export_queue.dart';
+import '../../services/instructor_service.dart';
 import '../../services/notification_scheduler.dart';
 import '../../services/offline_cache_service.dart';
 import '../../services/profile_cache.dart';
@@ -75,6 +76,9 @@ class SchedulesController extends ChangeNotifier {
 
   final Set<int> _pendingToggleClassIds = <int>{};
   Set<int> get pendingToggleClassIds => _pendingToggleClassIds;
+
+  /// Whether current user is operating in instructor mode
+  bool get isInstructor => InstructorService.instance.isInstructor;
 
   String _searchQuery = '';
   String get searchQuery => _searchQuery;
@@ -238,7 +242,15 @@ class SchedulesController extends ChangeNotifier {
     final uid = _activeUserId();
 
     try {
-      final items = await _api.getMyClasses(forceRefresh: true);
+      // Fetch classes based on user role
+      List<sched.ClassItem> items;
+      if (InstructorService.instance.isInstructor) {
+        // Instructor mode: fetch classes assigned to instructor
+        items = await InstructorService.instance.getInstructorClasses();
+      } else {
+        // Student mode: fetch classes from section
+        items = await _api.getMyClasses(forceRefresh: true);
+      }
       if (uid != null) {
         final cache = await OfflineCacheService.instance();
         await cache.saveSchedule(userId: uid, items: items);

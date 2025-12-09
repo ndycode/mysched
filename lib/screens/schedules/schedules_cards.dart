@@ -658,6 +658,7 @@ class ScheduleSummaryCard extends StatelessWidget {
     required this.onAddClass,
     required this.onScanCard,
     required this.menuButton,
+    this.isInstructor = false,
   });
 
   final ScheduleSummary summary;
@@ -665,6 +666,8 @@ class ScheduleSummaryCard extends StatelessWidget {
   final VoidCallback onAddClass;
   final VoidCallback onScanCard;
   final Widget menuButton;
+  /// When true, hides student-only features (add class, scan card)
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -736,8 +739,10 @@ class ScheduleSummaryCard extends StatelessWidget {
           ] else ...[
             EmptyHeroPlaceholder(
               icon: Icons.calendar_month_outlined,
-              title: 'All caught up',
-              subtitle: 'No upcoming classes in this scope.',
+              title: isInstructor ? 'No classes assigned' : 'All caught up',
+              subtitle: isInstructor 
+                  ? 'You don\'t have any classes assigned this semester.'
+                  : 'No upcoming classes in this scope.',
             ),
             SizedBox(height: spacing.xl),
           ],
@@ -778,27 +783,30 @@ class ScheduleSummaryCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: spacing.xl),
-          Row(
-            children: [
-              Expanded(
-                child: PrimaryButton(
-                  label: 'Add class',
-                  onPressed: onAddClass,
-                  minHeight: AppTokens.componentSize.buttonMd,
-                  expanded: true,
+          // Hide student-only buttons for instructors
+          if (!isInstructor) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    label: 'Add class',
+                    onPressed: onAddClass,
+                    minHeight: AppTokens.componentSize.buttonMd,
+                    expanded: true,
+                  ),
                 ),
-              ),
-              SizedBox(width: spacing.md),
-              Expanded(
-                child: SecondaryButton(
-                  label: 'Scan card',
-                  onPressed: onScanCard,
-                  minHeight: AppTokens.componentSize.buttonMd,
-                  expanded: true,
+                SizedBox(width: spacing.md),
+                Expanded(
+                  child: SecondaryButton(
+                    label: 'Scan card',
+                    onPressed: onScanCard,
+                    minHeight: AppTokens.componentSize.buttonMd,
+                    expanded: true,
+                  ),
                 ),
-              ),
-            ],
-          ),
+              ],
+            ),
+          ],
         ],
       ),
     );

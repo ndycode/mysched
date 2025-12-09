@@ -8,6 +8,7 @@ import '../ui/theme/motion.dart';
 import '../ui/theme/tokens.dart';
 import '../utils/local_notifs.dart';
 import '../utils/validation_utils.dart';
+import 'instructor_service.dart';
 import 'offline_cache_service.dart';
 import 'schedule_repository.dart';
 import 'telemetry_service.dart';
@@ -438,6 +439,8 @@ class AuthService {
       if (r.session == null) throw Exception('Login: failed');
 
       await _warmProfileCache();
+      // Check if user is an instructor after successful login
+      await InstructorService.instance.checkInstructorStatus();
     } catch (e) {
       final msg = e.toString().toLowerCase();
       if (msg.contains('email not confirmed') ||
@@ -457,6 +460,8 @@ class AuthService {
   Future<void> logout() async {
     final previousUid = _sb.auth.currentUser?.id;
     await _sb.auth.signOut();
+    // Clear instructor status on logout
+    InstructorService.instance.clear();
     final sp = await _sp();
     await sp.remove('userId');
     await sp.remove('avatar_url');
@@ -601,6 +606,8 @@ class AuthService {
         throw Exception('verify_no_session');
       }
       await _warmProfileCache();
+      // Check if verified user is an instructor
+      await InstructorService.instance.checkInstructorStatus();
     } catch (error) {
       final message = error.toString().toLowerCase();
       if (message.contains('expired')) {

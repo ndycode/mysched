@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mysched/services/auth_service.dart';
+import 'package:mysched/services/instructor_service.dart';
 import 'package:mysched/services/telemetry_service.dart';
 
 class _LoginBackend implements AuthBackend {
@@ -30,8 +31,11 @@ void main() {
         (name, data) => events.add('$name:${data?['attempt']}'));
     AuthService.overrideProfileLoader(() async => {'ok': true});
     AuthService.overrideBackend(_LoginBackend());
+    // Mock instructor check to avoid Supabase calls
+    InstructorService.overrideInstructorLoader(() async => null);
     await AuthService.instance.login(email: 'user@example.com', password: 'pw');
     expect(events.contains('auth_retry_success:2'), isTrue);
+    InstructorService.resetTestOverrides();
     AuthService.resetTestOverrides();
     TelemetryService.reset();
   });

@@ -627,6 +627,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                 onAddClass: () => _openAddClass(),
                 onScanCard: _openScanOptions,
                 menuButton: _buildActionsMenu(context),
+                isInstructor: _controller.isInstructor,
               ),
             ),
           );

@@ -665,6 +665,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                   onSearchChanged: _controller.setSearchQuery,
                   filter: _controller.filter,
                   onFilterChanged: _controller.setFilter,
+                  isInstructor: _controller.isInstructor,
                 ),
               ),
             );

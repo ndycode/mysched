@@ -32,6 +32,7 @@ class ScheduleClassListCard extends StatefulWidget {
     this.refreshing = false,
     this.highlightDay,
     this.dayKeyBuilder,
+    this.isInstructor = false,
   });
 
   final List<DayGroup> groups;
@@ -53,6 +54,8 @@ class ScheduleClassListCard extends StatefulWidget {
   final ValueChanged<String> onSearchChanged;
   final ScheduleFilter filter;
   final ValueChanged<ScheduleFilter> onFilterChanged;
+  /// When true, hides student-only features and shows instructor-appropriate messages
+  final bool isInstructor;
 
   @override
   State<ScheduleClassListCard> createState() => _ScheduleClassListCardState();
@@ -359,10 +362,14 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                   ? 'No matching classes'
                   : isFilterActive
                       ? 'No ${widget.filter.label.toLowerCase()} classes'
-                      : 'No classes scheduled',
+                      : widget.isInstructor
+                          ? 'No classes assigned'
+                          : 'No classes scheduled',
               subtitle: isSearchActive || isFilterActive
                   ? 'Try a different search term or clear the filter.'
-                  : 'Add a class or scan your student card to get started.',
+                  : widget.isInstructor
+                      ? 'Classes assigned to you will appear here.'
+                      : 'Add a class or scan your student card to get started.',
             ),
           ] else ...[
             for (var g = 0; g < widget.groups.length; g++) ...[

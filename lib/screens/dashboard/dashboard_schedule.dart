@@ -21,6 +21,7 @@ class _DashboardSchedulePeek extends StatelessWidget {
     required this.refreshing,
     required this.onRefresh,
     required this.onViewDetails,
+    this.isInstructor = false,
   });
 
   final List<ClassOccurrence> occurrences;
@@ -41,6 +42,8 @@ class _DashboardSchedulePeek extends StatelessWidget {
   final bool refreshing;
   final Future<void> Function() onRefresh;
   final ValueChanged<ClassItem> onViewDetails;
+  /// When true, hides student-only features
+  final bool isInstructor;
 
   @override
   Widget build(BuildContext context) {
@@ -508,6 +511,15 @@ class _DashboardSchedulePeek extends StatelessWidget {
 
   Widget _buildReviewButton() {
     final spacing = AppTokens.spacing;
+    // For instructors, only show Schedules button
+    if (isInstructor) {
+      return PrimaryButton(
+        label: 'View schedule',
+        onPressed: refreshing ? null : onOpenSchedules,
+        minHeight: AppTokens.componentSize.buttonMd,
+        expanded: true,
+      );
+    }
     return Row(
       children: [
         Expanded(

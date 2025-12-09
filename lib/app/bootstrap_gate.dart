@@ -6,6 +6,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../env.dart';
+import '../services/instructor_service.dart';
 import '../services/notification_scheduler.dart';
 import '../ui/kit/kit.dart';
 import '../ui/theme/motion.dart';
@@ -63,11 +64,18 @@ class _BootstrapGateState extends State<BootstrapGate> {
     _goNext();
   }
 
-  void _goNext() {
+  Future<void> _goNext() async {
     if (_navigated || !mounted) return;
     final signedIn =
         Env.isInitialized && Env.supa.auth.currentSession != null;
+    
+    // Check instructor status for already signed-in users
+    if (signedIn) {
+      await InstructorService.instance.checkInstructorStatus();
+    }
+    
     _navigated = true;
+    if (!mounted) return;
     context.go(signedIn ? AppRoutes.app : AppRoutes.login);
   }
 

@@ -112,6 +112,7 @@ class InstructorService {
       }
 
       // Query classes where instructor_id matches and semester is active
+      // Use explicit FK name to avoid ambiguous embed error
       final rows = await Env.supa
           .from('classes')
           .select('''
@@ -124,7 +125,7 @@ class InstructorService {
             start,
             end,
             section_id,
-            sections!inner(
+            sections!classes_section_id_fkey(
               id,
               code,
               section_number,

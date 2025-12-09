@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/routes.dart';
 import '../../models/reminder_scope.dart';
+import '../../services/instructor_service.dart';
 import '../../services/profile_cache.dart';
 import '../../services/reminder_scope_store.dart';
 import '../../services/reminders_repository.dart';
@@ -287,7 +288,13 @@ class DashboardScreenState extends State<DashboardScreen>
       }
 
       final fetcher = widget.scheduleLoaderOverride == null
-          ? widget.api.refreshMyClasses
+          ? () async {
+              // Use instructor classes when in instructor mode
+              if (InstructorService.instance.isInstructor) {
+                return InstructorService.instance.getInstructorClasses();
+              }
+              return widget.api.refreshMyClasses();
+            }
           : widget.scheduleLoaderOverride!;
       final fresh = await fetcher();
       _lastScheduleFetchAt = DateTime.now();
@@ -900,6 +907,7 @@ class DashboardScreenState extends State<DashboardScreen>
         onSearchClear: _handleSearchClear,
         onRefresh: _loadAll,
         onViewDetails: _openClassDetails,
+        isInstructor: InstructorService.instance.isInstructor,
       ),
     );
 

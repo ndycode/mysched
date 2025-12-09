@@ -249,6 +249,15 @@ class SettingsController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Returns the currently selected accent color (null = default blue).
+  Color? get accentColor => _themeController.accentColor.value;
+
+  /// Sets a custom accent color (null to reset to default blue).
+  void setAccentColor(Color? color) {
+    _themeController.setAccentColor(color);
+    notifyListeners();
+  }
+
   void _installSnoozeListener() {
     NotifScheduler.onSnoozed = (classId, minutes) {
       onSnack?.call('Reminder snoozed for $minutes minutes.');

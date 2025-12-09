@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 
 import '../../ui/kit/kit.dart';
-import '../../ui/theme/tokens.dart';
 import 'verify_email_sheet.dart';
 
 // Re-export for backward compatibility
@@ -80,10 +79,10 @@ class _VerifyEmailScreenState extends State<VerifyEmailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Placeholder while the sheet opens.
-    return Scaffold(
-      backgroundColor: AppBarrier.medium,
-      body: const SizedBox.shrink(),
+    // Transparent placeholder - AppModal.sheet provides its own barrier.
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: SizedBox.shrink(),
     );
   }
 }

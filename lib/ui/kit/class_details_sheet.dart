@@ -244,26 +244,33 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
                   SizedBox(height: AppTokens.spacing.sm),
                   Text(
                     'Minimum 8 characters.',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
+                    style: AppTokens.typography.caption.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 ],
               ),
               actions: [
-                SecondaryButton(
-                  label: 'Cancel',
-                  onPressed: () => Navigator.of(context).pop(),
-                  minHeight: AppTokens.componentSize.buttonSm,
-                  expanded: false,
-                ),
-                PrimaryButton(
-                  label: 'Send report',
-                  onPressed: canSubmit
-                      ? () => Navigator.of(context).pop(trimmed)
-                      : null,
-                  minHeight: AppTokens.componentSize.buttonSm,
-                  expanded: false,
+                Row(
+                  children: [
+                    Expanded(
+                      child: PrimaryButton(
+                        label: 'Send report',
+                        onPressed: canSubmit
+                            ? () => Navigator.of(context).pop(trimmed)
+                            : null,
+                        minHeight: AppTokens.componentSize.buttonMd,
+                      ),
+                    ),
+                    SizedBox(width: AppTokens.spacing.md),
+                    Expanded(
+                      child: SecondaryButton(
+                        label: 'Cancel',
+                        onPressed: () => Navigator.of(context).pop(),
+                        minHeight: AppTokens.componentSize.buttonMd,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             );

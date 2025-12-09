@@ -1,7 +1,7 @@
 name: mysched
 description: MySched - An OCR-based mobile app for automated class scheduling and notifications at Immaculate Conception Institutions (ICI).
 publish_to: "none"
-version: 2.0.0+11
+version: 2.0.1+12
 
 environment:
   sdk: ">=3.3.0 <4.0.0"

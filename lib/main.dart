@@ -129,14 +129,16 @@ class MySchedApp extends StatelessWidget {
         return ValueListenableBuilder<AppThemeMode>(
           valueListenable: ThemeController.instance.mode,
           builder: (context, mode, _) {
-            return AnimatedSwitcher(
-              duration: AppTokens.motion.slow,
-              switchInCurve: AppTokens.motion.ease,
-              switchOutCurve: AppTokens.motion.ease,
-              child: _ThemedApp(
-                key: ValueKey<AppThemeMode>(mode),
-                mode: mode,
-              ),
+            return ValueListenableBuilder<Color?>(
+              valueListenable: ThemeController.instance.accentColor,
+              builder: (context, accentColor, _) {
+                // No AnimatedSwitcher - Flutter's theme system handles
+                // smooth transitions internally without rebuilding MaterialApp
+                return _ThemedApp(
+                  mode: mode,
+                  accentColor: accentColor,
+                );
+              },
             );
           },
         );
@@ -194,9 +196,14 @@ class _ConfigErrorApp extends StatelessWidget {
 }
 
 class _ThemedApp extends StatelessWidget {
-  const _ThemedApp({required this.mode, super.key});
+  const _ThemedApp({
+    required this.mode,
+    this.accentColor,
+    super.key,
+  });
 
   final AppThemeMode mode;
+  final Color? accentColor;
 
   @override
   Widget build(BuildContext context) {
@@ -207,9 +214,10 @@ class _ThemedApp extends StatelessWidget {
       AppThemeMode.system => ThemeMode.system,
     };
 
-    final lightTheme = AppTheme.light();
-    final darkTheme =
-        mode == AppThemeMode.voidMode ? AppTheme.voidTheme() : AppTheme.dark();
+    final lightTheme = AppTheme.light(accentColor: accentColor);
+    final darkTheme = mode == AppThemeMode.voidMode
+        ? AppTheme.voidTheme(accentColor: accentColor)
+        : AppTheme.dark(accentColor: accentColor);
 
     return MaterialApp.router(
       key: key,
@@ -218,7 +226,8 @@ class _ThemedApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
-      themeAnimationDuration: Duration.zero,
+      themeAnimationDuration: AppTokens.motion.fast, // 150ms for snappy feel
+      themeAnimationCurve: Curves.easeOut, // Smooth deceleration
       builder: (context, child) {
         final media = MediaQuery.of(context);
         final double scaleSample = media.textScaler.scale(10.0) / 10.0;

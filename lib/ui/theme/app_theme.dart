@@ -7,20 +7,41 @@ import 'tokens.dart';
 class AppTheme {
   const AppTheme._();
 
-  static ThemeData light() => _themeFromPalette(
-        AppTokens.lightColors,
-        Brightness.light,
+  static ThemeData light({Color? accentColor}) {
+    var colors = AppTokens.lightColors;
+    if (accentColor != null) {
+      colors = colors.copyWith(
+        primary: accentColor,
+        brand: accentColor,
+        overlay: accentColor.withValues(alpha: 0.08),
       );
+    }
+    return _themeFromPalette(colors, Brightness.light);
+  }
 
-  static ThemeData dark() => _themeFromPalette(
-        AppTokens.darkColors,
-        Brightness.dark,
+  static ThemeData dark({Color? accentColor}) {
+    var colors = AppTokens.darkColors;
+    if (accentColor != null) {
+      colors = colors.copyWith(
+        primary: accentColor,
+        brand: accentColor,
+        overlay: accentColor.withValues(alpha: 0.2),
       );
+    }
+    return _themeFromPalette(colors, Brightness.dark);
+  }
 
-  static ThemeData voidTheme() => _themeFromPalette(
-        AppTokens.voidColors,
-        Brightness.dark,
+  static ThemeData voidTheme({Color? accentColor}) {
+    var colors = AppTokens.voidColors;
+    if (accentColor != null) {
+      colors = colors.copyWith(
+        primary: accentColor,
+        brand: accentColor,
+        overlay: accentColor.withValues(alpha: 0.2),
       );
+    }
+    return _themeFromPalette(colors, Brightness.dark);
+  }
 
   static ThemeData _themeFromPalette(
     ColorPalette colors,

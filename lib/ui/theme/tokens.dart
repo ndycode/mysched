@@ -198,4 +198,38 @@ class ColorPalette {
   // Aliases for Material 3 compatibility
   Color get surfaceContainerHigh => surfaceVariant;
   Color get error => danger;
+
+  /// Creates a copy of this palette with the given fields replaced.
+  ColorPalette copyWith({
+    Color? primary,
+    Color? onPrimary,
+    Color? primaryContainer,
+    Color? onPrimaryContainer,
+    Color? brand,
+    Color? overlay,
+  }) {
+    return ColorPalette(
+      primary: primary ?? this.primary,
+      onPrimary: onPrimary ?? this.onPrimary,
+      primaryContainer: primaryContainer ?? this.primaryContainer,
+      onPrimaryContainer: onPrimaryContainer ?? this.onPrimaryContainer,
+      surface: surface,
+      onSurface: onSurface,
+      surfaceVariant: surfaceVariant,
+      onSurfaceVariant: onSurfaceVariant,
+      background: background,
+      onBackground: onBackground,
+      outline: outline,
+      overlay: overlay ?? this.overlay,
+      positive: positive,
+      warning: warning,
+      danger: danger,
+      info: info,
+      brand: brand ?? this.brand,
+      muted: muted,
+      mutedSecondary: mutedSecondary,
+      avatarGradientStart: avatarGradientStart,
+      avatarGradientEnd: avatarGradientEnd,
+    );
+  }
 }

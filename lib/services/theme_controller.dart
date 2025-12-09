@@ -36,11 +36,15 @@ class ThemeController {
   }
 
   static const String _storageKey = 'ui_theme_mode_v2';
+  static const String _accentKey = 'ui_accent_color_v1';
   static final Duration _overlayDuration = AppMotionSystem.standard + AppMotionSystem.staggerSlow - AppMotionSystem.staggerFast; // ~250ms
 
   final ValueNotifier<AppThemeMode> mode =
       ValueNotifier<AppThemeMode>(AppThemeMode.system);
   final ValueNotifier<bool> transitioning = ValueNotifier<bool>(false);
+  
+  /// Custom accent color (null = default blue).
+  final ValueNotifier<Color?> accentColor = ValueNotifier<Color?>(null);
 
   AppThemeMode _previousMode = AppThemeMode.system;
   bool _initialized = false;
@@ -52,6 +56,11 @@ class ThemeController {
     if (stored != null) {
       mode.value = _decode(stored);
       _previousMode = mode.value;
+    }
+    // Load custom accent color
+    final accentHex = prefs.getString(_accentKey);
+    if (accentHex != null) {
+      accentColor.value = _hexToColor(accentHex);
     }
     _initialized = true;
   }
@@ -98,6 +107,35 @@ class ThemeController {
         return AppThemeMode.system;
       default:
         return AppThemeMode.system;
+    }
+  }
+
+  /// Sets custom accent color (null to reset to default).
+  Future<void> setAccentColor(Color? color) async {
+    if (accentColor.value == color) return;
+    transitioning.value = true;
+    accentColor.value = color;
+    final prefs = await SharedPreferences.getInstance();
+    if (color == null) {
+      await prefs.remove(_accentKey);
+    } else {
+      await prefs.setString(_accentKey, _colorToHex(color));
+    }
+    Future.delayed(_overlayDuration, () {
+      transitioning.value = false;
+    });
+  }
+
+  String _colorToHex(Color color) {
+    return color.toARGB32().toRadixString(16).padLeft(8, '0');
+  }
+
+  Color? _hexToColor(String hex) {
+    try {
+      final value = int.parse(hex, radix: 16);
+      return Color(value);
+    } catch (_) {
+      return null;
     }
   }
 

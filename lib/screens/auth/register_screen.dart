@@ -96,10 +96,16 @@ class _RegisterPageState extends State<RegisterPage> {
       );
 
       if (!mounted) return;
-      context.go(
-        AppRoutes.verify,
-        extra: VerifyEmailScreenArgs(email: normalizedEmail),
+      // Show as overlay on current screen (like change email flow)
+      final verified = await VerifyEmailScreen.show(
+        context,
+        email: normalizedEmail,
+        intent: VerificationIntent.signup,
       );
+      if (!mounted) return;
+      if (verified == true) {
+        context.go(AppRoutes.login);
+      }
     } catch (error, stackTrace) {
       TelemetryService.instance.recordEvent(
         'auth_register_failed',

@@ -49,12 +49,20 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
   }
 
   Future<void> transitionTo(AppThemeMode mode) async {
+    await _performTransition(() => ThemeController.instance.setMode(mode));
+  }
+
+  Future<void> transitionToAccentColor(Color? color) async {
+    await _performTransition(() => ThemeController.instance.setAccentColor(color));
+  }
+
+  Future<void> _performTransition(Future<void> Function() applyChange) async {
     if (_animating) return;
     final boundary = _boundaryKey.currentContext?.findRenderObject()
         as RenderRepaintBoundary?;
     if (boundary == null || !boundary.hasSize) {
       // Fallback: no animation if boundary not ready
-      await ThemeController.instance.setMode(mode);
+      await applyChange();
       return;
     }
 
@@ -75,7 +83,7 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
       });
 
       await Future<void>.delayed(AppTokens.motion.instant ~/ 5); // ~16ms frame
-      await ThemeController.instance.setMode(mode);
+      await applyChange();
       
       if (!mounted) {
         _snapshot?.dispose();
@@ -91,11 +99,11 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
         _animating = false;
       });
     } catch (e) {
-      // Fallback: apply theme without animation if snapshot fails
+      // Fallback: apply change without animation if snapshot fails
       _snapshot?.dispose();
       _snapshot = null;
       _animating = false;
-      await ThemeController.instance.setMode(mode);
+      await applyChange();
       if (mounted) setState(() {});
     }
   }

@@ -1,5 +1,29 @@
 # Changelog
 
+## 2.0.1 - 2024-12-09
+
+### ✨ New Features
+- **Custom Accent Color**: Pick from 7 preset colors in Settings → Appearance
+- **Smooth Theme Transitions**: Screenshot-based crossfade animation when changing themes or accent colors
+
+### 🎨 UI Consistency Fixes
+- **Verify Email Screen**: Changed from route navigation to overlay approach (matches change email flow)
+- **Report Issue Dialog**: Buttons now in 1 row (Primary + Cancel) instead of stacked
+- **Settings Card Shadow**: Changed from modal shadow to lighter card shadow (matches other screens)
+- **Navbar Refinements**: Typography and indicator shadow now use global `AppTokens` factories
+
+### 🛠️ Token Compliance
+- `glass_navigation_bar.dart`: "Quick actions" label uses `AppTokens.typography.caption`
+- `glass_navigation_bar.dart`: Indicator shadow uses `AppTokens.shadow.elevation1()`
+- `class_details_sheet.dart`: Report dialog helper text uses `AppTokens.typography.caption`
+- Removed hardcoded `theme.textTheme` references in report dialog
+
+### 🐛 Bug Fixes
+- **Verify Email Barrier**: Fixed black background on register verify email (now shows translucent barrier over registration form)
+- **Supabase Email Template**: Documented fix for magic link vs 6-digit code issue (dashboard config)
+
+---
+
 ## 2.0.0 - 2024-12-09
 
 ### ✨ Major Features

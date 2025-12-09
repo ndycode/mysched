@@ -697,7 +697,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
               Expanded(
                 child: _ThemeOption(
                   selected: _controller.themeMode == AppThemeMode.light,
-                  onTap: () => _controller.setMode(AppThemeMode.light),
+                  onTap: () => ThemeTransitionHost.of(context)?.transitionTo(AppThemeMode.light),
                   label: 'Light',
                   icon: Icons.wb_sunny_rounded,
                   color: AppSemanticColor.white,
@@ -709,7 +709,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
               Expanded(
                 child: _ThemeOption(
                   selected: _controller.themeMode == AppThemeMode.dark,
-                  onTap: () => _controller.setMode(AppThemeMode.dark),
+                  onTap: () => ThemeTransitionHost.of(context)?.transitionTo(AppThemeMode.dark),
                   label: 'Dark',
                   icon: Icons.nightlight_round,
                   color: AppTokens.darkColors.surface,
@@ -720,7 +720,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
               Expanded(
                 child: _ThemeOption(
                   selected: _controller.themeMode == AppThemeMode.voidMode,
-                  onTap: () => _controller.setMode(AppThemeMode.voidMode),
+                  onTap: () => ThemeTransitionHost.of(context)?.transitionTo(AppThemeMode.voidMode),
                   label: 'Void',
                   icon: Icons.brightness_2_rounded,
                   color: AppTokens.voidColors.background,
@@ -732,7 +732,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
               Expanded(
                 child: _ThemeOption(
                   selected: _controller.themeMode == AppThemeMode.system,
-                  onTap: () => _controller.setMode(AppThemeMode.system),
+                  onTap: () => ThemeTransitionHost.of(context)?.transitionTo(AppThemeMode.system),
                   label: 'Auto',
                   icon: Icons.brightness_auto_rounded,
                   color: Colors.transparent,
@@ -748,6 +748,20 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             style: AppTokens.typography.caption.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
+          ),
+          SizedBox(height: spacing.xl),
+          // Accent color picker
+          Text(
+            'Accent color',
+            style: AppTokens.typography.label.copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          SizedBox(height: spacing.sm),
+          _AccentColorPicker(
+            selectedColor: _controller.accentColor,
+            onColorSelected: (color) => ThemeTransitionHost.of(context)?.transitionToAccentColor(color),
           ),
           SizedBox(height: spacing.xl),
           // Time format toggle
@@ -1587,3 +1601,69 @@ class _DndTimePicker extends StatelessWidget {
   }
 }
 
+/// Preset accent color picker with 8 color swatches.
+class _AccentColorPicker extends StatelessWidget {
+  const _AccentColorPicker({
+    required this.selectedColor,
+    required this.onColorSelected,
+  });
+
+  final Color? selectedColor;
+  final void Function(Color?) onColorSelected;
+
+  // Refined preset colors (curated for premium feel)
+  static const List<Color?> _presets = [
+    null, // Default blue
+    Color(0xFFFF6B6B), // Coral Red
+    Color(0xFFFF8F59), // Sunset Orange
+    Color(0xFFFFC928), // Golden Yellow
+    Color(0xFF36D399), // Emerald Green
+    Color(0xFF9B5DE5), // Violet Purple
+    Color(0xFFFF7EB3), // Rose Pink
+  ];
+
+  static const Color _defaultBlue = Color(0xFF0066FF);
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final spacing = AppTokens.spacing;
+    final componentSize = AppTokens.componentSize;
+
+    return Wrap(
+      spacing: spacing.sm,
+      runSpacing: spacing.sm,
+      children: _presets.map((color) {
+        final isSelected = selectedColor == color;
+        final displayColor = color ?? _defaultBlue;
+        final isDefault = color == null;
+
+        return GestureDetector(
+          onTap: () => onColorSelected(color),
+          child: AnimatedContainer(
+            duration: AppTokens.motion.fast,
+            width: componentSize.buttonSm,
+            height: componentSize.buttonSm,
+            decoration: BoxDecoration(
+              color: displayColor,
+              shape: BoxShape.circle,
+              border: isSelected
+                  ? Border.all(
+                      color: theme.colorScheme.onSurface,
+                      width: componentSize.dividerThick,
+                    )
+                  : null,
+            ),
+            child: isSelected
+                ? Icon(
+                    isDefault ? Icons.auto_awesome : Icons.check_rounded,
+                    color: Colors.white,
+                    size: AppTokens.iconSize.sm,
+                  )
+                : null,
+          ),
+        );
+      }).toList(),
+    );
+  }
+}

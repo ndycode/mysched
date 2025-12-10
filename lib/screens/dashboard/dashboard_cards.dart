@@ -41,8 +41,12 @@ class _DashboardSummaryCard extends StatelessWidget {
     final hero = upcoming.primary;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (capped at 1.0 max, scales down on small screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final card = Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -82,7 +86,7 @@ class _DashboardSummaryCard extends StatelessWidget {
               ),
               if (onRefresh != null)
                 SizedBox(
-                  height: AppTokens.componentSize.buttonXs,
+                  height: AppTokens.componentSize.buttonXs * scale,
                   child: IconButton(
                     onPressed: onRefresh,
                     tooltip: refreshLabel != null
@@ -90,7 +94,7 @@ class _DashboardSummaryCard extends StatelessWidget {
                         : 'Refresh',
                     style: IconButton.styleFrom(
                       minimumSize:
-                          Size.square(AppTokens.componentSize.buttonXs),
+                          Size.square(AppTokens.componentSize.buttonXs * scale),
                       padding: EdgeInsets.zero,
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                       foregroundColor: palette.muted,
@@ -101,13 +105,13 @@ class _DashboardSummaryCard extends StatelessWidget {
                     ),
                     icon: Icon(
                       Icons.refresh_rounded,
-                      size: AppTokens.iconSize.md,
+                      size: AppTokens.iconSize.md * scale,
                     ),
                   ),
                 ),
             ],
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
           if (hero != null) ...[
             _UpcomingHeroTile(
               occurrence: hero,

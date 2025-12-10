@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../app/constants.dart';
 import '../theme/tokens.dart';
 import 'layout.dart';
+import 'responsive_provider.dart';
 
 /// Shared, centered layout for auth flows with a branded top bar.
 ///
@@ -37,11 +38,15 @@ class AuthShell extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     // Hero-style brand header matching dashboard's ScreenBrandHeader
     final brandBadge = Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md,
-        vertical: spacing.sm - spacing.micro,
+        horizontal: spacing.md * spacingScale,
+        vertical: (spacing.sm - spacing.micro) * spacingScale,
       ),
       decoration: BoxDecoration(
         color: colors.primary.withValues(alpha: AppOpacity.dim),
@@ -52,13 +57,13 @@ class AuthShell extends StatelessWidget {
         children: [
           Icon(
             Icons.calendar_month_rounded,
-            size: AppTokens.iconSize.sm,
+            size: AppTokens.iconSize.sm * scale,
             color: colors.primary,
           ),
-          SizedBox(width: spacing.xs + spacing.micro),
+          SizedBox(width: (spacing.xs + spacing.micro) * spacingScale),
           Text(
             AppConstants.appName,
-            style: AppTokens.typography.caption.copyWith(
+            style: AppTokens.typography.captionScaled(scale).copyWith(
               color: colors.primary,
               fontWeight: AppTokens.fontWeight.bold,
               letterSpacing: AppLetterSpacing.wider,
@@ -73,7 +78,7 @@ class AuthShell extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         brandBadge,
-        SizedBox(height: spacing.xl),
+        SizedBox(height: spacing.xl * spacingScale),
         if (headerAction != null)
           Align(
             alignment: Alignment.topRight,
@@ -82,17 +87,17 @@ class AuthShell extends StatelessWidget {
         Text(
           title,
           textAlign: TextAlign.center,
-          style: AppTokens.typography.title.copyWith(
+          style: AppTokens.typography.titleScaled(scale).copyWith(
             fontWeight: AppTokens.fontWeight.bold,
             letterSpacing: AppLetterSpacing.snug,
             color: colors.onSurface,
           ),
         ),
-        SizedBox(height: spacing.sm),
+        SizedBox(height: spacing.sm * spacingScale),
         Text(
           subtitle,
           textAlign: TextAlign.center,
-          style: AppTokens.typography.body.copyWith(
+          style: AppTokens.typography.bodyScaled(scale).copyWith(
             color: palette.muted,
             height: AppTypography.bodyLineHeight,
           ),
@@ -102,7 +107,7 @@ class AuthShell extends StatelessWidget {
 
     // Card container matching dashboard's _DashboardSummaryCard structure
     final card = Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -126,10 +131,10 @@ class AuthShell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           header,
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
           child,
           if (bottom != null) ...[
-            SizedBox(height: spacing.xl),
+            SizedBox(height: spacing.xl * spacingScale),
             bottom!,
           ],
         ],

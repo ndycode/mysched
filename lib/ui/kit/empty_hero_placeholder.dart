@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A reusable empty state placeholder with a gradient icon circle and messaging.
 ///
 /// Used across dashboard, schedules, and reminders for consistent "all caught up"
 /// or "no items" states within summary cards.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class EmptyHeroPlaceholder extends StatelessWidget {
   const EmptyHeroPlaceholder({
     super.key,
@@ -36,9 +38,13 @@ class EmptyHeroPlaceholder extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final accent = accentColor ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Container(
       width: double.infinity,
-      padding: spacing.edgeInsetsAll(spacing.xxxl),
+      padding: spacing.edgeInsetsAll(spacing.xxxl * spacingScale),
       decoration: BoxDecoration(
         color: accent.withValues(alpha: AppOpacity.micro),
         borderRadius: AppTokens.radius.lg,
@@ -50,8 +56,8 @@ class EmptyHeroPlaceholder extends StatelessWidget {
       child: Column(
         children: [
           Container(
-            width: spacing.emptyStateSize,
-            height: spacing.emptyStateSize,
+            width: spacing.emptyStateSize * scale,
+            height: spacing.emptyStateSize * scale,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
@@ -69,23 +75,23 @@ class EmptyHeroPlaceholder extends StatelessWidget {
             ),
             child: Icon(
               icon,
-              size: AppTokens.iconSize.xxl,
+              size: AppTokens.iconSize.xxl * scale,
               color: accent,
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
           Text(
             title,
-            style: AppTokens.typography.subtitle.copyWith(
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.bold,
               color: palette.muted,
             ),
             textAlign: TextAlign.center,
           ),
-          SizedBox(height: spacing.sm),
+          SizedBox(height: spacing.sm * spacingScale),
           Text(
             subtitle,
-            style: AppTokens.typography.bodySecondary.copyWith(
+            style: AppTokens.typography.bodyScaled(scale).copyWith(
               color: palette.muted.withValues(alpha: AppOpacity.secondary),
             ),
             textAlign: TextAlign.center,
@@ -95,3 +101,4 @@ class EmptyHeroPlaceholder extends StatelessWidget {
     );
   }
 }
+

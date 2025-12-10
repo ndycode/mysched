@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A unified info tile for displaying icon + title + description.
 ///
 /// Used in privacy, about, settings, and other info screens for
 /// consistent list items with icon, title, and optional description.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class InfoTile extends StatelessWidget {
   const InfoTile({
     super.key,
@@ -52,6 +54,10 @@ class InfoTile extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final accent = tint ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     Widget iconWidget;
     if (iconInContainer) {
       if (compactContainer) {
@@ -61,31 +67,31 @@ class InfoTile extends StatelessWidget {
             color: accent.withValues(alpha: AppOpacity.overlay),
             borderRadius: AppTokens.radius.sm,
           ),
-          padding: spacing.edgeInsetsAll(spacing.md),
-          child: Icon(icon, color: accent, size: AppTokens.iconSize.md),
+          padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
+          child: Icon(icon, color: accent, size: AppTokens.iconSize.md * scale),
         );
       } else {
         // Large container style (for settings tiles)
         iconWidget = Container(
-          width: AppTokens.componentSize.avatarLg,
-          height: AppTokens.componentSize.avatarLg,
+          width: AppTokens.componentSize.avatarLg * scale,
+          height: AppTokens.componentSize.avatarLg * scale,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: AppOpacity.medium),
             borderRadius: AppTokens.radius.sm,
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
+          child: Icon(icon, color: accent, size: AppTokens.iconSize.lg * scale),
         );
       }
     } else {
-      iconWidget = Icon(icon, color: accent);
+      iconWidget = Icon(icon, color: accent, size: AppTokens.iconSize.md * scale);
     }
 
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         iconWidget,
-        SizedBox(width: iconInContainer ? spacing.md : spacing.sm),
+        SizedBox(width: (iconInContainer ? spacing.md : spacing.sm) * spacingScale),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,19 +99,19 @@ class InfoTile extends StatelessWidget {
               Text(
                 title,
                 style: iconInContainer
-                    ? AppTokens.typography.subtitle.copyWith(
+                    ? AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                         color: colors.onSurface,
                       )
-                    : theme.textTheme.titleMedium?.copyWith(
+                    : AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                       ),
               ),
               if (subtitle != null) ...[
-                SizedBox(height: spacing.xs),
+                SizedBox(height: spacing.xs * spacingScale),
                 Text(
                   subtitle!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
                     color: palette.muted,
                   ),
                 ),
@@ -114,10 +120,11 @@ class InfoTile extends StatelessWidget {
           ),
         ),
         if (showChevron) ...[
-          SizedBox(width: spacing.sm),
+          SizedBox(width: spacing.sm * spacingScale),
           Icon(
             Icons.chevron_right_rounded,
             color: palette.muted,
+            size: AppTokens.iconSize.md * scale,
           ),
         ],
       ],
@@ -128,7 +135,7 @@ class InfoTile extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
+          padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm * spacingScale),
           child: content,
         ),
       );
@@ -137,3 +144,4 @@ class InfoTile extends StatelessWidget {
     return content;
   }
 }
+

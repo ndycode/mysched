@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 enum AppSnackBarType { info, success, error }
 
@@ -141,6 +142,10 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
     final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     late final Color accent;
     late final IconData icon;
     late final Color background;
@@ -185,10 +190,10 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
     }
 
     return Positioned(
-      left: spacing.xl,
-      right: spacing.xl,
+      left: spacing.xl * spacingScale,
+      right: spacing.xl * spacingScale,
       // Position above nav bar: safe area + nav bar height (~80) + spacing
-      bottom: media.padding.bottom + 80 + spacing.lg,
+      bottom: media.padding.bottom + 80 + spacing.lg * spacingScale,
       child: SlideTransition(
         position: _slideAnimation,
         child: FadeTransition(
@@ -205,8 +210,8 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
               type: MaterialType.transparency,
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: spacing.xl,
-                  vertical: spacing.lg,
+                  horizontal: spacing.xl * spacingScale,
+                  vertical: spacing.lg * spacingScale,
                 ),
                 decoration: BoxDecoration(
                   color: background,
@@ -228,28 +233,28 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
                 child: Row(
                   children: [
                     Container(
-                      width: AppTokens.componentSize.avatarMd,
-                      height: AppTokens.componentSize.avatarMd,
+                      width: AppTokens.componentSize.avatarMd * scale,
+                      height: AppTokens.componentSize.avatarMd * scale,
                       decoration: BoxDecoration(
                         color: badgeFill,
                         shape: BoxShape.circle,
                       ),
                       alignment: Alignment.center,
                       child:
-                          Icon(icon, color: accent, size: AppTokens.iconSize.sm),
+                          Icon(icon, color: accent, size: AppTokens.iconSize.sm * scale),
                     ),
-                    SizedBox(width: spacing.md),
+                    SizedBox(width: spacing.md * spacingScale),
                     Expanded(
                       child: Text(
                         widget.message,
-                        style: theme.textTheme.bodyMedium?.copyWith(
+                        style: AppTokens.typography.bodyScaled(scale).copyWith(
                           fontWeight: AppTokens.fontWeight.semiBold,
                           color: contentColor,
                         ),
                       ),
                     ),
                     if (widget.actionLabel != null && widget.onAction != null) ...[
-                      SizedBox(width: spacing.md),
+                      SizedBox(width: spacing.md * spacingScale),
                       GestureDetector(
                         onTap: () {
                           widget.onAction?.call();
@@ -257,7 +262,7 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
                         },
                         child: Text(
                           widget.actionLabel!,
-                          style: theme.textTheme.labelLarge?.copyWith(
+                          style: AppTokens.typography.captionScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.bold,
                             color: accent,
                           ),

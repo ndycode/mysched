@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// Rounded avatar used in the dashboard and top-level screens.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class HeroAvatar extends StatelessWidget {
   const HeroAvatar({
     super.key,
@@ -21,10 +23,15 @@ class HeroAvatar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final hasImage = avatarUrl != null && avatarUrl!.isNotEmpty;
-    final diameter = radius * 2;
     final colors = theme.brightness == Brightness.dark
         ? AppTokens.darkColors
         : AppTokens.lightColors;
+
+    // Get responsive scale factor (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final scaledRadius = radius * scale;
+    final diameter = scaledRadius * 2;
+
     final decoration = BoxDecoration(
       shape: BoxShape.circle,
       gradient: hasImage
@@ -69,7 +76,7 @@ class HeroAvatar extends StatelessWidget {
               fallbackLetter,
               style: TextStyle(
                 fontFamily: AppTypography.primaryFont,
-                fontSize: radius,
+                fontSize: scaledRadius,
                 fontWeight: AppTokens.fontWeight.bold,
                 color: theme.colorScheme.onPrimary,
                 letterSpacing: AppLetterSpacing.wide,
@@ -88,3 +95,4 @@ class HeroAvatar extends StatelessWidget {
     );
   }
 }
+

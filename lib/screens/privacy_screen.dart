@@ -41,7 +41,7 @@ class PrivacySheet extends StatelessWidget {
           maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
         ),
         child: Container(
-          padding: spacing.edgeInsetsAll(spacing.xxl),
+          padding: spacing.edgeInsetsAll(spacing.xxl * ResponsiveProvider.spacing(context)),
           decoration: BoxDecoration(
             color: cardBackground,
             borderRadius: AppTokens.radius.xl,
@@ -78,7 +78,7 @@ class PrivacySheet extends StatelessWidget {
                         ),
                         child: Icon(
                           Icons.close_rounded,
-                          size: AppTokens.iconSize.sm,
+                          size: AppTokens.iconSize.sm * ResponsiveProvider.scale(context),
                           color: colors.primary,
                         ),
                       ),
@@ -87,7 +87,7 @@ class PrivacySheet extends StatelessWidget {
                       child: Text(
                         'Privacy policy',
                         textAlign: TextAlign.center,
-                        style: AppTokens.typography.title.copyWith(
+                        style: AppTokens.typography.titleScaled(ResponsiveProvider.scale(context)).copyWith(
                           fontWeight: AppTokens.fontWeight.bold,
                           letterSpacing: AppLetterSpacing.snug,
                           color: colors.onSurface,

@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../env.dart';
 import '../../widgets/instructor_avatar.dart';
 import '../kit/kit.dart';
+
 import '../theme/card_styles.dart';
 import '../theme/tokens.dart';
 
@@ -184,6 +185,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
     final media = MediaQuery.of(context);
     final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
@@ -196,7 +199,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
             child: Container(
@@ -216,7 +219,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
               child: Material(
                 type: MaterialType.transparency,
                 child: Padding(
-                  padding: EdgeInsets.all(spacing.xl),
+                  padding: EdgeInsets.all(spacing.xl * spacingScale),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: maxHeight),
                     child: _selectedInstructor == null
@@ -237,39 +240,41 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     final spacing = AppTokens.spacing;
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     Widget buildTileSkeleton() {
       return Container(
-        padding: spacing.edgeInsetsAll(spacing.md),
+        padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
           borderRadius: AppTokens.radius.md,
         ),
         child: Row(
           children: [
-            SkeletonCircle(size: AppTokens.componentSize.avatarMd),
-            SizedBox(width: spacing.md),
+            SkeletonCircle(size: AppTokens.componentSize.avatarMd * scale),
+            SizedBox(width: spacing.md * spacingScale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   SkeletonBlock(
-                    height: AppTokens.componentSize.skeletonTextMd,
-                    width: AppTokens.componentSize.skeletonWidthXl,
+                    height: AppTokens.componentSize.skeletonTextMd * scale,
+                    width: AppTokens.componentSize.skeletonWidthXl * scale,
                     borderRadius: AppTokens.radius.sm,
                   ),
-                  SizedBox(height: spacing.xs),
+                  SizedBox(height: spacing.xs * spacingScale),
                   SkeletonBlock(
-                    height: AppTokens.componentSize.skeletonTextSm,
-                    width: AppTokens.componentSize.skeletonWidthMd,
+                    height: AppTokens.componentSize.skeletonTextSm * scale,
+                    width: AppTokens.componentSize.skeletonWidthMd * scale,
                     borderRadius: AppTokens.radius.sm,
                   ),
                 ],
               ),
             ),
             SkeletonBlock(
-              height: AppTokens.iconSize.md,
-              width: AppTokens.iconSize.md,
+              height: AppTokens.iconSize.md * scale,
+              width: AppTokens.iconSize.md * scale,
               borderRadius: AppTokens.radius.sm,
             ),
           ],
@@ -281,7 +286,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
       children: [
         for (int i = 0; i < 5; i++) ...[
           buildTileSkeleton(),
-          if (i < 4) SizedBox(height: spacing.sm),
+          if (i < 4) SizedBox(height: spacing.sm * spacingScale),
         ],
       ],
     );
@@ -293,13 +298,15 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     final colors = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Status card skeleton
         Container(
-          padding: spacing.edgeInsetsAll(spacing.lg),
+          padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
           decoration: BoxDecoration(
             color: palette.muted.withValues(alpha: AppOpacity.dim),
             borderRadius: AppTokens.radius.md,
@@ -307,30 +314,30 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
           child: Row(
             children: [
               SkeletonBlock(
-                height: AppTokens.componentSize.badgeLg,
-                width: AppTokens.componentSize.badgeLg,
+                height: AppTokens.componentSize.badgeLg * scale,
+                width: AppTokens.componentSize.badgeLg * scale,
                 borderRadius: AppTokens.radius.sm,
               ),
-              SizedBox(width: spacing.md),
+              SizedBox(width: spacing.md * spacingScale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextSm,
-                      width: AppTokens.componentSize.skeletonWidthMd,
+                      height: AppTokens.componentSize.skeletonTextSm * scale,
+                      width: AppTokens.componentSize.skeletonWidthMd * scale,
                       borderRadius: AppTokens.radius.pill,
                     ),
-                    SizedBox(height: spacing.sm),
+                    SizedBox(height: spacing.sm * spacingScale),
                     SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextMd,
-                      width: AppTokens.componentSize.skeletonWidthXl,
+                      height: AppTokens.componentSize.skeletonTextMd * scale,
+                      width: AppTokens.componentSize.skeletonWidthXl * scale,
                       borderRadius: AppTokens.radius.sm,
                     ),
-                    SizedBox(height: spacing.xs),
+                    SizedBox(height: spacing.xs * spacingScale),
                     SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextSm,
-                      width: AppTokens.componentSize.skeletonWidthLg,
+                      height: AppTokens.componentSize.skeletonTextSm * scale,
+                      width: AppTokens.componentSize.skeletonWidthLg * scale,
                       borderRadius: AppTokens.radius.sm,
                     ),
                   ],
@@ -339,57 +346,57 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
             ],
           ),
         ),
-        SizedBox(height: spacing.xl),
+        SizedBox(height: spacing.xl * spacingScale),
 
         // Date header skeleton
         Row(
           children: [
             SkeletonBlock(
-              height: AppTokens.iconSize.sm,
-              width: AppTokens.iconSize.sm,
+              height: AppTokens.iconSize.sm * scale,
+              width: AppTokens.iconSize.sm * scale,
               borderRadius: AppTokens.radius.sm,
             ),
-            SizedBox(width: spacing.sm),
+            SizedBox(width: spacing.sm * spacingScale),
             SkeletonBlock(
-              height: AppTokens.componentSize.skeletonTextSm,
-              width: AppTokens.componentSize.skeletonWidthLg,
+              height: AppTokens.componentSize.skeletonTextSm * scale,
+              width: AppTokens.componentSize.skeletonWidthLg * scale,
               borderRadius: AppTokens.radius.sm,
             ),
           ],
         ),
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.lg * spacingScale),
 
         // Schedule items skeleton
         for (int i = 0; i < 4; i++) ...[
           Container(
-            padding: spacing.edgeInsetsAll(spacing.md),
+            padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
             decoration: BoxDecoration(
               color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
               borderRadius: AppTokens.radius.md,
             ),
             child: Row(
               children: [
-                SkeletonCircle(size: AppTokens.componentSize.badgeSm),
-                SizedBox(width: spacing.md),
+                SkeletonCircle(size: AppTokens.componentSize.badgeSm * scale),
+                SizedBox(width: spacing.md * spacingScale),
                 SkeletonBlock(
-                  height: AppTokens.componentSize.skeletonTextSm,
-                  width: AppTokens.componentSize.skeletonWidthMd,
+                  height: AppTokens.componentSize.skeletonTextSm * scale,
+                  width: AppTokens.componentSize.skeletonWidthMd * scale,
                   borderRadius: AppTokens.radius.sm,
                 ),
-                SizedBox(width: spacing.sm),
+                SizedBox(width: spacing.sm * spacingScale),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SkeletonBlock(
-                        height: AppTokens.componentSize.skeletonTextMd,
-                        width: AppTokens.componentSize.skeletonWidthXl,
+                        height: AppTokens.componentSize.skeletonTextMd * scale,
+                        width: AppTokens.componentSize.skeletonWidthXl * scale,
                         borderRadius: AppTokens.radius.sm,
                       ),
-                      SizedBox(height: spacing.xs),
+                      SizedBox(height: spacing.xs * spacingScale),
                       SkeletonBlock(
-                        height: AppTokens.componentSize.skeletonTextSm,
-                        width: AppTokens.componentSize.skeletonWidthMd,
+                        height: AppTokens.componentSize.skeletonTextSm * scale,
+                        width: AppTokens.componentSize.skeletonWidthMd * scale,
                         borderRadius: AppTokens.radius.sm,
                       ),
                     ],
@@ -398,7 +405,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
               ],
             ),
           ),
-          if (i < 3) SizedBox(height: spacing.sm),
+          if (i < 3) SizedBox(height: spacing.sm * spacingScale),
         ],
       ],
     );
@@ -410,6 +417,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -417,19 +426,19 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
       children: [
         // Header
         SheetHeaderRow(
-          icon: Icons.person_search_rounded,
+          icon: Icons.search_rounded,
           title: 'Find Instructor',
           subtitle: 'See where a professor is right now',
           onClose: () => Navigator.of(context).pop(),
         ),
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.lg * spacingScale),
         
         // Search bar
         TextField(
           onChanged: (value) => setState(() => _searchQuery = value),
           decoration: InputDecoration(
             hintText: 'Search instructors...',
-            prefixIcon: Icon(Icons.search, size: AppTokens.iconSize.md),
+            prefixIcon: Icon(Icons.search, size: AppTokens.iconSize.md * scale),
             filled: true,
             fillColor: isDark 
                 ? colors.surfaceContainerHighest 
@@ -439,12 +448,12 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
               borderSide: BorderSide.none,
             ),
             contentPadding: EdgeInsets.symmetric(
-              horizontal: spacing.lg,
-              vertical: spacing.md,
+              horizontal: spacing.lg * spacingScale,
+              vertical: spacing.md * spacingScale,
             ),
           ),
         ),
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.lg * spacingScale),
         
         // Instructor list
         Flexible(
@@ -459,7 +468,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                 return Center(
                   child: Text(
                     'No instructors found',
-                    style: AppTokens.typography.body.copyWith(color: palette.muted),
+                    style: AppTokens.typography.bodyScaled(scale).copyWith(color: palette.muted),
                   ),
                 );
               }
@@ -474,7 +483,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                 return Center(
                   child: Text(
                     'No matching instructors',
-                    style: AppTokens.typography.body.copyWith(color: palette.muted),
+                    style: AppTokens.typography.bodyScaled(scale).copyWith(color: palette.muted),
                   ),
                 );
               }
@@ -497,13 +506,13 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      if (deptIndex > 0) SizedBox(height: spacing.lg),
+                      if (deptIndex > 0) SizedBox(height: spacing.lg * spacingScale),
                       // Department header
                       Padding(
-                        padding: EdgeInsets.only(bottom: spacing.sm),
+                        padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
                         child: Text(
                           dept.toUpperCase(),
-                          style: AppTokens.typography.caption.copyWith(
+                          style: AppTokens.typography.captionScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.bold,
                             color: palette.muted,
                           ),
@@ -511,7 +520,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                       ),
                       // Instructors in department
                       ...deptInstructors.map((instructor) => Padding(
-                        padding: EdgeInsets.only(bottom: spacing.sm),
+                        padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
                         child: _InstructorTile(
                           instructor: instructor,
                           onTap: () => _selectInstructor(instructor),
@@ -534,6 +543,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
     final instructor = _selectedInstructor!;
     final now = DateTime.now();
     final todayLabel = DateFormat('EEEE, MMMM d').format(now);
@@ -564,34 +575,34 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
             PressableScale(
               onTap: _goBack,
               child: Container(
-                padding: EdgeInsets.all(spacing.sm),
+                padding: EdgeInsets.all(spacing.sm * spacingScale),
                 decoration: BoxDecoration(
                   color: colors.onSurface.withValues(alpha: AppOpacity.faint),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Icon(
                   Icons.arrow_back_rounded,
-                  size: AppTokens.iconSize.md,
+                  size: AppTokens.iconSize.md * scale,
                   color: palette.muted,
                 ),
               ),
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             // Avatar
             InstructorAvatar(
               name: instructor.fullName,
               avatarUrl: instructor.avatarUrl,
               tint: colors.primary,
-              size: AppTokens.componentSize.avatarMd,
+              size: AppTokens.componentSize.avatarMd * scale,
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     instructor.fullName,
-                    style: AppTokens.typography.subtitle.copyWith(
+                    style: AppTokens.typography.subtitleScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.bold,
                       color: colors.onSurface,
                     ),
@@ -601,7 +612,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                   if (instructor.department != null)
                     Text(
                       instructor.department!,
-                      style: AppTokens.typography.caption.copyWith(
+                      style: AppTokens.typography.captionScaled(scale).copyWith(
                         color: palette.muted,
                       ),
                     ),
@@ -612,21 +623,21 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
             PressableScale(
               onTap: () => Navigator.of(context).pop(),
               child: Container(
-                padding: EdgeInsets.all(spacing.sm),
+                padding: EdgeInsets.all(spacing.sm * spacingScale),
                 decoration: BoxDecoration(
                   color: colors.onSurface.withValues(alpha: AppOpacity.faint),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Icon(
                   Icons.close_rounded,
-                  size: AppTokens.iconSize.md,
+                  size: AppTokens.iconSize.md * scale,
                   color: palette.muted,
                 ),
               ),
             ),
           ],
         ),
-        SizedBox(height: spacing.xl),
+        SizedBox(height: spacing.xl * spacingScale),
 
         // Loading state
         if (_loadingSchedule) ...[
@@ -634,7 +645,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
         ] else ...[
           // Current status
           Container(
-            padding: spacing.edgeInsetsAll(spacing.lg),
+            padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
             decoration: BoxDecoration(
               color: currentClass != null
                   ? colors.primary.withValues(alpha: AppOpacity.medium)
@@ -644,8 +655,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
             child: Row(
               children: [
                 Container(
-                  width: AppTokens.componentSize.badgeLg,
-                  height: AppTokens.componentSize.badgeLg,
+                  width: AppTokens.componentSize.badgeLg * scale,
+                  height: AppTokens.componentSize.badgeLg * scale,
                   decoration: BoxDecoration(
                     color: currentClass != null
                         ? colors.primary
@@ -656,13 +667,13 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                     currentClass != null
                         ? Icons.class_outlined
                         : Icons.event_busy_outlined,
-                    size: AppTokens.iconSize.sm,
+                    size: AppTokens.iconSize.sm * scale,
                     color: currentClass != null
                         ? colors.onPrimary
                         : palette.muted,
                   ),
                 ),
-                SizedBox(width: spacing.md),
+                SizedBox(width: spacing.md * spacingScale),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -671,7 +682,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                         children: [
                           Text(
                             currentClass != null ? 'TEACHING NOW' : 'NOT IN CLASS',
-                            style: AppTokens.typography.caption.copyWith(
+                            style: AppTokens.typography.captionScaled(scale).copyWith(
                               fontWeight: AppTokens.fontWeight.bold,
                               color: currentClass != null
                                   ? colors.primary
@@ -683,8 +694,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                             // Countdown badge - positioned on right
                             Container(
                               padding: EdgeInsets.symmetric(
-                                horizontal: spacing.sm,
-                                vertical: spacing.xs,
+                                horizontal: spacing.sm * spacingScale,
+                                vertical: spacing.xs * spacingScale,
                               ),
                               decoration: BoxDecoration(
                                 color: colors.primary.withValues(alpha: AppOpacity.dim),
@@ -692,7 +703,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                               ),
                               child: Text(
                                 _formatTimeRemaining(currentClass!.endTime, now),
-                                style: AppTokens.typography.caption.copyWith(
+                                style: AppTokens.typography.captionScaled(scale).copyWith(
                                   fontWeight: AppTokens.fontWeight.semiBold,
                                   color: colors.primary,
                                 ),
@@ -702,10 +713,10 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                         ],
                       ),
                       if (currentClass != null) ...[
-                        SizedBox(height: spacing.xs),
+                        SizedBox(height: spacing.xs * spacingScale),
                         Text(
                           currentClass.subject,
-                          style: AppTokens.typography.subtitle.copyWith(
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.semiBold,
                             color: colors.onSurface,
                           ),
@@ -716,23 +727,23 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                           children: [
                             Icon(
                               Icons.location_on_outlined,
-                              size: AppTokens.iconSize.xs,
+                              size: AppTokens.iconSize.xs * scale,
                               color: colors.primary,
                             ),
-                            SizedBox(width: spacing.xs),
+                            SizedBox(width: spacing.xs * spacingScale),
                             Text(
                               currentClass.room,
-                              style: AppTokens.typography.body.copyWith(
+                              style: AppTokens.typography.bodyScaled(scale).copyWith(
                                 color: palette.muted,
                               ),
                             ),
                           ],
                         ),
                       ] else ...[
-                        SizedBox(height: spacing.xs),
+                        SizedBox(height: spacing.xs * spacingScale),
                         Text(
                           'No class at this time',
-                          style: AppTokens.typography.body.copyWith(
+                          style: AppTokens.typography.bodyScaled(scale).copyWith(
                             color: palette.muted,
                           ),
                         ),
@@ -743,32 +754,32 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
               ],
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
 
           // Today's schedule header
           Row(
             children: [
               Icon(
                 Icons.calendar_today_rounded,
-                size: AppTokens.iconSize.sm,
+                size: AppTokens.iconSize.sm * scale,
                 color: palette.muted,
               ),
-              SizedBox(width: spacing.sm),
+              SizedBox(width: spacing.sm * spacingScale),
               Text(
                 todayLabel,
-                style: AppTokens.typography.caption.copyWith(
+                style: AppTokens.typography.captionScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                   color: palette.muted,
                 ),
               ),
             ],
           ),
-          SizedBox(height: spacing.md),
+          SizedBox(height: spacing.md * spacingScale),
 
           // Schedule list
           if (_selectedSchedule == null || _selectedSchedule!.isEmpty) ...[
             Container(
-              padding: spacing.edgeInsetsAll(spacing.xxl),
+              padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
               decoration: BoxDecoration(
                 color: isDark 
                     ? colors.surfaceContainerHighest 
@@ -779,30 +790,30 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: AppTokens.componentSize.avatarXl,
-                    height: AppTokens.componentSize.avatarXl,
+                    width: AppTokens.componentSize.avatarXl * scale,
+                    height: AppTokens.componentSize.avatarXl * scale,
                     decoration: BoxDecoration(
                       color: palette.muted.withValues(alpha: AppOpacity.dim),
                       borderRadius: AppTokens.radius.md,
                     ),
                     child: Icon(
                       Icons.event_busy_outlined,
-                      size: AppTokens.iconSize.lg,
+                      size: AppTokens.iconSize.lg * scale,
                       color: palette.muted,
                     ),
                   ),
-                  SizedBox(height: spacing.md),
+                  SizedBox(height: spacing.md * spacingScale),
                   Text(
                     'No classes scheduled today',
-                    style: AppTokens.typography.body.copyWith(
+                    style: AppTokens.typography.bodyScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.medium,
                       color: colors.onSurface,
                     ),
                   ),
-                  SizedBox(height: spacing.xs),
+                  SizedBox(height: spacing.xs * spacingScale),
                   Text(
-                    'This instructor has no classes on ${todayLabel}',
-                    style: AppTokens.typography.caption.copyWith(
+                    'This instructor has no classes on $todayLabel',
+                    style: AppTokens.typography.captionScaled(scale).copyWith(
                       color: palette.muted,
                     ),
                     textAlign: TextAlign.center,
@@ -815,7 +826,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: _selectedSchedule!.length,
-                separatorBuilder: (_, __) => SizedBox(height: spacing.sm),
+                separatorBuilder: (_, __) => SizedBox(height: spacing.sm * spacingScale),
                 itemBuilder: (context, index) {
                   final item = _selectedSchedule![index];
                   final isCurrent = item == currentClass;
@@ -908,6 +919,8 @@ class _InstructorTile extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Material(
       color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
@@ -916,23 +929,23 @@ class _InstructorTile extends StatelessWidget {
         onTap: onTap,
         borderRadius: AppTokens.radius.md,
         child: Padding(
-          padding: spacing.edgeInsetsAll(spacing.md),
+          padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
           child: Row(
             children: [
               InstructorAvatar(
                 name: instructor.fullName,
                 avatarUrl: instructor.avatarUrl,
                 tint: colors.primary,
-                size: AppTokens.componentSize.avatarMd,
+                size: AppTokens.componentSize.avatarMd * scale,
               ),
-              SizedBox(width: spacing.md),
+              SizedBox(width: spacing.md * spacingScale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       instructor.fullName,
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                         color: colors.onSurface,
                       ),
@@ -942,7 +955,7 @@ class _InstructorTile extends StatelessWidget {
                     if (instructor.department != null)
                       Text(
                         instructor.department!,
-                        style: AppTokens.typography.caption.copyWith(
+                        style: AppTokens.typography.captionScaled(scale).copyWith(
                           color: palette.muted,
                         ),
                         maxLines: 1,
@@ -953,6 +966,7 @@ class _InstructorTile extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
+                size: AppTokens.iconSize.md * scale,
                 color: palette.muted,
               ),
             ],
@@ -981,9 +995,11 @@ class _ScheduleTile extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.md),
+      padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
       decoration: BoxDecoration(
         color: isCurrent
             ? colors.primary.withValues(alpha: AppOpacity.dim)
@@ -1002,8 +1018,8 @@ class _ScheduleTile extends StatelessWidget {
         children: [
           // Status indicator
           Container(
-            width: AppTokens.componentSize.badgeSm,
-            height: AppTokens.componentSize.badgeSm,
+            width: AppTokens.componentSize.badgeSm * scale,
+            height: AppTokens.componentSize.badgeSm * scale,
             decoration: BoxDecoration(
               color: isCurrent
                   ? colors.primary
@@ -1012,27 +1028,22 @@ class _ScheduleTile extends StatelessWidget {
                       : palette.muted.withValues(alpha: AppOpacity.subtle),
               shape: BoxShape.circle,
             ),
-            child: isPast && !isCurrent
-                ? Icon(
-                    Icons.check,
-                    size: AppTokens.iconSize.xs,
-                    color: Colors.white,
-                  )
-                : null,
           ),
-          SizedBox(width: spacing.md),
+          SizedBox(width: spacing.md * spacingScale),
           // Time
           SizedBox(
-            width: 90, // Enough for "7:30 AM - 9:00 AM"
+            width: 110 * scale, // Enough for "12:30 PM - 2:00 PM"
             child: Text(
               item.timeRange,
-              style: AppTokens.typography.caption.copyWith(
+              style: AppTokens.typography.captionScaled(scale).copyWith(
                 fontWeight: AppTokens.fontWeight.medium,
                 color: isPast && !isCurrent ? palette.muted : colors.onSurface,
               ),
+              softWrap: false,
+              overflow: TextOverflow.visible,
             ),
           ),
-          SizedBox(width: spacing.sm),
+          SizedBox(width: spacing.sm * spacingScale),
           // Subject and room
           Expanded(
             child: Column(
@@ -1040,7 +1051,7 @@ class _ScheduleTile extends StatelessWidget {
               children: [
                 Text(
                   item.subject,
-                  style: AppTokens.typography.body.copyWith(
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.medium,
                     color: isPast && !isCurrent ? palette.muted : null,
                     decoration: isPast && !isCurrent
@@ -1054,13 +1065,13 @@ class _ScheduleTile extends StatelessWidget {
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      size: AppTokens.iconSize.xs,
+                      size: AppTokens.iconSize.xs * scale,
                       color: palette.muted,
                     ),
-                    SizedBox(width: spacing.xs),
+                    SizedBox(width: spacing.xs * spacingScale),
                     Text(
                       item.room,
-                      style: AppTokens.typography.caption.copyWith(
+                      style: AppTokens.typography.captionScaled(scale).copyWith(
                         color: palette.muted,
                       ),
                     ),

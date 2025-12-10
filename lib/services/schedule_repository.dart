@@ -522,6 +522,12 @@ class ScheduleApi {
       <String, _ScheduleCacheEntry>{};
   static const String _anonCacheKey = '__anon__';
 
+  // Section ID cache to reduce repeated lookups (5-min TTL)
+  static const Duration _sectionCacheTtl = Duration(minutes: 5);
+  static int? _cachedSectionId;
+  static String? _cachedSectionUserId;
+  static DateTime? _sectionCacheFetchedAt;
+
   static String _cacheKeyFor(String? userId) {
     final trimmed = userId?.trim();
     if (trimmed == null || trimmed.isEmpty) {
@@ -690,6 +696,14 @@ class ScheduleApi {
     final uid = UserScope.currentUserId();
     if (uid == null) return null;
 
+    // Check section cache first (5-min TTL)
+    final now = DateTime.now();
+    if (_cachedSectionUserId == uid &&
+        _sectionCacheFetchedAt != null &&
+        now.difference(_sectionCacheFetchedAt!) < _sectionCacheTtl) {
+      return _cachedSectionId;
+    }
+
     // Get active semester ID - if no active semester, return null
     final activeSemesterId = await SemesterService.instance.getActiveSemesterId();
     if (activeSemesterId == null) {
@@ -737,16 +751,28 @@ class ScheduleApi {
     if (activeSectionList.isNotEmpty) {
       final activeRow = Map<String, dynamic>.from(activeSectionList.first as Map);
       final activeId = activeRow['id'];
-      if (activeId is num) return activeId.toInt();
-      if (activeId is String) return int.tryParse(activeId);
+      int? result;
+      if (activeId is num) result = activeId.toInt();
+      if (activeId is String) result = int.tryParse(activeId);
+      if (result != null) {
+        _cachedSectionId = result;
+        _cachedSectionUserId = uid;
+        _sectionCacheFetchedAt = DateTime.now();
+        return result;
+      }
     }
 
     // Fallback: no matching section in active semester, return user's original
     AppLog.info(_scope, 'No section "$sectionCode" found in active semester');
     final fallbackValue = userRow['section_id'];
-    if (fallbackValue is num) return fallbackValue.toInt();
-    if (fallbackValue is String) return int.tryParse(fallbackValue);
-    return null;
+    int? fallbackResult;
+    if (fallbackValue is num) fallbackResult = fallbackValue.toInt();
+    if (fallbackValue is String) fallbackResult = int.tryParse(fallbackValue);
+    // Cache even null/fallback to avoid repeated lookups
+    _cachedSectionId = fallbackResult;
+    _cachedSectionUserId = uid;
+    _sectionCacheFetchedAt = DateTime.now();
+    return fallbackResult;
   }
 
   Future<List<ClassItem>> getMyClasses({bool forceRefresh = false}) async {

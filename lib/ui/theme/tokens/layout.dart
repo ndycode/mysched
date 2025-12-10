@@ -48,6 +48,17 @@ class AppLayout {
 
   /// Responsive breakpoint for wide layouts.
   static const double wideLayoutBreakpoint = 520.0;
+
+  /// Reference screen width for baseline scaling (Pixel 8 Pro ~412dp).
+  /// Components designed at this width will have a scale factor of 1.0.
+  /// Compact devices (360dp) will scale DOWN slightly.
+  static const double referenceWidth = 412.0;
+
+  /// Screen width threshold below which screen is considered compact.
+  static const double compactThreshold = 380.0;
+
+  /// Screen width threshold above which screen is considered wide/tablet.
+  static const double wideThreshold = 600.0;
 }
 
 /// Display limits for dashboard previews and lists.

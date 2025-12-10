@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A tappable field tile for displaying time/date values.
 ///
 /// Used in form pages for time and date picker fields.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class TimeFieldTile extends StatelessWidget {
   const TimeFieldTile({
     super.key,
@@ -34,13 +36,21 @@ class TimeFieldTile extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    // Scaled dimensions
+    final iconContainerSize = AppTokens.componentSize.avatarSm * scale;
+    final iconSize = AppTokens.iconSize.sm * scale;
+
     return InkWell(
       borderRadius: AppTokens.radius.lg,
       onTap: onTap,
       child: Container(
         padding: spacing.edgeInsetsSymmetric(
-          horizontal: spacing.md,
-          vertical: spacing.md,
+          horizontal: spacing.md * spacingScale,
+          vertical: spacing.md * spacingScale,
         ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
@@ -52,8 +62,8 @@ class TimeFieldTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: AppTokens.componentSize.avatarSm,
-              height: AppTokens.componentSize.avatarSm,
+              width: iconContainerSize,
+              height: iconContainerSize,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
                 color: colors.primary.withValues(alpha: AppOpacity.statusBg),
@@ -62,29 +72,35 @@ class TimeFieldTile extends StatelessWidget {
               child: Icon(
                 icon,
                 color: colors.primary,
-                size: AppTokens.iconSize.sm,
+                size: iconSize,
               ),
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    label,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: palette.muted,
+                  // Label - prevent wrapping with FittedBox
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      label,
+                      style: AppTokens.typography.captionScaled(scale).copyWith(
+                        color: palette.muted,
+                      ),
+                      maxLines: 1,
                     ),
                   ),
-                  SizedBox(height: spacing.xs),
+                  SizedBox(height: spacing.xs * spacingScale),
+                  // Value
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
                     child: Text(
                       value,
-                      style: theme.textTheme.titleMedium?.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
-                        fontSize: AppTokens.typography.subtitle.fontSize,
                       ),
                       maxLines: 1,
                     ),
@@ -92,10 +108,10 @@ class TimeFieldTile extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(width: spacing.sm),
+            SizedBox(width: spacing.sm * spacingScale),
             Icon(
               Icons.chevron_right_rounded,
-              size: AppTokens.iconSize.md,
+              size: AppTokens.iconSize.md * scale,
               color: palette.muted.withValues(alpha: AppOpacity.soft),
             ),
           ],

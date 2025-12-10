@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A reusable action tile for quick action menus.
 ///
 /// Displays an icon in a colored container, label, description, and chevron.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class QuickActionTile extends StatelessWidget {
   const QuickActionTile({
     super.key,
@@ -31,13 +33,17 @@ class QuickActionTile extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = iconColor ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return InkWell(
       onTap: onTap,
       borderRadius: AppTokens.radius.lg,
       child: Container(
         padding: AppTokens.spacing.edgeInsetsSymmetric(
-          horizontal: AppTokens.spacing.lg,
-          vertical: AppTokens.spacing.md,
+          horizontal: AppTokens.spacing.lg * spacingScale,
+          vertical: AppTokens.spacing.md * spacingScale,
         ),
         decoration: BoxDecoration(
           color: colors.surfaceContainerHigh,
@@ -49,31 +55,31 @@ class QuickActionTile extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: AppTokens.componentSize.avatarLg,
-              height: AppTokens.componentSize.avatarLg,
+              width: AppTokens.componentSize.avatarLg * scale,
+              height: AppTokens.componentSize.avatarLg * scale,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
                 color: accent.withValues(alpha: AppOpacity.statusBg),
               ),
               alignment: Alignment.center,
-              child: Icon(icon, color: accent),
+              child: Icon(icon, color: accent, size: AppTokens.iconSize.md * scale),
             ),
-            SizedBox(width: AppTokens.spacing.lg),
+            SizedBox(width: AppTokens.spacing.lg * spacingScale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     label,
-                    style: AppTokens.typography.subtitle.copyWith(
+                    style: AppTokens.typography.subtitleScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.semiBold,
                       color: colors.onSurface,
                     ),
                   ),
-                  SizedBox(height: AppTokens.spacing.xs),
+                  SizedBox(height: AppTokens.spacing.xs * spacingScale),
                   Text(
                     description,
-                    style: AppTokens.typography.caption.copyWith(
+                    style: AppTokens.typography.captionScaled(scale).copyWith(
                       color: palette.muted,
                     ),
                   ),
@@ -83,6 +89,7 @@ class QuickActionTile extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               color: palette.muted.withValues(alpha: AppOpacity.subtle),
+              size: AppTokens.iconSize.md * scale,
             ),
           ],
         ),
@@ -90,3 +97,4 @@ class QuickActionTile extends StatelessWidget {
     );
   }
 }
+

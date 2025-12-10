@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 /// A dismissable hint bubble for onboarding tips and guidance.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class HintBubble extends StatelessWidget {
   const HintBubble({
     super.key,
@@ -22,8 +24,12 @@ class HintBubble extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: AppTokens.spacing.xxl),
+      padding: EdgeInsets.symmetric(horizontal: AppTokens.spacing.xxl * spacingScale),
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: colors.surface.withValues(alpha: isDark ? AppOpacity.prominent : AppOpacity.dense),
@@ -39,20 +45,20 @@ class HintBubble extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: AppTokens.spacing.xl,
-            vertical: AppTokens.spacing.lg + AppTokens.spacing.micro,
+            horizontal: AppTokens.spacing.xl * spacingScale,
+            vertical: (AppTokens.spacing.lg + AppTokens.spacing.micro) * spacingScale,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 message,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: AppTokens.typography.bodyScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: AppTokens.spacing.md),
+              SizedBox(height: AppTokens.spacing.md * spacingScale),
               Align(
                 alignment: Alignment.centerRight,
                 child: TertiaryButton(
@@ -68,3 +74,4 @@ class HintBubble extends StatelessWidget {
     );
   }
 }
+

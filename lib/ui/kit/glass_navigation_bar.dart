@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'pressable_scale.dart';
+import 'responsive_provider.dart';
 
 class GlassNavigationBar extends StatelessWidget {
   const GlassNavigationBar({
@@ -47,16 +48,19 @@ class GlassNavigationBar extends StatelessWidget {
         colors.shadow.withValues(alpha: isDark ? AppOpacity.shadowDark : AppOpacity.shadowStrong);
     final blurSigma = solid ? 0.0 : AppTokens.shadow.action;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final media = MediaQuery.of(context);
     final bottomInset = media.padding.bottom;
     final shouldFloatFab = _showQuickAction && !inlineQuickAction;
     final basePadding = AppTokens.spacing.edgeInsetsSymmetric(
-      horizontal: AppTokens.spacing.lg,
-      vertical: AppTokens.spacing.md,
+      horizontal: AppTokens.spacing.lg * spacingScale,
+      vertical: AppTokens.spacing.md * spacingScale,
     );
-    final double baseBottomPadding = shouldFloatFab ? AppTokens.spacing.md : AppTokens.spacing.sm;
+    final double baseBottomPadding = shouldFloatFab ? AppTokens.spacing.md * spacingScale : AppTokens.spacing.sm * spacingScale;
     final double bottomPadding = baseBottomPadding + bottomInset;
-    final horizontalPadding = AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg);
+    final horizontalPadding = AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.lg * spacingScale);
 
     Widget navSurface(Widget child) {
       final padding = basePadding + EdgeInsets.only(bottom: bottomPadding);

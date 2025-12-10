@@ -18,6 +18,7 @@ import 'services/reminder_scope_store.dart';
 import 'services/offline_queue.dart';
 import 'services/connection_monitor.dart';
 import 'services/data_sync.dart';
+import 'ui/kit/responsive_provider.dart';
 import 'ui/kit/theme_transition_host.dart';
 import 'ui/theme/app_theme.dart';
 import 'ui/theme/tokens.dart';
@@ -232,13 +233,23 @@ class _ThemedApp extends StatelessWidget {
         final media = MediaQuery.of(context);
         final double scaleSample = media.textScaler.scale(10.0) / 10.0;
         final double clamped = scaleSample.clamp(1.0, 1.6);
+        final screenWidth = media.size.width;
+        final scale = AppResponsive.scaleFactor(screenWidth);
+        final textScale = AppResponsive.scaleTypography(screenWidth);
+        final spacingScale = AppResponsive.scaleCompact(screenWidth);
         final responsiveChild = ResponsiveBreakpoints.builder(
           breakpoints: const [
             Breakpoint(start: 0, end: 450, name: MOBILE),
             Breakpoint(start: 451, end: 800, name: TABLET),
             Breakpoint(start: 801, end: 1920, name: DESKTOP),
           ],
-          child: child ?? const SizedBox.shrink(),
+          child: ResponsiveProvider(
+            scaleFactor: scale,
+            textScale: textScale,
+            spacingScale: spacingScale,
+            screenWidth: screenWidth,
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
         final content = MediaQuery(
           data: media.copyWith(textScaler: TextScaler.linear(clamped)),

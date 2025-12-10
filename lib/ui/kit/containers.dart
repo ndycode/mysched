@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../../services/analytics_service.dart';
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// Card style variants for unified styling across the app.
 enum CardVariant {
@@ -148,8 +149,8 @@ class _CardXState extends State<CardX> with SingleTickerProviderStateMixin {
     );
 
     final defaultPadding = AppTokens.spacing.edgeInsetsSymmetric(
-      horizontal: AppTokens.spacing.xl,
-      vertical: AppTokens.spacing.lgPlus,
+      horizontal: AppTokens.spacing.xl * ResponsiveProvider.spacing(context),
+      vertical: AppTokens.spacing.lgPlus * ResponsiveProvider.spacing(context),
     );
 
     Widget cardContent = Padding(
@@ -375,11 +376,16 @@ class Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final header = (title == null && subtitle == null && trailing == null)
         ? null
         : Padding(
             padding: AppTokens.spacing.edgeInsetsOnly(
-              bottom: AppTokens.spacing.lg,
+              bottom: AppTokens.spacing.lg * spacingScale,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -391,16 +397,16 @@ class Section extends StatelessWidget {
                       if (title != null)
                         Text(
                           title!,
-                          style: theme.textTheme.titleMedium,
+                          style: AppTokens.typography.titleScaled(scale),
                         ),
                       if (subtitle != null)
                         Padding(
                           padding: AppTokens.spacing.edgeInsetsOnly(
-                            top: AppTokens.spacing.sm,
+                            top: AppTokens.spacing.sm * spacingScale,
                           ),
                           child: Text(
                             subtitle!,
-                            style: theme.textTheme.bodyMedium,
+                            style: AppTokens.typography.bodyScaled(scale),
                           ),
                         ),
                     ],

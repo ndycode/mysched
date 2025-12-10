@@ -36,6 +36,7 @@ export 'pressable_scale.dart';
 export 'queued_badge.dart';
 export 'quick_action_tile.dart';
 export 'reminder_details_sheet.dart';
+export 'responsive_provider.dart';
 export 'root_nav_config.dart';
 export 'rows.dart';
 export 'screen_shell.dart';

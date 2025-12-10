@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 import 'status_badge.dart';
 
 /// Metadata item to display in an entity tile (time, location, instructor, etc.)
@@ -95,6 +96,10 @@ class EntityTile extends StatelessWidget {
     final highlightBase = highlightColor ?? colors.primary;
     final hasAccentFill = highlightColor != null && !isDisabled;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     // Resolve surface and border based on state.
     final Color containerColor = isDisabled
       ? palette.danger.withValues(alpha: AppOpacity.veryFaint)
@@ -133,7 +138,7 @@ class EntityTile extends StatelessWidget {
         child: AnimatedContainer(
           duration: AppTokens.motion.medium,
           curve: AppTokens.motion.ease,
-          padding: spacing.edgeInsetsAll(spacing.lg),
+          padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
           decoration: BoxDecoration(
             color: containerColor,
             borderRadius: radius,
@@ -170,7 +175,7 @@ class EntityTile extends StatelessWidget {
                       children: [
                         Text(
                           title,
-                          style: AppTokens.typography.subtitle.copyWith(
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.bold,
                             letterSpacing: AppLetterSpacing.compact,
                             color: titleColor,
@@ -181,29 +186,29 @@ class EntityTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (tags.isNotEmpty) ...[
-                          SizedBox(height: spacing.xsPlus),
+                          SizedBox(height: spacing.xsPlus * spacingScale),
                           Wrap(
-                            spacing: spacing.xsPlus,
-                            runSpacing: spacing.xsPlus,
+                            spacing: spacing.xsPlus * spacingScale,
+                            runSpacing: spacing.xsPlus * spacingScale,
                             children: tags,
                           ),
                         ],
                       ],
                     ),
                   ),
-                  if (badge != null || trailing != null) SizedBox(width: spacing.md),
+                  if (badge != null || trailing != null) SizedBox(width: spacing.md * spacingScale),
                   if (badge != null) badge!,
-                  if (badge != null && trailing != null) SizedBox(width: spacing.sm),
+                  if (badge != null && trailing != null) SizedBox(width: spacing.sm * spacingScale),
                   if (trailing != null) trailing!,
                 ],
               ),
 
               // Subtitle if present
               if (subtitle != null && subtitle!.isNotEmpty) ...[
-                SizedBox(height: spacing.xsPlus),
+                SizedBox(height: spacing.xsPlus * spacingScale),
                 Text(
                   subtitle!,
-                  style: AppTokens.typography.bodySecondary.copyWith(
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
                     color: secondaryTextColor,
                   ),
                   maxLines: 2,
@@ -213,15 +218,15 @@ class EntityTile extends StatelessWidget {
 
               // Metadata row
               if (metadata.isNotEmpty) ...[
-                SizedBox(height: spacing.md),
+                SizedBox(height: spacing.md * spacingScale),
                 Row(
                   children: [
                     for (var i = 0; i < metadata.length; i++) ...[
-                      if (i > 0) SizedBox(width: spacing.lg),
+                      if (i > 0) SizedBox(width: spacing.lg * spacingScale),
                       if (metadata[i].expanded)
-                        Expanded(child: _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor))
+                        Expanded(child: _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor, scale, spacingScale))
                       else
-                          _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor),
+                          _buildMetadataItem(palette, spacing, metadata[i], isDisabled, secondaryTextColor, scale, spacingScale),
                     ],
                   ],
                 ),
@@ -229,7 +234,7 @@ class EntityTile extends StatelessWidget {
 
               // Bottom content (e.g., instructor row)
               if (bottomContent != null) ...[
-                SizedBox(height: spacing.smMd),
+                SizedBox(height: spacing.smMd * spacingScale),
                 bottomContent!,
               ],
             ],
@@ -245,21 +250,23 @@ class EntityTile extends StatelessWidget {
     MetadataItem item,
     bool isDisabled,
     Color secondaryTextColor,
+    double scale,
+    double spacingScale,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(
           item.icon,
-          size: AppTokens.iconSize.sm,
+          size: AppTokens.iconSize.sm * scale,
           color: isDisabled ? secondaryTextColor : palette.muted,
         ),
-        SizedBox(width: spacing.xsPlus),
+        SizedBox(width: spacing.xsPlus * spacingScale),
         if (item.expanded)
           Expanded(
             child: Text(
               item.label,
-              style: AppTokens.typography.bodySecondary.copyWith(
+              style: AppTokens.typography.bodyScaled(scale).copyWith(
                 fontWeight: AppTokens.fontWeight.medium,
                 color: isDisabled ? secondaryTextColor : palette.muted,
               ),
@@ -270,7 +277,7 @@ class EntityTile extends StatelessWidget {
         else
           Text(
             item.label,
-            style: AppTokens.typography.bodySecondary.copyWith(
+            style: AppTokens.typography.bodyScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.medium,
               color: isDisabled ? secondaryTextColor : palette.muted,
             ),

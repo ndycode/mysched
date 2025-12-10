@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 /// Premium option picker with scroll wheel selection.
 ///
@@ -73,9 +74,18 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    // Scaled dimensions for wheel
+    final wheelHeight = 180.0 * scale;
+    final itemExtent = 50.0 * scale;
+    final fadeHeight = 60.0 * scale;
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsAll(spacing.xl),
+      insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,
@@ -101,7 +111,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
             children: [
               // Header
               Container(
-                padding: spacing.edgeInsetsAll(spacing.xl),
+                padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -122,14 +132,14 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                         child: Icon(
                           widget.icon,
                           color: colors.primary,
-                          size: AppTokens.iconSize.md,
+                          size: AppTokens.iconSize.md * scale,
                         ),
                       ),
-                      SizedBox(width: spacing.md),
+                      SizedBox(width: spacing.md * spacingScale),
                     ],
                     Text(
                       widget.title,
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
@@ -139,18 +149,18 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
               // Scroll wheel
               Padding(
                 padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.xxl,
-                  vertical: spacing.xl,
+                  horizontal: spacing.xxl * spacingScale,
+                  vertical: spacing.xl * spacingScale,
                 ),
                 child: SizedBox(
-                  height: 180,
+                  height: wheelHeight,
                   child: Stack(
                     children: [
                       // Selection highlight
                       Positioned.fill(
                         child: Center(
                           child: Container(
-                            height: 50,
+                            height: itemExtent,
                             decoration: BoxDecoration(
                               color: colors.primary.withValues(alpha: AppOpacity.overlay),
                               borderRadius: AppTokens.radius.md,
@@ -161,7 +171,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                       // Scroll wheel
                       ListWheelScrollView.useDelegate(
                         controller: _controller,
-                        itemExtent: 50,
+                        itemExtent: itemExtent,
                         perspective: 0.003,
                         diameterRatio: 1.5,
                         physics: const FixedExtentScrollPhysics(),
@@ -174,7 +184,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                             return Center(
                               child: Text(
                                 widget.labelBuilder(widget.options[index]),
-                                style: AppTokens.typography.headline.copyWith(
+                                style: AppTokens.typography.headlineScaled(scale).copyWith(
                                   fontWeight: AppTokens.fontWeight.bold,
                                   color: colors.onSurface,
                                 ),
@@ -188,7 +198,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                         top: 0,
                         left: 0,
                         right: 0,
-                        height: 60,
+                        height: fadeHeight,
                         child: IgnorePointer(
                           child: Container(
                             decoration: BoxDecoration(
@@ -209,7 +219,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        height: 60,
+                        height: fadeHeight,
                         child: IgnorePointer(
                           child: Container(
                             decoration: BoxDecoration(
@@ -232,7 +242,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
               ),
               // Footer with buttons (OK first, Cancel second)
               Container(
-                padding: spacing.edgeInsetsAll(spacing.lg),
+                padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -250,7 +260,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                         minHeight: AppTokens.componentSize.buttonSm,
                       ),
                     ),
-                    SizedBox(width: spacing.md),
+                    SizedBox(width: spacing.md * spacingScale),
                     Expanded(
                       child: SecondaryButton(
                         label: 'Cancel',

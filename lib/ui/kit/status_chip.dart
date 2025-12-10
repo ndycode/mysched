@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class StatusChip extends StatelessWidget {
   const StatusChip({
     super.key,
@@ -21,10 +23,15 @@ class StatusChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md - spacing.micro,
-        vertical: compact ? spacing.xsPlus : spacing.xsPlus,
+        horizontal: (spacing.md - spacing.micro) * spacingScale,
+        vertical: spacing.xsPlus * spacingScale,
       ),
       decoration: BoxDecoration(
         color: background,
@@ -34,12 +41,11 @@ class StatusChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
-          SizedBox(width: AppTokens.spacing.xs),
+          Icon(icon, size: AppTokens.iconSize.xs * scale, color: foreground),
+          SizedBox(width: AppTokens.spacing.xs * spacingScale),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: AppTokens.typography.caption.fontSize,
+            style: AppTokens.typography.captionScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                   color: foreground,
                 ),
@@ -49,3 +55,4 @@ class StatusChip extends StatelessWidget {
     );
   }
 }
+

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// Status badge variants for entity tiles
 enum StatusBadgeVariant {
@@ -39,6 +40,7 @@ extension StatusBadgeVariantLabels on StatusBadgeVariant {
 /// A unified status badge component used across dashboard, schedules, and reminders.
 /// 
 /// Displays a small pill-shaped badge with consistent styling.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class StatusBadge extends StatelessWidget {
   const StatusBadge({
     super.key,
@@ -67,6 +69,10 @@ class StatusBadge extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     Color resolvedAccent;
     double resolvedBgAlpha;
@@ -117,12 +123,12 @@ class StatusBadge extends StatelessWidget {
     return Container(
       padding: compact
           ? spacing.edgeInsetsSymmetric(
-              horizontal: spacing.sm,
-              vertical: spacing.micro,
+              horizontal: spacing.sm * spacingScale,
+              vertical: spacing.micro * spacingScale,
             )
           : spacing.edgeInsetsSymmetric(
-              horizontal: spacing.smMd,
-              vertical: spacing.xs,
+              horizontal: spacing.smMd * spacingScale,
+              vertical: spacing.xs * spacingScale,
             ),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -130,7 +136,7 @@ class StatusBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: AppTokens.typography.caption.copyWith(
+        style: AppTokens.typography.captionScaled(scale).copyWith(
           fontWeight: AppTokens.fontWeight.bold,
           color: foregroundColor,
         ),
@@ -138,3 +144,4 @@ class StatusBadge extends StatelessWidget {
     );
   }
 }
+

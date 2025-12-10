@@ -6,7 +6,6 @@ import 'package:intl/intl.dart';
 import '../../models/reminder_scope.dart';
 import '../../services/reminders_repository.dart';
 import '../../ui/kit/kit.dart';
-import '../../ui/kit/reminder_details_sheet.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/time_format.dart';
 import 'reminders_controller.dart';
@@ -139,8 +138,12 @@ class ReminderSummaryCard extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~412dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final card = Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -171,7 +174,7 @@ class ReminderSummaryCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Reminders overview',
-                  style: AppTokens.typography.title.copyWith(
+                  style: AppTokens.typography.titleScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.bold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
@@ -180,13 +183,13 @@ class ReminderSummaryCard extends StatelessWidget {
               ),
               if (menuButton != null)
                 SizedBox(
-                  width: AppTokens.componentSize.buttonXs,
-                  height: AppTokens.componentSize.buttonXs,
+                  width: AppTokens.componentSize.buttonXs * scale,
+                  height: AppTokens.componentSize.buttonXs * scale,
                   child: Center(
                     child: ConstrainedBox(
                       constraints: BoxConstraints.tightFor(
-                        width: AppTokens.componentSize.buttonXs,
-                        height: AppTokens.componentSize.buttonXs,
+                        width: AppTokens.componentSize.buttonXs * scale,
+                        height: AppTokens.componentSize.buttonXs * scale,
                       ),
                       child: menuButton,
                     ),
@@ -194,7 +197,7 @@ class ReminderSummaryCard extends StatelessWidget {
                 ),
             ],
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
           if (highlight != null) ...[
             ReminderHighlightHero(highlight: highlight, now: now),
             SizedBox(height: spacing.xl),

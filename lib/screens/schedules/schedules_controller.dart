@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../models/schedule_filter.dart';
+import '../../services/auth_service.dart';
 import '../../services/export_queue.dart';
 import '../../services/instructor_service.dart';
 import '../../services/notification_scheduler.dart';
@@ -264,6 +265,23 @@ class SchedulesController extends ChangeNotifier {
       notifyListeners();
       // Widgets removed: no widget update
     } catch (error, stack) {
+      // Check for stale session that cannot be recovered
+      if (AuthService.isStaleSessionError(error)) {
+        _setClasses(const []);
+        _loading = false;
+        _offlineFallback = false;
+        _retrySuggested = false;
+        _criticalError =
+            'Your session has expired. Please sign out and sign in again.';
+        notifyListeners();
+        TelemetryService.instance.logError(
+          'schedule_refresh_stale_session',
+          error: error,
+          stack: stack,
+        );
+        return;
+      }
+
       List<sched.ClassItem>? offline;
       if (uid != null) {
         final cache = await OfflineCacheService.instance();

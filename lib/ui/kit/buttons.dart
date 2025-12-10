@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../services/analytics_service.dart';
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 typedef ButtonTap = VoidCallback?;
 
@@ -562,11 +563,19 @@ class _ButtonContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final baseStyle = textStyle ??
         Theme.of(context).textTheme.labelLarge ??
         AppTokens.typography.label;
+    // Apply responsive scaling to font size
+    final scaledStyle = baseStyle.copyWith(
+      fontSize: (baseStyle.fontSize ?? 14) * scale,
+    );
     final resolvedStyle =
-        textColor == null ? baseStyle : baseStyle.copyWith(color: textColor);
+        textColor == null ? scaledStyle : scaledStyle.copyWith(color: textColor);
     final text = Text(
       label,
       maxLines: 1,
@@ -581,10 +590,10 @@ class _ButtonContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: EdgeInsets.only(right: AppTokens.spacing.sm),
+          padding: EdgeInsets.only(right: AppTokens.spacing.sm * spacingScale),
           child: IconTheme.merge(
             data: IconThemeData(
-              size: AppTokens.iconSize.md,
+              size: AppTokens.iconSize.md * scale,
               color: textColor,
             ),
             child: leading!,

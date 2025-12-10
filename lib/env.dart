@@ -57,6 +57,20 @@ class Env {
       anonKey: anonKey,
     );
     supa = Supabase.instance.client;
+    
+    // Listen for auth state changes to detect session expiry
+    // This prevents infinite refresh loops when token is invalid
+    supa.auth.onAuthStateChange.listen((data) {
+      final event = data.event;
+      if (event == AuthChangeEvent.signedOut ||
+          event == AuthChangeEvent.tokenRefreshed) {
+        TelemetryService.instance.recordEvent(
+          'auth_state_change',
+          data: {'event': event.name},
+        );
+      }
+    });
+    
     _initialized = true;
     TelemetryService.instance.recordEvent(
       'config_supabase_initialized',

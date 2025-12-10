@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A small chip displaying an icon and label with a colored background.
 ///
 /// Use for status indicators like "Pending", "Completed", "Custom", "Synced", etc.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class StatusInfoChip extends StatelessWidget {
   const StatusInfoChip({
     super.key,
@@ -22,10 +24,15 @@ class StatusInfoChip extends StatelessWidget {
     final theme = Theme.of(context);
     final backgroundOpacity =
         theme.brightness == Brightness.dark ? AppOpacity.shadowBubble : AppOpacity.overlay;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Container(
       padding: EdgeInsets.symmetric(
-        horizontal: AppTokens.spacing.md,
-        vertical: AppTokens.spacing.sm,
+        horizontal: AppTokens.spacing.md * spacingScale,
+        vertical: AppTokens.spacing.sm * spacingScale,
       ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: backgroundOpacity),
@@ -35,11 +42,11 @@ class StatusInfoChip extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: AppTokens.iconSize.sm, color: color),
-          SizedBox(width: AppTokens.spacing.xs),
+          Icon(icon, size: AppTokens.iconSize.sm * scale, color: color),
+          SizedBox(width: AppTokens.spacing.xs * spacingScale),
           Text(
             label,
-            style: theme.textTheme.labelMedium?.copyWith(
+            style: AppTokens.typography.captionScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
               color: color,
             ),
@@ -53,6 +60,7 @@ class StatusInfoChip extends StatelessWidget {
 /// A row showing an icon, label, value, and optional helper text.
 ///
 /// Use for detail displays like "Due date: Dec 5, 2025" or "Room: 301".
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class DetailRow extends StatelessWidget {
   const DetailRow({
     super.key,
@@ -78,11 +86,15 @@ class DetailRow extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          padding: EdgeInsets.all(AppTokens.spacing.sm),
+          padding: EdgeInsets.all(AppTokens.spacing.sm * spacingScale),
           decoration: BoxDecoration(
             color: accentIcon
                 ? colors.primary.withValues(alpha: AppOpacity.overlay)
@@ -90,32 +102,32 @@ class DetailRow extends StatelessWidget {
             borderRadius: AppTokens.radius.sm,
           ),
           child:
-              Icon(icon, size: AppTokens.iconSize.md, color: colors.primary),
+              Icon(icon, size: AppTokens.iconSize.md * scale, color: colors.primary),
         ),
-        SizedBox(width: AppTokens.spacing.lg),
+        SizedBox(width: AppTokens.spacing.lg * spacingScale),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: AppTokens.typography.caption.copyWith(
+                style: AppTokens.typography.captionScaled(scale).copyWith(
                   color: palette.muted,
                 ),
               ),
-              SizedBox(height: AppTokens.spacing.xs),
+              SizedBox(height: AppTokens.spacing.xs * spacingScale),
               Text(
                 value,
-                style: AppTokens.typography.subtitle.copyWith(
+                style: AppTokens.typography.subtitleScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                   color: colors.onSurface,
                 ),
               ),
               if (helper != null && helper!.isNotEmpty) ...[
-                SizedBox(height: AppTokens.spacing.xs),
+                SizedBox(height: AppTokens.spacing.xs * spacingScale),
                 Text(
                   helper!,
-                  style: theme.textTheme.bodySmall?.copyWith(
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
                     color: palette.muted,
                   ),
                 ),
@@ -127,3 +139,4 @@ class DetailRow extends StatelessWidget {
     );
   }
 }
+

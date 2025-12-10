@@ -7,6 +7,7 @@ import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'brand_header.dart';
 import 'layout.dart';
+import 'responsive_provider.dart';
 
 /// Shared scaffold that renders the MySched brand header and keeps the avatar fresh.
 class BrandScaffold extends StatefulWidget {
@@ -69,13 +70,17 @@ class _BrandScaffoldState extends State<BrandScaffold> {
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.of(context).padding.top;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final padding =
         widget.padding ??
             EdgeInsets.fromLTRB(
-              AppTokens.spacing.xl,
-              topInset + AppTokens.spacing.xxl,
-              AppTokens.spacing.xl,
-              AppTokens.spacing.xxl,
+              AppTokens.spacing.xl * spacingScale,
+              topInset + AppTokens.spacing.xxl * spacingScale,
+              AppTokens.spacing.xl * spacingScale,
+              AppTokens.spacing.xxl * spacingScale,
             );
     final physics = widget.physics ??
         (Theme.of(context).platform == TargetPlatform.iOS
@@ -94,7 +99,7 @@ class _BrandScaffoldState extends State<BrandScaffold> {
     final bodyChildren = widget.builder(context, _profile);
     final listChildren = <Widget>[
       header,
-      SizedBox(height: AppTokens.spacing.lg),
+      SizedBox(height: AppTokens.spacing.lg * spacingScale),
       ...bodyChildren,
     ];
 

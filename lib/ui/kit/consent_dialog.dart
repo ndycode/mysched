@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'buttons.dart';
 import 'modals.dart';
+import 'responsive_provider.dart';
 import '../theme/tokens.dart';
 
 class ScanConsent {
@@ -33,6 +34,10 @@ Future<bool> ensureScanConsent(BuildContext context) async {
   final accent = colors.primary;
   final badgeColor = accent.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.statusBg);
 
+  // Get responsive scale factors (1.0 on standard ~390dp screens)
+  final scale = ResponsiveProvider.scale(context);
+  final spacingScale = ResponsiveProvider.spacing(context);
+
   final agreed = await AppModal.alert<bool>(
     context: context,
     dismissible: false,
@@ -41,16 +46,16 @@ Future<bool> ensureScanConsent(BuildContext context) async {
         shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
         backgroundColor: colors.surface,
         surfaceTintColor: Colors.transparent,
-        insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
-        contentPadding: spacing.edgeInsetsAll(spacing.xxl),
+        insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl * spacingScale),
+        contentPadding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Hero icon badge (matching _PermissionDialog)
             Container(
-              height: AppTokens.componentSize.avatarXl,
-              width: AppTokens.componentSize.avatarXl,
+              height: AppTokens.componentSize.avatarXl * scale,
+              width: AppTokens.componentSize.avatarXl * scale,
               decoration: BoxDecoration(
                 color: badgeColor,
                 borderRadius: AppTokens.radius.lg,
@@ -58,43 +63,43 @@ Future<bool> ensureScanConsent(BuildContext context) async {
               child: Icon(
                 Icons.document_scanner_outlined,
                 color: accent,
-                size: AppTokens.iconSize.xl,
+                size: AppTokens.iconSize.xl * scale,
               ),
             ),
-            SizedBox(height: spacing.xl),
+            SizedBox(height: spacing.xl * spacingScale),
 
             // Title (matching _PermissionDialog)
             Text(
               'Before you scan',
-              style: AppTokens.typography.title.copyWith(
+              style: AppTokens.typography.titleScaled(scale).copyWith(
                 color: colors.onSurface,
                 fontWeight: AppTokens.fontWeight.bold,
               ),
             ),
-            SizedBox(height: spacing.sm),
+            SizedBox(height: spacing.sm * spacingScale),
 
             // Description
             Text(
               'By continuing, you agree that MySched may collect data from your scan for research and scheduling purposes only.',
-              style: AppTokens.typography.bodySecondary.copyWith(
+              style: AppTokens.typography.captionScaled(scale).copyWith(
                 color: palette.muted,
               ),
             ),
-            SizedBox(height: spacing.md),
+            SizedBox(height: spacing.md * spacingScale),
             Text(
               'All data will be kept private, anonymized, and securely stored under the Data Privacy Act of 2012.',
-              style: AppTokens.typography.bodySecondary.copyWith(
+              style: AppTokens.typography.captionScaled(scale).copyWith(
                 color: palette.muted,
               ),
             ),
-            SizedBox(height: spacing.md),
+            SizedBox(height: spacing.md * spacingScale),
             Text(
               'Your participation is voluntary, and you can stop anytime. No personal info will be shared.',
-              style: AppTokens.typography.bodySecondary.copyWith(
+              style: AppTokens.typography.captionScaled(scale).copyWith(
                 color: palette.muted,
               ),
             ),
-            SizedBox(height: spacing.xxl),
+            SizedBox(height: spacing.xxl * spacingScale),
 
             // Buttons (1 row, 2 buttons - primary left, cancel right)
             Row(
@@ -107,7 +112,7 @@ Future<bool> ensureScanConsent(BuildContext context) async {
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                   ),
                 ),
-                SizedBox(width: spacing.md),
+                SizedBox(width: spacing.md * spacingScale),
                 TertiaryButton(
                   label: 'Cancel',
                   onPressed: () => Navigator.of(dialogContext).pop(false),

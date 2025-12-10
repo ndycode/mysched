@@ -97,3 +97,28 @@ class AppSpacing {
       EdgeInsets.only(left: left, top: top, right: right, bottom: bottom);
 }
 
+/// Extension for responsive spacing.
+///
+/// Use this to apply scale factors to spacing values:
+/// ```dart
+/// final scaledPadding = AppTokens.spacing.scaled(spacing.xl, scale);
+/// ```
+extension ResponsiveSpacing on AppSpacing {
+  /// Returns spacing value adjusted by the given scale factor.
+  double scaled(double value, double scale) => value * scale;
+
+  /// Returns EdgeInsets with all values scaled.
+  EdgeInsets edgeInsetsAllScaled(double value, double scale) =>
+      EdgeInsets.all(value * scale);
+
+  /// Returns EdgeInsets with symmetric values scaled.
+  EdgeInsets edgeInsetsSymmetricScaled({
+    double horizontal = 0,
+    double vertical = 0,
+    double scale = 1.0,
+  }) =>
+      EdgeInsets.symmetric(
+        horizontal: horizontal * scale,
+        vertical: vertical * scale,
+      );
+}

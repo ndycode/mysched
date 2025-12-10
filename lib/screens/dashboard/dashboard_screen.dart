@@ -10,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/routes.dart';
 import '../../models/reminder_scope.dart';
+import '../../services/auth_service.dart';
 import '../../services/instructor_service.dart';
 import '../../services/profile_cache.dart';
 import '../../services/reminder_scope_store.dart';
@@ -17,7 +18,6 @@ import '../../services/reminders_repository.dart';
 import '../../services/telemetry_service.dart';
 import '../../services/root_nav_controller.dart';
 import '../../services/schedule_repository.dart' as sched;
-import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
@@ -300,6 +300,20 @@ class DashboardScreenState extends State<DashboardScreen>
       _lastScheduleFetchAt = DateTime.now();
       await _applySchedule(List<sched.ClassItem>.from(fresh));
     } catch (e, stack) {
+      // Check for stale session - redirect to login if auth is invalid
+      if (AuthService.isStaleSessionError(e)) {
+        TelemetryService.instance.logError(
+          'dashboard_schedule_stale_session',
+          error: e,
+          stack: stack,
+        );
+        if (mounted) {
+          await AuthService.instance.forceRelogin();
+          // ignore: use_build_context_synchronously
+          context.go(AppRoutes.login);
+        }
+        return;
+      }
       TelemetryService.instance
           .logError('dashboard_load_schedule', error: e, stack: stack);
       if (!mounted) return;
@@ -359,6 +373,20 @@ class DashboardScreenState extends State<DashboardScreen>
         _lastRefreshedAt = DateTime.now();
       });
     } catch (e, stack) {
+      // Check for stale session - redirect to login if auth is invalid
+      if (AuthService.isStaleSessionError(e)) {
+        TelemetryService.instance.logError(
+          'dashboard_reminders_stale_session',
+          error: e,
+          stack: stack,
+        );
+        if (mounted) {
+          await AuthService.instance.forceRelogin();
+          // ignore: use_build_context_synchronously
+          context.go(AppRoutes.login);
+        }
+        return;
+      }
       TelemetryService.instance
           .logError('dashboard_load_reminders', error: e, stack: stack);
       if (!mounted) return;

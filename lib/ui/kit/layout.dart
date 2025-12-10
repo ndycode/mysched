@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/analytics_service.dart';
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// Shared scaffold that wires analytics and motion defaults for screens.
 class AppScaffold extends StatefulWidget {
@@ -142,10 +143,13 @@ class PageBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final effectivePadding = padding ??
         AppTokens.spacing.edgeInsetsSymmetric(
-          horizontal: AppTokens.spacing.xxl,
-          vertical: AppTokens.spacing.xxl,
+          horizontal: AppTokens.spacing.xxl * spacingScale,
+          vertical: AppTokens.spacing.xxl * spacingScale,
         );
 
     Widget buildAligned(Alignment alignment) {

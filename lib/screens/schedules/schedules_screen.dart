@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import '../../app/routes.dart';
 import '../../services/notification_scheduler.dart';
 import '../../services/schedule_repository.dart' as sched;
-import '../../ui/kit/class_details_sheet.dart';
 import '../../ui/kit/instructor_finder_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
@@ -449,7 +448,7 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
                           borderRadius: AppTokens.radius.sm,
                         ),
                         child: Icon(
-                          Icons.person_search_rounded,
+                          Icons.search_rounded,
                           size: AppTokens.iconSize.md,
                           color: colors.secondary,
                         ),

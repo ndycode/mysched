@@ -86,7 +86,7 @@ class AboutSheet extends StatelessWidget {
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: AppTokens.iconSize.sm,
+                            size: AppTokens.iconSize.sm * ResponsiveProvider.scale(context),
                             color: colors.primary,
                           ),
                         ),
@@ -95,7 +95,7 @@ class AboutSheet extends StatelessWidget {
                         child: Text(
                           'About MySched',
                           textAlign: TextAlign.center,
-                          style: AppTokens.typography.title.copyWith(
+                          style: AppTokens.typography.titleScaled(ResponsiveProvider.scale(context)).copyWith(
                             fontWeight: AppTokens.fontWeight.bold,
                             letterSpacing: AppLetterSpacing.snug,
                             color: colors.onSurface,

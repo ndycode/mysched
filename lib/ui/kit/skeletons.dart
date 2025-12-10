@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
+// Note: Skeleton components can use ResponsiveProvider.scale(context) and
+// ResponsiveProvider.spacing(context) for responsive scaling when needed.
+
 /// Lightweight animated block used to mimic loading content with shimmer effect.
 class SkeletonBlock extends StatefulWidget {
   const SkeletonBlock({

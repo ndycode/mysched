@@ -129,16 +129,9 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
               ignoring: true,
               child: FadeTransition(
                 opacity: ReverseAnimation(_controller),
-                child: ScaleTransition(
-                  scale: Tween<double>(begin: AppMotionSystem.scaleNone, end: AppMotionSystem.scalePressSubtle)
-                      .animate(CurvedAnimation(
-                    parent: _controller,
-                    curve: AppMotionSystem.easeOut,
-                  )),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: overlayColor),
-                    child: RawImage(image: _snapshot),
-                  ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: overlayColor),
+                  child: RawImage(image: _snapshot),
                 ),
               ),
             ),

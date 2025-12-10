@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// Small pill badge to indicate queued/offline items.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class QueuedBadge extends StatelessWidget {
   const QueuedBadge({super.key, this.label = 'Queued'});
 
@@ -11,10 +13,15 @@ class QueuedBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Container(
       padding: AppTokens.spacing.edgeInsetsSymmetric(
-        horizontal: AppTokens.spacing.sm,
-        vertical: AppTokens.spacing.xs,
+        horizontal: AppTokens.spacing.sm * spacingScale,
+        vertical: AppTokens.spacing.xs * spacingScale,
       ),
       decoration: BoxDecoration(
         color: colors.secondary.withValues(alpha: AppOpacity.statusBg),
@@ -22,7 +29,7 @@ class QueuedBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+        style: AppTokens.typography.captionScaled(scale).copyWith(
               color: colors.secondary,
               fontWeight: AppTokens.fontWeight.bold,
             ),
@@ -30,3 +37,4 @@ class QueuedBadge extends StatelessWidget {
     );
   }
 }
+

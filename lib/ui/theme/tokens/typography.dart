@@ -102,3 +102,46 @@ class AppTypography {
         letterSpacing: 0.3,
       );
 }
+
+/// Extension for responsive typography.
+///
+/// Use this to apply scale factors to text styles:
+/// ```dart
+/// final scaledDisplay = AppTokens.typography.displayScaled(scale);
+/// ```
+extension ResponsiveTypography on AppTypography {
+  /// Returns display style with scaled font size.
+  TextStyle displayScaled(double scale) => display.copyWith(
+        fontSize: (display.fontSize ?? 32) * scale,
+      );
+
+  /// Returns headline style with scaled font size.
+  TextStyle headlineScaled(double scale) => headline.copyWith(
+        fontSize: (headline.fontSize ?? 26) * scale,
+      );
+
+  /// Returns title style with scaled font size.
+  TextStyle titleScaled(double scale) => title.copyWith(
+        fontSize: (title.fontSize ?? 20) * scale,
+      );
+
+  /// Returns subtitle style with scaled font size.
+  TextStyle subtitleScaled(double scale) => subtitle.copyWith(
+        fontSize: (subtitle.fontSize ?? 16) * scale,
+      );
+
+  /// Returns body style with scaled font size.
+  TextStyle bodyScaled(double scale) => body.copyWith(
+        fontSize: (body.fontSize ?? 16) * scale,
+      );
+
+  /// Returns caption style with scaled font size.
+  TextStyle captionScaled(double scale) => caption.copyWith(
+        fontSize: (caption.fontSize ?? 12) * scale,
+      );
+
+  /// Returns bodySecondary style with scaled font size.
+  TextStyle bodySecondaryScaled(double scale) => bodySecondary.copyWith(
+        fontSize: (bodySecondary.fontSize ?? 14) * scale,
+      );
+}

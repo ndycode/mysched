@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../utils/local_notifs.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 /// Battery optimization guidance dialog.
 /// Refactored to match _PermissionDialog styling from bootstrap_gate.dart.
@@ -20,20 +21,24 @@ class BatteryOptimizationDialog extends StatelessWidget {
     final accent = colors.primary;
     final badgeColor = accent.withValues(alpha: isDark ? AppOpacity.shadowAction : AppOpacity.statusBg);
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return AlertDialog(
       shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
       backgroundColor: colors.surface,
       surfaceTintColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl),
-      contentPadding: spacing.edgeInsetsAll(spacing.xxl),
+      insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl * spacingScale),
+      contentPadding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Hero icon badge (matching _PermissionDialog)
           Container(
-            height: AppTokens.componentSize.avatarXl,
-            width: AppTokens.componentSize.avatarXl,
+            height: AppTokens.componentSize.avatarXl * scale,
+            width: AppTokens.componentSize.avatarXl * scale,
             decoration: BoxDecoration(
               color: badgeColor,
               borderRadius: AppTokens.radius.lg,
@@ -41,29 +46,29 @@ class BatteryOptimizationDialog extends StatelessWidget {
             child: Icon(
               Icons.battery_saver_rounded,
               color: accent,
-              size: AppTokens.iconSize.xl,
+              size: AppTokens.iconSize.xl * scale,
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
 
           // Title (matching _PermissionDialog)
           Text(
             'Allow background usage',
-            style: AppTokens.typography.title.copyWith(
+            style: AppTokens.typography.titleScaled(scale).copyWith(
               color: colors.onSurface,
               fontWeight: AppTokens.fontWeight.bold,
             ),
           ),
-          SizedBox(height: spacing.sm),
+          SizedBox(height: spacing.sm * spacingScale),
 
           // Subtitle
           Text(
             'Follow these steps to keep reminders running reliably.',
-            style: AppTokens.typography.bodySecondary.copyWith(
+            style: AppTokens.typography.bodySecondaryScaled(scale).copyWith(
               color: palette.muted,
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
 
           // Step 1
           _buildStepCard(
@@ -71,13 +76,15 @@ class BatteryOptimizationDialog extends StatelessWidget {
             stepNumber: '1',
             title: 'App battery usage',
             description: 'Tap to open battery settings',
+            scale: scale,
+            spacingScale: spacingScale,
             trailing: Icon(
               Icons.chevron_right_rounded,
               color: palette.muted,
-              size: AppTokens.iconSize.lg,
+              size: AppTokens.iconSize.lg * scale,
             ),
           ),
-          SizedBox(height: spacing.md),
+          SizedBox(height: spacing.md * spacingScale),
 
           // Step 2
           _buildStepCard(
@@ -85,9 +92,11 @@ class BatteryOptimizationDialog extends StatelessWidget {
             stepNumber: '2',
             title: 'Allow background usage',
             description: 'Enable for real-time updates',
+            scale: scale,
+            spacingScale: spacingScale,
             trailing: _buildFakeToggle(context),
           ),
-          SizedBox(height: spacing.md),
+          SizedBox(height: spacing.md * spacingScale),
 
           // Step 3
           _buildStepCard(
@@ -95,9 +104,11 @@ class BatteryOptimizationDialog extends StatelessWidget {
             stepNumber: '3',
             title: 'Unrestricted',
             description: 'Choose if available',
+            scale: scale,
+            spacingScale: spacingScale,
             leading: _buildFakeRadio(context),
           ),
-          SizedBox(height: spacing.xxl),
+          SizedBox(height: spacing.xxl * spacingScale),
 
           // Buttons (matching _PermissionDialog layout)
           Row(
@@ -107,7 +118,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
                 onPressed: () => context.pop(),
                 expanded: false,
               ),
-              SizedBox(width: spacing.md),
+              SizedBox(width: spacing.md * spacingScale),
               Expanded(
                 child: PrimaryButton(
                   label: 'Open settings',
@@ -131,6 +142,8 @@ class BatteryOptimizationDialog extends StatelessWidget {
     required String stepNumber,
     required String title,
     required String description,
+    required double scale,
+    required double spacingScale,
     Widget? leading,
     Widget? trailing,
   }) {
@@ -141,7 +154,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
+      padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLowest,
         borderRadius: AppTokens.radius.lg,
@@ -154,12 +167,12 @@ class BatteryOptimizationDialog extends StatelessWidget {
         children: [
           if (leading != null) ...[
             leading,
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
           ] else ...[
             // Step number badge
             Container(
-              height: AppTokens.componentSize.avatarSm,
-              width: AppTokens.componentSize.avatarSm,
+              height: AppTokens.componentSize.avatarSm * scale,
+              width: AppTokens.componentSize.avatarSm * scale,
               decoration: BoxDecoration(
                 color: colors.primary.withValues(alpha: AppOpacity.statusBg),
                 shape: BoxShape.circle,
@@ -167,14 +180,14 @@ class BatteryOptimizationDialog extends StatelessWidget {
               child: Center(
                 child: Text(
                   stepNumber,
-                  style: AppTokens.typography.caption.copyWith(
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
                     color: colors.primary,
                     fontWeight: AppTokens.fontWeight.bold,
                   ),
                 ),
               ),
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
           ],
           Expanded(
             child: Column(
@@ -182,15 +195,15 @@ class BatteryOptimizationDialog extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: AppTokens.typography.body.copyWith(
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
                     color: colors.onSurface,
                     fontWeight: AppTokens.fontWeight.medium,
                   ),
                 ),
-                SizedBox(height: spacing.xs),
+                SizedBox(height: spacing.xs * spacingScale),
                 Text(
                   description,
-                  style: AppTokens.typography.caption.copyWith(
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
                     color: palette.muted,
                   ),
                 ),
@@ -198,7 +211,7 @@ class BatteryOptimizationDialog extends StatelessWidget {
             ),
           ),
           if (trailing != null) ...[
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             trailing,
           ],
         ],

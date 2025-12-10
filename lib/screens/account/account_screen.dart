@@ -242,17 +242,19 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   Widget _buildAccountSummaryCard(
       ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return CardX(
       variant: CardVariant.elevated,
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Section header
           Text(
             'Account overview',
-            style: AppTokens.typography.title.copyWith(
+            style: AppTokens.typography.titleScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.bold,
               letterSpacing: AppLetterSpacing.snug,
               color: colors.onSurface,
@@ -265,11 +267,11 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
               color: palette.muted,
             ),
           ),
-          SizedBox(height: spacing.xl),
+          SizedBox(height: spacing.xl * spacingScale),
           // Profile section header
           Text(
             'Profile',
-            style: AppTokens.typography.subtitle.copyWith(
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
               color: colors.onSurface,
             ),
@@ -289,7 +291,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                 clipBehavior: Clip.none,
                 children: [
                   CircleAvatar(
-                    radius: AppTokens.componentSize.avatarXl,
+                    radius: AppTokens.componentSize.avatarXl * scale,
                     backgroundColor:
                         colors.primary.withValues(alpha: AppOpacity.overlay),
                     backgroundImage:
@@ -297,7 +299,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                     child: _avatar == null
                         ? Icon(
                             Icons.person_rounded,
-                            size: AppTokens.iconSize.xl,
+                            size: AppTokens.iconSize.xl * scale,
                             color: colors.onSurface
                                 .withValues(alpha: AppOpacity.subtle),
                           )
@@ -322,8 +324,8 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                         ),
                         child: _busy
                             ? SizedBox(
-                                width: AppTokens.iconSize.sm,
-                                height: AppTokens.iconSize.sm,
+                                width: AppTokens.iconSize.sm * scale,
+                                height: AppTokens.iconSize.sm * scale,
                                 child: CircularProgressIndicator(
                                   strokeWidth: AppTokens.spacing.micro,
                                   color: colors.onPrimary,
@@ -331,7 +333,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                               )
                             : Icon(
                                 Icons.photo_camera_outlined,
-                                size: AppTokens.iconSize.sm,
+                                size: AppTokens.iconSize.sm * scale,
                                 color: colors.onPrimary,
                               ),
                       ),
@@ -346,7 +348,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
                   children: [
                     Text(
                       _name.isEmpty ? 'Student' : _name,
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                         color: colors.onSurface,
                       ),
@@ -382,15 +384,18 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   Widget _buildSecurityCard(
       ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return CardX(
       variant: CardVariant.elevated,
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'Security actions',
-            style: AppTokens.typography.subtitle.copyWith(
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
               color: colors.onSurface,
             ),
@@ -402,7 +407,7 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
               color: palette.muted,
             ),
           ),
-          SizedBox(height: spacing.lg),
+          SizedBox(height: spacing.lg * spacingScale),
           InfoTile(
             icon: Icons.mail_outline,
             title: 'Change email',

@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 import 'pressable_scale.dart';
+import 'responsive_provider.dart';
 
 /// A reusable header row for sheets and dialogs.
 ///
 /// Displays an icon in a gradient container, title, subtitle, and close button.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class SheetHeaderRow extends StatelessWidget {
   const SheetHeaderRow({
     super.key,
@@ -32,12 +34,16 @@ class SheetHeaderRow extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = iconColor ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: AppTokens.componentSize.avatarXl,
-          width: AppTokens.componentSize.avatarXl,
+          height: AppTokens.componentSize.avatarXl * scale,
+          width: AppTokens.componentSize.avatarXl * scale,
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topLeft,
@@ -56,17 +62,17 @@ class SheetHeaderRow extends StatelessWidget {
           child: Icon(
             icon,
             color: accent,
-            size: AppTokens.iconSize.xl,
+            size: AppTokens.iconSize.xl * scale,
           ),
         ),
-        SizedBox(width: AppTokens.spacing.lg),
+        SizedBox(width: AppTokens.spacing.lg * spacingScale),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: AppTokens.typography.title.copyWith(
+                style: AppTokens.typography.titleScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.extraBold,
                   letterSpacing: AppLetterSpacing.tight,
                   height: AppLineHeight.headline,
@@ -75,10 +81,10 @@ class SheetHeaderRow extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
               ),
-              SizedBox(height: AppTokens.spacing.xs),
+              SizedBox(height: AppTokens.spacing.xs * spacingScale),
               Text(
                 subtitle,
-                style: AppTokens.typography.bodySecondary.copyWith(
+                style: AppTokens.typography.bodyScaled(scale).copyWith(
                   color: palette.muted,
                   fontWeight: AppTokens.fontWeight.medium,
                 ),
@@ -86,18 +92,18 @@ class SheetHeaderRow extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(width: AppTokens.spacing.md),
+        SizedBox(width: AppTokens.spacing.md * spacingScale),
         PressableScale(
           onTap: onClose,
           child: Container(
-            padding: EdgeInsets.all(AppTokens.spacing.sm),
+            padding: EdgeInsets.all(AppTokens.spacing.sm * spacingScale),
             decoration: BoxDecoration(
               color: colors.onSurface.withValues(alpha: AppOpacity.faint),
               borderRadius: AppTokens.radius.md,
             ),
             child: Icon(
               Icons.close_rounded,
-              size: AppTokens.iconSize.md,
+              size: AppTokens.iconSize.md * scale,
               color: palette.muted,
             ),
           ),
@@ -106,3 +112,4 @@ class SheetHeaderRow extends StatelessWidget {
     );
   }
 }
+

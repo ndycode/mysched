@@ -803,4 +803,39 @@ class AuthService {
 
     return bust;
   }
+
+  /// Checks if an error indicates a stale/expired session that cannot be recovered.
+  /// When true, the user should be forced to re-login.
+  static bool isStaleSessionError(Object error) {
+    final message = error.toString().toLowerCase();
+    
+    // Auth exceptions indicating invalid session
+    if (message.contains('not authenticated') ||
+        message.contains('invalid refresh token') ||
+        message.contains('refresh token expired') ||
+        message.contains('refresh token not found') ||
+        message.contains('session expired') ||
+        message.contains('jwt expired')) {
+      return true;
+    }
+    
+    // Rate limiting during auth refresh attempts
+    if ((message.contains('rate limit') || message.contains('too many requests')) &&
+        (message.contains('auth') || message.contains('refresh') || message.contains('token'))) {
+      return true;
+    }
+    
+    return false;
+  }
+
+  /// Force logout and clear stale session state.
+  /// Call this when a stale session is detected to ensure clean re-login.
+  Future<void> forceRelogin() async {
+    TelemetryService.instance.recordEvent('auth_force_relogin');
+    try {
+      await logout();
+    } catch (_) {
+      // Ignore errors during forced logout - session is already invalid
+    }
+  }
 }

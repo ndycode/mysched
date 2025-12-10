@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A unified metric chip component for displaying stats.
 /// 
 /// Used in schedules and reminders summary cards to show counts,
 /// durations, and other metrics with consistent styling.
+/// 
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class MetricChip extends StatelessWidget {
   const MetricChip({
     super.key,
@@ -56,11 +59,20 @@ class MetricChip extends StatelessWidget {
             ? accent.withValues(alpha: AppOpacity.dim)
             : accent.withValues(alpha: AppOpacity.veryFaint));
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    // Scaled dimensions
+    final scaledPadding = spacing.mdLg * spacingScale;
+    final scaledIconContainer = AppTokens.componentSize.avatarSm * scale;
+    final scaledIconSize = AppTokens.iconSize.sm * scale;
+
     if (compact) {
       return Container(
         padding: spacing.edgeInsetsSymmetric(
-          horizontal: spacing.md,
-          vertical: spacing.smMd,
+          horizontal: spacing.md * spacingScale,
+          vertical: spacing.smMd * spacingScale,
         ),
         decoration: BoxDecoration(
           color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
@@ -74,22 +86,22 @@ class MetricChip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              height: AppTokens.componentSize.avatarSm,
-              width: AppTokens.componentSize.avatarSm,
+              height: scaledIconContainer,
+              width: scaledIconContainer,
               decoration: BoxDecoration(
                 color: accent.withValues(alpha: isDark ? AppOpacity.medium : AppOpacity.dim),
                 borderRadius: AppTokens.radius.sm,
               ),
-              child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
+              child: Icon(icon, size: scaledIconSize, color: accent),
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   value,
-                  style: AppTokens.typography.subtitle.copyWith(
+                  style: AppTokens.typography.subtitleScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.extraBold,
                     letterSpacing: AppLetterSpacing.snug,
                     color: colors.onSurface,
@@ -97,7 +109,7 @@ class MetricChip extends StatelessWidget {
                 ),
                 Text(
                   label,
-                  style: AppTokens.typography.caption.copyWith(
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.medium,
                     color: palette.muted,
                   ),
@@ -111,7 +123,7 @@ class MetricChip extends StatelessWidget {
 
     // Card-style layout for larger displays
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.mdLg),
+      padding: spacing.edgeInsetsAll(scaledPadding),
       decoration: BoxDecoration(
         color: bgTint,
         borderRadius: AppTokens.radius.md,
@@ -125,8 +137,8 @@ class MetricChip extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            height: AppTokens.componentSize.avatarSm,
-            width: AppTokens.componentSize.avatarSm,
+            height: scaledIconContainer,
+            width: scaledIconContainer,
             decoration: BoxDecoration(
               color: (backgroundTint ?? accent).withValues(
                 alpha: isDark ? AppOpacity.medium : AppOpacity.dim,
@@ -134,26 +146,26 @@ class MetricChip extends StatelessWidget {
               borderRadius: AppTokens.radius.sm,
             ),
             alignment: Alignment.center,
-            child: Icon(icon, size: AppTokens.iconSize.sm, color: accent),
+            child: Icon(icon, size: scaledIconSize, color: accent),
           ),
-          SizedBox(height: spacing.smMd),
+          SizedBox(height: spacing.smMd * spacingScale),
           Text(
             value,
             style: displayStyle
-                ? AppTokens.typography.display.copyWith(
+                ? AppTokens.typography.displayScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.extraBold,
                     height: AppLineHeight.single,
                     color: colors.onSurface,
                   )
-                : AppTokens.typography.headline.copyWith(
+                : AppTokens.typography.headlineScaled(scale).copyWith(
                     fontWeight: AppTokens.fontWeight.bold,
                     color: colors.onSurface,
                   ),
           ),
-          SizedBox(height: spacing.xs),
+          SizedBox(height: spacing.xs * spacingScale),
           Text(
             label,
-            style: AppTokens.typography.caption.copyWith(
+            style: AppTokens.typography.captionScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.medium,
               color: palette.muted,
             ),
@@ -161,10 +173,10 @@ class MetricChip extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           if (caption != null) ...[
-            SizedBox(height: spacing.xs),
+            SizedBox(height: spacing.xs * spacingScale),
             Text(
               caption!,
-              style: AppTokens.typography.caption.copyWith(
+              style: AppTokens.typography.captionScaled(scale).copyWith(
                 color: palette.muted,
               ),
               maxLines: 1,

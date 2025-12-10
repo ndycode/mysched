@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // UNIFIED MODAL ROUTE - Single animation system for all modals
@@ -184,11 +186,15 @@ class AppModal {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return alert<bool>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: spacing.edgeInsetsAll(spacing.xl),
+        insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
         child: Container(
           constraints: const BoxConstraints(maxWidth: AppLayout.dialogWidthSmall),
           decoration: BoxDecoration(
@@ -216,7 +222,7 @@ class AppModal {
               children: [
                 // Header with icon
                 Container(
-                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
@@ -228,7 +234,7 @@ class AppModal {
                   child: Row(
                     children: [
                       Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
+                        padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
                         decoration: BoxDecoration(
                           color: (isDanger ? palette.danger : colors.primary)
                               .withValues(alpha: AppOpacity.overlay),
@@ -237,14 +243,14 @@ class AppModal {
                         child: Icon(
                           icon ?? (isDanger ? Icons.warning_rounded : Icons.help_outline_rounded),
                           color: isDanger ? palette.danger : colors.primary,
-                          size: AppTokens.iconSize.md,
+                          size: AppTokens.iconSize.md * scale,
                         ),
                       ),
-                      SizedBox(width: spacing.md),
+                      SizedBox(width: spacing.md * spacingScale),
                       Expanded(
                         child: Text(
                           title,
-                          style: AppTokens.typography.subtitle.copyWith(
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.semiBold,
                             color: colors.onSurface,
                           ),
@@ -255,17 +261,17 @@ class AppModal {
                 ),
                 // Message content
                 Padding(
-                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                   child: Text(
                     message,
-                    style: AppTokens.typography.body.copyWith(
+                    style: AppTokens.typography.bodyScaled(scale).copyWith(
                       color: palette.muted,
                     ),
                   ),
                 ),
                 // Footer with buttons
                 Container(
-                  padding: spacing.edgeInsetsAll(spacing.lg),
+                  padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -283,7 +289,7 @@ class AppModal {
                           minHeight: AppTokens.componentSize.buttonSm,
                         ),
                       ),
-                      SizedBox(width: spacing.md),
+                      SizedBox(width: spacing.md * spacingScale),
                       Expanded(
                         child: isDanger
                             ? DestructiveButton(
@@ -324,11 +330,15 @@ class AppModal {
     final spacing = AppTokens.spacing;
     final effectiveIconColor = iconColor ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return alert<void>(
       context: context,
       builder: (context) => Dialog(
         backgroundColor: Colors.transparent,
-        insetPadding: spacing.edgeInsetsAll(spacing.xl),
+        insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
         child: Container(
           constraints: const BoxConstraints(maxWidth: AppLayout.dialogWidthSmall),
           decoration: BoxDecoration(
@@ -356,7 +366,7 @@ class AppModal {
               children: [
                 // Header with icon
                 Container(
-                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                   decoration: BoxDecoration(
                     border: Border(
                       bottom: BorderSide(
@@ -368,7 +378,7 @@ class AppModal {
                   child: Row(
                     children: [
                       Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
+                        padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
                         decoration: BoxDecoration(
                           color: effectiveIconColor.withValues(alpha: AppOpacity.overlay),
                           borderRadius: AppTokens.radius.sm,
@@ -376,14 +386,14 @@ class AppModal {
                         child: Icon(
                           icon ?? Icons.info_outline_rounded,
                           color: effectiveIconColor,
-                          size: AppTokens.iconSize.md,
+                          size: AppTokens.iconSize.md * scale,
                         ),
                       ),
-                      SizedBox(width: spacing.md),
+                      SizedBox(width: spacing.md * spacingScale),
                       Expanded(
                         child: Text(
                           title,
-                          style: AppTokens.typography.subtitle.copyWith(
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
                             fontWeight: AppTokens.fontWeight.semiBold,
                             color: colors.onSurface,
                           ),
@@ -394,17 +404,17 @@ class AppModal {
                 ),
                 // Message content
                 Padding(
-                  padding: spacing.edgeInsetsAll(spacing.xl),
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                   child: Text(
                     message,
-                    style: AppTokens.typography.body.copyWith(
+                    style: AppTokens.typography.bodyScaled(scale).copyWith(
                       color: palette.muted,
                     ),
                   ),
                 ),
                 // Footer with button
                 Container(
-                  padding: spacing.edgeInsetsAll(spacing.lg),
+                  padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
                   decoration: BoxDecoration(
                     border: Border(
                       top: BorderSide(
@@ -449,6 +459,10 @@ class AppModal {
     final spacing = AppTokens.spacing;
     final controller = TextEditingController(text: initialValue);
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final result = await alert<String>(
       context: context,
       builder: (context) => AlertDialog(
@@ -456,20 +470,20 @@ class AppModal {
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
         titlePadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          top: spacing.xl,
-          bottom: spacing.sm,
+          left: spacing.xl * spacingScale,
+          right: spacing.xl * spacingScale,
+          top: spacing.xl * spacingScale,
+          bottom: spacing.sm * spacingScale,
         ),
         contentPadding: spacing.edgeInsetsOnly(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: spacing.lg,
+          left: spacing.xl * spacingScale,
+          right: spacing.xl * spacingScale,
+          bottom: spacing.lg * spacingScale,
         ),
-        actionsPadding: spacing.edgeInsetsAll(spacing.lg),
+        actionsPadding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
         title: Text(
           title,
-          style: AppTokens.typography.title.copyWith(
+          style: AppTokens.typography.titleScaled(scale).copyWith(
             fontWeight: AppTokens.fontWeight.bold,
             color: colors.onSurface,
           ),
@@ -481,11 +495,11 @@ class AppModal {
             if (message != null) ...[
               Text(
                 message,
-                style: AppTokens.typography.body.copyWith(
+                style: AppTokens.typography.bodyScaled(scale).copyWith(
                   color: palette.muted,
                 ),
               ),
-              SizedBox(height: spacing.lg),
+              SizedBox(height: spacing.lg * spacingScale),
             ],
             TextField(
               controller: controller,
@@ -513,7 +527,7 @@ class AppModal {
                       color: colors.primary,
                       width: AppTokens.componentSize.dividerThick),
                 ),
-                contentPadding: spacing.edgeInsetsAll(spacing.md),
+                contentPadding: spacing.edgeInsetsAll(spacing.md * spacingScale),
               ),
             ),
           ],

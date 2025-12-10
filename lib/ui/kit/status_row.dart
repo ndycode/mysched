@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A row showing a status item with icon, label, description, and status pill.
 ///
 /// Used for permission/settings status displays.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class StatusRow extends StatelessWidget {
   const StatusRow({
     super.key,
@@ -37,10 +39,14 @@ class StatusRow extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final accent = colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: spacing.edgeInsetsAll(spacing.md),
+        padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,
           borderRadius: AppTokens.radius.lg,
@@ -56,15 +62,15 @@ class StatusRow extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              height: AppTokens.componentSize.avatarLg,
-              width: AppTokens.componentSize.avatarLg,
+              height: AppTokens.componentSize.avatarLg * scale,
+              width: AppTokens.componentSize.avatarLg * scale,
               decoration: BoxDecoration(
                 color: accent.withValues(alpha: isDark ? AppOpacity.darkTint : AppOpacity.overlay),
                 borderRadius: AppTokens.radius.sm,
               ),
-              child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
+              child: Icon(icon, color: accent, size: AppTokens.iconSize.lg * scale),
             ),
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,22 +80,20 @@ class StatusRow extends StatelessWidget {
                       Expanded(
                         child: Text(
                           label,
-                          style: AppTokens.typography.subtitle.copyWith(
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
                             color: colors.onSurface,
-                            fontSize: AppTokens.typography.body.fontSize,
                             fontWeight: AppTokens.fontWeight.semiBold,
                           ),
                         ),
                       ),
-                      _StatusPill(status: status, optional: optional),
+                      _StatusPill(status: status, optional: optional, scale: scale, spacingScale: spacingScale),
                     ],
                   ),
-                  SizedBox(height: spacing.xs),
+                  SizedBox(height: spacing.xs * spacingScale),
                   Text(
                     description,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.captionScaled(scale).copyWith(
                       color: palette.muted,
-                      fontSize: AppTokens.typography.caption.fontSize,
                     ),
                   ),
                 ],
@@ -102,12 +106,20 @@ class StatusRow extends StatelessWidget {
   }
 }
 
+
 /// Internal status pill widget for StatusRow.
 class _StatusPill extends StatelessWidget {
-  const _StatusPill({required this.status, required this.optional});
+  const _StatusPill({
+    required this.status,
+    required this.optional,
+    required this.scale,
+    required this.spacingScale,
+  });
 
   final bool? status;
   final bool optional;
+  final double scale;
+  final double spacingScale;
 
   @override
   Widget build(BuildContext context) {
@@ -148,8 +160,8 @@ class _StatusPill extends StatelessWidget {
     final spacing = AppTokens.spacing;
     return Container(
       padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md,
-        vertical: spacing.xsPlus,
+        horizontal: spacing.md * spacingScale,
+        vertical: spacing.xsPlus * spacingScale,
       ),
       decoration: BoxDecoration(
         color: bg,
@@ -157,12 +169,12 @@ class _StatusPill extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: theme.textTheme.labelSmall?.copyWith(
+        style: AppTokens.typography.captionScaled(scale).copyWith(
           color: fg,
-          fontSize: AppTokens.typography.caption.fontSize,
           fontWeight: AppTokens.fontWeight.semiBold,
         ),
       ),
     );
   }
 }
+

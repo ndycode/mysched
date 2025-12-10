@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../services/analytics_service.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 
 /// Unified state display variant.
@@ -132,8 +133,12 @@ class StateDisplay extends StatelessWidget {
       params: {'screen': ModalRoute.of(context)?.settings.name},
     );
 
-    final iconSize = compact ? AppTokens.componentSize.stateIconCompact : AppTokens.componentSize.stateIconLarge;
-    final iconInnerSize = compact ? AppTokens.componentSize.stateIconInnerCompact : AppTokens.componentSize.stateIconInnerLarge;
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    final iconSize = (compact ? AppTokens.componentSize.stateIconCompact : AppTokens.componentSize.stateIconLarge) * scale;
+    final iconInnerSize = (compact ? AppTokens.componentSize.stateIconInnerCompact : AppTokens.componentSize.stateIconInnerLarge) * scale;
 
     Widget? primaryButton;
     if (primaryActionLabel != null) {
@@ -177,8 +182,8 @@ class StateDisplay extends StatelessWidget {
         constraints: BoxConstraints(maxWidth: compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
         child: Padding(
           padding: compact
-              ? spacing.edgeInsetsAll(spacing.lg)
-              : spacing.edgeInsetsAll(spacing.xl),
+              ? spacing.edgeInsetsAll(spacing.lg * spacingScale)
+              : spacing.edgeInsetsAll(spacing.xl * spacingScale),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -195,37 +200,37 @@ class StateDisplay extends StatelessWidget {
                 ),
                 child: Icon(displayIcon, color: tintColor, size: iconInnerSize),
               ),
-              SizedBox(height: compact ? spacing.lg : spacing.xl),
+              SizedBox(height: compact ? spacing.lg * spacingScale : spacing.xl * spacingScale),
               Text(
                 title,
                 style: compact
-                    ? theme.textTheme.titleMedium?.copyWith(
+                    ? AppTokens.typography.titleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                       )
-                    : theme.textTheme.titleLarge?.copyWith(
+                    : AppTokens.typography.headlineScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                       ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: spacing.md),
+              SizedBox(height: spacing.md * spacingScale),
               Padding(
                 padding: compact
                     ? EdgeInsets.zero
                     : spacing.edgeInsetsSymmetric(horizontal: spacing.xl),
                 child: Text(
                   message,
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
                     color: palette.muted,
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
               if (primaryButton != null) ...[
-                SizedBox(height: compact ? spacing.lg : spacing.xl),
+                SizedBox(height: compact ? spacing.lg * spacingScale : spacing.xl * spacingScale),
                 primaryButton,
               ],
               if (secondaryActionLabel != null) ...[
-                SizedBox(height: spacing.md),
+                SizedBox(height: spacing.md * spacingScale),
                 TertiaryButton(
                   label: secondaryActionLabel!,
                   onPressed: onSecondaryAction,

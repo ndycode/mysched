@@ -431,9 +431,10 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -686,9 +687,10 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   Widget _buildAppearanceCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -791,9 +793,10 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
   Widget _buildAndroidToolsCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -846,9 +849,10 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
   Widget _buildAdminCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
     final colors = theme.colorScheme;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -893,9 +897,10 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   Widget _buildSupportCard(ThemeData theme) {
     final spacing = AppTokens.spacing;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -972,6 +977,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     String formatSync(DateTime? value) {
       if (value == null) return 'Never';
@@ -984,7 +990,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     }
 
     return Padding(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

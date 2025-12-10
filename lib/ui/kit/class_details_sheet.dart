@@ -335,10 +335,13 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
             child: Container(
@@ -358,7 +361,7 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
               child: Material(
                 type: MaterialType.transparency,
                 child: Padding(
-                  padding: EdgeInsets.all(spacing.xl),
+                  padding: EdgeInsets.all(spacing.xl * spacingScale),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: maxHeight),
                     child: Column(
@@ -475,6 +478,9 @@ class _ClassDetailsContent extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
 
+    // Get responsive scale factors
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final startLabel = _formatTime(details.start);
     final endLabel = _formatTime(details.end);
     final dayValid = details.day >= 1 && details.day <= 7;
@@ -502,7 +508,7 @@ class _ClassDetailsContent extends StatelessWidget {
           icon: Icons.class_rounded,
           onClose: onClose,
         ),
-        SizedBox(height: spacing.xl),
+        SizedBox(height: spacing.xl * spacingScale),
         Flexible(
           child: SingleChildScrollView(
             child: Column(
@@ -510,8 +516,8 @@ class _ClassDetailsContent extends StatelessWidget {
               children: [
                 // Tags
                 Wrap(
-                  spacing: AppTokens.spacing.sm,
-                  runSpacing: AppTokens.spacing.sm,
+                  spacing: AppTokens.spacing.sm * spacingScale,
+                  runSpacing: AppTokens.spacing.sm * spacingScale,
                   children: [
                     // Hide "Synced class" badge for instructors
                     if (!isInstructor)
@@ -530,11 +536,11 @@ class _ClassDetailsContent extends StatelessWidget {
                       ),
                   ],
                 ),
-                SizedBox(height: spacing.lg),
+                SizedBox(height: spacing.lg * spacingScale),
 
                 // Main Details Container
                 Container(
-                  padding: EdgeInsets.all(AppTokens.spacing.xl),
+                  padding: EdgeInsets.all(AppTokens.spacing.xl * spacingScale),
                   decoration: BoxDecoration(
                     color: isDark
                         ? colors.surfaceContainerHighest
@@ -558,7 +564,7 @@ class _ClassDetailsContent extends StatelessWidget {
                       ),
                       Padding(
                         padding: EdgeInsets.symmetric(
-                            vertical: AppTokens.spacing.lg),
+                            vertical: AppTokens.spacing.lg * spacingScale),
                         child: Divider(
                           height: AppTokens.componentSize.divider,
                           color: isDark
@@ -577,7 +583,7 @@ class _ClassDetailsContent extends StatelessWidget {
                       if (details.units != null) ...[
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: AppTokens.spacing.lg),
+                              vertical: AppTokens.spacing.lg * spacingScale),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark
@@ -598,7 +604,7 @@ class _ClassDetailsContent extends StatelessWidget {
                           details.sectionName != null) ...[
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: AppTokens.spacing.lg),
+                              vertical: AppTokens.spacing.lg * spacingScale),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark
@@ -623,7 +629,7 @@ class _ClassDetailsContent extends StatelessWidget {
                       if (details.createdAt != null) ...[
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              vertical: AppTokens.spacing.lg),
+                              vertical: AppTokens.spacing.lg * spacingScale),
                           child: Divider(
                             height: AppTokens.componentSize.divider,
                             color: isDark
@@ -648,11 +654,11 @@ class _ClassDetailsContent extends StatelessWidget {
                 if (!isInstructor &&
                     details.instructorName != null &&
                     details.instructorName!.isNotEmpty) ...[
-                  SizedBox(height: spacing.lg),
+                  SizedBox(height: spacing.lg * spacingScale),
                   _InstructorDetail(details: details),
                 ],
 
-                SizedBox(height: spacing.xl),
+                SizedBox(height: spacing.xl * spacingScale),
 
                 // Actions
                 _ClassDetailActions(
@@ -697,8 +703,12 @@ class _InstructorDetail extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final name = details.instructorName ?? '';
 
+    // Get responsive scale factors
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Container(
-      padding: EdgeInsets.all(AppTokens.spacing.lg),
+      padding: EdgeInsets.all(AppTokens.spacing.lg * spacingScale),
       decoration: BoxDecoration(
         color: isDark
             ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
@@ -716,12 +726,12 @@ class _InstructorDetail extends StatelessWidget {
         children: [
           Text(
             'Instructor',
-            style: theme.textTheme.labelMedium?.copyWith(
+            style: AppTokens.typography.captionScaled(scale).copyWith(
               color: palette.muted,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
           ),
-          SizedBox(height: AppTokens.spacing.md),
+          SizedBox(height: AppTokens.spacing.md * spacingScale),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -729,30 +739,19 @@ class _InstructorDetail extends StatelessWidget {
                 name: name,
                 avatarUrl: details.instructorAvatar,
                 tint: colors.primary,
-                size: AppTokens.iconSize.xxl,
+                size: AppTokens.iconSize.xxl * scale,
               ),
-              SizedBox(width: AppTokens.spacing.lg),
+              SizedBox(width: AppTokens.spacing.lg * spacingScale),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       name,
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                       ),
                     ),
-                    if (details.instructorEmail != null &&
-                        details.instructorEmail!.isNotEmpty) ...[
-                      SizedBox(height: AppTokens.spacing.xs),
-                      Text(
-                        details.instructorEmail!,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: colors.primary,
-                          fontWeight: AppTokens.fontWeight.medium,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),

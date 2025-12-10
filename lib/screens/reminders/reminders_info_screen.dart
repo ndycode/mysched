@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../services/reminder_scope_store.dart';
-import '../../ui/kit/alarm_preview.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';

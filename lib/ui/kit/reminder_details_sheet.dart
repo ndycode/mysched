@@ -52,10 +52,14 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return SafeArea(
       child: Center(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
           child: ConstrainedBox(
             constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
             child: Container(
@@ -74,7 +78,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
               child: Material(
                 type: MaterialType.transparency,
                 child: Padding(
-                  padding: EdgeInsets.all(spacing.xl),
+                  padding: EdgeInsets.all(spacing.xl * spacingScale),
                   child: ConstrainedBox(
                     constraints: BoxConstraints(maxHeight: maxHeight),
                     child: Column(
@@ -86,8 +90,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: AppTokens.componentSize.buttonLg,
-                        width: AppTokens.componentSize.buttonLg,
+                        height: AppTokens.componentSize.buttonLg * scale,
+                        width: AppTokens.componentSize.buttonLg * scale,
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topLeft,
@@ -106,17 +110,17 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                         child: Icon(
                           Icons.notifications_active_rounded,
                           color: colors.primary,
-                          size: AppTokens.iconSize.xl,
+                          size: AppTokens.iconSize.xl * scale,
                         ),
                       ),
-                      SizedBox(width: AppTokens.spacing.lg),
+                      SizedBox(width: AppTokens.spacing.lg * spacingScale),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               widget.entry.title,
-                              style: AppTokens.typography.title.copyWith(
+                              style: AppTokens.typography.titleScaled(scale).copyWith(
                                 fontWeight: AppTokens.fontWeight.extraBold,
                                 letterSpacing: AppLetterSpacing.tight,
                                 height: AppLineHeight.headline,
@@ -125,10 +129,10 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            SizedBox(height: AppTokens.spacing.xs),
+                            SizedBox(height: AppTokens.spacing.xs * spacingScale),
                             Text(
                               'Reminder details',
-                              style: AppTokens.typography.bodySecondary.copyWith(
+                              style: AppTokens.typography.bodySecondaryScaled(scale).copyWith(
                                 color: isDark ? palette.muted.withValues(alpha: AppOpacity.muted) : palette.muted,
                                 fontWeight: AppTokens.fontWeight.medium,
                               ),
@@ -136,25 +140,25 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                           ],
                         ),
                       ),
-                      SizedBox(width: AppTokens.spacing.md),
+                      SizedBox(width: AppTokens.spacing.md * spacingScale),
                       PressableScale(
                         onTap: () => Navigator.of(context).pop(),
                         child: Container(
-                          padding: EdgeInsets.all(AppTokens.spacing.sm),
+                          padding: EdgeInsets.all(AppTokens.spacing.sm * spacingScale),
                           decoration: BoxDecoration(
                             color: colors.onSurface.withValues(alpha: AppOpacity.faint),
                             borderRadius: AppTokens.radius.md,
                           ),
                           child: Icon(
                             Icons.close_rounded,
-                            size: AppTokens.iconSize.md,
+                            size: AppTokens.iconSize.md * scale,
                             color: palette.muted,
                           ),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: spacing.xl),
+                  SizedBox(height: spacing.xl * spacingScale),
 
                   // Content
                   Flexible(
@@ -164,8 +168,8 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                         children: [
                           // Tags
                           Wrap(
-                            spacing: AppTokens.spacing.sm,
-                            runSpacing: AppTokens.spacing.sm,
+                            spacing: AppTokens.spacing.sm * spacingScale,
+                            runSpacing: AppTokens.spacing.sm * spacingScale,
                             children: [
                               StatusInfoChip(
                                 icon: widget.isActive
@@ -190,11 +194,11 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                 ),
                             ],
                           ),
-                          SizedBox(height: spacing.lg),
+                          SizedBox(height: spacing.lg * spacingScale),
 
                           // Main Details Container
                           Container(
-                            padding: EdgeInsets.all(AppTokens.spacing.xl),
+                            padding: EdgeInsets.all(AppTokens.spacing.xl * spacingScale),
                             decoration: BoxDecoration(
                               color: isDark 
                                   ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost) 
@@ -217,7 +221,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                 ),
                                 if (widget.entry.details != null && widget.entry.details!.isNotEmpty) ...[
                                   Padding(
-                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg * spacingScale),
                                     child: Divider(
                                       height: AppTokens.componentSize.divider,
                                       color: isDark 
@@ -234,7 +238,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                                 ],
                                 if (widget.entry.snoozeUntil != null) ...[
                                   Padding(
-                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg),
+                                    padding: EdgeInsets.symmetric(vertical: AppTokens.spacing.lg * spacingScale),
                                     child: Divider(
                                       height: AppTokens.componentSize.divider,
                                       color: isDark 
@@ -254,7 +258,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                             ),
                           ),
                           
-                          SizedBox(height: spacing.xl),
+                          SizedBox(height: spacing.xl * spacingScale),
 
                           // Actions
                           _ReminderActions(

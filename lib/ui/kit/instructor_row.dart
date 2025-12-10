@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A shared instructor row widget for displaying instructor info in entity tiles.
 /// 
 /// Used as bottomContent in EntityTile for schedule rows across dashboard and schedules screens.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class InstructorRow extends StatelessWidget {
   const InstructorRow({
     super.key,
@@ -33,7 +35,12 @@ class InstructorRow extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
-    final size = avatarSize ?? AppTokens.componentSize.badgeLg;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    final size = (avatarSize ?? AppTokens.componentSize.badgeLg) * scale;
 
     return Row(
       children: [
@@ -75,18 +82,18 @@ class InstructorRow extends StatelessWidget {
             child: Center(
               child: Text(
                 name.isNotEmpty ? name[0].toUpperCase() : '?',
-                style: AppTokens.typography.caption.copyWith(
+                style: AppTokens.typography.captionScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                   color: colors.primary,
                 ),
               ),
             ),
           ),
-        SizedBox(width: spacing.sm),
+        SizedBox(width: spacing.sm * spacingScale),
         Expanded(
           child: Text(
             name,
-            style: AppTokens.typography.caption.copyWith(
+            style: AppTokens.typography.captionScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.medium,
               color: palette.muted,
             ),
@@ -98,3 +105,4 @@ class InstructorRow extends StatelessWidget {
     );
   }
 }
+

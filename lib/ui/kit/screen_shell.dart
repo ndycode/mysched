@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 import 'containers.dart';
 import 'layout.dart';
+import 'responsive_provider.dart';
 
 /// Contract for widgets that can provide custom sliver output when the shell
 /// renders in sliver mode.
@@ -211,6 +212,11 @@ class ScreenHeroCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final children = <Widget>[
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +227,7 @@ class ScreenHeroCard extends StatelessWidget {
               children: [
                   Text(
                     title,
-                    style: AppTokens.typography.headline.copyWith(
+                    style: AppTokens.typography.headlineScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.extraBold,
                       letterSpacing: AppLetterSpacing.tight,
                       color: theme.brightness == Brightness.dark
@@ -230,10 +236,10 @@ class ScreenHeroCard extends StatelessWidget {
                     ),
                   ),
                 if (subtitle != null) ...[
-                  SizedBox(height: spacing.xs),
+                  SizedBox(height: spacing.xs * spacingScale),
                   Text(
                     subtitle!,
-                    style: AppTokens.typography.bodySecondary.copyWith(
+                    style: AppTokens.typography.captionScaled(scale).copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       fontWeight: AppTokens.fontWeight.medium,
                     ),
@@ -243,33 +249,33 @@ class ScreenHeroCard extends StatelessWidget {
             ),
           ),
           if (trailing != null) ...[
-            SizedBox(width: spacing.md),
+            SizedBox(width: spacing.md * spacingScale),
             trailing!,
           ],
         ],
       ),
       if (chips.isNotEmpty) ...[
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.lg * spacingScale),
         Wrap(
-          spacing: spacing.md,
-          runSpacing: spacing.sm,
+          spacing: spacing.md * spacingScale,
+          runSpacing: spacing.sm * spacingScale,
           children: chips,
         ),
       ],
       if (body != null) ...[
-        SizedBox(height: spacing.lg),
+        SizedBox(height: spacing.lg * spacingScale),
         body!,
       ],
     ];
 
     return CardX(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (leading != null) ...[
             leading!,
-            SizedBox(height: spacing.md),
+            SizedBox(height: spacing.md * spacingScale),
           ],
           ...children,
         ],
@@ -301,6 +307,9 @@ class ScreenSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final content = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -315,9 +324,8 @@ class ScreenSection extends StatelessWidget {
                     if (title != null)
                       Text(
                         title!,
-                        style: theme.textTheme.titleMedium?.copyWith(
+                        style: AppTokens.typography.subtitleScaled(scale).copyWith(
                           fontWeight: AppTokens.fontWeight.extraBold,
-                          fontSize: AppTokens.typography.subtitle.fontSize,
                           letterSpacing: AppLetterSpacing.snug,
                           color: theme.colorScheme.onSurface,
                         ),
@@ -341,7 +349,7 @@ class ScreenSection extends StatelessWidget {
               ],
             ],
           ),
-          SizedBox(height: spacing.lg),
+          SizedBox(height: spacing.lg * spacingScale),
         ],
         child,
       ],
@@ -359,7 +367,7 @@ class ScreenSection extends StatelessWidget {
 
     return RepaintBoundary(
       child: CardX(
-        padding: padding ?? spacing.edgeInsetsAll(spacing.lg),
+        padding: padding ?? spacing.edgeInsetsAll(spacing.lg * spacingScale),
         child: content,
       ),
     );

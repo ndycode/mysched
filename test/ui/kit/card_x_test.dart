@@ -33,17 +33,17 @@ void main() {
       expect(find.byType(CardX), findsOneWidget);
     });
 
-    testWidgets('renders flat variant', (tester) async {
+    testWidgets('renders outlined variant', (tester) async {
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),
         child: const CardX(
-          variant: CardVariant.flat,
-          child: Text('Flat Card'),
+          variant: CardVariant.outlined,
+          child: Text('Outlined Card'),
         ),
       );
 
-      expect(find.text('Flat Card'), findsOneWidget);
+      expect(find.text('Outlined Card'), findsOneWidget);
     });
 
     testWidgets('applies custom padding', (tester) async {

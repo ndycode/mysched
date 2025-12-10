@@ -1,5 +1,30 @@
 # Changelog
 
+## [Patch 13] - 2024-12-10
+
+### 🎨 Responsive Screen Compatibility
+- **Global Responsive Scaling System**: Added `AppResponsive` utility and `ResponsiveProvider` for screen-aware scaling
+- **Reference Width**: 390dp baseline - standard devices unchanged, compact screens (~360dp) scale down ~8%
+- Uses global `AppLayout` tokens (`referenceWidth`, `compactThreshold`, `wideThreshold`)
+
+### 📱 Updated Components (57+ total)
+- **Core**: `entity_tile`, `buttons`, `MetricChip`, `states.dart` (StateDisplay, MessageCard, InfoBanner)
+- **Tiles**: `info_tile`, `detail_row`, `quick_action_tile`, `form_field_tile`, `time_field_tile`
+- **Chips/Badges**: `status_badge`, `status_chip`, `info_chip`, `StatusInfoChip`, `queued_badge`
+- **Rows**: `instructor_row`, `section_header`, `sheet_header_row`, `status_row`, `rows.dart` (SettingsRow)
+- **Dialogs/Forms**: `option_picker`, `hint_bubble`, `error_banner`, `date_picker`, `time_picker`, `consent_dialog`
+- **Navigation**: `back_button`, `segmented_pills`, `glass_navigation_bar`
+- **Dashboard**: `dashboard_cards`, `hero_avatar`, `empty_hero_placeholder`, `brand_header`
+- **Layout**: `containers.dart`, `snack_bars`, `simple_bullet`, `layout.dart` (PageBody)
+- **Shells**: `screen_shell.dart` (ScreenHeroCard, ScreenSection), `auth_shell`, `brand_scaffold`
+- **Utilities**: `modals.dart`, `skeletons.dart` (responsive-ready)
+
+### 🛠️ New Extensions
+- `ResponsiveSpacing`: Scaled spacing helpers for EdgeInsets
+- `ResponsiveTypography`: Scaled font size methods for all text styles
+
+---
+
 ## 2.0.2 - 2024-12-10
 
 ### ✨ New Features
@@ -19,6 +44,17 @@
 - **Section Icon**: Replaced circular avatars with `Icons.class_outlined` in rounded container
 - **Centered Message**: "Linked classes can only be edited by an administrator" now centered
 - **Empty States**: Custom messaging for instructors ("No classes assigned")
+
+### 🐛 Bug Fixes
+- **Stale Session Detection**: Fixed infinite "Refresh session" loop when auth token expires
+  - Added `AuthService.isStaleSessionError()` to detect non-recoverable auth errors
+  - Shows "Your session has expired. Please sign out and sign in again." instead of generic error
+  - Prevents Supabase SDK from spamming refresh attempts
+
+### ⚡ Performance
+- **Section ID Caching**: Reduced dashboard refresh queries from 5 to 3 (first call) or 1 (subsequent)
+  - `getCurrentSectionId()` now caches result with 5-minute TTL
+  - Cache auto-invalidates on user change
 
 ### 🛠️ Code Changes
 - Added `InstructorService` for role detection and class fetching

@@ -35,7 +35,7 @@ final GoRouter appRouter = GoRouter(
       path: AppRoutes.login,
       pageBuilder: (context, state) => CustomTransitionPage(
         child: const LoginPage(),
-        transitionDuration: const Duration(milliseconds: 400),
+        transitionDuration: const Duration(milliseconds: 500),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -87,7 +87,7 @@ final GoRouter appRouter = GoRouter(
             fromScan: fromScan,
             reminderScopeOverride: scope,
           ),
-          transitionDuration: const Duration(milliseconds: 400),
+          transitionDuration: const Duration(milliseconds: 500),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             return FadeTransition(opacity: animation, child: child);
           },

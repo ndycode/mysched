@@ -117,18 +117,20 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
   Widget _buildSummaryCard(
       ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return CardX(
       variant: CardVariant.elevated,
-      padding: spacing.edgeInsetsAll(spacing.xxl),
+      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Container(
-                height: AppTokens.componentSize.avatarXl,
-                width: AppTokens.componentSize.avatarXl,
+                height: AppTokens.componentSize.avatarXl * scale,
+                width: AppTokens.componentSize.avatarXl * scale,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -148,7 +150,7 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
                 child: Icon(
                   Icons.report_problem_outlined,
                   color: colors.primary,
-                  size: AppTokens.iconSize.xl,
+                  size: AppTokens.iconSize.xl * scale,
                 ),
               ),
               SizedBox(width: spacing.lg),
@@ -158,7 +160,7 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
                   children: [
                     Text(
                       'Issue Reports',
-                      style: AppTokens.typography.title.copyWith(
+                      style: AppTokens.typography.titleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
                         letterSpacing: AppLetterSpacing.snug,
                         color: colors.onSurface,
@@ -185,6 +187,8 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
   Widget _buildReportsList(
       ColorScheme colors, bool isDark, ColorPalette palette) {
     final spacing = AppTokens.spacing;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
 
     return ListenableBuilder(
       listenable: _controller,
@@ -198,7 +202,7 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
         if (_controller.reports.isEmpty) {
           return CardX(
             variant: CardVariant.elevated,
-            padding: spacing.edgeInsetsAll(spacing.xxl),
+            padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
             child: EmptyHeroPlaceholder(
               icon: Icons.inbox_outlined,
               title: 'No reports found',
@@ -209,13 +213,13 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
 
         return CardX(
           variant: CardVariant.elevated,
-          padding: spacing.edgeInsetsAll(spacing.xxl),
+          padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 'Pending review',
-                style: AppTokens.typography.subtitle.copyWith(
+                style: AppTokens.typography.subtitleScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.semiBold,
                   color: colors.onSurface,
                 ),

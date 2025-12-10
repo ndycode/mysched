@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'pressable_scale.dart';
+import 'responsive_provider.dart';
 
 /// Premium time picker with scroll wheel selection.
 ///
@@ -81,9 +82,13 @@ class _AppTimePickerState extends State<_AppTimePicker> {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsAll(spacing.xl),
+      insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,
@@ -109,7 +114,7 @@ class _AppTimePickerState extends State<_AppTimePicker> {
             children: [
               // Header
               Container(
-                padding: spacing.edgeInsetsAll(spacing.xl),
+                padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -121,7 +126,7 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                 child: Row(
                   children: [
                     Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
+                      padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
                       decoration: BoxDecoration(
                         color: colors.primary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
@@ -129,13 +134,13 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                       child: Icon(
                         Icons.schedule_rounded,
                         color: colors.primary,
-                        size: AppTokens.iconSize.md,
+                        size: AppTokens.iconSize.md * scale,
                       ),
                     ),
-                    SizedBox(width: spacing.md),
+                    SizedBox(width: spacing.md * spacingScale),
                     Text(
                       widget.helpText ?? 'Select time',
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
@@ -145,8 +150,8 @@ class _AppTimePickerState extends State<_AppTimePicker> {
               // Time wheels
               Padding(
                 padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.xxl,
-                  vertical: spacing.xl,
+                  horizontal: spacing.xxl * spacingScale,
+                  vertical: spacing.xl * spacingScale,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -157,14 +162,15 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                       itemCount: 12,
                       itemBuilder: (index) => '${index + 1}'.padLeft(2, '0'),
                       onChanged: (index) => setState(() => _hour = index + 1),
-                      width: 70,
+                      width: 70 * scale,
+                      scale: scale,
                     ),
                     // Separator
                     Padding(
-                      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm),
+                      padding: spacing.edgeInsetsSymmetric(horizontal: spacing.sm * spacingScale),
                       child: Text(
                         ':',
-                        style: AppTokens.typography.display.copyWith(
+                        style: AppTokens.typography.displayScaled(scale).copyWith(
                           fontWeight: AppTokens.fontWeight.bold,
                           color: colors.onSurface,
                         ),
@@ -176,9 +182,10 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                       itemCount: 60,
                       itemBuilder: (index) => '$index'.padLeft(2, '0'),
                       onChanged: (index) => setState(() => _minute = index),
-                      width: 70,
+                      width: 70 * scale,
+                      scale: scale,
                     ),
-                    SizedBox(width: spacing.lg),
+                    SizedBox(width: spacing.lg * spacingScale),
                     // AM/PM toggle
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -187,12 +194,14 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                           label: 'AM',
                           isSelected: _isAm,
                           onTap: () => setState(() => _isAm = true),
+                          scale: scale,
                         ),
-                        SizedBox(height: spacing.xs),
+                        SizedBox(height: spacing.xs * spacingScale),
                         _AmPmButton(
                           label: 'PM',
                           isSelected: !_isAm,
                           onTap: () => setState(() => _isAm = false),
+                          scale: scale,
                         ),
                       ],
                     ),
@@ -201,7 +210,7 @@ class _AppTimePickerState extends State<_AppTimePicker> {
               ),
               // Footer with buttons (OK first, Cancel second)
               Container(
-                padding: spacing.edgeInsetsAll(spacing.lg),
+                padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -245,6 +254,7 @@ class _ScrollWheel extends StatelessWidget {
     required this.itemBuilder,
     required this.onChanged,
     required this.width,
+    required this.scale,
   });
 
   final FixedExtentScrollController controller;
@@ -252,22 +262,28 @@ class _ScrollWheel extends StatelessWidget {
   final String Function(int index) itemBuilder;
   final ValueChanged<int> onChanged;
   final double width;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
+    final itemExtent = 50.0 * scale;
+    final fadeHeight = 60.0 * scale;
+    final wheelHeight = 180.0 * scale;
 
     return SizedBox(
       width: width,
-      height: 180,
+      height: wheelHeight,
       child: Stack(
         children: [
           // Selection highlight
           Positioned.fill(
             child: Center(
               child: Container(
-                height: 50,
+                height: itemExtent,
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.md,
@@ -278,7 +294,7 @@ class _ScrollWheel extends StatelessWidget {
           // Scroll wheel
           ListWheelScrollView.useDelegate(
             controller: controller,
-            itemExtent: 50,
+            itemExtent: itemExtent,
             perspective: 0.003,
             diameterRatio: 1.5,
             physics: const FixedExtentScrollPhysics(),
@@ -289,7 +305,7 @@ class _ScrollWheel extends StatelessWidget {
                 return Center(
                   child: Text(
                     itemBuilder(index),
-                    style: AppTokens.typography.display.copyWith(
+                    style: AppTokens.typography.displayScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.bold,
                       color: colors.onSurface,
                     ),
@@ -303,7 +319,7 @@ class _ScrollWheel extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: 60,
+            height: fadeHeight,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
@@ -311,8 +327,9 @@ class _ScrollWheel extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      colors.surface,
-                      colors.surface.withValues(alpha: 0),
+                      isDark ? colors.surfaceContainerHigh : colors.surface,
+                      (isDark ? colors.surfaceContainerHigh : colors.surface)
+                          .withValues(alpha: 0),
                     ],
                   ),
                 ),
@@ -323,7 +340,7 @@ class _ScrollWheel extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            height: 60,
+            height: fadeHeight,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
@@ -331,8 +348,9 @@ class _ScrollWheel extends StatelessWidget {
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      colors.surface,
-                      colors.surface.withValues(alpha: 0),
+                      isDark ? colors.surfaceContainerHigh : colors.surface,
+                      (isDark ? colors.surfaceContainerHigh : colors.surface)
+                          .withValues(alpha: 0),
                     ],
                   ),
                 ),
@@ -350,11 +368,13 @@ class _AmPmButton extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    required this.scale,
   });
 
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
@@ -366,8 +386,8 @@ class _AmPmButton extends StatelessWidget {
     return PressableScale(
       onTap: onTap,
       child: Container(
-        width: 50,
-        height: 40,
+        width: 50 * scale,
+        height: 40 * scale,
         decoration: BoxDecoration(
           color: isSelected
               ? colors.primary.withValues(alpha: AppOpacity.overlay)
@@ -381,7 +401,7 @@ class _AmPmButton extends StatelessWidget {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: AppTokens.typography.body.copyWith(
+          style: AppTokens.typography.bodyScaled(scale).copyWith(
             fontWeight: isSelected
                 ? AppTokens.fontWeight.semiBold
                 : AppTokens.fontWeight.regular,

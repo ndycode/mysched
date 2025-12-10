@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
 import 'buttons.dart';
+import 'responsive_provider.dart';
 
 /// Premium date picker with scroll wheel selection.
 ///
@@ -104,11 +105,15 @@ class _AppDatePickerState extends State<_AppDatePicker> {
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final daysInCurrentMonth = _daysInMonth(_selectedYear, _selectedMonth);
 
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsAll(spacing.xl),
+      insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
       child: Container(
         decoration: BoxDecoration(
           color: isDark ? colors.surfaceContainerHigh : colors.surface,
@@ -134,7 +139,7 @@ class _AppDatePickerState extends State<_AppDatePicker> {
             children: [
               // Header
               Container(
-                padding: spacing.edgeInsetsAll(spacing.xl),
+                padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
@@ -146,7 +151,7 @@ class _AppDatePickerState extends State<_AppDatePicker> {
                 child: Row(
                   children: [
                     Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
+                      padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
                       decoration: BoxDecoration(
                         color: colors.primary.withValues(alpha: AppOpacity.overlay),
                         borderRadius: AppTokens.radius.sm,
@@ -154,13 +159,13 @@ class _AppDatePickerState extends State<_AppDatePicker> {
                       child: Icon(
                         Icons.calendar_month_rounded,
                         color: colors.primary,
-                        size: AppTokens.iconSize.md,
+                        size: AppTokens.iconSize.md * scale,
                       ),
                     ),
-                    SizedBox(width: spacing.md),
+                    SizedBox(width: spacing.md * spacingScale),
                     Text(
                       widget.helpText ?? 'Select date',
-                      style: AppTokens.typography.subtitle.copyWith(
+                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
                         fontWeight: AppTokens.fontWeight.semiBold,
                       ),
                     ),
@@ -170,8 +175,8 @@ class _AppDatePickerState extends State<_AppDatePicker> {
               // Date wheels
               Padding(
                 padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.xl,
+                  horizontal: spacing.lg * spacingScale,
+                  vertical: spacing.xl * spacingScale,
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -182,38 +187,41 @@ class _AppDatePickerState extends State<_AppDatePicker> {
                       itemCount: 12,
                       itemBuilder: (index) => _months[index],
                       onChanged: (index) => setState(() => _selectedMonth = index + 1),
-                      width: 70,
+                      width: 70 * scale,
                       isDark: isDark,
                       colors: colors,
+                      scale: scale,
                     ),
-                    SizedBox(width: spacing.sm),
+                    SizedBox(width: spacing.sm * spacingScale),
                     // Day wheel
                     _ScrollWheel(
                       controller: _dayController,
                       itemCount: daysInCurrentMonth,
                       itemBuilder: (index) => '${index + 1}',
                       onChanged: (index) => setState(() => _selectedDay = index + 1),
-                      width: 50,
+                      width: 50 * scale,
                       isDark: isDark,
                       colors: colors,
+                      scale: scale,
                     ),
-                    SizedBox(width: spacing.sm),
+                    SizedBox(width: spacing.sm * spacingScale),
                     // Year wheel
                     _ScrollWheel(
                       controller: _yearController,
                       itemCount: _years.length,
                       itemBuilder: (index) => '${_years[index]}',
                       onChanged: (index) => setState(() => _selectedYear = _years[index]),
-                      width: 80,
+                      width: 80 * scale,
                       isDark: isDark,
                       colors: colors,
+                      scale: scale,
                     ),
                   ],
                 ),
               ),
               // Footer with buttons (OK first, Cancel second)
               Container(
-                padding: spacing.edgeInsetsAll(spacing.lg),
+                padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
                     top: BorderSide(
@@ -259,6 +267,7 @@ class _ScrollWheel extends StatelessWidget {
     required this.width,
     required this.isDark,
     required this.colors,
+    required this.scale,
   });
 
   final FixedExtentScrollController controller;
@@ -268,19 +277,24 @@ class _ScrollWheel extends StatelessWidget {
   final double width;
   final bool isDark;
   final ColorScheme colors;
+  final double scale;
 
   @override
   Widget build(BuildContext context) {
+    final itemExtent = 50.0 * scale;
+    final fadeHeight = 60.0 * scale;
+    final wheelHeight = 180.0 * scale;
+
     return SizedBox(
       width: width,
-      height: 180,
+      height: wheelHeight,
       child: Stack(
         children: [
           // Selection highlight
           Positioned.fill(
             child: Center(
               child: Container(
-                height: 50,
+                height: itemExtent,
                 decoration: BoxDecoration(
                   color: colors.primary.withValues(alpha: AppOpacity.overlay),
                   borderRadius: AppTokens.radius.md,
@@ -291,7 +305,7 @@ class _ScrollWheel extends StatelessWidget {
           // Scroll wheel
           ListWheelScrollView.useDelegate(
             controller: controller,
-            itemExtent: 50,
+            itemExtent: itemExtent,
             perspective: 0.003,
             diameterRatio: 1.5,
             physics: const FixedExtentScrollPhysics(),
@@ -302,7 +316,7 @@ class _ScrollWheel extends StatelessWidget {
                 return Center(
                   child: Text(
                     itemBuilder(index),
-                    style: AppTokens.typography.headline.copyWith(
+                    style: AppTokens.typography.headlineScaled(scale).copyWith(
                       fontWeight: AppTokens.fontWeight.bold,
                       color: colors.onSurface,
                     ),
@@ -316,7 +330,7 @@ class _ScrollWheel extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: 60,
+            height: fadeHeight,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(
@@ -337,7 +351,7 @@ class _ScrollWheel extends StatelessWidget {
             bottom: 0,
             left: 0,
             right: 0,
-            height: 60,
+            height: fadeHeight,
             child: IgnorePointer(
               child: Container(
                 decoration: BoxDecoration(

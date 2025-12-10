@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 import 'switch.dart';
 
 /// A reusable row widget with an icon badge, title, description, and trailing widget.
 /// 
 /// Use [ToggleRow] for toggle switches or [NavigationRow] for tap actions.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class SettingsRow extends StatelessWidget {
   const SettingsRow({
     super.key,
@@ -33,37 +35,41 @@ class SettingsRow extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final accent = accentColor ?? colors.primary;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final content = Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Icon badge
         Container(
-          height: AppTokens.componentSize.avatarLg,
-          width: AppTokens.componentSize.avatarLg,
+          height: AppTokens.componentSize.avatarLg * scale,
+          width: AppTokens.componentSize.avatarLg * scale,
           decoration: BoxDecoration(
             color: accent.withValues(alpha: AppOpacity.medium),
             borderRadius: AppTokens.radius.md,
           ),
           alignment: Alignment.center,
-          child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
+          child: Icon(icon, color: accent, size: AppTokens.iconSize.lg * scale),
         ),
-        SizedBox(width: spacing.md),
+        SizedBox(width: spacing.md * spacingScale),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: AppTokens.typography.subtitle.copyWith(
+                style: AppTokens.typography.subtitleScaled(scale).copyWith(
                   color: colors.onSurface,
                   fontWeight: AppTokens.fontWeight.semiBold,
                 ),
               ),
               if (description != null) ...[
-                SizedBox(height: spacing.xs),
+                SizedBox(height: spacing.xs * spacingScale),
                 Text(
                   description!,
-                  style: AppTokens.typography.bodySecondary.copyWith(
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
                     color: palette.muted,
                   ),
                 ),
@@ -72,7 +78,7 @@ class SettingsRow extends StatelessWidget {
           ),
         ),
         if (trailing != null) ...[
-          SizedBox(width: spacing.md),
+          SizedBox(width: spacing.md * spacingScale),
           trailing!,
         ],
       ],
@@ -83,18 +89,19 @@ class SettingsRow extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
+          padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm * spacingScale),
           child: content,
         ),
       );
     }
 
     return Padding(
-      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
+      padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm * spacingScale),
       child: content,
     );
   }
 }
+
 
 /// A settings row with a toggle switch.
 class ToggleRow extends StatelessWidget {

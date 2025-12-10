@@ -67,17 +67,46 @@ class _BootstrapGateState extends State<BootstrapGate> {
 
   Future<void> _goNext() async {
     if (_navigated || !mounted) return;
-    final signedIn =
+    
+    // Check if we have a session
+    final hasSession =
         Env.isInitialized && Env.supa.auth.currentSession != null;
     
-    // Check instructor status for already signed-in users
+    bool signedIn = false;
+    if (hasSession) {
+      // Try to validate the session by attempting a refresh
+      // This catches stale sessions BEFORE the app spams API calls
+      try {
+        final response = await Env.supa.auth.refreshSession();
+        signedIn = response.session != null;
+        if (signedIn) {
+          AppLog.info('BootstrapGate', 'Session refreshed successfully');
+        }
+      } catch (e) {
+        // Session is stale/invalid - force logout
+        AppLog.warn(
+          'BootstrapGate',
+          'Session refresh failed - forcing logout',
+          error: e,
+        );
+        try {
+          await Env.supa.auth.signOut();
+        } catch (_) {
+          // Ignore signOut errors - session is already invalid
+        }
+        signedIn = false;
+      }
+    }
+    
+    // Check instructor status for validated signed-in users
     if (signedIn) {
       await InstructorService.instance.checkInstructorStatus();
     }
     
     _navigated = true;
     if (!mounted) return;
-    context.go(signedIn ? AppRoutes.app : AppRoutes.login);
+    
+    context.pushReplacement(signedIn ? AppRoutes.app : AppRoutes.login);
   }
 
   Future<void> _requestPermissionFlow() async {
@@ -191,7 +220,7 @@ class _BootstrapGateState extends State<BootstrapGate> {
 
   @override
   Widget build(BuildContext context) {
-    return const AppScaffold(
+    return AppScaffold(
       screenName: 'splash',
       safeArea: false,
       body: AppBackground(

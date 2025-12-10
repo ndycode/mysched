@@ -5,6 +5,7 @@ import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'hero_avatar.dart';
 import 'pressable_scale.dart';
+import 'responsive_provider.dart';
 import 'skeletons.dart';
 
 /// Displays the centered MySched brand title with an account avatar button.
@@ -59,17 +60,21 @@ class BrandHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     final style = textStyle ??
-        theme.textTheme.titleLarge?.copyWith(
+        AppTokens.typography.titleScaled(scale).copyWith(
           fontFamily: AppTypography.primaryFont,
           fontWeight: AppTokens.fontWeight.bold,
           color: theme.colorScheme.primary,
-          fontSize: AppTokens.typography.title.fontSize,
         ) ??
         TextStyle(
           fontFamily: AppTypography.primaryFont,
           fontWeight: AppTokens.fontWeight.bold,
-          fontSize: AppTokens.typography.title.fontSize,
+          fontSize: AppTokens.typography.title.fontSize! * scale,
           color: theme.colorScheme.primary,
         );
 
@@ -81,20 +86,20 @@ class BrandHeader extends StatelessWidget {
                 child: PressableScale(
                   onTap: onAccountTap,
                   child: Padding(
-                    padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.micro),
+                    padding: AppTokens.spacing.edgeInsetsSymmetric(horizontal: AppTokens.spacing.micro * spacingScale),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         HeroAvatar(
                           fallbackLetter: _initial(),
                           avatarUrl: avatarUrl,
-                          radius: avatarRadius,
+                          radius: avatarRadius * scale,
                         ),
                         if (showChevron) ...[
-                          SizedBox(width: AppTokens.spacing.xs),
+                          SizedBox(width: AppTokens.spacing.xs * spacingScale),
                           Icon(
                             Icons.expand_more_rounded,
-                            size: AppTokens.iconSize.lg,
+                            size: AppTokens.iconSize.lg * scale,
                             color: theme.colorScheme.primary,
                           ),
                         ],

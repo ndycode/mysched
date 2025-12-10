@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../theme/tokens.dart';
+import 'responsive_provider.dart';
 
 /// A unified segmented control (pills) used for filters and scopes.
 /// Styled to match dashboard SegmentedButton design with proper borders,
 /// backgrounds, and typography from global tokens.
+/// Automatically adapts to screen size via [ResponsiveProvider].
 class SegmentedPills<T> extends StatelessWidget {
   const SegmentedPills({
     super.key,
@@ -33,6 +35,10 @@ class SegmentedPills<T> extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
+    // Get responsive scale factors (1.0 on standard ~390dp screens)
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
     return SizedBox(
       width: double.infinity,
       child: SegmentedButton<T>(
@@ -41,8 +47,8 @@ class SegmentedPills<T> extends StatelessWidget {
         style: ButtonStyle(
           padding: WidgetStateProperty.all(
             spacing.edgeInsetsSymmetric(
-              horizontal: spacing.md,
-              vertical: spacing.md,
+              horizontal: spacing.md * spacingScale,
+              vertical: spacing.md * spacingScale,
             ),
           ),
           side: WidgetStateProperty.all(BorderSide.none),
@@ -58,8 +64,9 @@ class SegmentedPills<T> extends StatelessWidget {
                 : palette.muted.withValues(alpha: AppOpacity.prominent),
           ),
           textStyle: WidgetStateProperty.all(
-            AppTokens.typography.label.copyWith(
+            AppTokens.typography.captionScaled(scale).copyWith(
               fontWeight: AppTokens.fontWeight.semiBold,
+              height: 1.0, // Ensures perfect vertical centering in button
             ),
           ),
         ),
@@ -83,3 +90,4 @@ class SegmentedPills<T> extends StatelessWidget {
     );
   }
 }
+

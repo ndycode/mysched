@@ -200,7 +200,6 @@ class _ThemedApp extends StatelessWidget {
   const _ThemedApp({
     required this.mode,
     this.accentColor,
-    super.key,
   });
 
   final AppThemeMode mode;

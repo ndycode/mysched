@@ -1,5 +1,29 @@
 # Changelog
 
+## [Patch 14] - 2024-12-11
+
+### 🎨 Responsive Scaling Refinements
+- **Max Scale Capped**: Set `maxScale`, `maxTextScale`, `maxSpacingScale` to 1.0 in `responsive.dart`
+  - Pixel 8 (~392dp) and larger screens: exactly 1.0 scale (no upscaling)
+  - Infinix Hot 30i (~360dp): scales down 0.92-0.96 as intended
+- **Dashboard Alignment**: Completed `instructor_finder_sheet.dart` responsive integration
+  - Fixed `ResponsiveProvider` import path
+  - Changed `spacingScale()` method calls to `spacing()`
+  - Applied scaling to all sub-widgets: `_InstructorTile`, `_ScheduleTile`
+
+### 🐛 UI Fixes
+- **Segmented Pills**: Fixed vertical text centering by setting `height: 1.0` in textStyle
+- **Class Details**: Removed instructor email display for privacy
+- **Entity Tile**: Added vertical time layout support (`isVerticalTime`, `startTime`, `endTime`)
+- **Instructor Mode**: Fixed mode reset on app restart - now calls `checkInstructorStatus()` on dashboard init and refresh
+
+### ✅ Component Audit
+Verified all kit components use `ResponsiveProvider` and `AppTokens` correctly:
+- `buttons.dart`, `glass_navigation_bar.dart`, `containers.dart`
+- `entity_tile.dart`, `screen_shell.dart`, `skeletons.dart`
+
+---
+
 ## [Patch 13] - 2024-12-10
 
 ### 🎨 Responsive Screen Compatibility

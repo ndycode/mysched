@@ -660,7 +660,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                   decoration: BoxDecoration(
                     color: currentClass != null
                         ? colors.primary
-                        : palette.muted.withValues(alpha: AppOpacity.subtle),
+                        : palette.muted.withValues(alpha: AppOpacity.dim),
                     borderRadius: AppTokens.radius.sm,
                   ),
                   child: Icon(
@@ -901,6 +901,9 @@ class _ScheduleItem {
     final period = time.period == DayPeriod.am ? 'AM' : 'PM';
     return '$hour:$minute $period';
   }
+
+  String get startTimeFormatted => _formatTime(startTime);
+  String get endTimeFormatted => _formatTime(endTime);
 }
 
 class _InstructorTile extends StatelessWidget {
@@ -1030,20 +1033,29 @@ class _ScheduleTile extends StatelessWidget {
             ),
           ),
           SizedBox(width: spacing.md * spacingScale),
-          // Time
-          SizedBox(
-            width: 110 * scale, // Enough for "12:30 PM - 2:00 PM"
-            child: Text(
-              item.timeRange,
-              style: AppTokens.typography.captionScaled(scale).copyWith(
-                fontWeight: AppTokens.fontWeight.medium,
-                color: isPast && !isCurrent ? palette.muted : colors.onSurface,
+          // Time - vertical layout (end above start)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                item.endTimeFormatted,
+                style: AppTokens.typography.captionScaled(scale).copyWith(
+                  fontWeight: AppTokens.fontWeight.medium,
+                  color: isPast && !isCurrent ? palette.muted : colors.onSurface,
+                ),
               ),
-              softWrap: false,
-              overflow: TextOverflow.visible,
-            ),
+              SizedBox(height: spacing.micro * spacingScale),
+              Text(
+                item.startTimeFormatted,
+                style: AppTokens.typography.captionScaled(scale).copyWith(
+                  fontWeight: AppTokens.fontWeight.medium,
+                  color: isPast && !isCurrent ? palette.muted : colors.onSurface,
+                ),
+              ),
+            ],
           ),
-          SizedBox(width: spacing.sm * spacingScale),
+          SizedBox(width: spacing.xl * spacingScale),
           // Subject and room
           Expanded(
             child: Column(

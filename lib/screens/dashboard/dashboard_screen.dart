@@ -127,6 +127,11 @@ class DashboardScreenState extends State<DashboardScreen>
     _restoreDashboardPrefs();
     _startTicker();
     _loadProfile();
+    
+    // Check instructor status on init to populate cache from database
+    // ignore: discarded_futures
+    InstructorService.instance.checkInstructorStatus();
+    
     if (widget.debugForceScheduleError) {
       _scheduleLoading = false;
       _scheduleError = 'Schedules not refreshed';
@@ -199,6 +204,7 @@ class DashboardScreenState extends State<DashboardScreen>
   Future<void> _refreshOnRouteFocus() async {
     _dismissKeyboard();
     await Future.wait([
+      InstructorService.instance.checkInstructorStatus(),
       _loadAll(),
       _loadProfile(refresh: true),
     ]);

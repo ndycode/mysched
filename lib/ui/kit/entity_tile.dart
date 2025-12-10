@@ -10,6 +10,9 @@ class MetadataItem {
     required this.icon,
     required this.label,
     this.expanded = false,
+    this.isVerticalTime = false,
+    this.startTime,
+    this.endTime,
   });
 
   /// Icon to display before the label
@@ -20,6 +23,15 @@ class MetadataItem {
 
   /// If true, this item expands to fill remaining space
   final bool expanded;
+
+  /// If true, displays start/end times vertically (end above start)
+  final bool isVerticalTime;
+
+  /// Start time for vertical display
+  final String? startTime;
+
+  /// End time for vertical display
+  final String? endTime;
 }
 
 /// A unified tile component for displaying schedule rows and reminder rows.
@@ -253,6 +265,35 @@ class EntityTile extends StatelessWidget {
     double scale,
     double spacingScale,
   ) {
+    // Vertical time layout: end time above start time
+    if (item.isVerticalTime && item.startTime != null && item.endTime != null) {
+      final textStyle = AppTokens.typography.captionScaled(scale).copyWith(
+        fontWeight: AppTokens.fontWeight.semiBold,
+        color: isDisabled ? secondaryTextColor : palette.muted,
+      );
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(
+            item.icon,
+            size: AppTokens.iconSize.sm * scale,
+            color: isDisabled ? secondaryTextColor : palette.muted,
+          ),
+          SizedBox(width: spacing.xsPlus * spacingScale),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(item.endTime!, style: textStyle),
+              SizedBox(height: spacing.micro * spacingScale),
+              Text(item.startTime!, style: textStyle),
+            ],
+          ),
+        ],
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

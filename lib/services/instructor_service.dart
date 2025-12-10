@@ -4,7 +4,6 @@ import 'package:flutter/foundation.dart';
 import '../env.dart';
 import '../models/instructor.dart';
 import '../services/schedule_repository.dart';
-import 'semester_service.dart';
 import 'telemetry_service.dart';
 
 /// Service for detecting and managing instructor role.

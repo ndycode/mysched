@@ -142,29 +142,8 @@ class ReminderSummaryCard extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    final card = Container(
+    final card = SurfaceCard(
       padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -550,29 +529,7 @@ class ReminderGroupCard extends StatelessWidget {
     final queuedCount =
         group.items.where((item) => queuedIds.contains(item.id)).length;
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1029,29 +986,7 @@ class _ReminderListCardState extends State<ReminderListCard> {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

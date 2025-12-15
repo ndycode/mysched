@@ -17,7 +17,7 @@ MySched uses:
 
 ## Architecture & Systems
 
-- **Env bootstrap**: `Env.init()` loads `.env` files or `--dart-define` values, requires `SUPABASE_URL`/`SUPABASE_ANON_KEY` (no hardcoded fallbacks), and emits telemetry events when configuration is missing or succeeds.
+- **Env bootstrap**: `Env.init()` reads `--dart-define` / `--dart-define-from-file` values, requires `SUPABASE_URL`/`SUPABASE_ANON_KEY` (no hardcoded fallbacks), and emits telemetry events when configuration is missing or succeeds.
 - **UI kit**: `lib/ui/kit` centralizes scaffolds, buttons, and layout primitives with built-in analytics, haptics, and motion defaults aligned to the brand.
 - **Telemetry**: `AnalyticsService` fronts `TelemetryService`, making it trivial to direct events to a production sink without touching call sites.
 - **Theme & motion**: `AppTheme`, `AppFadeThroughPageTransitionsBuilder`, and `TelemetryNavigatorObserver` keep Material styling, transitions, and navigation metrics consistent app-wide.
@@ -30,9 +30,8 @@ MySched uses:
 
 ## Environment Setup
 
-1. Copy `.env.example` to `.env`.
-2. Populate `SUPABASE_URL` and `SUPABASE_ANON_KEY` with your Supabase project credentials.
-3. Run `flutter run` (or your preferred command). The app will crash at splash if the keys are missing or invalid.
+1. Populate `SUPABASE_URL` and `SUPABASE_ANON_KEY` with your Supabase project credentials.
+2. Run with `--dart-define` or `--dart-define-from-file` (examples below). The app will crash at splash if the keys are missing or invalid.
 - Primary and secondary buttons provide haptic cues alongside visual states for multimodal feedback.
 
 ## Performance Metrics (v2.3)

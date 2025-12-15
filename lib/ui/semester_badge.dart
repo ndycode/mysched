@@ -160,7 +160,7 @@ class _SemesterBadgeState extends State<SemesterBadge> {
           buildBadge(
             text: _semester!.name,
             icon: Icons.calendar_today_rounded,
-            color: palette.info,
+            color: colors.primary,
           ),
       ],
     );

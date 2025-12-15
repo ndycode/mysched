@@ -217,9 +217,8 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final spacing = AppTokens.spacing;
 
-    return PopupMenuButton<_ReminderSummaryMenu>(
+    return AppPopupMenuButton<_ReminderSummaryMenu>(
       onSelected: (action) {
         switch (action) {
           case _ReminderSummaryMenu.newReminder:
@@ -245,287 +244,40 @@ class RemindersPageState extends State<RemindersPage> with RouteAware {
             break;
         }
       },
-      shape: RoundedRectangleBorder(
-        borderRadius: AppTokens.radius.lg,
-      ),
-      elevation: isDark ? AppTokens.shadow.elevationDark : AppTokens.shadow.elevationLight,
-      color: isDark ? colors.surfaceContainerHigh : colors.surface,
-      surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow.withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
-      padding: EdgeInsets.zero,
-      icon: SizedBox(
-        width: AppTokens.componentSize.buttonXs,
-        height: AppTokens.componentSize.buttonXs,
-        child: Center(
-          child: Icon(
-            Icons.more_vert_rounded,
-            size: AppTokens.iconSize.md,
-            color: palette.muted,
-          ),
-        ),
-      ),
       itemBuilder: (context) => [
-        PopupMenuItem<_ReminderSummaryMenu>(
+        AppPopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.newReminder,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.newReminder),
-              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
-                      decoration: BoxDecoration(
-                        color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.add_alarm_rounded,
-                        size: AppTokens.iconSize.md,
-                        color: colors.primary,
-                      ),
-                    ),
-                    SizedBox(width: spacing.md + spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'New reminder',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.add_alarm_rounded,
+          label: 'New reminder',
+          tint: colors.primary,
         ),
-        PopupMenuItem<_ReminderSummaryMenu>(
+        AppPopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.toggleCompleted,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.toggleCompleted),
-              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
-                      decoration: BoxDecoration(
-                        color: colors.secondary.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        _controller.showCompleted
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: colors.secondary,
-                      ),
-                    ),
-                    SizedBox(width: spacing.md + spacing.micro),
-                    Flexible(
-                      child: Text(
-                        _controller.showCompleted ? 'Hide completed' : 'Show completed',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: _controller.showCompleted
+              ? Icons.visibility_off_outlined
+              : Icons.visibility_outlined,
+          label: _controller.showCompleted ? 'Hide completed' : 'Show completed',
+          tint: colors.secondary,
         ),
-        PopupMenuItem<_ReminderSummaryMenu>(
-          enabled: false,
-          height: AppTokens.componentSize.divider,
-          padding: spacing.edgeInsetsSymmetric(
-            horizontal: spacing.md,
-            vertical: spacing.sm,
-          ),
-          child: Container(
-            height: AppTokens.componentSize.divider,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                ],
-              ),
-            ),
-          ),
-        ),
-        PopupMenuItem<_ReminderSummaryMenu>(
+        const AppPopupMenuDivider<_ReminderSummaryMenu>(),
+        AppPopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.exportCsv,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.exportCsv),
-              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
-                      decoration: BoxDecoration(
-                        color: colors.tertiary.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.table_chart_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: colors.tertiary,
-                      ),
-                    ),
-                    SizedBox(width: spacing.md + spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Export as CSV',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.table_chart_outlined,
+          label: 'Export as CSV',
+          tint: colors.tertiary,
         ),
-        PopupMenuItem<_ReminderSummaryMenu>(
+        AppPopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.exportPdf,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.exportPdf),
-              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
-                      decoration: BoxDecoration(
-                        color: palette.danger.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.picture_as_pdf_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: palette.danger,
-                      ),
-                    ),
-                    SizedBox(width: spacing.md + spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Export as PDF',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.picture_as_pdf_outlined,
+          label: 'Export as PDF',
+          tint: palette.danger,
         ),
-        PopupMenuItem<_ReminderSummaryMenu>(
-          enabled: false,
-          height: AppTokens.componentSize.divider,
-          padding: spacing.edgeInsetsSymmetric(
-            horizontal: spacing.md,
-            vertical: spacing.sm,
-          ),
-          child: Container(
-            height: AppTokens.componentSize.divider,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                  colors.outline.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                ],
-              ),
-            ),
-          ),
-        ),
-        PopupMenuItem<_ReminderSummaryMenu>(
+        const AppPopupMenuDivider<_ReminderSummaryMenu>(),
+        AppPopupMenuItem<_ReminderSummaryMenu>(
           value: _ReminderSummaryMenu.resetReminders,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, _ReminderSummaryMenu.resetReminders),
-              splashColor: colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor: colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.lg,
-                  vertical: spacing.md,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: spacing.edgeInsetsAll(spacing.sm),
-                      decoration: BoxDecoration(
-                        color: palette.danger.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.restart_alt_rounded,
-                        size: AppTokens.iconSize.md,
-                        color: palette.danger,
-                      ),
-                    ),
-                    SizedBox(width: spacing.md + spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Reset reminders',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.restart_alt_rounded,
+          label: 'Reset reminders',
+          tint: palette.danger,
         ),
       ],
     );

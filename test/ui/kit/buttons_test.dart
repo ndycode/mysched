@@ -52,7 +52,7 @@ void main() {
     });
 
     testWidgets('disabled state prevents tap', (tester) async {
-      var tapped = false;
+      final tapped = false;
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),

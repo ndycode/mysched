@@ -1,120 +1,197 @@
 # Changelog
 
-## [Patch 14] - 2024-12-11
+## [2.0.4] - 2024-12-13
+
+> 📦 **Deployed to Play Store**
+
+### 🎨 Native Splash Screen Improvements
+
+#### flutter_native_splash Integration
+- **Added `flutter_native_splash` package** for better splash screen control
+- Configured light mode (`#FCFCFC`) and dark mode (`#000000`) backgrounds
+- Splash automatically follows Android system dark mode setting
+- Added `FlutterNativeSplash.preserve()` and `remove()` for smooth transition control
+
+#### Splash Assets
+- New splash logo at `assets/splash/splash_logo.png` (2048x2048 recommended for sharpness)
+- Blue "MySched" text on transparent background works on both light/dark modes
+- Regenerated splash resources for all Android density buckets (mdpi to xxxhdpi)
+
+#### Theme Initialization Fix
+- **Fixed accent color not showing on Flutter splash**: Moved `ThemeController.init()` BEFORE `FlutterNativeSplash.remove()`
+- User's saved theme/accent color now loads before Flutter splash displays
+- Resolves issue where splash showed default blue instead of user's chosen accent
+
+### 🛠️ Build Fixes
+
+#### NDK Configuration
+- **Removed hardcoded `ndkVersion`** from `build.gradle.kts` - was referencing corrupted NDK 27.0.12077973
+- Gradle now auto-detects a valid NDK version
+
+#### Asset Configuration
+- Ensured `.env` file is in `pubspec.yaml` assets list (required for release builds)
+- Regenerated native splash assets after corruption from previous attempts
+
+### 📱 pubspec.yaml Updates
+```yaml
+dependencies:
+  flutter_native_splash: ^2.4.3
+
+flutter_native_splash:
+  color: "#FCFCFC"
+  color_dark: "#000000"
+  image: assets/splash/splash_logo.png
+  image_dark: assets/splash/splash_logo.png
+  android_12:
+    color: "#FCFCFC"
+    color_dark: "#000000"
+    image: assets/splash/splash_logo.png
+    image_dark: assets/splash/splash_logo.png
+```
+
+### 🔧 Patches (OTA via Shorebird)
+
+#### Patch 1-3: Fullscreen Alarm Permission Fix (Android 14+)
+- **openFullScreenIntentSettings**: Added method to open Android 14+ fullscreen intent permission settings
+- **AlarmReadiness check**: Now includes `fullScreenIntentAllowed` in the permission readiness check
+- **Bootstrap prompt**: Shows fullscreen intent permission status for Android 14+ devices
+
+#### Patch 4-5: Date/Time Display Fix
+- **Fixed class "Added on" date showing wrong time**: Timestamps from database now correctly interpreted as UTC and converted to local device time
+- **Patch version display**: Added "current ver 2.0.4+14 Patch (X)" in Admin tools for debugging
+
+#### Patch 6: Instructor Finder Time Format Fix
+- **Fixed reversed time order**: Schedule times in instructor finder now show start time first, then end time (was incorrectly showing end-start)
+
+---
+
+
+## [2.0.3] - 2024-12-12
+
+> 📦 **Deployed to Play Store** | Shorebird Patch 1 applied
+
+### 🎨 Branding
+- **New App Logo**: Updated launcher icons with new MySched branding
+  - Replaced `ic_launcher_foreground.png` and `ic_launcher_background.png`
+  - Regenerated adaptive icons for Android and iOS
+
+### 🛠️ Patch 1
+- **Battery Optimization Prompt**: Now shows on app start if not set to "Unrestricted"
+  - Previously skipped if only exact alarms + notifications were granted
+
+### 🔔 Alarm Reliability Improvements (Android 11-15)
+
+#### New Native Components
+- **AlarmForegroundService.java**: Foreground service for reliable alarm delivery on Android 11+
+  - Prevents system from killing app during alarm
+  - Uses wake locks for guaranteed execution
+  - Auto-stops after alarm delivery (10 seconds)
+- **BootReceiver.java**: Reschedules alarms after device reboot
+  - Supports standard boot, quick boot, locked boot (direct boot)
+  - Manufacturer-specific boot intents (HTC, QUICKBOOT)
+  - Handles app updates (`MY_PACKAGE_REPLACED`)
+
+#### Android Manifest Updates
+- Added `USE_EXACT_ALARM` permission (auto-granted for alarm apps on Android 14+)
+- Added `FOREGROUND_SERVICE` + `FOREGROUND_SERVICE_SPECIAL_USE` permissions
+- Added `RECEIVE_BOOT_COMPLETED` + `LOCKED_BOOT_COMPLETED` permissions
+- Added `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` permission
+- Registered `AlarmForegroundService` with `foregroundServiceType="specialUse"`
+- Registered `BootReceiver` with `directBootAware="true"`
+
+#### AlarmReceiver.java Refactored
+- Android 11+: Uses foreground service for reliable delivery
+- Android 10 and below: Direct activity launch
+- Always posts backup notification on Android 10+ (fallback if fullscreen blocked)
+- Notification channel with `setBypassDnd(true)` for alarm priority
+
+#### MainActivity.kt Enhancements
+- Added `canUseFullScreenIntent()` check for Android 14+ (API 34)
+- Added `fullScreenIntentAllowed` to `alarmReadiness()` response
+- Added `openAutoStartSettings()` for Chinese OEMs (Xiaomi, OPPO, Vivo, Huawei, Samsung, OnePlus, ASUS, Lenovo)
+- Added `getDeviceManufacturer()` method
+
+#### Dart-Side Updates (local_notifs.dart)
+- Added `fullScreenIntentAllowed` field to `AlarmReadiness` class
+- Added `isFullyReady` getter for checking all Android 14+ requirements
+- Added `openAutoStartSettings()` method
+- Added `getDeviceManufacturer()` method
+- Added `needsAutoStartPermission()` check for Chinese OEM devices
+- Added `autoStartManufacturers` constant set
+
+#### Onboarding (bootstrap_gate.dart)
+- Added conditional auto-start permission row in `_AlarmPromptDialog`
+- Shows manufacturer-specific instructions (e.g., "Required for Xiaomi")
+- Only displays on devices that need auto-start permission
+
+### 🛠️ Technical Details
+| Android Version | Delivery Method |
+|-----------------|-----------------|
+| Android 15 (API 35) | Foreground service + Fullscreen intent |
+| Android 14 (API 34) | Foreground service + USE_EXACT_ALARM |
+| Android 13 (API 33) | Foreground service + backup notification |
+| Android 12 (API 31-32) | Foreground service + setAlarmClock |
+| Android 11 (API 30) | Foreground service |
+| Android 10 and below | Direct activity launch |
+
+---
+
+## [2.0.2] - 2024-12-10
 
 ### 🎨 Responsive Scaling Refinements
 - **Max Scale Capped**: Set `maxScale`, `maxTextScale`, `maxSpacingScale` to 1.0 in `responsive.dart`
   - Pixel 8 (~392dp) and larger screens: exactly 1.0 scale (no upscaling)
   - Infinix Hot 30i (~360dp): scales down 0.92-0.96 as intended
 - **Dashboard Alignment**: Completed `instructor_finder_sheet.dart` responsive integration
-  - Fixed `ResponsiveProvider` import path
-  - Changed `spacingScale()` method calls to `spacing()`
-  - Applied scaling to all sub-widgets: `_InstructorTile`, `_ScheduleTile`
-
-### 🐛 UI Fixes
-- **Segmented Pills**: Fixed vertical text centering by setting `height: 1.0` in textStyle
-- **Class Details**: Removed instructor email display for privacy
-- **Entity Tile**: Added vertical time layout support (`isVerticalTime`, `startTime`, `endTime`)
-- **Instructor Mode**: Fixed mode reset on app restart - now calls `checkInstructorStatus()` on dashboard init and refresh
-
-### ✅ Component Audit
-Verified all kit components use `ResponsiveProvider` and `AppTokens` correctly:
-- `buttons.dart`, `glass_navigation_bar.dart`, `containers.dart`
-- `entity_tile.dart`, `screen_shell.dart`, `skeletons.dart`
-
----
-
-## [Patch 13] - 2024-12-10
 
 ### 🎨 Responsive Screen Compatibility
 - **Global Responsive Scaling System**: Added `AppResponsive` utility and `ResponsiveProvider` for screen-aware scaling
 - **Reference Width**: 390dp baseline - standard devices unchanged, compact screens (~360dp) scale down ~8%
-- Uses global `AppLayout` tokens (`referenceWidth`, `compactThreshold`, `wideThreshold`)
 
 ### 📱 Updated Components (57+ total)
-- **Core**: `entity_tile`, `buttons`, `MetricChip`, `states.dart` (StateDisplay, MessageCard, InfoBanner)
+- **Core**: `entity_tile`, `buttons`, `MetricChip`, `states.dart`
 - **Tiles**: `info_tile`, `detail_row`, `quick_action_tile`, `form_field_tile`, `time_field_tile`
 - **Chips/Badges**: `status_badge`, `status_chip`, `info_chip`, `StatusInfoChip`, `queued_badge`
-- **Rows**: `instructor_row`, `section_header`, `sheet_header_row`, `status_row`, `rows.dart` (SettingsRow)
+- **Rows**: `instructor_row`, `section_header`, `sheet_header_row`, `status_row`, `rows.dart`
 - **Dialogs/Forms**: `option_picker`, `hint_bubble`, `error_banner`, `date_picker`, `time_picker`, `consent_dialog`
 - **Navigation**: `back_button`, `segmented_pills`, `glass_navigation_bar`
 - **Dashboard**: `dashboard_cards`, `hero_avatar`, `empty_hero_placeholder`, `brand_header`
-- **Layout**: `containers.dart`, `snack_bars`, `simple_bullet`, `layout.dart` (PageBody)
-- **Shells**: `screen_shell.dart` (ScreenHeroCard, ScreenSection), `auth_shell`, `brand_scaffold`
-- **Utilities**: `modals.dart`, `skeletons.dart` (responsive-ready)
-
-### 🛠️ New Extensions
-- `ResponsiveSpacing`: Scaled spacing helpers for EdgeInsets
-- `ResponsiveTypography`: Scaled font size methods for all text styles
-
----
-
-## 2.0.2 - 2024-12-10
+- **Layout**: `containers.dart`, `snack_bars`, `simple_bullet`, `layout.dart`
+- **Shells**: `screen_shell.dart`, `auth_shell`, `brand_scaffold`
 
 ### ✨ New Features
 - **Instructor Mode**: Instructors now see their assigned classes instead of student schedules
-  - Auto-detects instructor role on login via `public.instructors` table
-  - Fetches classes from `instructor_schedule` view filtered by active semester
-  - Section names (e.g., "BSCS 4-1") displayed instead of instructor names
 - **Find Instructor**: Students can find professors and see their current class/room
-  - Modal accessible via 3-dot menu → "Find instructor"
-  - Displays instructor list filtered by user's academic department
-  - Shows "TEACHING NOW" status with countdown (e.g., "ends in 30m")
-  - Today's full schedule shown with current class highlighted
-  - Skeleton loading matching actual content structure
-
-### 🎨 Instructor UI Customizations
-- **Class Details Modal**: Hidden student-specific elements (Synced badge, Disable/Report buttons)
-- **Section Icon**: Replaced circular avatars with `Icons.class_outlined` in rounded container
-- **Centered Message**: "Linked classes can only be edited by an administrator" now centered
-- **Empty States**: Custom messaging for instructors ("No classes assigned")
 
 ### 🐛 Bug Fixes
-- **Stale Session Detection**: Fixed infinite "Refresh session" loop when auth token expires
-  - Added `AuthService.isStaleSessionError()` to detect non-recoverable auth errors
-  - Shows "Your session has expired. Please sign out and sign in again." instead of generic error
-  - Prevents Supabase SDK from spamming refresh attempts
+- **Segmented Pills**: Fixed vertical text centering
+- **Class Details**: Removed instructor email display for privacy
+- **Instructor Mode**: Fixed mode reset on app restart
+- **Stale Session Detection**: Fixed infinite "Refresh session" loop
 
 ### ⚡ Performance
 - **Section ID Caching**: Reduced dashboard refresh queries from 5 to 3 (first call) or 1 (subsequent)
-  - `getCurrentSectionId()` now caches result with 5-minute TTL
-  - Cache auto-invalidates on user change
-
-### 🛠️ Code Changes
-- Added `InstructorService` for role detection and class fetching
-- Added `isInstructor` parameter to dashboard and schedule widgets
-- Added `showSectionIcon` parameter to `InstructorRow` widget
-- Updated `SchedulesController` to conditionally fetch instructor classes
-- Added `InstructorFinderSheet` modal with department-based filtering
-- Added `findInstructor` action to `ScheduleAction` enum
 
 ---
 
-## 2.0.1 - 2024-12-09
+## [2.0.1] - 2024-12-09
 
 ### ✨ New Features
 - **Custom Accent Color**: Pick from 7 preset colors in Settings → Appearance
 - **Smooth Theme Transitions**: Screenshot-based crossfade animation when changing themes or accent colors
 
 ### 🎨 UI Consistency Fixes
-- **Verify Email Screen**: Changed from route navigation to overlay approach (matches change email flow)
-- **Report Issue Dialog**: Buttons now in 1 row (Primary + Cancel) instead of stacked
-- **Settings Card Shadow**: Changed from modal shadow to lighter card shadow (matches other screens)
+- **Verify Email Screen**: Changed from route navigation to overlay approach
+- **Report Issue Dialog**: Buttons now in 1 row (Primary + Cancel)
+- **Settings Card Shadow**: Changed from modal shadow to lighter card shadow
 - **Navbar Refinements**: Typography and indicator shadow now use global `AppTokens` factories
 
-### 🛠️ Token Compliance
-- `glass_navigation_bar.dart`: "Quick actions" label uses `AppTokens.typography.caption`
-- `glass_navigation_bar.dart`: Indicator shadow uses `AppTokens.shadow.elevation1()`
-- `class_details_sheet.dart`: Report dialog helper text uses `AppTokens.typography.caption`
-- Removed hardcoded `theme.textTheme` references in report dialog
-
 ### 🐛 Bug Fixes
-- **Verify Email Barrier**: Fixed black background on register verify email (now shows translucent barrier over registration form)
-- **Supabase Email Template**: Documented fix for magic link vs 6-digit code issue (dashboard config)
+- **Verify Email Barrier**: Fixed black background on register verify email
 
 ---
 
-## 2.0.0 - 2024-12-09
+## [2.0.0] - 2024-12-09
 
 ### ✨ Major Features
 - **Semester System**: Schedule auto-switches when admin changes active semester
@@ -125,59 +202,27 @@ Verified all kit components use `ResponsiveProvider` and `AppTokens` correctly:
 ### 🎨 Design System Overhaul
 - **Global Design Tokens**: Replaced ~50% hardcoded values with `AppTokens` system
 - **Full UI Redesign**: All screens, modals, dialogs redesigned with consistent styling
-- Organized tokens into `lib/ui/theme/tokens/` folder structure
 
-### 🆕 New UI Components (8 new files in kit/)
-- `segmented_pills.dart` - Pill-style filter buttons
-- `date_picker.dart` - Custom date picker
-- `time_picker.dart` - Custom time picker
-- `option_picker.dart` - Generic option selector
-- `empty_hero_placeholder.dart` - Empty state illustrations
-- `error_banner.dart` - Error display banner
-- `back_button.dart` - Consistent back navigation
-- `switch.dart` - Custom toggle switch
-- `rows.dart` - Common row layouts
-- `time_field_tile.dart` - Time input tile
+### 🆕 New UI Components
+- `segmented_pills.dart`, `date_picker.dart`, `time_picker.dart`, `option_picker.dart`
+- `empty_hero_placeholder.dart`, `error_banner.dart`, `back_button.dart`, `switch.dart`
+- `rows.dart`, `time_field_tile.dart`
 
 ### 📁 Project Reorganization
-- **Screens folder restructured**: Split into subfolders
-  - `auth/` - Login, Register, Verify Email screens
-  - `account/` - Account overview, Change email/password, Delete account
-  - `admin/` - Issue reports screen
-  - `scan/` - Scan options and preview
-  - `onboarding/` - New onboarding flow
-- **File renames for clarity**:
-  - `schedule_api.dart` → `schedule_repository.dart`
-  - `reminders_api.dart` → `reminders_repository.dart`
-  - `notif_scheduler.dart` → `notification_scheduler.dart`
+- **Screens folder restructured**: `auth/`, `account/`, `admin/`, `scan/`, `onboarding/`
+- **File renames**: `schedule_api.dart` → `schedule_repository.dart`, etc.
 
 ### 🆕 New Services & Models
-- `lib/services/semester_service.dart` - Semester caching (5-min cache)
-- `lib/services/user_settings_service.dart` - User preferences service
-- `lib/models/semester.dart` - Semester model
-- `lib/models/schedule_filter.dart` - Schedule filter enum
-- `lib/ui/semester_badge.dart` - Semester display widget
-- `lib/ui/tokens.dart` - Consolidated token exports
-
-### 🛠️ Changed
-- `getCurrentSectionId()` filters by active semester and matches section code
-- `modals.dart` expanded from 11KB to 23KB (more modal types)
-- `skeletons.dart` expanded from 13KB to 75KB (more loading states)
-- `buttons.dart` expanded from 12KB to 18KB (more button variants)
-- Database schema: `sections.code` now unique per semester (not globally)
+- `semester_service.dart`, `user_settings_service.dart`, `semester.dart`, `schedule_filter.dart`
 
 ### 🐛 Bug Fixes
 - Register screen: "Email already used" error now displays properly
 - Error messages now display correctly in modals
-- Various backend error handling improvements
-
-### 📦 Configuration
-- `shorebird.yaml` - OTA update configuration added
 
 ---
 
-## 1.6.0
+## [1.6.0]
 
-- Added: offline schedule cache w/ banner fallback; CSV export alongside PDF.
-- Changed: unified share guard; deps bumped (shared_preferences ^2.5.3, image_picker ^1.2.0, supabase_flutter ^2.10.3).
-- Fixed: schedule screen surfaces saved data when offline.
+- Added: offline schedule cache w/ banner fallback; CSV export alongside PDF
+- Changed: unified share guard; deps bumped
+- Fixed: schedule screen surfaces saved data when offline

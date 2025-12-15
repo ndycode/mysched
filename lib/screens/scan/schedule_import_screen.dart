@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import '../../services/scan_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/semester_badge.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 
 class ScheduleImportOutcome {
@@ -90,7 +89,6 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final media = MediaQuery.of(context);
 
     final grouped = _groupByDay(widget.classes);
     final dayKeys = grouped.keys.toList()..sort();
@@ -124,61 +122,26 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
       DateTime.now(),
     );
 
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
+    final cardBackground =
+        isDark ? colors.surfaceContainerHigh : colors.surface;
 
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: media.viewInsets.bottom + spacing.xl,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
-              maxHeight: maxHeight,
+    return ModalShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.xl,
+              bottom: spacing.md,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
-              ),
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header
-                      Padding(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          top: spacing.xl,
-                          bottom: spacing.md,
-                        ),
-                        child: SheetHeaderRow(
-                          title: 'Import schedule',
-                          subtitle:
-                              'Toggle classes you want to keep before adding them to MySched.',
+            child: SheetHeaderRow(
+              title: 'Import schedule',
+              subtitle:
+                  'Toggle classes you want to keep before adding them to MySched.',
                           icon: Icons.download_rounded,
                           onClose: () => Navigator.of(context).pop(),
                         ),
@@ -294,12 +257,6 @@ class _SchedulesPreviewSheetState extends State<SchedulesPreviewSheet> {
                       ),
                     ],
                   ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
     );
   }
 

@@ -198,6 +198,25 @@ class MainActivity : FlutterActivity() {
                             result.error("stop_ringtone_failed", e.message, null)
                         }
                     }
+                    "openAutoStartSettings" -> {
+                        try {
+                            val opened = openAutoStartSettings()
+                            result.success(opened)
+                        } catch (e: Exception) {
+                            result.error("open_autostart_failed", e.message, null)
+                        }
+                    }
+                    "getDeviceManufacturer" -> {
+                        result.success(Build.MANUFACTURER.lowercase())
+                    }
+                    "openFullScreenIntentSettings" -> {
+                        try {
+                            openFullScreenIntentSettings()
+                            result.success(true)
+                        } catch (e: Exception) {
+                            result.error("open_fullscreen_settings_failed", e.message, null)
+                        }
+                    }
                     else -> result.notImplemented()
                 }
             }
@@ -390,10 +409,18 @@ class MainActivity : FlutterActivity() {
         } else {
             true
         }
+        // Check fullscreen intent permission on Android 14+ (API 34)
+        val fullScreenIntentAllowed = if (Build.VERSION.SDK_INT >= 34) {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            nm.canUseFullScreenIntent()
+        } else {
+            true
+        }
         return mapOf(
             "exactAlarmAllowed" to canScheduleExactAlarms(),
             "notificationsAllowed" to notificationsAllowed,
             "ignoringBatteryOptimizations" to ignoringBattery,
+            "fullScreenIntentAllowed" to fullScreenIntentAllowed,
             "sdkInt" to Build.VERSION.SDK_INT,
         )
     }
@@ -405,6 +432,27 @@ class MainActivity : FlutterActivity() {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(intent)
+    }
+
+    /**
+     * Opens Android 14+ fullscreen intent permission settings.
+     * Falls back to app notification settings on older versions.
+     */
+    private fun openFullScreenIntentSettings() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            try {
+                val intent = Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT).apply {
+                    data = Uri.parse("package:$packageName")
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                startActivity(intent)
+                return
+            } catch (e: Exception) {
+                // Fall through to notification settings
+            }
+        }
+        // Fallback to notification settings for older Android or if intent fails
+        openNotificationSettings()
     }
 
     @SuppressLint("BatteryLife")
@@ -450,6 +498,142 @@ class MainActivity : FlutterActivity() {
                 // try next
             }
         }
+    }
+
+    /**
+     * Opens manufacturer-specific auto-start settings.
+     * Returns true if an intent was successfully launched.
+     * This is critical for Chinese OEMs that aggressively kill background apps.
+     */
+    private fun openAutoStartSettings(): Boolean {
+        val manufacturer = Build.MANUFACTURER.lowercase()
+        val intents = mutableListOf<Intent>()
+        
+        when {
+            manufacturer.contains("xiaomi") || manufacturer.contains("redmi") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.powercenter.PowerSettings"
+                    )
+                })
+            }
+            manufacturer.contains("oppo") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.coloros.safecenter",
+                        "com.coloros.safecenter.permission.startup.StartupAppListActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.oppo.safe",
+                        "com.oppo.safe.permission.startup.StartupAppListActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.coloros.safecenter",
+                        "com.coloros.privacypermissionsentry.PermissionTopActivity"
+                    )
+                })
+            }
+            manufacturer.contains("vivo") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.vivo.permissionmanager",
+                        "com.vivo.permissionmanager.activity.BgStartUpManagerActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.iqoo.secure",
+                        "com.iqoo.secure.ui.phoneoptimize.AddWhiteListActivity"
+                    )
+                })
+            }
+            manufacturer.contains("huawei") || manufacturer.contains("honor") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.systemmanager.optimize.process.ProtectActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.huawei.systemmanager",
+                        "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity"
+                    )
+                })
+            }
+            manufacturer.contains("oneplus") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.oneplus.security",
+                        "com.oneplus.security.chainlaunch.view.ChainLaunchAppListActivity"
+                    )
+                })
+            }
+            manufacturer.contains("samsung") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.samsung.android.lool",
+                        "com.samsung.android.sm.battery.ui.BatteryActivity"
+                    )
+                })
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.samsung.android.sm",
+                        "com.samsung.android.sm.battery.ui.BatteryActivity"
+                    )
+                })
+            }
+            manufacturer.contains("asus") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.asus.mobilemanager",
+                        "com.asus.mobilemanager.MainActivity"
+                    )
+                })
+            }
+            manufacturer.contains("lenovo") -> {
+                intents.add(Intent().apply {
+                    component = android.content.ComponentName(
+                        "com.lenovo.security",
+                        "com.lenovo.security.purebackground.PureBackgroundActivity"
+                    )
+                })
+            }
+        }
+        
+        // Add generic fallback intents
+        intents.add(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.parse("package:$packageName")
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        })
+        
+        for (intent in intents) {
+            try {
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(intent)
+                return true
+            } catch (_: Exception) {
+                // Try next intent
+            }
+        }
+        return false
     }
 
     private fun pendingIntentImmutableFlag(): Int {

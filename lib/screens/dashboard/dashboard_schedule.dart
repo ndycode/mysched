@@ -83,59 +83,16 @@ class _DashboardSchedulePeek extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                height: AppTokens.componentSize.avatarXl,
-                width: AppTokens.componentSize.avatarXl,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colors.primary.withValues(alpha: AppOpacity.medium),
-                      colors.primary.withValues(alpha: AppOpacity.dim),
-                    ],
-                  ),
-                  borderRadius: AppTokens.radius.md,
-                  border: Border.all(
-                    color: colors.primary
-                        .withValues(alpha: AppOpacity.borderEmphasis),
-                    width: AppTokens.componentSize.dividerThick,
-                  ),
-                ),
-                child: Icon(
-                  Icons.calendar_month_rounded,
-                  color: colors.primary,
-                  size: AppTokens.iconSize.xl,
-                ),
+              SectionHeaderIcon(
+                icon: Icons.calendar_month_rounded,
+                tint: colors.primary,
               ),
               SizedBox(width: spacing.lg),
               Expanded(
@@ -404,36 +361,13 @@ class _DashboardSchedulePeek extends StatelessWidget {
       final isDark = theme.brightness == Brightness.dark;
       return Padding(
         padding: spacing.edgeInsetsOnly(bottom: spacing.md),
-        child: Container(
-          padding: spacing.edgeInsetsAll(spacing.md),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withValues(alpha: AppOpacity.dim),
-                color.withValues(alpha: AppOpacity.veryFaint),
-              ],
-            ),
-            borderRadius: AppTokens.radius.md,
-            border: Border.all(
-              color: color.withValues(alpha: AppOpacity.accent),
-              width: AppTokens.componentSize.divider,
-            ),
-          ),
+        child: GradientHeaderCard(
+          tint: color,
           child: Row(
             children: [
-              Container(
-                padding: spacing.edgeInsetsAll(spacing.sm),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: AppOpacity.medium),
-                  borderRadius: AppTokens.radius.sm,
-                ),
-                child: Icon(
-                  icon,
-                  size: AppTokens.iconSize.sm,
-                  color: color,
-                ),
+              IconBox(
+                icon: icon,
+                tint: color,
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -446,22 +380,9 @@ class _DashboardSchedulePeek extends StatelessWidget {
                   ),
                 ),
               ),
-              Container(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.smMd,
-                  vertical: spacing.xsHalf,
-                ),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: AppOpacity.overlay),
-                  borderRadius: AppTokens.radius.sm,
-                ),
-                child: Text(
-                  '$count ${count == 1 ? 'class' : 'classes'}',
-                  style: AppTokens.typography.caption.copyWith(
-                    fontWeight: AppTokens.fontWeight.bold,
-                    color: color,
-                  ),
-                ),
+              TintedChip(
+                label: '$count ${count == 1 ? 'class' : 'classes'}',
+                tint: color,
               ),
             ],
           ),

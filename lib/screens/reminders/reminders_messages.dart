@@ -31,43 +31,17 @@ class ReminderMessageCard extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark ? colors.outline.withValues(alpha: AppOpacity.overlay) : colors.outline,
-          width: isDark ? AppTokens.componentSize.divider : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                height: AppTokens.componentSize.listItemSm,
-                width: AppTokens.componentSize.listItemSm,
-                decoration: BoxDecoration(
-                  color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                  borderRadius: AppTokens.radius.lg,
-                ),
-                child: Icon(
-                  icon,
-                  size: AppTokens.iconSize.lg,
-                  color: colors.primary,
-                ),
+              IconBox(
+                icon: icon,
+                tint: colors.primary,
+                size: IconBoxSize.md,
               ),
               SizedBox(width: spacing.lg),
               Expanded(
@@ -180,17 +154,23 @@ class ReminderSnoozeSheet extends StatelessWidget {
           SizedBox(height: spacing.xl),
           Text(
             'Snooze reminder',
-            style: theme.textTheme.titleMedium?.copyWith(
+            style: AppTokens.typography.subtitle.copyWith(
               fontFamily: 'SFProRounded',
               fontWeight: AppTokens.fontWeight.bold,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           SizedBox(height: spacing.sm),
-          Text(entry.title, style: theme.textTheme.bodyMedium),
+          Text(
+            entry.title,
+            style: AppTokens.typography.body.copyWith(
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
           SizedBox(height: AppTokens.spacing.sm),
           Text(
             'Current time: ${formatDue(entry.dueAt)}',
-            style: theme.textTheme.bodySmall?.copyWith(
+            style: AppTokens.typography.caption.copyWith(
               color: theme.colorScheme.onSurfaceVariant,
             ),
           ),

@@ -31,6 +31,12 @@ class AppBarrier {
 
   /// Heavy barrier (54% black) for prominent modals.
   static const Color heavy = Color(0x8A000000);
+
+  /// Dark theme transition overlay (80% dark blue).
+  static const Color themeTransitionDark = Color(0xCC0A1323);
+
+  /// Light theme transition overlay (75% white).
+  static const Color themeTransitionLight = Color(0xC0FFFFFF);
 }
 
 /// Centralized line height tokens for text styling.
@@ -108,5 +114,75 @@ class AppLetterSpacing {
 
   /// OTP/verification code spacing (6.0)
   static const double otpCode = 6.0;
+}
+
+/// Alarm preview color tokens for the fullscreen alarm mock.
+///
+/// These are fixed dark-theme colors used in the native alarm UI preview.
+class AppAlarmColors {
+  const AppAlarmColors._();
+
+  /// Background gradient top color
+  static const Color bgTop = Color(0xFF0B0D11);
+
+  /// Background gradient bottom color
+  static const Color bgBottom = Color(0xFF080A10);
+
+  /// Radial glow effect color
+  static const Color glow = Color(0xFF161B2C);
+
+  /// Accent color (purple)
+  static const Color accent = Color(0xFF7B61FF);
+
+  /// Dimmed accent color
+  static const Color accentDim = Color(0xFF684FE0);
+
+  /// Stop button accent (red)
+  static const Color stopAccent = Color(0xFFFF6B6B);
+
+  /// Secondary text color
+  static const Color textSecondary = Color(0xFFC7CCDA);
+
+  /// Muted text color
+  static const Color textMuted = Color(0xFF7E869A);
+}
+
+/// Accent color presets for settings color picker.
+///
+/// Curated colors for a premium accent customization experience.
+class AppAccentPresets {
+  const AppAccentPresets._();
+
+  /// Default blue accent
+  static const Color defaultBlue = Color(0xFF0066FF);
+
+  /// Coral Red
+  static const Color coralRed = Color(0xFFFF6B6B);
+
+  /// Sunset Orange
+  static const Color sunsetOrange = Color(0xFFFF8F59);
+
+  /// Golden Yellow
+  static const Color goldenYellow = Color(0xFFFFC928);
+
+  /// Emerald Green
+  static const Color emeraldGreen = Color(0xFF36D399);
+
+  /// Violet Purple
+  static const Color violetPurple = Color(0xFF9B5DE5);
+
+  /// Rose Pink
+  static const Color rosePink = Color(0xFFFF7EB3);
+
+  /// All preset colors (null = default blue)
+  static const List<Color?> all = [
+    null, // Default blue
+    coralRed,
+    sunsetOrange,
+    goldenYellow,
+    emeraldGreen,
+    violetPurple,
+    rosePink,
+  ];
 }
 

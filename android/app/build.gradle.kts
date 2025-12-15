@@ -29,7 +29,7 @@ android {
     }
     namespace = "com.ici.mysched"
     compileSdk = 36 // Use explicit API level for stability
-    ndkVersion = "27.0.12077973"
+    // ndkVersion removed - let Gradle auto-detect a valid NDK
 
     defaultConfig {
     applicationId = "com.ici.mysched"
@@ -77,7 +77,7 @@ dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("com.google.android.material:material:1.11.0")
+    implementation("com.google.android.material:material:1.12.0")
 
     // ML Kit Text Recognition base and script-specific models to satisfy plugin references
     implementation("com.google.mlkit:text-recognition:16.0.0")

@@ -65,59 +65,16 @@ class _DashboardReminderCard extends StatelessWidget {
                     ? 'Everything is complete. Nice work!'
                     : 'Keep tasks ahead of schedule.';
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                height: AppTokens.componentSize.avatarXl,
-                width: AppTokens.componentSize.avatarXl,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colors.primary.withValues(alpha: AppOpacity.medium),
-                      colors.primary.withValues(alpha: AppOpacity.dim),
-                    ],
-                  ),
-                  borderRadius: AppTokens.radius.md,
-                  border: Border.all(
-                    color: colors.primary
-                        .withValues(alpha: AppOpacity.borderEmphasis),
-                    width: AppTokens.componentSize.dividerThick,
-                  ),
-                ),
-                child: Icon(
-                  Icons.check_circle_outline_rounded,
-                  color: colors.primary,
-                  size: AppTokens.iconSize.xl,
-                ),
+              SectionHeaderIcon(
+                icon: Icons.check_circle_outline_rounded,
+                tint: colors.primary,
               ),
               SizedBox(width: spacing.lg),
               Expanded(
@@ -262,75 +219,10 @@ class _ReminderProgressPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    final percent = (progress.clamp(0.0, 1.0) * 100).round();
-
-    // Use the passed color parameter for the card
-    final headerColor = color;
-
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.md),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            headerColor.withValues(alpha: AppOpacity.dim),
-            headerColor.withValues(alpha: AppOpacity.veryFaint),
-          ],
-        ),
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(
-          color: headerColor.withValues(alpha: AppOpacity.accent),
-          width: AppTokens.componentSize.divider,
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: spacing.edgeInsetsAll(spacing.sm),
-            decoration: BoxDecoration(
-              color: headerColor.withValues(alpha: AppOpacity.medium),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            child: Icon(
-              Icons.track_changes_rounded,
-              size: AppTokens.iconSize.sm,
-              color: headerColor,
-            ),
-          ),
-          SizedBox(width: spacing.md),
-          Expanded(
-            child: Text(
-              label,
-              style: AppTokens.typography.subtitle.copyWith(
-                fontWeight: AppTokens.fontWeight.extraBold,
-                letterSpacing: AppLetterSpacing.snug,
-                color: colors.onSurface,
-              ),
-            ),
-          ),
-          Container(
-            padding: spacing.edgeInsetsSymmetric(
-              horizontal: spacing.smMd,
-              vertical: spacing.xsPlus,
-            ),
-            decoration: BoxDecoration(
-              color: headerColor.withValues(alpha: AppOpacity.overlay),
-              borderRadius: AppTokens.radius.sm,
-            ),
-            child: Text(
-              '$percent%',
-              style: AppTokens.typography.caption.copyWith(
-                fontWeight: AppTokens.fontWeight.bold,
-                color: headerColor,
-              ),
-            ),
-          ),
-        ],
-      ),
+    return ProgressPill(
+      label: label,
+      progress: progress,
+      tint: color,
     );
   }
 }
@@ -359,25 +251,9 @@ class _DashboardReminderTile extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDone = entry.isCompleted;
 
-    return Container(
+    return ListItemCard(
       padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: colors.outlineVariant,
-          width: AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.sm,
-                  offset: AppShadowOffset.xs,
-                ),
-              ],
-      ),
+      borderRadius: AppTokens.radius.lg,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

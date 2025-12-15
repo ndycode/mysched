@@ -8,12 +8,21 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <!-- Images access on Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
-    <!-- Allow exact alarms on Android 12+ for reliable alarm scheduling -->
+    <!-- Exact alarm permissions: both for maximum compatibility across Android versions -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
+    <!-- USE_EXACT_ALARM is auto-granted for alarm/timer apps on Android 14+ -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
     <!-- Allow full-screen intents for alarms/urgent notifications -->
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
     <!-- Allow holding a wake lock briefly while launching the full-screen alarm -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Foreground service for reliable alarm execution on Android 14+ -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE"/>
+    <!-- Prevent doze from killing alarms -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
+    <!-- Boot completed to reschedule alarms after reboot -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- Fallback for Android 12 and below -->
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
@@ -22,7 +31,7 @@
     <application
         android:label="MySched"
         android:name="${applicationName}"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true"
         android:enableOnBackInvokedCallback="true">
 
@@ -61,7 +70,8 @@
             android:theme="@style/AlarmFullscreenTheme"
             android:launchMode="singleTop"
             android:excludeFromRecents="true"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout" />
 
         <receiver
             android:name=".AlarmReceiver"
@@ -73,6 +83,33 @@
         <receiver
             android:name=".HeadsUpReceiver"
             android:exported="false" />
+            
+        <!-- Boot receiver to reschedule alarms after device reboot -->
+        <receiver
+            android:name=".BootReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:directBootAware="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="android.intent.action.LOCKED_BOOT_COMPLETED"/>
+                <!-- Manufacturer-specific boot intents -->
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
+            </intent-filter>
+        </receiver>
+        
+        <!-- Foreground service for reliable alarm delivery on Android 11-15 -->
+        <service
+            android:name=".AlarmForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="alarm_delivery"/>
+        </service>
 
         <!-- Flutter embedding -->
         <meta-data

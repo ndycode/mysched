@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../app/routes.dart';
 import '../../services/auth_service.dart';
 import '../../ui/kit/kit.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 
 class DeleteAccountSheet extends StatefulWidget {
@@ -92,58 +91,15 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final media = MediaQuery.of(context);
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
+    final cardBackground = isDark ? colors.surfaceContainerHigh : colors.surface;
 
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: media.viewInsets.bottom + spacing.xl,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
-              maxHeight: maxHeight,
-            ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
-              ),
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: _completed
-                      ? _buildSuccessContent(theme, colors, spacing, palette)
-                      : _buildDeleteContent(theme, colors, spacing,
-                          cardBackground, isDark, palette),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return ModalShell(
+      child: _completed
+          ? _buildSuccessContent(theme, colors, spacing, palette)
+          : _buildDeleteContent(
+              theme, colors, spacing, cardBackground, isDark, palette),
     );
   }
 
@@ -186,16 +142,7 @@ class _DeleteAccountSheetState extends State<DeleteAccountSheet> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Warning section
-                Container(
-                  padding: spacing.edgeInsetsAll(spacing.lg),
-                  decoration: BoxDecoration(
-                    color: palette.danger.withValues(alpha: AppOpacity.dim),
-                    borderRadius: AppTokens.radius.lg,
-                    border: Border.all(
-                      color: palette.danger.withValues(alpha: AppOpacity.ghost),
-                      width: AppTokens.componentSize.dividerThin,
-                    ),
-                  ),
+                DangerCard(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [

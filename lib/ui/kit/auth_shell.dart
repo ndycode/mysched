@@ -42,34 +42,12 @@ class AuthShell extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    // Hero-style brand header matching dashboard's ScreenBrandHeader
-    final brandBadge = Container(
-      padding: spacing.edgeInsetsSymmetric(
-        horizontal: spacing.md * spacingScale,
-        vertical: (spacing.sm - spacing.micro) * spacingScale,
-      ),
-      decoration: BoxDecoration(
-        color: colors.primary.withValues(alpha: AppOpacity.dim),
-        borderRadius: AppTokens.radius.pill,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            Icons.calendar_month_rounded,
-            size: AppTokens.iconSize.sm * scale,
-            color: colors.primary,
-          ),
-          SizedBox(width: (spacing.xs + spacing.micro) * spacingScale),
-          Text(
-            AppConstants.appName,
-            style: AppTokens.typography.captionScaled(scale).copyWith(
-              color: colors.primary,
-              fontWeight: AppTokens.fontWeight.bold,
-              letterSpacing: AppLetterSpacing.wider,
-            ),
-          ),
-        ],
+    // Plain text MySched branding
+    final brandBadge = Text(
+      AppConstants.appName,
+      style: AppTokens.typography.titleScaled(scale).copyWith(
+        color: colors.primary,
+        fontWeight: AppTokens.fontWeight.bold,
       ),
     );
 
@@ -105,9 +83,12 @@ class AuthShell extends StatelessWidget {
       ],
     );
 
-    // Card container matching dashboard's _DashboardSummaryCard structure
+    // Card container with improved padding
     final card = Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
+      padding: EdgeInsets.symmetric(
+        horizontal: spacing.xxl * spacingScale,
+        vertical: spacing.xxxl * spacingScale,
+      ),
       decoration: BoxDecoration(
         color: isDark ? colors.surfaceContainerHigh : colors.surface,
         borderRadius: AppTokens.radius.xl,
@@ -131,10 +112,10 @@ class AuthShell extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           header,
-          SizedBox(height: spacing.xl * spacingScale),
+          SizedBox(height: spacing.xxl * spacingScale),
           child,
           if (bottom != null) ...[
-            SizedBox(height: spacing.xl * spacingScale),
+            SizedBox(height: spacing.xxl * spacingScale),
             bottom!,
           ],
         ],

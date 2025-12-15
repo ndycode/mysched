@@ -20,14 +20,10 @@ class AlarmPage extends StatelessWidget {
     final backButton = IconButton(
       splashRadius: AppInteraction.splashRadius,
       onPressed: () => Navigator.of(context).maybePop(),
-      icon: CircleAvatar(
-        radius: AppInteraction.iconButtonContainerRadius,
-        backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
-        child: Icon(
-          Icons.arrow_back_rounded,
-          color: colors.primary,
-          size: AppTokens.iconSize.sm,
-        ),
+      icon: IconBox(
+        icon: Icons.arrow_back_rounded,
+        tint: colors.primary,
+        size: IconBoxSize.sm,
       ),
     );
 
@@ -65,7 +61,7 @@ class AlarmPage extends StatelessWidget {
               SizedBox(height: spacing.lg),
               Text(
                 'Live preview',
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: AppTokens.typography.subtitle.copyWith(
                   fontWeight: AppTokens.fontWeight.bold,
                   color: palette.muted,
                 ),
@@ -88,33 +84,11 @@ class AlarmPage extends StatelessWidget {
           title: 'How reminders work',
           subtitle: 'Alarm scheduling overview',
           decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: isDark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: isDark
-                    ? AppTokens.componentSize.divider
-                    : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
+          child: SurfaceCard(
             child: Text(
               'MySched syncs your timetable to Android\'s exact alarm API. '
               'You can manage the lead time, snooze length, and quiet week from Settings > Notifications.',
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: AppTokens.typography.body.copyWith(
                 color: palette.muted,
               ),
             ),
@@ -124,29 +98,7 @@ class AlarmPage extends StatelessWidget {
           title: 'Heads-up tips',
           subtitle: 'Keep your alarms reliable.',
           decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: isDark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: isDark
-                    ? AppTokens.componentSize.divider
-                    : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
+          child: SurfaceCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: const [
@@ -161,29 +113,7 @@ class AlarmPage extends StatelessWidget {
           title: 'Need to change something?',
           subtitle: 'Open notifications settings to adjust preferences.',
           decorated: false,
-          child: Container(
-            padding: spacing.edgeInsetsAll(spacing.xxl),
-            decoration: BoxDecoration(
-              color: isDark ? colors.surfaceContainerHigh : colors.surface,
-              borderRadius: AppTokens.radius.xl,
-              border: Border.all(
-                color: isDark
-                    ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                    : colors.outline,
-                width: isDark
-                    ? AppTokens.componentSize.divider
-                    : AppTokens.componentSize.dividerThin,
-              ),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                        blurRadius: AppTokens.shadow.lg,
-                        offset: AppShadowOffset.sm,
-                      ),
-                    ],
-            ),
+          child: SurfaceCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [

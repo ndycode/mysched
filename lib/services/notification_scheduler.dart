@@ -498,23 +498,7 @@ class NotifScheduler {
   }
 
   static String _formatRange(String start, String end) {
-    String format(String value) {
-      final parts = value.split(':');
-      if (parts.length < 2) return value;
-      var hour = int.tryParse(parts[0]) ?? 0;
-      final minute = int.tryParse(parts[1]) ?? 0;
-      final suffix = hour < 12 ? 'AM' : 'PM';
-      if (hour == 0) {
-        hour = 12;
-      } else if (hour > 12) {
-        hour -= 12;
-      }
-      final hh = hour.toString().padLeft(2, '0');
-      final mm = minute.toString().padLeft(2, '0');
-      return '$hh:$mm $suffix';
-    }
-
-    return '${format(start)} - ${format(end)}';
+    return '${_formatTimeLabel(start)} - ${_formatTimeLabel(end)}';
   }
 
   static int _nativeId({

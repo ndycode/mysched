@@ -74,8 +74,7 @@ class HeroAvatar extends StatelessWidget {
           ? null
           : Text(
               fallbackLetter,
-              style: TextStyle(
-                fontFamily: AppTypography.primaryFont,
+              style: AppTokens.typography.title.copyWith(
                 fontSize: scaledRadius,
                 fontWeight: AppTokens.fontWeight.bold,
                 color: theme.colorScheme.onPrimary,

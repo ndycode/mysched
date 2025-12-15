@@ -87,16 +87,55 @@ class AppComponentSize {
   final double buttonMd = 48;
   final double buttonLg = 52;
 
+  // Menu item height
+  /// Popup menu item height (44)
+  final double menuItemHeight = 44;
+
   // Card preview heights
   final double previewSm = 120;
   final double previewMd = 200;
   final double previewSmd = 140;
   final double previewLg = 280;
 
+  // Picker column widths
+  /// Narrow picker column width (50)
+  final double pickerColumnNarrow = 50;
+
+  /// Standard picker column width (70)
+  final double pickerColumnStandard = 70;
+
+  /// Wide picker column width (80)
+  final double pickerColumnWide = 80;
+
+  /// Picker cell height for AM/PM buttons (40)
+  final double pickerCellHeight = 40;
+
+  /// Sheet max height constraint (500)
+  final double sheetMaxHeight = 500;
+
+  // Table column widths
+  /// Extra small table column (40) - e.g., UNITS
+  final double tableColXs = 40;
+
+  /// Small table column (48) - e.g., YR LVL
+  final double tableColSm = 48;
+
+  /// Medium table column (56) - e.g., CODE
+  final double tableColMd = 56;
+
+  /// Medium-large table column (72) - e.g., SECTION
+  final double tableColMdLg = 72;
+
+  /// Large table column (80) - e.g., STUDENT NO, COURSE
+  final double tableColLg = 80;
+
   // Progress indicator
   final double progressHeight = 4;
   final double progressWidth = 40;
   final double progressStroke = 2;
+
+  /// Small spinner size (20) - for inline loading indicators
+  final double spinnerSm = 20;
 
   // RefreshIndicator
   final double refreshDisplacement = 24;

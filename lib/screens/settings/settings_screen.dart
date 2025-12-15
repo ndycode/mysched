@@ -18,6 +18,7 @@ import '../../services/theme_controller.dart';
 import '../../services/data_sync.dart';
 import '../../services/offline_queue.dart';
 import '../../services/connection_monitor.dart';
+import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 import 'package:intl/intl.dart';
 
@@ -38,6 +39,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
+  int? _currentPatchNumber;
 
   @override
   void initState() {
@@ -48,6 +50,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     ConnectionMonitor.instance.startMonitoring();
     OfflineQueue.instance.init();
     _loadDeviceRingtones();
+    _loadPatchInfo();
   }
 
   Future<void> _loadDeviceRingtones() async {
@@ -61,6 +64,18 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
       ];
       _ringtonesLoading = false;
     });
+  }
+
+  Future<void> _loadPatchInfo() async {
+    try {
+      final updater = ShorebirdUpdater();
+      final patch = await updater.readCurrentPatch();
+      if (mounted) {
+        setState(() => _currentPatchNumber = patch?.number);
+      }
+    } catch (_) {
+      // Shorebird not available (debug build)
+    }
   }
 
   @override
@@ -398,30 +413,8 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     required ThemeData theme,
     required Widget child,
   }) {
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
+      padding: EdgeInsets.zero,
       child: child,
     );
   }
@@ -463,11 +456,9 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           ),
           if (_controller.quietWeek) ...[
             SizedBox(height: spacing.md),
-            Container(
-              decoration: BoxDecoration(
-                color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                borderRadius: AppTokens.radius.md,
-              ),
+            SurfaceCard(
+              backgroundColor: colors.primary.withValues(alpha: AppOpacity.overlay),
+              borderRadius: AppTokens.radius.md,
               padding: spacing.edgeInsetsAll(spacing.md),
               child: Text(
                 'Quiet week is on. Alarm reminders are paused until you turn it off.',
@@ -890,6 +881,34 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             onPressed: () =>
                 _controller.triggerAlarmTest(_openExactAlarmSettings),
           ),
+          SizedBox(height: spacing.xl),
+          // Patch version info
+          Container(
+            padding: spacing.edgeInsetsAll(spacing.md),
+            decoration: BoxDecoration(
+              color: colors.surfaceContainerHighest,
+              borderRadius: AppTokens.radius.md,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.system_update_rounded,
+                  size: AppTokens.iconSize.sm,
+                  color: colors.primary,
+                ),
+                SizedBox(width: spacing.sm),
+                Text(
+                  _currentPatchNumber != null
+                      ? 'current ver 2.0.4+14 Patch ($_currentPatchNumber)'
+                      : 'current ver 2.0.4+14',
+                  style: AppTokens.typography.caption.copyWith(
+                    fontWeight: AppTokens.fontWeight.semiBold,
+                    color: colors.onSurface,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -1024,93 +1043,54 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           ValueListenableBuilder<int>(
             valueListenable: OfflineQueue.instance.pendingCount,
             builder: (context, pending, _) {
-              return Row(
-                children: [
-                  Container(
-                    padding: AppTokens.spacing.edgeInsetsSymmetric(
-                        horizontal: AppTokens.spacing.md,
-                        vertical: AppTokens.spacing.sm),
-                    decoration: BoxDecoration(
-                      color: colors.surfaceContainerHighest,
-                      borderRadius: AppTokens.radius.pill,
+              return SurfaceCard(
+                padding: AppTokens.spacing.edgeInsetsSymmetric(
+                    horizontal: AppTokens.spacing.md,
+                    vertical: AppTokens.spacing.sm),
+                borderRadius: AppTokens.radius.md,
+                backgroundColor: colors.surfaceContainerHighest,
+                child: Row(
+                  children: [
+                    Icon(
+                      pending > 0
+                          ? Icons.cloud_off_rounded
+                          : Icons.cloud_done_rounded,
+                      size: AppTokens.iconSize.sm,
+                      color: pending > 0 ? colors.secondary : colors.primary,
                     ),
-                    child: Row(
-                      children: [
-                        Icon(
-                          pending > 0
-                              ? Icons.cloud_off_rounded
-                              : Icons.cloud_done_rounded,
-                          size: AppTokens.iconSize.sm,
-                          color:
-                              pending > 0 ? colors.secondary : colors.primary,
+                    SizedBox(width: spacing.sm),
+                    Expanded(
+                      child: Text(
+                        pending > 0
+                            ? '$pending change${pending == 1 ? '' : 's'} queued – syncs automatically'
+                            : 'All changes synced',
+                        style: AppTokens.typography.caption.copyWith(
+                          color: colors.onSurface,
+                          fontWeight: AppTokens.fontWeight.semiBold,
                         ),
-                        SizedBox(width: spacing.sm),
-                        Text(
-                          pending > 0
-                              ? '$pending change${pending == 1 ? '' : 's'} queued'
-                              : 'No queued changes',
+                      ),
+                    ),
+                    if (pending >= 100)
+                      Container(
+                        padding: AppTokens.spacing.edgeInsetsSymmetric(
+                            horizontal: spacing.sm, vertical: spacing.xs),
+                        decoration: BoxDecoration(
+                          color: palette.danger
+                              .withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.pill,
+                        ),
+                        child: Text(
+                          'Queue full',
                           style: AppTokens.typography.caption.copyWith(
-                            color: colors.onSurface,
-                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: palette.danger,
+                            fontWeight: AppTokens.fontWeight.bold,
                           ),
                         ),
-                        if (pending >= 100) ...[
-                          SizedBox(width: spacing.sm),
-                          Container(
-                            padding: AppTokens.spacing.edgeInsetsSymmetric(
-                                horizontal: spacing.sm, vertical: spacing.xs),
-                            decoration: BoxDecoration(
-                              color: palette.danger
-                                  .withValues(alpha: AppOpacity.overlay),
-                              borderRadius: AppTokens.radius.pill,
-                            ),
-                            child: Text(
-                              'Queue full',
-                              style: AppTokens.typography.caption.copyWith(
-                                color: palette.danger,
-                                fontWeight: AppTokens.fontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                  SizedBox(width: spacing.md),
-                  Flexible(
-                    child: SecondaryButton(
-                      label: 'Process queue',
-                      onPressed: () => OfflineQueue.instance.processQueue(),
-                      minHeight: AppTokens.componentSize.buttonMd,
-                      expanded: true,
-                    ),
-                  ),
-                  SizedBox(width: AppTokens.spacing.sm),
-                  SecondaryButton(
-                    label: 'Clear',
-                    onPressed: pending > 0
-                        ? () => OfflineQueue.instance.clear()
-                        : null,
-                    minHeight: AppTokens.componentSize.buttonMd,
-                    expanded: false,
-                  ),
-                ],
+                      ),
+                  ],
+                ),
               );
             },
-          ),
-          SizedBox(height: spacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: PrimaryButton(
-                  label: 'Sync now',
-                  onPressed: () {
-                    DataSync.instance.requestFullRefresh();
-                    _controller.onSnack?.call('Sync requested.');
-                  },
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -1167,15 +1147,10 @@ class _SyncRow extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            height: AppTokens.componentSize.avatarLg,
-            width: AppTokens.componentSize.avatarLg,
-            decoration: BoxDecoration(
-              color: accent.withValues(alpha: AppOpacity.medium),
-              borderRadius: AppTokens.radius.md,
-            ),
-            alignment: Alignment.center,
-            child: Icon(icon, color: accent, size: AppTokens.iconSize.lg),
+          IconBox(
+            icon: icon,
+            tint: accent,
+            size: IconBoxSize.md,
           ),
           SizedBox(width: spacing.md),
           Text(
@@ -1617,19 +1592,6 @@ class _AccentColorPicker extends StatelessWidget {
   final Color? selectedColor;
   final void Function(Color?) onColorSelected;
 
-  // Refined preset colors (curated for premium feel)
-  static const List<Color?> _presets = [
-    null, // Default blue
-    Color(0xFFFF6B6B), // Coral Red
-    Color(0xFFFF8F59), // Sunset Orange
-    Color(0xFFFFC928), // Golden Yellow
-    Color(0xFF36D399), // Emerald Green
-    Color(0xFF9B5DE5), // Violet Purple
-    Color(0xFFFF7EB3), // Rose Pink
-  ];
-
-  static const Color _defaultBlue = Color(0xFF0066FF);
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -1639,9 +1601,9 @@ class _AccentColorPicker extends StatelessWidget {
     return Wrap(
       spacing: spacing.sm,
       runSpacing: spacing.sm,
-      children: _presets.map((color) {
+      children: AppAccentPresets.all.map((color) {
         final isSelected = selectedColor == color;
-        final displayColor = color ?? _defaultBlue;
+        final displayColor = color ?? AppAccentPresets.defaultBlue;
         final isDefault = color == null;
 
         return GestureDetector(
@@ -1663,7 +1625,7 @@ class _AccentColorPicker extends StatelessWidget {
             child: isSelected
                 ? Icon(
                     isDefault ? Icons.auto_awesome : Icons.check_rounded,
-                    color: Colors.white,
+                    color: AppSemanticColor.white,
                     size: AppTokens.iconSize.sm,
                   )
                 : null,

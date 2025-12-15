@@ -5,7 +5,6 @@ import '../../services/schedule_repository.dart' as sched;
 import '../../services/notification_scheduler.dart';
 import '../../widgets/instructor_avatar.dart';
 import '../../services/telemetry_service.dart';
-import '../theme/card_styles.dart';
 import '../kit/kit.dart';
 import '../theme/tokens.dart';
 
@@ -327,118 +326,79 @@ class _ClassDetailsSheetState extends State<ClassDetailsSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final spacing = AppTokens.spacing;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
-    final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    // Get responsive scale factors (1.0 on standard ~390dp screens)
-    final spacingScale = ResponsiveProvider.spacing(context);
-
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(color: borderColor, width: borderWidth),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.bubble(
-                          theme.shadowColor
-                              .withValues(alpha: AppOpacity.border),
+    return DetailShell(
+      useBubbleShadow: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Flexible(
+            child: FutureBuilder<sched.ClassDetails>(
+              future: _future,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState !=
+                    ConnectionState.done) {
+                  return const SkeletonClassDetailsContent();
+                }
+                if (snapshot.hasError || !snapshot.hasData) {
+                  final message = snapshot.error?.toString() ??
+                      'Unable to load class details.';
+                  return Column(
+                    crossAxisAlignment:
+                        CrossAxisAlignment.stretch,
+                    children: [
+                      SheetHeaderRow(
+                        title: 'Error',
+                        subtitle: 'Class details',
+                        icon: Icons.error_outline_rounded,
+                        onClose: () =>
+                            Navigator.of(context).pop(),
+                      ),
+                      SizedBox(height: spacing.lg),
+                      Text(
+                        message,
+                        style:
+                            theme.textTheme.bodyMedium?.copyWith(
+                          color: palette.danger,
                         ),
-                      ],
-              ),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Padding(
-                  padding: EdgeInsets.all(spacing.xl * spacingScale),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: maxHeight),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Flexible(
-                          child: FutureBuilder<sched.ClassDetails>(
-                            future: _future,
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState !=
-                                  ConnectionState.done) {
-                                return const SkeletonClassDetailsContent();
-                              }
-                              if (snapshot.hasError || !snapshot.hasData) {
-                                final message = snapshot.error?.toString() ??
-                                    'Unable to load class details.';
-                                return Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    SheetHeaderRow(
-                                      title: 'Error',
-                                      subtitle: 'Class details',
-                                      icon: Icons.error_outline_rounded,
-                                      onClose: () =>
-                                          Navigator.of(context).pop(),
-                                    ),
-                                    SizedBox(height: spacing.lg),
-                                    Text(
-                                      message,
-                                      style:
-                                          theme.textTheme.bodyMedium?.copyWith(
-                                        color: palette.danger,
-                                      ),
-                                    ),
-                                    SizedBox(height: spacing.lg),
-                                    PrimaryButton(
-                                      label: 'Close',
-                                      onPressed: () =>
-                                          Navigator.of(context).pop(),
-                                      minHeight: AppTokens.componentSize.buttonMd,
-                                    ),
-                                  ],
-                                );
-                              }
-                              final details = snapshot.data!;
-                              return _ClassDetailsContent(
-                                details: details,
-                                isInstructor: widget.isInstructor,
-                                onToggle: widget.isInstructor ? null : () => _toggleEnabled(details),
-                                onReport: widget.isInstructor ? null : (details.isCustom
-                                    ? null
-                                    : () => _reportLinkedIssue(details)),
-                                toggleBusy: _toggleBusy,
-                                onEdit: details.isCustom &&
-                                        widget.onEditCustom != null
-                                    ? () => _editCustom(details)
-                                    : null,
-                                onDelete: details.isCustom
-                                    ? () => _deleteCustom(details)
-                                    : null,
-                                deleteBusy: _deleteBusy,
-                                reportBusy: _reportBusy,
-                                onClose: () => Navigator.of(context).pop(),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+                      ),
+                      SizedBox(height: spacing.lg),
+                      PrimaryButton(
+                        label: 'Close',
+                        onPressed: () =>
+                            Navigator.of(context).pop(),
+                        minHeight: AppTokens.componentSize.buttonMd,
+                      ),
+                    ],
+                  );
+                }
+                final details = snapshot.data!;
+                return _ClassDetailsContent(
+                  details: details,
+                  isInstructor: widget.isInstructor,
+                  onToggle: widget.isInstructor ? null : () => _toggleEnabled(details),
+                  onReport: widget.isInstructor ? null : (details.isCustom
+                      ? null
+                      : () => _reportLinkedIssue(details)),
+                  toggleBusy: _toggleBusy,
+                  onEdit: details.isCustom &&
+                          widget.onEditCustom != null
+                      ? () => _editCustom(details)
+                      : null,
+                  onDelete: details.isCustom
+                      ? () => _deleteCustom(details)
+                      : null,
+                  deleteBusy: _deleteBusy,
+                  reportBusy: _reportBusy,
+                  onClose: () => Navigator.of(context).pop(),
+                );
+              },
             ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -680,7 +640,7 @@ class _ClassDetailsContent extends StatelessWidget {
   }
 
   static String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().add_jm().format(date);
+    return DateFormat.yMMMMd().add_jm().format(date.toLocal());
   }
 
   static String _formatTime(String raw) {

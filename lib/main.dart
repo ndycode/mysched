@@ -3,9 +3,11 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'app/app_router.dart';
 import 'app/constants.dart';
@@ -25,11 +27,29 @@ import 'ui/theme/tokens.dart';
 import 'utils/app_log.dart';
 import 'utils/time_format.dart';
 import 'services/user_settings_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 Future<void> main() async {
+  // Initialize Sentry for crash reporting (no-op if DSN is empty)
+  await SentryFlutter.init(
+    (options) {
+      // DSN from --dart-define or empty string (no-op)
+      options.dsn = const String.fromEnvironment('SENTRY_DSN', defaultValue: '');
+      options.tracesSampleRate = 0.2; // 20% of transactions
+      options.environment = kReleaseMode ? 'production' : 'development';
+      options.sendDefaultPii = false; // Privacy: don't send PII
+    },
+    appRunner: () => _runApp(),
+  );
+}
+
+Future<void> _runApp() async {
   await runZonedGuarded(() async {
     final bootstrapStopwatch = Stopwatch()..start();
     final binding = WidgetsFlutterBinding.ensureInitialized();
+    
+    // Preserve splash screen until we're ready
+    FlutterNativeSplash.preserve(widgetsBinding: binding);
     
     // Enable edge-to-edge and transparent system navigation bar
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
@@ -52,17 +72,26 @@ Future<void> main() async {
     });
     final envOk = await _initEnv();
     if (!envOk) {
+      FlutterNativeSplash.remove(); // Remove splash before showing error
       runApp(const _ConfigErrorApp());
       return;
     }
-    ConnectionMonitor.instance.startMonitoring();
-    await OfflineQueue.instance.init();
-    await ReminderScopeStore.instance.initialize();
-    await NavigationChannel.instance.init();
-    await DataSync.instance.init();
+    
+    // Load user theme preferences BEFORE showing Flutter splash
     await ThemeController.instance.init();
+    
+    // Remove native splash - now Flutter splash will show with correct theme
+    FlutterNativeSplash.remove();
+    
+    // These can run while app is visible (deferred initialization)
+    ConnectionMonitor.instance.startMonitoring();
+    OfflineQueue.instance.init(); // Don't await - run in background
+    ReminderScopeStore.instance.initialize(); // Don't await
+    NavigationChannel.instance.init(); // Don't await
+    DataSync.instance.init(); // Don't await
     await AppTimeFormat.init();
     await UserSettingsService.instance.init();
+    
     runApp(const MySchedApp());
   }, (error, stack) {
     TelemetryService.instance.logError(

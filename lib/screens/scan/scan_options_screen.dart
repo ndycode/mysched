@@ -1,10 +1,8 @@
-// ignore_for_file: unused_local_variable
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
-import '../../ui/theme/card_styles.dart';
 
 class ScanOptionsSheet extends StatefulWidget {
   const ScanOptionsSheet({super.key});
@@ -37,139 +35,90 @@ class _ScanOptionsSheetState extends State<ScanOptionsSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
+    final cardBackground = isDark ? colors.surfaceContainerHigh : colors.surface;
 
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: media.viewInsets.bottom + spacing.xl,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
-              maxHeight: maxHeight,
+    return ModalShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.xl,
+              bottom: spacing.md,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
+            child: SheetHeaderRow(
+              title: 'Scan student card',
+              subtitle:
+                  'Choose how you want to capture your student account card',
+              icon: Icons.credit_card_rounded,
+              onClose: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: spacing.edgeInsetsOnly(
+                left: spacing.xl,
+                right: spacing.xl,
+                bottom: spacing.md,
               ),
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header
-                      Padding(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          top: spacing.xl,
-                          bottom: spacing.md,
-                        ),
-                        child: SheetHeaderRow(
-                          title: 'Scan student card',
-                          subtitle:
-                              'Choose how you want to capture your student account card',
-                          icon: Icons.credit_card_rounded,
-                          onClose: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                      // Content
-                      Flexible(
-                        child: SingleChildScrollView(
-                          padding: spacing.edgeInsetsOnly(
-                            left: spacing.xl,
-                            right: spacing.xl,
-                            bottom: spacing.md,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Student card preview mockup
-                              _StudentCardPreview(),
-                            ],
-                          ),
-                        ),
-                      ),
-                      // Action buttons
-                      Container(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          top: spacing.md,
-                          bottom: spacing.xl,
-                        ),
-                        decoration: BoxDecoration(
-                          color: cardBackground,
-                          border: Border(
-                            top: BorderSide(
-                              color: isDark
-                                  ? colors.outline
-                                      .withValues(alpha: AppOpacity.overlay)
-                                  : colors.outlineVariant
-                                      .withValues(alpha: AppOpacity.ghost),
-                              width: AppTokens.componentSize.dividerThin,
-                            ),
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: PrimaryButton(
-                                onPressed: _busy
-                                    ? null
-                                    : () => _pick(ImageSource.camera),
-                                label: _busy ? 'Opening...' : 'Take photo',
-                                icon: Icons.camera_alt_outlined,
-                                minHeight: AppTokens.componentSize.buttonMd,
-                              ),
-                            ),
-                            SizedBox(width: spacing.md),
-                            Expanded(
-                              child: SecondaryButton(
-                                onPressed: _busy
-                                    ? null
-                                    : () => _pick(ImageSource.gallery),
-                                label: 'Upload',
-                                icon: Icons.photo_library_outlined,
-                                minHeight: AppTokens.componentSize.buttonMd,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Student card preview mockup
+                  _StudentCardPreview(),
+                ],
               ),
             ),
           ),
-        ),
+          // Action buttons
+          Container(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.md,
+              bottom: spacing.xl,
+            ),
+            decoration: BoxDecoration(
+              color: cardBackground,
+              border: Border(
+                top: BorderSide(
+                  color: isDark
+                      ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                      : colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+                  width: AppTokens.componentSize.dividerThin,
+                ),
+              ),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: PrimaryButton(
+                    onPressed: _busy ? null : () => _pick(ImageSource.camera),
+                    label: _busy ? 'Opening...' : 'Take photo',
+                    icon: Icons.camera_alt_outlined,
+                    minHeight: AppTokens.componentSize.buttonMd,
+                  ),
+                ),
+                SizedBox(width: spacing.md),
+                Expanded(
+                  child: SecondaryButton(
+                    onPressed: _busy ? null : () => _pick(ImageSource.gallery),
+                    label: 'Upload',
+                    icon: Icons.photo_library_outlined,
+                    minHeight: AppTokens.componentSize.buttonMd,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -210,7 +159,7 @@ class _StudentCardPreview extends StatelessWidget {
           // Student info section
           Row(
             children: [
-              _FieldColumn(label: 'STUDENT NO.', width: 80),
+              _FieldColumn(label: 'STUDENT NO.', width: AppTokens.componentSize.tableColLg),
               SizedBox(width: spacing.xl),
               Expanded(child: _FieldColumn(label: 'STUDENT NAME')),
             ],
@@ -218,26 +167,26 @@ class _StudentCardPreview extends StatelessWidget {
           SizedBox(height: spacing.lg),
           Row(
             children: [
-              _FieldColumn(label: 'COURSE', width: 80),
+              _FieldColumn(label: 'COURSE', width: AppTokens.componentSize.tableColLg),
               SizedBox(width: spacing.xl),
-              _FieldColumn(label: 'SECTION', width: 72),
+              _FieldColumn(label: 'SECTION', width: AppTokens.componentSize.tableColMdLg),
               SizedBox(width: spacing.xl),
-              _FieldColumn(label: 'YR LVL', width: 48),
+              _FieldColumn(label: 'YR LVL', width: AppTokens.componentSize.tableColSm),
             ],
           ),
           SizedBox(height: spacing.xl),
           // Divider
           Container(
-            height: 1,
+            height: AppTokens.componentSize.divider,
             color: colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
           ),
           SizedBox(height: spacing.lg),
           // Schedule table header
           Row(
-            children: const [
-              _TableLabel(label: 'CODE', width: 56),
+            children: [
+              _TableLabel(label: 'CODE', width: AppTokens.componentSize.tableColMd),
               Expanded(child: _TableLabel(label: 'SUBJECT')),
-              _TableLabel(label: 'UNITS', width: 40, align: TextAlign.end),
+              _TableLabel(label: 'UNITS', width: AppTokens.componentSize.tableColXs, align: TextAlign.end),
             ],
           ),
           SizedBox(height: spacing.sm),
@@ -268,16 +217,15 @@ class _FieldColumn extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(
-            fontSize: 9,
+          style: AppTokens.typography.caption.copyWith(
             fontWeight: AppTokens.fontWeight.medium,
             color: palette.muted.withValues(alpha: AppOpacity.soft),
-            letterSpacing: 0.3,
+            letterSpacing: AppLetterSpacing.compact,
           ),
         ),
         SizedBox(height: spacing.xs),
         Container(
-          height: 6,
+          height: spacing.xsPlus,
           decoration: BoxDecoration(
             color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
             borderRadius: AppTokens.radius.micro,
@@ -307,18 +255,16 @@ class _TableLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
     final text = Text(
       label,
       textAlign: align,
-      style: TextStyle(
-        fontSize: 8,
+      style: AppTokens.typography.caption.copyWith(
         fontWeight: AppTokens.fontWeight.semiBold,
         color: palette.muted.withValues(alpha: AppOpacity.soft),
-        letterSpacing: 0.2,
+        letterSpacing: AppLetterSpacing.compact,
       ),
     );
 
@@ -346,9 +292,9 @@ class _ScheduleRow extends StatelessWidget {
         children: [
           // Code
           SizedBox(
-            width: 56,
+            width: AppTokens.componentSize.tableColMd,
             child: Container(
-              height: 5,
+              height: AppTokens.spacing.xsHalf,
               decoration: BoxDecoration(
                 color: barColor,
                 borderRadius: AppTokens.radius.micro,
@@ -359,7 +305,7 @@ class _ScheduleRow extends StatelessWidget {
           // Subject
           Expanded(
             child: Container(
-              height: 5,
+              height: AppTokens.spacing.xsHalf,
               decoration: BoxDecoration(
                 color: barColor,
                 borderRadius: AppTokens.radius.micro,
@@ -369,9 +315,9 @@ class _ScheduleRow extends StatelessWidget {
           SizedBox(width: spacing.md),
           // Units
           SizedBox(
-            width: 40,
+            width: AppTokens.componentSize.tableColXs,
             child: Container(
-              height: 5,
+              height: AppTokens.spacing.xsHalf,
               decoration: BoxDecoration(
                 color: barColor,
                 borderRadius: AppTokens.radius.micro,

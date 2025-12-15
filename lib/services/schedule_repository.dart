@@ -488,9 +488,18 @@ class ClassDetails {
 
   static DateTime? _parseTimestamp(dynamic value) {
     if (value == null) return null;
-    if (value is DateTime) return value;
+    if (value is DateTime) return value.isUtc ? value : value.toUtc();
     if (value is String && value.isNotEmpty) {
-      return DateTime.tryParse(value);
+      var normalized = value.trim();
+      // Supabase/PostgreSQL timestamptz returns UTC but may omit Z suffix
+      // Ensure the string ends with Z so DateTime.parse interprets it as UTC
+      if (!normalized.endsWith('Z') && !normalized.contains('+') && !normalized.contains('-', 10)) {
+        normalized = '${normalized}Z';
+      }
+      final parsed = DateTime.tryParse(normalized);
+      if (parsed == null) return null;
+      // Ensure we always return UTC DateTime
+      return parsed.isUtc ? parsed : parsed.toUtc();
     }
     return null;
   }

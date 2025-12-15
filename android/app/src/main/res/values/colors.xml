@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Splash screen backgrounds (matches Flutter theme) -->
+    <color name="light_background">#FCFCFC</color>
+    <color name="dark_background">#000000</color>
+    
     <!-- Light Mode Palette (Brand Blue) -->
     <color name="alarm_surface">#FCFCFC</color>
     <color name="alarm_surface_gradient_start">#FFFFFF</color>

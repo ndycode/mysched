@@ -8,16 +8,6 @@ class AlarmPreviewMock extends StatelessWidget {
 
   final bool expanded;
 
-  static const Color _bgTop = Color(0xFF0B0D11);
-  static const Color _bgBottom = Color(0xFF080A10);
-  static const Color _glow = Color(0xFF161B2C);
-  static const Color _accent = Color(0xFF7B61FF);
-  static const Color _accentDim = Color(0xFF684FE0);
-  static const Color _stopAccent = Color(0xFFFF6B6B);
-  static const Color _textPrimary = AppSemanticColor.white;
-  static const Color _textSecondary = Color(0xFFC7CCDA);
-  static const Color _textMuted = Color(0xFF7E869A);
-
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
@@ -38,7 +28,7 @@ class AlarmPreviewMock extends StatelessWidget {
           gradient: const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [_bgTop, _bgBottom],
+            colors: [AppAlarmColors.bgTop, AppAlarmColors.bgBottom],
           ),
           borderRadius: AppTokens.radius.xxxl,
           boxShadow: [
@@ -58,7 +48,7 @@ class AlarmPreviewMock extends StatelessWidget {
                   gradient: RadialGradient(
                     center: Alignment(0, -0.05),
                     radius: 1.1,
-                    colors: [_glow, Colors.transparent],
+                    colors: [AppAlarmColors.glow, Colors.transparent],
                     stops: [0.0, 1.0],
                   ),
                 ),
@@ -68,29 +58,29 @@ class AlarmPreviewMock extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _Header(
-                  accent: _accent,
-                  textSecondary: _textSecondary,
-                  textMuted: _textMuted,
+                  accent: AppAlarmColors.accent,
+                  textSecondary: AppAlarmColors.textSecondary,
+                  textMuted: AppAlarmColors.textMuted,
                 ),
                 SizedBox(height: spacing.xlHalf),
                 _ClockBlock(
                   expanded: expanded,
-                  textPrimary: _textPrimary,
-                  textSecondary: _textSecondary,
-                  accent: _accent,
+                  textPrimary: AppSemanticColor.white,
+                  textSecondary: AppAlarmColors.textSecondary,
+                  accent: AppAlarmColors.accent,
                 ),
                 SizedBox(height: spacing.lg),
                 _ContextCard(
-                  textPrimary: _textPrimary,
-                  textSecondary: _textSecondary,
+                  textPrimary: AppSemanticColor.white,
+                  textSecondary: AppAlarmColors.textSecondary,
                 ),
                 const Spacer(),
                 _Actions(
-                  accent: _accent,
-                  accentDim: _accentDim,
-                  stopAccent: _stopAccent,
-                  textPrimary: _textPrimary,
-                  textSecondary: _textSecondary,
+                  accent: AppAlarmColors.accent,
+                  accentDim: AppAlarmColors.accentDim,
+                  stopAccent: AppAlarmColors.stopAccent,
+                  textPrimary: AppSemanticColor.white,
+                  textSecondary: AppAlarmColors.textSecondary,
                 ),
               ],
             ),
@@ -143,7 +133,7 @@ class _Header extends StatelessWidget {
               SizedBox(width: spacing.sm),
               Text(
                 'Class reminder',
-                style: TextStyle(
+                style: AppTokens.typography.body.copyWith(
                   color: textSecondary,
                   fontWeight: AppTokens.fontWeight.bold,
                   letterSpacing: AppLetterSpacing.wide,
@@ -158,7 +148,7 @@ class _Header extends StatelessWidget {
           children: [
             Text(
               'Ringing',
-              style: TextStyle(
+              style: AppTokens.typography.body.copyWith(
                 color: accent,
                 fontWeight: AppTokens.fontWeight.bold,
                 letterSpacing: AppLetterSpacing.widest,
@@ -167,7 +157,7 @@ class _Header extends StatelessWidget {
             SizedBox(height: spacing.xs),
             Text(
               '07:15 AM',
-              style: TextStyle(
+              style: AppTokens.typography.caption.copyWith(
                 color: textMuted,
                 fontWeight: AppTokens.fontWeight.semiBold,
               ),
@@ -217,7 +207,7 @@ class _ClockBlock extends StatelessWidget {
           SizedBox(height: spacing.xs),
           Text(
             'Alarm stops in 08:00',
-            style: TextStyle(
+            style: AppTokens.typography.body.copyWith(
               color: accent,
               fontWeight: AppTokens.fontWeight.bold,
             ),
@@ -225,7 +215,7 @@ class _ClockBlock extends StatelessWidget {
           SizedBox(height: spacing.xs),
           Text(
             'Tue, Apr 23',
-            style: TextStyle(
+            style: AppTokens.typography.caption.copyWith(
               color: textSecondary,
               fontWeight: AppTokens.fontWeight.semiBold,
             ),
@@ -265,7 +255,7 @@ class _ContextCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Next: Math class at 3:30 PM',
-                  style: TextStyle(
+                  style: AppTokens.typography.body.copyWith(
                     color: textPrimary,
                     fontWeight: AppTokens.fontWeight.bold,
                   ),
@@ -334,10 +324,9 @@ class _StatusPill extends StatelessWidget {
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(
+                style: AppTokens.typography.caption.copyWith(
                   color: textSecondary,
                   fontWeight: AppTokens.fontWeight.semiBold,
-                  fontSize: AppTokens.typography.caption.fontSize,
                   letterSpacing: AppLetterSpacing.relaxed,
                 ),
               ),
@@ -451,20 +440,18 @@ class _ActionButton extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
+                  style: AppTokens.typography.subtitle.copyWith(
                     color: textColor,
                     fontWeight: AppTokens.fontWeight.extraBold,
-                    fontSize: AppTokens.typography.subtitle.fontSize,
                   ),
                 ),
                 if (secondaryLabel != null) ...[
                   SizedBox(height: AppTokens.spacing.xs),
                   Text(
                     secondaryLabel!,
-                    style: TextStyle(
+                    style: AppTokens.typography.caption.copyWith(
                       color: textColor.withValues(alpha: AppOpacity.muted),
                       fontWeight: AppTokens.fontWeight.semiBold,
-                      fontSize: AppTokens.typography.caption.fontSize,
                     ),
                   ),
                 ],

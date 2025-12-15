@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../services/reminders_repository.dart';
-import '../theme/card_styles.dart';
 import '../theme/tokens.dart';
 import 'kit.dart';
 
@@ -44,11 +43,6 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
-    final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
@@ -56,35 +50,11 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(color: borderColor, width: borderWidth),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          theme.shadowColor.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
-              ),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Padding(
-                  padding: EdgeInsets.all(spacing.xl * spacingScale),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: maxHeight),
-                    child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
+    return DetailShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
                   // Premium Header
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -278,14 +248,7 @@ class _ReminderDetailsSheetState extends State<ReminderDetailsSheet> {
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-        ),
+        ],
       ),
     );
   }

@@ -273,251 +273,38 @@ class SchedulesPageState extends State<SchedulesPage> with RouteAware {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
 
-    return PopupMenuButton<ScheduleAction>(
+    return AppPopupMenuButton<ScheduleAction>(
       key: const ValueKey('schedule-actions-menu'),
       onSelected: (action) => _handleAction(action),
-      shape: RoundedRectangleBorder(
-        borderRadius: AppTokens.radius.lg,
-      ),
-      elevation: isDark
-          ? AppTokens.shadow.elevationDark
-          : AppTokens.shadow.elevationLight,
-      color: isDark ? colors.surfaceContainerHigh : colors.surface,
-      surfaceTintColor: Colors.transparent,
-      shadowColor: colors.shadow
-          .withValues(alpha: isDark ? AppOpacity.divider : AppOpacity.medium),
-      padding: EdgeInsets.zero,
-      icon: SizedBox(
-        width: AppTokens.componentSize.buttonXs,
-        height: AppTokens.componentSize.buttonXs,
-        child: Center(
-          child: Icon(
-            Icons.more_vert_rounded,
-            size: AppTokens.iconSize.md,
-            color: palette.muted,
-          ),
-        ),
-      ),
       itemBuilder: (context) => [
-        PopupMenuItem<ScheduleAction>(
+        AppPopupMenuItem<ScheduleAction>(
           key: const ValueKey('schedule-export-pdf-item'),
           value: ScheduleAction.pdf,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, ScheduleAction.pdf),
-              splashColor:
-                  colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor:
-                  colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(
-                    horizontal: AppTokens.spacing.lg,
-                    vertical: AppTokens.spacing.md),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding:
-                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
-                      decoration: BoxDecoration(
-                        color:
-                            palette.danger.withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.picture_as_pdf_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: palette.danger,
-                      ),
-                    ),
-                    SizedBox(
-                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Export as PDF',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.picture_as_pdf_outlined,
+          label: 'Export as PDF',
+          tint: palette.danger,
         ),
-        PopupMenuItem<ScheduleAction>(
+        AppPopupMenuItem<ScheduleAction>(
           key: const ValueKey('schedule-export-csv-item'),
           value: ScheduleAction.csv,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, ScheduleAction.csv),
-              splashColor:
-                  colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor:
-                  colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(
-                    horizontal: AppTokens.spacing.lg,
-                    vertical: AppTokens.spacing.md),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding:
-                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
-                      decoration: BoxDecoration(
-                        color: colors.tertiary
-                            .withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.table_chart_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: colors.tertiary,
-                      ),
-                    ),
-                    SizedBox(
-                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Export as CSV',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.table_chart_outlined,
+          label: 'Export as CSV',
+          tint: colors.tertiary,
         ),
-        PopupMenuItem<ScheduleAction>(
-          enabled: false,
-          height: AppTokens.componentSize.divider,
-          padding: AppTokens.spacing.edgeInsetsSymmetric(
-              horizontal: AppTokens.spacing.md, vertical: AppTokens.spacing.sm),
-          child: Container(
-            height: AppTokens.componentSize.divider,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                  colors.outline.withValues(
-                      alpha: isDark ? AppOpacity.accent : AppOpacity.divider),
-                  colors.outline.withValues(alpha: AppOpacity.transparent),
-                ],
-              ),
-            ),
-          ),
-        ),
-        // Find Instructor - only show for students (non-instructors)
+        const AppPopupMenuDivider<ScheduleAction>(),
         if (!_controller.isInstructor)
-          PopupMenuItem<ScheduleAction>(
+          AppPopupMenuItem<ScheduleAction>(
             key: const ValueKey('schedule-find-instructor-item'),
             value: ScheduleAction.findInstructor,
-            padding: EdgeInsets.zero,
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => Navigator.pop(context, ScheduleAction.findInstructor),
-                splashColor:
-                    colors.primary.withValues(alpha: AppOpacity.highlight),
-                highlightColor:
-                    colors.primary.withValues(alpha: AppOpacity.micro),
-                child: Padding(
-                  padding: AppTokens.spacing.edgeInsetsSymmetric(
-                      horizontal: AppTokens.spacing.lg,
-                      vertical: AppTokens.spacing.md),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        padding:
-                            AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
-                        decoration: BoxDecoration(
-                          color: colors.secondary
-                              .withValues(alpha: AppOpacity.overlay),
-                          borderRadius: AppTokens.radius.sm,
-                        ),
-                        child: Icon(
-                          Icons.search_rounded,
-                          size: AppTokens.iconSize.md,
-                          color: colors.secondary,
-                        ),
-                      ),
-                      SizedBox(
-                          width: AppTokens.spacing.md + AppTokens.spacing.micro),
-                      Flexible(
-                        child: Text(
-                          'Find instructor',
-                          style: AppTokens.typography.bodySecondary.copyWith(
-                            fontWeight: AppTokens.fontWeight.medium,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+            icon: Icons.search_rounded,
+            label: 'Find instructor',
+            tint: colors.secondary,
           ),
-        PopupMenuItem<ScheduleAction>(
+        AppPopupMenuItem<ScheduleAction>(
           value: ScheduleAction.reset,
-          padding: EdgeInsets.zero,
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => Navigator.pop(context, ScheduleAction.reset),
-              splashColor:
-                  colors.primary.withValues(alpha: AppOpacity.highlight),
-              highlightColor:
-                  colors.primary.withValues(alpha: AppOpacity.micro),
-              child: Padding(
-                padding: AppTokens.spacing.edgeInsetsSymmetric(
-                    horizontal: AppTokens.spacing.lg,
-                    vertical: AppTokens.spacing.md),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      padding:
-                          AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.sm),
-                      decoration: BoxDecoration(
-                        color: colors.primary
-                            .withValues(alpha: AppOpacity.overlay),
-                        borderRadius: AppTokens.radius.sm,
-                      ),
-                      child: Icon(
-                        Icons.restart_alt_outlined,
-                        size: AppTokens.iconSize.md,
-                        color: colors.primary,
-                      ),
-                    ),
-                    SizedBox(
-                        width: AppTokens.spacing.md + AppTokens.spacing.micro),
-                    Flexible(
-                      child: Text(
-                        'Reset schedules',
-                        style: AppTokens.typography.bodySecondary.copyWith(
-                          fontWeight: AppTokens.fontWeight.medium,
-                          color: colors.onSurface,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          icon: Icons.restart_alt_rounded,
+          label: 'Reset schedules',
+          tint: palette.danger,
         ),
       ],
     );

@@ -10,7 +10,6 @@ import '../../app/routes.dart';
 import '../../services/auth_service.dart';
 import '../../services/reminder_scope_store.dart';
 import '../../ui/kit/kit.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 
 enum VerificationIntent { signup, emailChange }
@@ -246,13 +245,8 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final media = MediaQuery.of(context);
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
 
     final heroSubtitle = _hasEmail
         ? (_isEmailChange
@@ -260,109 +254,66 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             : 'Enter the 6-digit code we sent to ${widget.email}.')
         : 'Add an email address to receive verification codes.';
 
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: media.viewInsets.bottom + spacing.xl,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
-              maxHeight: maxHeight,
+    return ModalShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.xl,
+              bottom: spacing.md,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
-              ),
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Header
-                      Padding(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          top: spacing.xl,
-                          bottom: spacing.md,
-                        ),
-                        child: SheetHeaderRow(
-                          title: _isEmailChange
-                              ? 'Confirm your new email'
-                              : 'Verify your email',
-                          subtitle: heroSubtitle,
-                          icon: Icons.mark_email_read_outlined,
-                          onClose: _verifying
-                              ? () {}
-                              : () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                      // Tag chip
-                      Padding(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          bottom: spacing.md,
-                        ),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: InfoChip(
-                            icon: _isEmailChange
-                                ? Icons.mail_outline_rounded
-                                : Icons.person_add_outlined,
-                            label:
-                                _isEmailChange ? 'Email change' : 'New account',
-                          ),
-                        ),
-                      ),
-                      // Content
-                      Flexible(
-                        child: SingleChildScrollView(
-                          padding: spacing.edgeInsetsOnly(
-                            left: spacing.xl,
-                            right: spacing.xl,
-                            bottom: spacing.md,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              // Verification code section
-                              _buildVerificationSection(
-                                  theme, colors, spacing, isDark, palette),
-                              SizedBox(height: spacing.lg),
-                              // Resend section
-                              _buildResendSection(
-                                  theme, colors, spacing, isDark, palette),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            child: SheetHeaderRow(
+              title: _isEmailChange
+                  ? 'Confirm your new email'
+                  : 'Verify your email',
+              subtitle: heroSubtitle,
+              icon: Icons.mark_email_read_outlined,
+              onClose: _verifying ? () {} : () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Tag chip
+          Padding(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              bottom: spacing.md,
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: InfoChip(
+                icon: _isEmailChange
+                    ? Icons.mail_outline_rounded
+                    : Icons.person_add_outlined,
+                label: _isEmailChange ? 'Email change' : 'New account',
               ),
             ),
           ),
-        ),
+          // Content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: spacing.edgeInsetsOnly(
+                left: spacing.xl,
+                right: spacing.xl,
+                bottom: spacing.md,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Verification code section
+                  _buildVerificationSection(
+                      theme, colors, spacing, isDark, palette),
+                  SizedBox(height: spacing.lg),
+                  // Resend section
+                  _buildResendSection(theme, colors, spacing, isDark, palette),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -374,17 +325,8 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     bool isDark,
     ColorPalette palette,
   ) {
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
-
-    return Container(
+    return SurfaceCard(
       padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: borderColor, width: borderWidth),
-      ),
       child: Form(
         key: _formKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -399,17 +341,9 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
             ),
             SizedBox(height: spacing.md),
             if (_errorText != null) ...[
-              Container(
+              DangerCard(
                 padding: spacing.edgeInsetsAll(spacing.lg),
                 margin: EdgeInsets.only(bottom: spacing.lg),
-                decoration: BoxDecoration(
-                  color: palette.danger.withValues(alpha: AppOpacity.dim),
-                  borderRadius: AppTokens.radius.md,
-                  border: Border.all(
-                    color: palette.danger.withValues(alpha: AppOpacity.ghost),
-                    width: AppTokens.componentSize.dividerThin,
-                  ),
-                ),
                 child: Row(
                   children: [
                     Icon(
@@ -502,19 +436,11 @@ class _VerifyEmailSheetState extends State<VerifyEmailSheet> {
     bool isDark,
     ColorPalette palette,
   ) {
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final resendLabel =
         _cooldown > 0 ? 'Resend code in $_cooldown s' : 'Send another code';
 
-    return Container(
+    return SurfaceCard(
       padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(color: borderColor, width: borderWidth),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

@@ -5,8 +5,6 @@ import 'package:intl/intl.dart';
 import '../../env.dart';
 import '../../widgets/instructor_avatar.dart';
 import '../kit/kit.dart';
-
-import '../theme/card_styles.dart';
 import '../theme/tokens.dart';
 
 /// A modal sheet for finding an instructor and viewing their current schedule.
@@ -182,56 +180,11 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final spacing = AppTokens.spacing;
-    final scale = ResponsiveProvider.scale(context);
-    final spacingScale = ResponsiveProvider.spacing(context);
-    final media = MediaQuery.of(context);
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
-    final isDark = theme.brightness == Brightness.dark;
-    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    // Use same helpers as ClassDetailsSheet
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
-
-    return SafeArea(
-      child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: spacing.xl * spacingScale),
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(color: borderColor, width: borderWidth),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.bubble(
-                          theme.shadowColor
-                              .withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
-              ),
-              child: Material(
-                type: MaterialType.transparency,
-                child: Padding(
-                  padding: EdgeInsets.all(spacing.xl * spacingScale),
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxHeight: maxHeight),
-                    child: _selectedInstructor == null
-                        ? _buildInstructorList(context)
-                        : _buildScheduleView(context),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
+    return DetailShell(
+      useBubbleShadow: true,
+      child: _selectedInstructor == null
+          ? _buildInstructorList(context)
+          : _buildScheduleView(context),
     );
   }
 
@@ -702,7 +655,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                                 borderRadius: AppTokens.radius.pill,
                               ),
                               child: Text(
-                                _formatTimeRemaining(currentClass!.endTime, now),
+                                _formatTimeRemaining(currentClass.endTime, now),
                                 style: AppTokens.typography.captionScaled(scale).copyWith(
                                   fontWeight: AppTokens.fontWeight.semiBold,
                                   color: colors.primary,
@@ -1033,13 +986,13 @@ class _ScheduleTile extends StatelessWidget {
             ),
           ),
           SizedBox(width: spacing.md * spacingScale),
-          // Time - vertical layout (end above start)
+          // Time - vertical layout (start above end)
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                item.endTimeFormatted,
+                item.startTimeFormatted,
                 style: AppTokens.typography.captionScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.medium,
                   color: isPast && !isCurrent ? palette.muted : colors.onSurface,
@@ -1047,7 +1000,7 @@ class _ScheduleTile extends StatelessWidget {
               ),
               SizedBox(height: spacing.micro * spacingScale),
               Text(
-                item.startTimeFormatted,
+                item.endTimeFormatted,
                 style: AppTokens.typography.captionScaled(scale).copyWith(
                   fontWeight: AppTokens.fontWeight.medium,
                   color: isPast && !isCurrent ? palette.muted : colors.onSurface,

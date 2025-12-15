@@ -128,30 +128,11 @@ class _IssueReportsScreenState extends State<IssueReportsScreen> {
         children: [
           Row(
             children: [
-              Container(
-                height: AppTokens.componentSize.avatarXl * scale,
-                width: AppTokens.componentSize.avatarXl * scale,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colors.primary.withValues(alpha: AppOpacity.medium),
-                      colors.primary.withValues(alpha: AppOpacity.dim),
-                    ],
-                  ),
-                  borderRadius: AppTokens.radius.md,
-                  border: Border.all(
-                    color: colors.primary
-                        .withValues(alpha: AppOpacity.borderEmphasis),
-                    width: AppTokens.componentSize.dividerThick,
-                  ),
-                ),
-                child: Icon(
-                  Icons.report_problem_outlined,
-                  color: colors.primary,
-                  size: AppTokens.iconSize.xl * scale,
-                ),
+              GradientIconBox(
+                icon: Icons.report_problem_outlined,
+                size: AppTokens.componentSize.avatarXl * scale,
+                iconSize: AppTokens.iconSize.xl * scale,
+                showBorder: true,
               ),
               SizedBox(width: spacing.lg),
               Expanded(
@@ -286,25 +267,9 @@ class _ReportTile extends StatelessWidget {
     final statusVariant = _getStatusVariant(report.status);
     final dateLabel = DateFormat.yMMMd().add_jm().format(report.createdAt);
 
-    return Container(
+    return SurfaceCard(
       padding: spacing.edgeInsetsAll(spacing.lg),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.lg,
-        border: Border.all(
-          color: colors.outline.withValues(alpha: AppOpacity.overlay),
-          width: AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.sm,
-                  offset: AppShadowOffset.xs,
-                ),
-              ],
-      ),
+      borderRadius: AppTokens.radius.lg,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

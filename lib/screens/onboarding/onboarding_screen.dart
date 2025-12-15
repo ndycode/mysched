@@ -52,7 +52,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Future<void> _next() async {
     if (_index < _pages.length - 1) {
       _controller.nextPage(
-        duration: const Duration(milliseconds: 260),
+        duration: AppTokens.motion.page,
         curve: Curves.easeOut,
       );
       return;
@@ -79,9 +79,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please allow camera and notifications to continue.'),
-          duration: Duration(seconds: 3),
+        SnackBar(
+          content: const Text('Please allow camera and notifications to continue.'),
+          duration: AppTokens.durations.snackbarDuration,
         ),
       );
     }
@@ -392,7 +392,7 @@ class _ProgressDots extends StatelessWidget {
       children: List.generate(
         count,
         (index) => AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+          duration: AppTokens.motion.medium,
           margin: spacing.edgeInsetsSymmetric(horizontal: spacing.xs),
           height: spacing.sm,
           width: index == activeIndex ? spacing.lg : spacing.md,

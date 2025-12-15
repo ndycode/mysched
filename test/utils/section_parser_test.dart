@@ -33,13 +33,15 @@ void main() {
 
     test('handles section with suffix letter', () {
       expect(extractSection('BSCS 3-1A'), 'BSCS 3-1A');
-      // Note: B suffix gets normalized to 8 in OCR cleanup
-      expect(extractSection('ACT 2-1B'), 'ACT 2-18');
+      // B suffix is now preserved (not converted to 8)
+      expect(extractSection('ACT 2-1B'), 'ACT 2-1B');
     });
 
     test('handles multi-word course codes', () {
-      // Multi-word codes like "BS CS" extract as "CS" per actual behavior
-      expect(extractSection('BS CS 3-1'), 'CS 3-1');
+      // Multi-word codes like "BS CS" now extract as full "BS CS"
+      expect(extractSection('BS CS 3-1'), 'BS CS 3-1');
+      expect(extractSection('BS IT 4-2'), 'BS IT 4-2');
+      expect(extractSection('BA PS 1-1'), 'BA PS 1-1');
     });
 
     test('returns null for empty input', () {
@@ -60,8 +62,11 @@ void main() {
     });
 
     test('handles OCR-like digit substitutions', () {
-      // Common OCR errors: O for 0, I for 1, S for 5
-      expect(extractSection('BSCS O-1'), 'BSCS 0-1'); // O -> 0
+      // Common OCR errors: O for 0, I for 1, etc.
+      // Note: Year 0 is now rejected as invalid (must be 1-9)
+      expect(extractSection('BSCS O-1'), isNull); // O -> 0, but year 0 is invalid
+      expect(extractSection('BSCS I-1'), 'BSCS 1-1'); // I -> 1
+      expect(extractSection('BSCS 3-I'), 'BSCS 3-1'); // I -> 1 in section
     });
   });
 

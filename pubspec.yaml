@@ -30,6 +30,9 @@ dependencies:
   path_provider: ^2.1.3
   flutter_dotenv: ^5.1.0
   go_router: ^13.2.0
+  flutter_native_splash: ^2.3.5
+  sentry_flutter: ^8.4.0
+  shorebird_code_push: ^2.0.5
 
 dev_dependencies:
   supabase: ^2.10.0

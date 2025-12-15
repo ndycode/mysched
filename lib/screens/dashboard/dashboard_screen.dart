@@ -127,11 +127,11 @@ class DashboardScreenState extends State<DashboardScreen>
     _restoreDashboardPrefs();
     _startTicker();
     _loadProfile();
-    
+
     // Check instructor status on init to populate cache from database
     // ignore: discarded_futures
     InstructorService.instance.checkInstructorStatus();
-    
+
     if (widget.debugForceScheduleError) {
       _scheduleLoading = false;
       _scheduleError = 'Schedules not refreshed';
@@ -313,10 +313,13 @@ class DashboardScreenState extends State<DashboardScreen>
           error: e,
           stack: stack,
         );
-        if (mounted) {
-          await AuthService.instance.forceRelogin();
-          // ignore: use_build_context_synchronously
+        if (!mounted) return;
+        await AuthService.instance.forceRelogin();
+        if (!mounted) return;
+        try {
           context.go(AppRoutes.login);
+        } catch (_) {
+          // GoRouter not available (e.g., in tests)
         }
         return;
       }
@@ -386,10 +389,13 @@ class DashboardScreenState extends State<DashboardScreen>
           error: e,
           stack: stack,
         );
-        if (mounted) {
-          await AuthService.instance.forceRelogin();
-          // ignore: use_build_context_synchronously
+        if (!mounted) return;
+        await AuthService.instance.forceRelogin();
+        if (!mounted) return;
+        try {
           context.go(AppRoutes.login);
+        } catch (_) {
+          // GoRouter not available (e.g., in tests)
         }
         return;
       }
@@ -878,7 +884,8 @@ class DashboardScreenState extends State<DashboardScreen>
 
     if (_remindersError != null) {
       addSection(
-        (_) => _DashboardMessageCard(
+        (_) => MessageCard(
+          variant: MessageCardVariant.surface,
           icon: Icons.error_outline,
           title: 'Reminders not refreshed',
           message: _remindersError!,

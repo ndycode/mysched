@@ -70,12 +70,6 @@ class BrandHeader extends StatelessWidget {
           fontFamily: AppTypography.primaryFont,
           fontWeight: AppTokens.fontWeight.bold,
           color: theme.colorScheme.primary,
-        ) ??
-        TextStyle(
-          fontFamily: AppTypography.primaryFont,
-          fontWeight: AppTokens.fontWeight.bold,
-          fontSize: AppTokens.typography.title.fontSize! * scale,
-          color: theme.colorScheme.primary,
         );
 
     final trailingWidget = trailing ??

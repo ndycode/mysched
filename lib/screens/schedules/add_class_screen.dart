@@ -14,7 +14,6 @@ import '../../services/telemetry_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../utils/app_log.dart';
 import '../../utils/nav.dart';
 import '../../utils/schedule_overlap.dart';
@@ -212,11 +211,10 @@ class _AddClassPageState extends State<AddClassPage> with RouteAware {
           loading: !_profileHydrated,
           height: AppTokens.componentSize.listItemSm,
           avatarRadius: AppTokens.spacing.xl,
-          textStyle: theme.textTheme.titleMedium?.copyWith(
+          textStyle: AppTokens.typography.title.copyWith(
             fontFamily: 'SFProRounded',
             fontWeight: AppTokens.fontWeight.bold,
             color: colors.primary,
-            fontSize: AppTokens.typography.title.fontSize,
           ),
         ),
         SizedBox(height: spacing.xl),
@@ -304,107 +302,71 @@ class _AddClassSheetState extends State<AddClassSheet> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final media = MediaQuery.of(context);
     final spacing = AppTokens.spacing;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
     final isDark = theme.brightness == Brightness.dark;
     final isEditing = widget.initialClass != null;
-    final maxHeight = media.size.height * AppLayout.sheetMaxHeightRatio;
+    final cardBackground =
+        isDark ? colors.surfaceContainerHigh : colors.surface;
 
-    return SafeArea(
-      bottom: false,
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: spacing.xl,
-          right: spacing.xl,
-          bottom: media.viewInsets.bottom + spacing.xl,
-        ),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: BoxConstraints(
-              maxWidth: AppLayout.sheetMaxWidth,
-              maxHeight: maxHeight,
+    return ModalShell(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Padding(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.xl,
+              bottom: spacing.md,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: cardBackground,
-                borderRadius: AppTokens.radius.xl,
-                border: Border.all(
-                  color: borderColor,
-                  width: borderWidth,
-                ),
-                boxShadow: isDark
-                    ? null
-                    : [
-                        AppTokens.shadow.modal(
-                          colors.shadow.withValues(alpha: AppOpacity.border),
-                        ),
-                      ],
+            child: SheetHeaderRow(
+              title: isEditing ? 'Edit custom class' : 'Add custom class',
+              subtitle: isEditing
+                  ? 'Update your class details'
+                  : 'Create a new class session',
+              icon: isEditing ? Icons.edit_rounded : Icons.add_rounded,
+              onClose: () => Navigator.of(context).pop(),
+            ),
+          ),
+          // Form content
+          Flexible(
+            child: SingleChildScrollView(
+              padding: spacing.edgeInsetsOnly(
+                left: spacing.xl,
+                right: spacing.xl,
+                bottom: spacing.md,
               ),
-              child: ClipRRect(
-                borderRadius: AppTokens.radius.xl,
-                child: Material(
-                  type: MaterialType.transparency,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                    // Header
-                    Padding(
-                      padding: spacing.edgeInsetsOnly(
-                        left: spacing.xl,
-                        right: spacing.xl,
-                        top: spacing.xl,
-                        bottom: spacing.md,
-                      ),
-                      child: SheetHeaderRow(
-                        title: isEditing ? 'Edit custom class' : 'Add custom class',
-                        subtitle: isEditing
-                            ? 'Update your class details'
-                            : 'Create a new class session',
-                        icon: isEditing ? Icons.edit_rounded : Icons.add_rounded,
-                        onClose: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    // Form content
-                    Flexible(
-                      child: SingleChildScrollView(
-                        padding: spacing.edgeInsetsOnly(
-                          left: spacing.xl,
-                          right: spacing.xl,
-                          bottom: spacing.md,
-                        ),
-                        child: AddClassForm(
-                          key: _formKey,
-                          api: widget.api,
-                          initialClass: widget.initialClass,
-                          isSheet: true,
-                          includeButtons: false,
-                          onCancel: () => Navigator.of(context).maybePop(),
-                          onSaved: (day) =>
-                              Navigator.of(context, rootNavigator: true).pop(day),
-                        ),
-                      ),
-                    ),
-                    // Action buttons
-                    Container(
-                      padding: spacing.edgeInsetsOnly(
-                        left: spacing.xl,
-                        right: spacing.xl,
-                        top: spacing.md,
-                        bottom: spacing.xl,
-                      ),
-                      decoration: BoxDecoration(
-                        color: cardBackground,
-                        border: Border(
-                          top: BorderSide(
-                            color: isDark
-                                ? colors.outline.withValues(alpha: AppOpacity.overlay)
-                                : colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
-                            width: AppTokens.componentSize.dividerThin,
-                          ),
-                        ),
+              child: AddClassForm(
+                key: _formKey,
+                api: widget.api,
+                initialClass: widget.initialClass,
+                isSheet: true,
+                includeButtons: false,
+                onCancel: () => Navigator.of(context).maybePop(),
+                onSaved: (day) =>
+                    Navigator.of(context, rootNavigator: true).pop(day),
+              ),
+            ),
+          ),
+          // Action buttons
+          Container(
+            padding: spacing.edgeInsetsOnly(
+              left: spacing.xl,
+              right: spacing.xl,
+              top: spacing.md,
+              bottom: spacing.xl,
+            ),
+            decoration: BoxDecoration(
+              color: cardBackground,
+              border: Border(
+                top: BorderSide(
+                  color: isDark
+                      ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                      : colors.outlineVariant.withValues(alpha: AppOpacity.ghost),
+                  width: AppTokens.componentSize.dividerThin,
+                ),
+              ),
                       ),
                       child: Row(
                         children: [
@@ -443,12 +405,6 @@ class _AddClassSheetState extends State<AddClassSheet> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      ),
     );
   }
 }
@@ -472,25 +428,10 @@ class _RemindersStyleShell extends StatelessWidget {
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final cardBackground = elevatedCardBackground(theme);
-    final borderColor = elevatedCardBorder(theme);
 
-    return Container(
+    return SurfaceCard(
       padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.xl),
-      decoration: BoxDecoration(
-        color: cardBackground,
-        borderRadius: AppTokens.radius.md,
-        border: Border.all(color: borderColor),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.faint),
-                  blurRadius: AppTokens.shadow.sm,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+      borderRadius: AppTokens.radius.md,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -502,16 +443,16 @@ class _RemindersStyleShell extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: theme.textTheme.headlineSmall?.copyWith(
+                      style: AppTokens.typography.title.copyWith(
                         fontWeight: AppTokens.fontWeight.bold,
-                        fontSize: AppTokens.typography.title.fontSize,
+                        letterSpacing: AppLetterSpacing.snug,
+                        color: colors.onSurface,
                       ),
                     ),
                     SizedBox(height: AppTokens.spacing.xs),
                     Text(
                       DateFormat('EEEE, MMM d').format(DateTime.now()),
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontSize: AppTokens.typography.subtitle.fontSize,
+                      style: AppTokens.typography.subtitle.copyWith(
                         color: palette.muted,
                       ),
                     ),
@@ -542,7 +483,7 @@ class _RemindersStyleShell extends StatelessWidget {
                 Expanded(
                   child: Text(
                     subtitle,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: palette.muted,
                     ),
                   ),
@@ -913,19 +854,16 @@ class _AddClassFormState extends State<AddClassForm> {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final helperStyle = theme.textTheme.bodySmall?.copyWith(
+    final helperStyle = AppTokens.typography.caption.copyWith(
       color: palette.muted.withValues(alpha: AppOpacity.glassCard),
     );
 
     final banner = () {
       if (_loadingInstructors) {
-        return Container(
+        return SurfaceCard(
           padding: spacing.edgeInsetsSymmetric(
               horizontal: spacing.lg, vertical: spacing.lgPlus),
-          decoration: BoxDecoration(
-            borderRadius: AppTokens.radius.lg,
-            color: colors.surfaceContainerHigh,
-          ),
+          borderRadius: AppTokens.radius.lg,
           child: Row(
             children: [
               SizedBox(
@@ -940,7 +878,7 @@ class _AddClassFormState extends State<AddClassForm> {
               Expanded(
                 child: Text(
                   'Loading instructors...',
-                  style: theme.textTheme.bodyMedium?.copyWith(
+                  style: AppTokens.typography.body.copyWith(
                     color: palette.muted,
                   ),
                 ),
@@ -953,12 +891,10 @@ class _AddClassFormState extends State<AddClassForm> {
         return InkWell(
           borderRadius: AppTokens.radius.lg,
           onTap: _loadInstructors,
-          child: Container(
+          child: SurfaceCard(
             padding: spacing.edgeInsetsAll(spacing.lg),
-            decoration: BoxDecoration(
-              borderRadius: AppTokens.radius.lg,
-              color: palette.danger.withValues(alpha: AppOpacity.highlight),
-            ),
+            borderRadius: AppTokens.radius.lg,
+            backgroundColor: palette.danger.withValues(alpha: AppOpacity.highlight),
             child: Row(
               children: [
                 Icon(Icons.refresh_rounded, color: palette.danger),
@@ -966,7 +902,7 @@ class _AddClassFormState extends State<AddClassForm> {
                 Expanded(
                   child: Text(
                     _instructorError!,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    style: AppTokens.typography.body.copyWith(
                       color: palette.danger,
                     ),
                   ),
@@ -1021,18 +957,12 @@ class _AddClassFormState extends State<AddClassForm> {
                   }
                 },
           borderRadius: AppTokens.radius.lg,
-          child: Container(
+          child: SurfaceCard(
             padding: spacing.edgeInsetsSymmetric(
               horizontal: spacing.lg,
               vertical: spacing.lg,
             ),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHigh,
-              borderRadius: AppTokens.radius.lg,
-              border: Border.all(
-                color: colors.outlineVariant.withValues(alpha: AppOpacity.fieldBorder),
-              ),
-            ),
+            borderRadius: AppTokens.radius.lg,
             child: Row(
               children: [
                 Expanded(
@@ -1041,7 +971,7 @@ class _AddClassFormState extends State<AddClassForm> {
                     children: [
                       Text(
                         'Instructor (optional)',
-                        style: theme.textTheme.bodySmall?.copyWith(
+                        style: AppTokens.typography.caption.copyWith(
                           color: palette.muted,
                         ),
                       ),
@@ -1050,7 +980,7 @@ class _AddClassFormState extends State<AddClassForm> {
                         _selectedInstructorId == null
                             ? 'No instructor'
                             : _findInstructorById(_selectedInstructorId)?.name ?? 'Unknown',
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: AppTokens.typography.body.copyWith(
                           color: colors.onSurface,
                         ),
                       ),
@@ -1148,66 +1078,14 @@ class _AddClassFormState extends State<AddClassForm> {
 
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final cardBorder = elevatedCardBorder(theme, solid: true);
-    final cardBorderWidth = elevatedCardBorderWidth(theme);
-    final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
 
     formSections.addAll([
       if (_formError != null) ...[
-        Container(
-          width: double.infinity,
-          padding: spacing.edgeInsetsAll(spacing.lg),
-          decoration: BoxDecoration(
-            color: palette.danger.withValues(alpha: AppOpacity.highlight),
-            borderRadius: AppTokens.radius.lg,
-            border: Border.all(
-              color: palette.danger.withValues(alpha: AppOpacity.overlay),
-              width: AppTokens.componentSize.dividerThin,
-            ),
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                Icons.error_outline_rounded,
-                color: palette.danger,
-                size: AppTokens.iconSize.md,
-              ),
-              SizedBox(width: spacing.md),
-              Expanded(
-                child: Text(
-                  _formError!,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: colors.onErrorContainer,
-                    fontWeight: AppTokens.fontWeight.semiBold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        ErrorBanner(message: _formError!),
         SizedBox(height: spacing.md),
       ],
-      Container(
-        padding: spacing.edgeInsetsAll(spacing.xxl),
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(
-            color: cardBorder,
-            width: cardBorderWidth,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: shadowColor,
-                    blurRadius: AppTokens.shadow.lg,
-                    offset: AppShadowOffset.hero,
-                  ),
-                ],
-        ),
+      SurfaceCard(
+        variant: SurfaceCardVariant.elevated,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1245,25 +1123,8 @@ class _AddClassFormState extends State<AddClassForm> {
         ),
       ),
       SizedBox(height: AppTokens.spacing.lg),
-      Container(
-        padding: spacing.edgeInsetsAll(spacing.xxl),
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(
-            color: cardBorder,
-            width: cardBorderWidth,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: shadowColor,
-                    blurRadius: AppTokens.shadow.lg,
-                    offset: AppShadowOffset.hero,
-                  ),
-                ],
-        ),
+      SurfaceCard(
+        variant: SurfaceCardVariant.elevated,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -1275,25 +1136,18 @@ class _AddClassFormState extends State<AddClassForm> {
             InkWell(
               onTap: _submitting ? null : _pickDay,
               borderRadius: AppTokens.radius.lg,
-              child: Container(
+              child: SurfaceCard(
                 padding: spacing.edgeInsetsSymmetric(
                     horizontal: spacing.lg,
                     vertical:
                         spacing.md + AppTokens.componentSize.paddingAdjust),
-                decoration: BoxDecoration(
-                  color: colors.surfaceContainerHigh,
-                  borderRadius: AppTokens.radius.lg,
-                  border: Border.all(
-                    color: colors.outlineVariant
-                        .withValues(alpha: AppOpacity.ghost),
-                  ),
-                ),
+                borderRadius: AppTokens.radius.lg,
                 child: Row(
                   children: [
                     Expanded(
                       child: Text(
                         _scopeLabel(_day),
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: AppTokens.typography.body.copyWith(
                           color: colors.onSurface,
                         ),
                       ),
@@ -1332,25 +1186,8 @@ class _AddClassFormState extends State<AddClassForm> {
         ),
       ),
       SizedBox(height: AppTokens.spacing.lg),
-      Container(
-        padding: spacing.edgeInsetsAll(spacing.xxl),
-        decoration: BoxDecoration(
-          color: cardBackground,
-          borderRadius: AppTokens.radius.xl,
-          border: Border.all(
-            color: cardBorder,
-            width: cardBorderWidth,
-          ),
-          boxShadow: isDark
-              ? null
-              : [
-                  BoxShadow(
-                    color: shadowColor,
-                    blurRadius: AppTokens.shadow.lg,
-                    offset: AppShadowOffset.hero,
-                  ),
-                ],
-        ),
+      SurfaceCard(
+        variant: SurfaceCardVariant.elevated,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

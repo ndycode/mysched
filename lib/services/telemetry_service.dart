@@ -1,3 +1,5 @@
+import 'package:sentry_flutter/sentry_flutter.dart';
+
 typedef TelemetryRecorder = void Function(
   String name,
   Map<String, dynamic>? data,
@@ -41,6 +43,11 @@ class TelemetryService {
       if (stack != null) 'stack': stack.toString(),
     };
     recordEvent(name, data: payload.isEmpty ? null : payload);
+    
+    // Forward to Sentry if DSN is configured (no-op if empty)
+    if (error != null) {
+      Sentry.captureException(error, stackTrace: stack);
+    }
   }
 
   static void overrideForTests(TelemetryRecorder recorder) {

@@ -33,6 +33,9 @@ class AppMotion {
   /// 500ms - Slower transitions for extended animations.
   final Duration slower = const Duration(milliseconds: 500);
 
+  /// 260ms - Page transitions duration (onboarding, avatar crop).
+  final Duration page = const Duration(milliseconds: 260);
+
   // ─────────────────────────────────────────────────────────────────────────────
   // CURVE TOKENS
   // ─────────────────────────────────────────────────────────────────────────────

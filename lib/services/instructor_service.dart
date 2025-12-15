@@ -31,7 +31,7 @@ class InstructorService {
   }
 
   Instructor? _cachedInstructor;
-  bool _hasChecked = false;
+  bool _hasChecked = false; // ignore: unused_field
 
   /// Whether the current user is an instructor.
   /// Returns false until [checkInstructorStatus] has been called.
@@ -50,6 +50,13 @@ class InstructorService {
       _cachedInstructor = await _testInstructorLoader!();
       _hasChecked = true;
       return _cachedInstructor;
+    }
+
+    // Guard against uninitialized Env (can happen in tests)
+    if (!Env.isInitialized) {
+      _cachedInstructor = null;
+      _hasChecked = true;
+      return null;
     }
 
     final userId = Env.supa.auth.currentUser?.id;

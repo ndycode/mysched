@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
 import '../../services/theme_controller.dart';
-import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 class ThemeTransitionHost extends StatefulWidget {
@@ -115,8 +114,8 @@ class ThemeTransitionHostState extends State<ThemeTransitionHost>
       widget.platformBrightness,
     );
     final overlayColor = brightness == Brightness.dark
-        ? const Color(0xCC0A1323)
-        : const Color(0xC0FFFFFF);
+        ? AppBarrier.themeTransitionDark
+        : AppBarrier.themeTransitionLight;
 
     return RepaintBoundary(
       key: _boundaryKey,

@@ -162,7 +162,7 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                       itemCount: 12,
                       itemBuilder: (index) => '${index + 1}'.padLeft(2, '0'),
                       onChanged: (index) => setState(() => _hour = index + 1),
-                      width: 70 * scale,
+                      width: AppTokens.componentSize.pickerColumnStandard * scale,
                       scale: scale,
                     ),
                     // Separator
@@ -182,7 +182,7 @@ class _AppTimePickerState extends State<_AppTimePicker> {
                       itemCount: 60,
                       itemBuilder: (index) => '$index'.padLeft(2, '0'),
                       onChanged: (index) => setState(() => _minute = index),
-                      width: 70 * scale,
+                      width: AppTokens.componentSize.pickerColumnStandard * scale,
                       scale: scale,
                     ),
                     SizedBox(width: spacing.lg * spacingScale),
@@ -386,8 +386,8 @@ class _AmPmButton extends StatelessWidget {
     return PressableScale(
       onTap: onTap,
       child: Container(
-        width: 50 * scale,
-        height: 40 * scale,
+        width: AppTokens.componentSize.pickerColumnNarrow * scale,
+        height: AppTokens.componentSize.pickerCellHeight * scale,
         decoration: BoxDecoration(
           color: isSelected
               ? colors.primary.withValues(alpha: AppOpacity.overlay)

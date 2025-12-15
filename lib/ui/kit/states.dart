@@ -4,7 +4,7 @@ import '../../services/analytics_service.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'responsive_provider.dart';
-
+import 'surface_card.dart';
 
 /// Unified state display variant.
 enum StateVariant {
@@ -137,8 +137,14 @@ class StateDisplay extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    final iconSize = (compact ? AppTokens.componentSize.stateIconCompact : AppTokens.componentSize.stateIconLarge) * scale;
-    final iconInnerSize = (compact ? AppTokens.componentSize.stateIconInnerCompact : AppTokens.componentSize.stateIconInnerLarge) * scale;
+    final iconSize = (compact
+            ? AppTokens.componentSize.stateIconCompact
+            : AppTokens.componentSize.stateIconLarge) *
+        scale;
+    final iconInnerSize = (compact
+            ? AppTokens.componentSize.stateIconInnerCompact
+            : AppTokens.componentSize.stateIconInnerLarge) *
+        scale;
 
     Widget? primaryButton;
     if (primaryActionLabel != null) {
@@ -179,7 +185,9 @@ class StateDisplay extends StatelessWidget {
 
     return Center(
       child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
+        constraints: BoxConstraints(
+            maxWidth:
+                compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
         child: Padding(
           padding: compact
               ? spacing.edgeInsetsAll(spacing.lg * spacingScale)
@@ -191,25 +199,30 @@ class StateDisplay extends StatelessWidget {
                 width: iconSize,
                 height: iconSize,
                 decoration: BoxDecoration(
-                  color: tintColor.withValues(alpha: isDark ? AppOpacity.border : AppOpacity.overlay),
+                  color: tintColor.withValues(
+                      alpha: isDark ? AppOpacity.border : AppOpacity.overlay),
                   borderRadius: BorderRadius.circular(iconSize / 2),
                   border: Border.all(
-                    color: tintColor.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.accent),
+                    color: tintColor.withValues(
+                        alpha: isDark ? AppOpacity.ghost : AppOpacity.accent),
                     width: AppTokens.componentSize.dividerBold,
                   ),
                 ),
                 child: Icon(displayIcon, color: tintColor, size: iconInnerSize),
               ),
-              SizedBox(height: compact ? spacing.lg * spacingScale : spacing.xl * spacingScale),
+              SizedBox(
+                  height: compact
+                      ? spacing.lg * spacingScale
+                      : spacing.xl * spacingScale),
               Text(
                 title,
                 style: compact
                     ? AppTokens.typography.titleScaled(scale).copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                      )
+                          fontWeight: AppTokens.fontWeight.bold,
+                        )
                     : AppTokens.typography.headlineScaled(scale).copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                      ),
+                          fontWeight: AppTokens.fontWeight.bold,
+                        ),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: spacing.md * spacingScale),
@@ -220,13 +233,16 @@ class StateDisplay extends StatelessWidget {
                 child: Text(
                   message,
                   style: AppTokens.typography.bodyScaled(scale).copyWith(
-                    color: palette.muted,
-                  ),
+                        color: palette.muted,
+                      ),
                   textAlign: TextAlign.center,
                 ),
               ),
               if (primaryButton != null) ...[
-                SizedBox(height: compact ? spacing.lg * spacingScale : spacing.xl * spacingScale),
+                SizedBox(
+                    height: compact
+                        ? spacing.lg * spacingScale
+                        : spacing.xl * spacingScale),
                 primaryButton,
               ],
               if (secondaryActionLabel != null) ...[
@@ -304,6 +320,14 @@ class ErrorState extends StatelessWidget {
 }
 
 /// Message card for inline state display within screens.
+enum MessageCardVariant {
+  /// Tinted background variant (existing behavior).
+  tinted,
+
+  /// Surface card chrome (Dashboard-style).
+  surface,
+}
+
 class MessageCard extends StatelessWidget {
   const MessageCard({
     super.key,
@@ -315,6 +339,8 @@ class MessageCard extends StatelessWidget {
     this.secondaryLabel,
     this.onSecondary,
     this.tintColor,
+    this.variant = MessageCardVariant.tinted,
+    this.padding,
   });
 
   final IconData icon;
@@ -325,6 +351,8 @@ class MessageCard extends StatelessWidget {
   final String? secondaryLabel;
   final VoidCallback? onSecondary;
   final Color? tintColor;
+  final MessageCardVariant variant;
+  final EdgeInsetsGeometry? padding;
 
   @override
   Widget build(BuildContext context) {
@@ -335,13 +363,97 @@ class MessageCard extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final tint = tintColor ?? colors.primary;
 
+    if (variant == MessageCardVariant.surface) {
+      return SurfaceCard(
+        padding: padding ?? spacing.edgeInsetsAll(spacing.xxl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  height: AppTokens.componentSize.listItemSm,
+                  width: AppTokens.componentSize.listItemSm,
+                  decoration: BoxDecoration(
+                    color: tint.withValues(alpha: AppOpacity.overlay),
+                    borderRadius: AppTokens.radius.lg,
+                  ),
+                  child: Icon(
+                    icon,
+                    size: AppTokens.iconSize.lg,
+                    color: tint,
+                  ),
+                ),
+                SizedBox(width: spacing.lg),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppTokens.typography.title.copyWith(
+                          fontWeight: AppTokens.fontWeight.extraBold,
+                          letterSpacing: AppLetterSpacing.tight,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                      SizedBox(height: spacing.xs),
+                      Text(
+                        message,
+                        style: AppTokens.typography.body.copyWith(
+                          color: palette.muted.withValues(
+                            alpha: AppOpacity.prominent,
+                          ),
+                          height: AppLineHeight.relaxed,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            if (primaryLabel != null || secondaryLabel != null) ...[
+              SizedBox(height: spacing.lg),
+              Row(
+                children: [
+                  if (primaryLabel != null)
+                    Expanded(
+                      child: PrimaryButton(
+                        label: primaryLabel!,
+                        onPressed: onPrimary,
+                        minHeight: AppTokens.componentSize.buttonMd,
+                        expanded: true,
+                      ),
+                    ),
+                  if (primaryLabel != null && secondaryLabel != null)
+                    SizedBox(width: spacing.md),
+                  if (secondaryLabel != null)
+                    Expanded(
+                      child: SecondaryButton(
+                        label: secondaryLabel!,
+                        onPressed: onSecondary,
+                        minHeight: AppTokens.componentSize.buttonMd,
+                        expanded: true,
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
     return Container(
-      padding: spacing.edgeInsetsAll(spacing.lg),
+      padding: padding ?? spacing.edgeInsetsAll(spacing.lg),
       decoration: BoxDecoration(
-        color: tint.withValues(alpha: isDark ? AppOpacity.overlay : AppOpacity.veryFaint),
+        color: tint.withValues(
+            alpha: isDark ? AppOpacity.overlay : AppOpacity.veryFaint),
         borderRadius: AppTokens.radius.xl,
         border: Border.all(
-          color: tint.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
+          color: tint.withValues(
+              alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
           width: AppTokens.componentSize.divider,
         ),
       ),
@@ -354,7 +466,8 @@ class MessageCard extends StatelessWidget {
               Container(
                 padding: spacing.edgeInsetsAll(spacing.md),
                 decoration: BoxDecoration(
-                  color: tint.withValues(alpha: isDark ? AppOpacity.accent : AppOpacity.overlay),
+                  color: tint.withValues(
+                      alpha: isDark ? AppOpacity.accent : AppOpacity.overlay),
                   borderRadius: AppTokens.radius.md,
                 ),
                 child: Icon(icon, color: tint, size: AppTokens.iconSize.lg),
@@ -460,7 +573,8 @@ class InfoBanner extends StatelessWidget {
           vertical: spacing.md,
         ),
         decoration: BoxDecoration(
-          color: tint.withValues(alpha: isDark ? AppOpacity.statusBg : AppOpacity.dim),
+          color: tint.withValues(
+              alpha: isDark ? AppOpacity.statusBg : AppOpacity.dim),
           borderRadius: AppTokens.radius.lg,
         ),
         child: Row(
@@ -469,7 +583,8 @@ class InfoBanner extends StatelessWidget {
             Container(
               padding: spacing.edgeInsetsAll(spacing.sm),
               decoration: BoxDecoration(
-                color: tint.withValues(alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
+                color: tint.withValues(
+                    alpha: isDark ? AppOpacity.ghost : AppOpacity.statusBg),
                 borderRadius: AppTokens.radius.sm,
               ),
               child: Icon(icon, color: tint, size: AppTokens.iconSize.sm),

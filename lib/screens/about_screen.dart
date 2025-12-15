@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../ui/kit/kit.dart';
-import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
 
 class AboutSheet extends StatelessWidget {
@@ -29,83 +28,52 @@ class AboutSheet extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final spacing = AppTokens.spacing;
-    final media = MediaQuery.of(context);
-    final maxHeight = media.size.height -
-        (AppTokens.spacing.xxxl * 2 + media.padding.top + media.padding.bottom);
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
+    // Keep cardBackground for gradient usage
+    final cardBackground =
+        isDark ? colors.surfaceContainerHigh : colors.surface;
 
-    return Material(
-      color: Colors.transparent,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: AppLayout.sheetMaxWidth,
-          maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-            color: cardBackground,
-            borderRadius: AppTokens.radius.xl,
-            border: Border.all(
-              color: borderColor,
-              width: borderWidth,
-            ),
-            boxShadow: isDark
-                ? null
-                : [
-                    AppTokens.shadow.modal(
-                      colors.shadow.withValues(alpha: AppOpacity.veryFaint),
+    return ContentShell(
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: AppTokens.radius.xl,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: EdgeInsets.fromLTRB(
+                spacing.xl,
+                spacing.xl,
+                spacing.xl,
+                spacing.sm,
+              ),
+              child: Row(
+                children: [
+                  PressableScale(
+                    onTap: () => Navigator.of(context).pop(),
+                    child: IconBox(
+                      icon: Icons.close_rounded,
+                      tint: colors.primary,
+                      size: IconBoxSize.sm,
                     ),
-                  ],
-          ),
-          child: ClipRRect(
-          borderRadius: AppTokens.radius.xl,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                    spacing.xl,
-                    spacing.xl,
-                    spacing.xl,
-                    spacing.sm,
                   ),
-                  child: Row(
-                    children: [
-                      PressableScale(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          padding: spacing.edgeInsetsAll(spacing.sm),
-                          decoration: BoxDecoration(
-                            color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                            borderRadius: AppTokens.radius.xl,
-                          ),
-                          child: Icon(
-                            Icons.close_rounded,
-                            size: AppTokens.iconSize.sm * ResponsiveProvider.scale(context),
-                            color: colors.primary,
-                          ),
-                        ),
+                  Expanded(
+                    child: Text(
+                      'About MySched',
+                      textAlign: TextAlign.center,
+                      style: AppTokens.typography.titleScaled(ResponsiveProvider.scale(context)).copyWith(
+                        fontWeight: AppTokens.fontWeight.bold,
+                        letterSpacing: AppLetterSpacing.snug,
+                        color: colors.onSurface,
                       ),
-                      Expanded(
-                        child: Text(
-                          'About MySched',
-                          textAlign: TextAlign.center,
-                          style: AppTokens.typography.titleScaled(ResponsiveProvider.scale(context)).copyWith(
-                            fontWeight: AppTokens.fontWeight.bold,
-                            letterSpacing: AppLetterSpacing.snug,
-                            color: colors.onSurface,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: AppTokens.spacing.quad),
-                    ],
+                    ),
                   ),
-                ),
+                  SizedBox(width: AppTokens.spacing.quad),
+                ],
+              ),
+            ),
                 Expanded(
                   child: Stack(
                     children: [
@@ -119,30 +87,29 @@ class AboutSheet extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Container(
+                            SurfaceCard(
                               padding: spacing.edgeInsetsAll(spacing.md),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-                                borderRadius: AppTokens.radius.lg,
-                                border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                                ),
-                              ),
+                              borderRadius: AppTokens.radius.lg,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Built for ICI students',
-                                    style: theme.textTheme.titleLarge?.copyWith(
+                                    style: AppTokens.typography.title.copyWith(
                                       fontWeight: AppTokens.fontWeight.bold,
+                                      letterSpacing: AppLetterSpacing.snug,
+                                      color: colors.onSurface,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
                                   Text(
                                     'MySched keeps your ICI class day organised in a few taps. Scan your student card, confirm the timetable we build, and let the app handle reminders before each class.',
-                                    style: theme.textTheme.bodyMedium,
+                                    style: AppTokens.typography.body.copyWith(
+                                      color: palette.muted,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -150,24 +117,19 @@ class AboutSheet extends StatelessWidget {
                             SizedBox(height: spacing.xxxl),
                             Text(
                               'FEATURE HIGHLIGHTS',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
                                 color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            Container(
+                            SurfaceCard(
                               padding: spacing.edgeInsetsAll(spacing.md),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-                                borderRadius: AppTokens.radius.lg,
-                                border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                                ),
-                              ),
+                              borderRadius: AppTokens.radius.lg,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -203,31 +165,28 @@ class AboutSheet extends StatelessWidget {
                             SizedBox(height: spacing.xxxl),
                             Text(
                               'HOW IT WORKS',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
                                 color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            Container(
+                            SurfaceCard(
                               padding: spacing.edgeInsetsAll(spacing.md),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-                                borderRadius: AppTokens.radius.lg,
-                                border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                                ),
-                              ),
+                              borderRadius: AppTokens.radius.lg,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'How it works',
-                                    style: theme.textTheme.titleLarge?.copyWith(
+                                    style: AppTokens.typography.title.copyWith(
                                       fontWeight: AppTokens.fontWeight.bold,
+                                      letterSpacing: AppLetterSpacing.snug,
+                                      color: colors.onSurface,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
@@ -249,31 +208,28 @@ class AboutSheet extends StatelessWidget {
                             SizedBox(height: spacing.xxxl),
                             Text(
                               'TRUST & SAFETY',
-                              style: theme.textTheme.labelSmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 letterSpacing: AppLetterSpacing.sectionHeader,
                                 fontWeight: AppTokens.fontWeight.semiBold,
                                 color: palette.muted,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
-                            Container(
+                            SurfaceCard(
                               padding: spacing.edgeInsetsAll(spacing.md),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-                                borderRadius: AppTokens.radius.lg,
-                                border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                                ),
-                              ),
+                              borderRadius: AppTokens.radius.lg,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Permissions we request',
-                                    style: theme.textTheme.titleLarge?.copyWith(
+                                    style: AppTokens.typography.title.copyWith(
                                       fontWeight: AppTokens.fontWeight.bold,
+                                      letterSpacing: AppLetterSpacing.snug,
+                                      color: colors.onSurface,
                                     ),
                                   ),
                                   SizedBox(height: spacing.md),
@@ -301,30 +257,29 @@ class AboutSheet extends StatelessWidget {
                               ),
                             ),
                             SizedBox(height: spacing.xxxl),
-                            Container(
+                            SurfaceCard(
                               padding: spacing.edgeInsetsAll(spacing.md),
-                              decoration: BoxDecoration(
-                                color: theme.brightness == Brightness.dark
-                                    ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
-                                    : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
-                                borderRadius: AppTokens.radius.lg,
-                                border: Border.all(
-                                  color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                                ),
-                              ),
+                              borderRadius: AppTokens.radius.lg,
+                              backgroundColor: theme.brightness == Brightness.dark
+                                  ? colors.surfaceContainerHighest.withValues(alpha: AppOpacity.ghost)
+                                  : colors.surfaceContainerHighest.withValues(alpha: AppOpacity.subtle),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     'Data & privacy',
-                                    style: theme.textTheme.titleLarge?.copyWith(
+                                    style: AppTokens.typography.title.copyWith(
                                       fontWeight: AppTokens.fontWeight.bold,
+                                      letterSpacing: AppLetterSpacing.snug,
+                                      color: colors.onSurface,
                                     ),
                                   ),
                                   SizedBox(height: spacing.sm),
                                   Text(
                                     'Every schedule saves to your authenticated Supabase account. MySched follows the Data Privacy Act of 2012 (RA 10173). For more detail, open Settings > Privacy Policy.',
-                                    style: theme.textTheme.bodyMedium,
+                                    style: AppTokens.typography.body.copyWith(
+                                      color: palette.muted,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -342,7 +297,7 @@ class AboutSheet extends StatelessWidget {
                                   SizedBox(height: spacing.sm),
                                   Text(
                                     'Updated October 2025',
-                                    style: theme.textTheme.bodySmall?.copyWith(
+                                    style: AppTokens.typography.caption.copyWith(
                                       color: palette.muted,
                                     ),
                                   ),
@@ -398,8 +353,6 @@ class AboutSheet extends StatelessWidget {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 }

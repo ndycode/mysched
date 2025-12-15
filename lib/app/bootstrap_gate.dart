@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:flutter/material.dart';
@@ -31,6 +32,7 @@ class BootstrapGate extends StatefulWidget {
 
 class _BootstrapGateState extends State<BootstrapGate> {
   bool _navigated = false;
+  Timer? _splashTimer;
 
   @override
   void initState() {
@@ -40,11 +42,21 @@ class _BootstrapGateState extends State<BootstrapGate> {
     });
   }
 
+  @override
+  void dispose() {
+    _splashTimer?.cancel();
+    super.dispose();
+  }
+
   Future<void> _bootstrap() async {
     if (!mounted) return;
     
-    // Ensure splash branding is visible for minimum display time
-    await Future.delayed(AppTokens.durations.splashMinDisplay);
+    // Ensure splash branding is visible for minimum display time (cancellable for tests)
+    final completer = Completer<void>();
+    _splashTimer = Timer(AppTokens.durations.splashMinDisplay, () {
+      if (!completer.isCompleted) completer.complete();
+    });
+    await completer.future;
     if (!mounted) return;
     
     try {
@@ -148,10 +160,13 @@ class _BootstrapGateState extends State<BootstrapGate> {
   Future<void> _showAlarmPrompt() async {
     if (!mounted) return;
     if (BootstrapGate.debugBypassPermissions) return;
-    // Skip if critical permissions are ready (battery optimization is optional).
+    // Skip only if ALL permissions are ready (including battery optimization and fullscreen intent).
     final readiness = await LocalNotifs.alarmReadiness();
+    final fullScreenReady = readiness.sdkInt < 34 || readiness.fullScreenIntentAllowed;
     final alreadyReady = readiness.exactAlarmAllowed &&
-        readiness.notificationsAllowed;
+        readiness.notificationsAllowed &&
+        readiness.ignoringBatteryOptimizations &&
+        fullScreenReady;
     if (alreadyReady) {
       BootstrapGate._alarmPromptCompleted = true;
       return;
@@ -522,6 +537,8 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
   bool _busy = false;
   _LifecycleObserver? _observer;
   bool _openedBatteryOnce = false;
+  bool _needsAutoStart = false;
+  String _manufacturer = '';
 
   @override
   void initState() {
@@ -545,9 +562,13 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
       _loading = true;
     });
     final readiness = await LocalNotifs.alarmReadiness();
+    final needsAutoStart = await LocalNotifs.needsAutoStartPermission();
+    final manufacturer = await LocalNotifs.getDeviceManufacturer();
     if (!mounted) return;
     setState(() {
       _readiness = readiness;
+      _needsAutoStart = needsAutoStart;
+      _manufacturer = manufacturer;
       _loading = false;
     });
   }
@@ -558,15 +579,6 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
     await _refresh();
     if (!mounted) return;
     setState(() => _busy = false);
-  }
-
-  Future<void> _openBatterySettings({bool preferAppInfo = true}) async {
-    setState(() => _busy = true);
-    await LocalNotifs.openBatteryOptimizationSettings(preferAppInfo: preferAppInfo);
-    await _refresh();
-    if (!mounted) return;
-    setState(() => _busy = false);
-    _openedBatteryOnce = true;
   }
 
   Future<void> _requestNotifications() async {
@@ -585,13 +597,16 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
   bool get _ready {
     final r = _readiness;
     if (_loading || r == null) return false;
-    // Only exact alarms + notifications are required; battery is optional
-    return r.exactAlarmAllowed && r.notificationsAllowed;
+    // Exact alarms + notifications required; fullscreen intent required on Android 14+
+    final fullScreenReady = r.sdkInt < 34 || r.fullScreenIntentAllowed;
+    return r.exactAlarmAllowed && r.notificationsAllowed && fullScreenReady;
   }
 
   bool get _exactAllowed => _readiness?.exactAlarmAllowed ?? false;
   bool get _notificationsAllowed => _readiness?.notificationsAllowed ?? false;
-  bool get _canAdvanceToGuide => _exactAllowed && _notificationsAllowed;
+  bool get _fullScreenIntentAllowed => _readiness?.fullScreenIntentAllowed ?? true;
+  bool get _isAndroid14Plus => (_readiness?.sdkInt ?? 0) >= 34;
+  bool get _canAdvanceToGuide => _exactAllowed && _notificationsAllowed && (_fullScreenIntentAllowed || !_isAndroid14Plus);
 
   @override
   Widget build(BuildContext context) {
@@ -646,6 +661,19 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 description: 'Backup alert if full-screen alarms are blocked.',
                 status: _readiness?.notificationsAllowed,
               ),
+              // Fullscreen intent permission (Android 14+ only)
+              if (_isAndroid14Plus) ...[
+                SizedBox(height: spacing.sm),
+                StatusRow(
+                  icon: Icons.fullscreen_rounded,
+                  label: 'Full-screen alarms',
+                  description: 'Required on Android 14+ to wake screen for alarms.',
+                  status: _readiness?.fullScreenIntentAllowed,
+                  onTap: !(_readiness?.fullScreenIntentAllowed ?? true)
+                      ? () => LocalNotifs.openFullScreenIntentSettings()
+                      : null,
+                ),
+              ],
               SizedBox(height: spacing.md),
               StatusRow(
                 icon: Icons.battery_alert_rounded,
@@ -654,6 +682,17 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
                 status: _readiness?.ignoringBatteryOptimizations,
                 optional: true,
               ),
+              if (_needsAutoStart) ...[
+                SizedBox(height: spacing.md),
+                StatusRow(
+                  icon: Icons.launch_rounded,
+                  label: 'Auto-start permission',
+                  description: 'Required for ${_manufacturer.isNotEmpty ? _manufacturer.substring(0, 1).toUpperCase() + _manufacturer.substring(1) : "this device"}. Tap to enable.',
+                  status: null, // We can't detect if granted, so show as action
+                  optional: true,
+                  onTap: () => LocalNotifs.openAutoStartSettings(),
+                ),
+              ],
               SizedBox(height: spacing.xl),
               if (_loading)
                 Row(
@@ -757,6 +796,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
 
   Future<void> _showBatteryGuide(BuildContext context) async {
     await LocalNotifs.openBatteryOptimizationDialog(context);
+    _openedBatteryOnce = true;
   }
 }
 

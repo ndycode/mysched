@@ -439,11 +439,76 @@ class LocalNotifs {
     }
   }
 
+  /// Opens Android 14+ fullscreen intent permission settings.
+  /// Required on Android 14+ for fullscreen alarms to display over lock screen.
+  static Future<void> openFullScreenIntentSettings() async {
+    if (!isAndroidContext) return;
+    if (debugForceAndroid) return;
+    try {
+      await _channel.invokeMethod('openFullScreenIntentSettings');
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'openFullScreenIntentSettings failed',
+          error: err,
+        );
+      }
+    }
+  }
+
   static Future<void> openBatteryOptimizationDialog(BuildContext context) async {
     await AppModal.alert(
       context: context,
       builder: (context) => const BatteryOptimizationDialog(),
     );
+  }
+
+  /// Opens manufacturer-specific auto-start settings.
+  /// This is critical for Chinese OEMs (Xiaomi, OPPO, Vivo, Huawei, etc.)
+  /// that aggressively kill background apps.
+  /// Returns true if settings were successfully opened.
+  static Future<bool> openAutoStartSettings() async {
+    if (!isAndroidContext) return false;
+    if (debugForceAndroid) return true;
+    try {
+      final result = await _channel.invokeMethod<bool>('openAutoStartSettings');
+      return result ?? false;
+    } on PlatformException catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'openAutoStartSettings failed',
+          error: err,
+        );
+      }
+      return false;
+    }
+  }
+
+  /// Get the device manufacturer (lowercase).
+  /// Useful for showing manufacturer-specific instructions.
+  static Future<String> getDeviceManufacturer() async {
+    if (!isAndroidContext) return 'unknown';
+    if (debugForceAndroid) return 'debug';
+    try {
+      final result = await _channel.invokeMethod<String>('getDeviceManufacturer');
+      return result ?? 'unknown';
+    } on PlatformException {
+      return 'unknown';
+    }
+  }
+
+  /// List of manufacturers that require auto-start permission
+  static const Set<String> autoStartManufacturers = {
+    'xiaomi', 'redmi', 'oppo', 'vivo', 'huawei', 'honor',
+    'oneplus', 'samsung', 'asus', 'lenovo', 'realme', 'meizu',
+  };
+
+  /// Check if current device likely needs auto-start permission
+  static Future<bool> needsAutoStartPermission() async {
+    final manufacturer = await getDeviceManufacturer();
+    return autoStartManufacturers.any((m) => manufacturer.contains(m));
   }
 
   /// Check whether an occurrence has been acknowledged.
@@ -907,12 +972,14 @@ class AlarmReadiness {
   final bool exactAlarmAllowed;
   final bool notificationsAllowed;
   final bool ignoringBatteryOptimizations;
+  final bool fullScreenIntentAllowed;
   final int sdkInt;
 
   const AlarmReadiness({
     required this.exactAlarmAllowed,
     required this.notificationsAllowed,
     required this.ignoringBatteryOptimizations,
+    this.fullScreenIntentAllowed = true,
     required this.sdkInt,
   });
 
@@ -922,6 +989,7 @@ class AlarmReadiness {
         exactAlarmAllowed: false,
         notificationsAllowed: false,
         ignoringBatteryOptimizations: false,
+        fullScreenIntentAllowed: false,
         sdkInt: 0,
       );
     }
@@ -931,9 +999,16 @@ class AlarmReadiness {
       exactAlarmAllowed: asBool('exactAlarmAllowed'),
       notificationsAllowed: asBool('notificationsAllowed'),
       ignoringBatteryOptimizations: asBool('ignoringBatteryOptimizations'),
+      fullScreenIntentAllowed: asBool('fullScreenIntentAllowed'),
       sdkInt: sdk is int ? sdk : 0,
     );
   }
+  
+  /// True if all Android 14+ alarm requirements are met
+  bool get isFullyReady =>
+      exactAlarmAllowed &&
+      notificationsAllowed &&
+      fullScreenIntentAllowed;
 }
 
 /// Represents an alarm sound available on the device.

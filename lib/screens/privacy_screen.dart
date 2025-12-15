@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../ui/kit/kit.dart';
-import '../ui/theme/card_styles.dart';
 import '../ui/theme/tokens.dart';
 
 class PrivacySheet extends StatelessWidget {
@@ -21,66 +20,29 @@ class PrivacySheet extends StatelessWidget {
     final spacing = AppTokens.spacing;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
-    final maxHeight = MediaQuery.of(context).size.height -
-        (AppTokens.spacing.xxxl * 2 +
-            MediaQuery.of(context).padding.top +
-            MediaQuery.of(context).padding.bottom);
-    final cardBackground = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
 
     Color filledBackground() => colors.surfaceContainerHighest.withValues(
           alpha: isDark ? AppOpacity.ghost : AppOpacity.soft,
         );
 
-    return Material(
-      color: Colors.transparent,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: AppLayout.sheetMaxWidth,
-          maxHeight: maxHeight.clamp(AppLayout.sheetMinHeight, double.infinity),
-        ),
-        child: Container(
-          padding: spacing.edgeInsetsAll(spacing.xxl * ResponsiveProvider.spacing(context)),
-          decoration: BoxDecoration(
-            color: cardBackground,
-            borderRadius: AppTokens.radius.xl,
-            border: Border.all(
-              color: borderColor,
-              width: borderWidth,
+    return ContentShell(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: spacing.edgeInsetsSymmetric(
+              horizontal: spacing.xs,
+              vertical: spacing.xs,
             ),
-            boxShadow: isDark
-                ? null
-                : [
-                    AppTokens.shadow.modal(
-                      colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                    ),
-                  ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: spacing.edgeInsetsSymmetric(
-                  horizontal: spacing.xs,
-                  vertical: spacing.xs,
-                ),
-                child: Row(
-                  children: [
+            child: Row(
+              children: [
                     PressableScale(
                       onTap: () => Navigator.of(context).pop(),
-                      child: Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: AppOpacity.highlight),
-                          borderRadius: AppTokens.radius.xl,
-                        ),
-                        child: Icon(
-                          Icons.close_rounded,
-                          size: AppTokens.iconSize.sm * ResponsiveProvider.scale(context),
-                          color: colors.primary,
-                        ),
+                      child: IconBox(
+                        icon: Icons.close_rounded,
+                        tint: colors.primary,
+                        size: IconBoxSize.sm,
                       ),
                     ),
                     Expanded(
@@ -104,29 +66,17 @@ class PrivacySheet extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Container(
+                      SurfaceCard(
                         padding: spacing.edgeInsetsAll(spacing.md),
-                        decoration: BoxDecoration(
-                          color: filledBackground(),
-                          borderRadius: AppTokens.radius.lg,
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                          ),
-                        ),
+                        borderRadius: AppTokens.radius.lg,
+                        backgroundColor: filledBackground(),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                                borderRadius: AppTokens.radius.sm,
-                              ),
-                              padding: spacing.edgeInsetsAll(spacing.sm),
-                              child: Icon(
-                                Icons.lock_outline,
-                                color: colors.primary,
-                                size: AppTokens.iconSize.md,
-                              ),
+                            IconBox(
+                              icon: Icons.lock_outline,
+                              tint: colors.primary,
+                              size: IconBoxSize.md,
                             ),
                             SizedBox(width: spacing.md),
                             Expanded(
@@ -135,13 +85,17 @@ class PrivacySheet extends StatelessWidget {
                                 children: [
                                   Text(
                                     'Your schedule stays yours',
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: AppTokens.fontWeight.bold),
+                                    style: AppTokens.typography.subtitle.copyWith(
+                                      fontWeight: AppTokens.fontWeight.bold,
+                                      color: colors.onSurface,
+                                    ),
                                   ),
                                   SizedBox(height: spacing.xs),
                                   Text(
                                     'MySched stores data in your Supabase account. We encrypt in transit, never sell your data, and follow the Data Privacy Act of 2012 (RA 10173).',
-                                    style: theme.textTheme.bodyMedium,
+                                    style: AppTokens.typography.body.copyWith(
+                                      color: palette.muted,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -152,22 +106,17 @@ class PrivacySheet extends StatelessWidget {
                       SizedBox(height: spacing.xxxl),
                       Text(
                         'DATA PRACTICES',
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        style: AppTokens.typography.caption.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
                           color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      Container(
+                      SurfaceCard(
                         padding: spacing.edgeInsetsAll(spacing.md),
-                        decoration: BoxDecoration(
-                          color: filledBackground(),
-                          borderRadius: AppTokens.radius.lg,
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                          ),
-                        ),
+                        borderRadius: AppTokens.radius.lg,
+                        backgroundColor: filledBackground(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: const [
@@ -189,22 +138,17 @@ class PrivacySheet extends StatelessWidget {
                       SizedBox(height: spacing.xxxl),
                       Text(
                         'PERMISSIONS WE REQUEST',
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        style: AppTokens.typography.caption.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
                           color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      Container(
+                      SurfaceCard(
                         padding: spacing.edgeInsetsAll(spacing.md),
-                        decoration: BoxDecoration(
-                          color: filledBackground(),
-                          borderRadius: AppTokens.radius.lg,
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                          ),
-                        ),
+                        borderRadius: AppTokens.radius.lg,
+                        backgroundColor: filledBackground(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -234,22 +178,17 @@ class PrivacySheet extends StatelessWidget {
                       SizedBox(height: spacing.xxxl),
                       Text(
                         'YOUR CONTROLS',
-                        style: theme.textTheme.labelSmall?.copyWith(
+                        style: AppTokens.typography.caption.copyWith(
                           letterSpacing: AppLetterSpacing.sectionHeader,
                           fontWeight: AppTokens.fontWeight.semiBold,
                           color: palette.muted,
                         ),
                       ),
                       SizedBox(height: spacing.sm),
-                      Container(
+                      SurfaceCard(
                         padding: spacing.edgeInsetsAll(spacing.md),
-                        decoration: BoxDecoration(
-                          color: filledBackground(),
-                          borderRadius: AppTokens.radius.lg,
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                          ),
-                        ),
+                        borderRadius: AppTokens.radius.lg,
+                        backgroundColor: filledBackground(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -269,28 +208,27 @@ class PrivacySheet extends StatelessWidget {
                         ),
                       ),
                       SizedBox(height: spacing.xxxl),
-                      Container(
+                      SurfaceCard(
                         padding: spacing.edgeInsetsAll(spacing.md),
-                        decoration: BoxDecoration(
-                          color: filledBackground(),
-                          borderRadius: AppTokens.radius.lg,
-                          border: Border.all(
-                            color: colors.outlineVariant.withValues(alpha: AppOpacity.accent),
-                          ),
-                        ),
+                        borderRadius: AppTokens.radius.lg,
+                        backgroundColor: filledBackground(),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
                               'Questions or concerns?',
-                              style: theme.textTheme.titleLarge?.copyWith(
+                              style: AppTokens.typography.title.copyWith(
                                 fontWeight: AppTokens.fontWeight.bold,
+                                letterSpacing: AppLetterSpacing.snug,
+                                color: colors.onSurface,
                               ),
                             ),
                             SizedBox(height: spacing.sm),
                             Text(
                               'We want you to feel safe using MySched. Reach out for clarifications, report an issue, or request changes to your stored data.',
-                              style: theme.textTheme.bodyMedium,
+                              style: AppTokens.typography.body.copyWith(
+                                color: palette.muted,
+                              ),
                             ),
                           ],
                         ),
@@ -308,7 +246,7 @@ class PrivacySheet extends StatelessWidget {
                             SizedBox(height: spacing.sm),
                             Text(
                               'Last updated October 2025',
-                              style: theme.textTheme.bodySmall?.copyWith(
+                              style: AppTokens.typography.caption.copyWith(
                                 color: palette.muted,
                               ),
                             ),
@@ -321,8 +259,6 @@ class PrivacySheet extends StatelessWidget {
               ),
             ],
           ),
-        ),
-      ),
     );
   }
 

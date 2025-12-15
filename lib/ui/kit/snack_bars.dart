@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../theme/motion.dart';
@@ -83,6 +85,7 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
+  Timer? _dismissTimer;
 
   @override
   void initState() {
@@ -113,8 +116,8 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
 
     _controller.forward();
 
-    // Auto-dismiss after duration
-    Future.delayed(widget.duration, () {
+    // Auto-dismiss after duration (cancellable timer for tests)
+    _dismissTimer = Timer(widget.duration, () {
       if (mounted) {
         dismiss();
       }
@@ -123,6 +126,7 @@ class _SnackbarOverlayState extends State<_SnackbarOverlay>
 
   @override
   void dispose() {
+    _dismissTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }

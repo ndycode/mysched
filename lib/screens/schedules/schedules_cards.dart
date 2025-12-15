@@ -7,7 +7,6 @@ import '../../models/schedule_filter.dart';
 import '../../services/schedule_repository.dart' as sched;
 import '../../ui/kit/kit.dart';
 import '../../ui/semester_badge.dart';
-import '../../ui/theme/card_styles.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/time_format.dart';
 import '../../widgets/instructor_avatar.dart';
@@ -162,29 +161,7 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
     final isSearchActive = widget.searchQuery.isNotEmpty;
     final isFilterActive = widget.filter != ScheduleFilter.all;
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
+    return SurfaceCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -192,30 +169,9 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Container(
-                height: AppTokens.componentSize.avatarXl,
-                width: AppTokens.componentSize.avatarXl,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      colors.primary.withValues(alpha: AppOpacity.medium),
-                      colors.primary.withValues(alpha: AppOpacity.dim),
-                    ],
-                  ),
-                  borderRadius: AppTokens.radius.md,
-                  border: Border.all(
-                    color: colors.primary
-                        .withValues(alpha: AppOpacity.borderEmphasis),
-                    width: AppTokens.componentSize.dividerThick,
-                  ),
-                ),
-                child: Icon(
-                  Icons.calendar_month_rounded,
-                  color: colors.primary,
-                  size: AppTokens.iconSize.xl,
-                ),
+              SectionHeaderIcon(
+                icon: Icons.calendar_month_rounded,
+                tint: colors.primary,
               ),
               SizedBox(width: spacing.lg),
               Expanded(
@@ -383,48 +339,17 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                   final accentColor =
                       isHighlightedDay ? palette.positive : colors.primary;
 
-                  return Container(
+                  return GradientHeaderCard(
                     key: widget.dayKeyBuilder?.call(dayNumber),
-                    padding: spacing.edgeInsetsAll(spacing.md),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          accentColor.withValues(
-                              alpha: isHighlightedDay
-                                  ? AppOpacity.medium
-                                  : AppOpacity.dim),
-                          accentColor.withValues(alpha: AppOpacity.veryFaint),
-                        ],
-                      ),
-                      borderRadius: AppTokens.radius.md,
-                      border: Border.all(
-                        color: accentColor.withValues(
-                            alpha: isHighlightedDay
-                                ? AppOpacity.dim
-                                : AppOpacity.accent),
-                        width: isHighlightedDay
-                            ? AppTokens.componentSize.dividerThick
-                            : AppTokens.componentSize.divider,
-                      ),
-                    ),
+                    tint: accentColor,
+                    isHighlighted: isHighlightedDay,
                     child: Row(
                       children: [
-                        Container(
-                          padding: spacing.edgeInsetsAll(spacing.sm),
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(
-                                alpha: AppOpacity.medium),
-                            borderRadius: AppTokens.radius.sm,
-                          ),
-                          child: Icon(
-                            isHighlightedDay
-                                ? Icons.check_circle_rounded
-                                : Icons.calendar_today_rounded,
-                            size: AppTokens.iconSize.sm,
-                            color: accentColor,
-                          ),
+                        IconBox(
+                          icon: isHighlightedDay
+                              ? Icons.check_circle_rounded
+                              : Icons.calendar_today_rounded,
+                          tint: accentColor,
                         ),
                         SizedBox(width: spacing.md),
                         Expanded(
@@ -439,25 +364,11 @@ class _ScheduleClassListCardState extends State<ScheduleClassListCard> {
                             ),
                           ),
                         ),
-                        Container(
-                          padding: spacing.edgeInsetsSymmetric(
-                              horizontal: spacing.sm + AppTokens.spacing.micro,
-                              vertical:
-                                  spacing.xs + AppTokens.spacing.microHalf),
-                          decoration: BoxDecoration(
-                            color: accentColor.withValues(
-                                alpha: AppOpacity.overlay),
-                            borderRadius: AppTokens.radius.sm,
-                          ),
-                          child: Text(
-                            isHighlightedDay
-                                ? 'Added!'
-                                : '${widget.groups[g].items.length} ${widget.groups[g].items.length == 1 ? 'class' : 'classes'}',
-                            style: AppTokens.typography.caption.copyWith(
-                              fontWeight: AppTokens.fontWeight.bold,
-                              color: accentColor,
-                            ),
-                          ),
+                        TintedChip(
+                          label: isHighlightedDay
+                              ? 'Added!'
+                              : '${widget.groups[g].items.length} ${widget.groups[g].items.length == 1 ? 'class' : 'classes'}',
+                          tint: accentColor,
                         ),
                       ],
                     ),
@@ -600,30 +511,9 @@ class ScheduleGroupCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
-    final background = elevatedCardBackground(theme, solid: true);
-    final borderColor = elevatedCardBorder(theme, solid: true);
-    final borderWidth = elevatedCardBorderWidth(theme);
-    final shadowColor = colors.outline.withValues(alpha: AppOpacity.highlight);
     final spacing = AppTokens.spacing;
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: borderColor,
-          width: borderWidth,
-        ),
-        boxShadow: theme.brightness == Brightness.dark
-            ? null
-            : [
-                BoxShadow(
-                  color: shadowColor,
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.hero,
-                ),
-              ],
-      ),
+    return SurfaceCard(
+      variant: SurfaceCardVariant.elevated,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -690,29 +580,8 @@ class ScheduleSummaryCard extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    final card = Container(
+    final card = SurfaceCard(
       padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
-      decoration: BoxDecoration(
-        color: isDark ? colors.surfaceContainerHigh : colors.surface,
-        borderRadius: AppTokens.radius.xl,
-        border: Border.all(
-          color: isDark
-              ? colors.outline.withValues(alpha: AppOpacity.overlay)
-              : colors.outline,
-          width: isDark
-              ? AppTokens.componentSize.divider
-              : AppTokens.componentSize.dividerThin,
-        ),
-        boxShadow: isDark
-            ? null
-            : [
-                BoxShadow(
-                  color: colors.shadow.withValues(alpha: AppOpacity.veryFaint),
-                  blurRadius: AppTokens.shadow.lg,
-                  offset: AppShadowOffset.sm,
-                ),
-              ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -878,79 +747,17 @@ class _ScheduleHighlightHero extends StatelessWidget {
       }
     }
 
-    return Container(
-      padding: spacing.edgeInsetsAll(spacing.xxl),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            colors.primary,
-            colors.primary.withValues(alpha: AppOpacity.prominent),
-          ],
-        ),
-        borderRadius: AppTokens.radius.lg,
-        boxShadow: [
-          BoxShadow(
-            color: colors.primary.withValues(alpha: AppOpacity.ghost),
-            blurRadius: AppTokens.shadow.xl,
-            offset: AppShadowOffset.lg,
-          ),
-        ],
-      ),
+    return HeroGradientCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Status badge
           Row(
             children: [
-              Container(
-                padding: spacing.edgeInsetsSymmetric(
-                    horizontal: spacing.md,
-                    vertical: spacing.sm - spacing.micro),
-                decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: AppOpacity.border),
-                  borderRadius: AppTokens.radius.pill,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (isLive)
-                      Container(
-                        width: AppTokens.componentSize.badgeSm,
-                        height: AppTokens.componentSize.badgeSm,
-                        margin: EdgeInsets.only(right: spacing.sm),
-                        decoration: BoxDecoration(
-                          color: foreground,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: foreground.withValues(
-                                  alpha: AppOpacity.subtle),
-                              blurRadius: AppTokens.shadow.xs,
-                              spreadRadius: AppTokens.componentSize.divider,
-                            ),
-                          ],
-                        ),
-                      )
-                    else
-                      Icon(
-                        Icons.schedule_rounded,
-                        size: AppTokens.iconSize.sm,
-                        color: foreground,
-                      ),
-                    if (!isLive)
-                      SizedBox(width: spacing.xs + AppTokens.spacing.micro),
-                    Text(
-                      statusLabel,
-                      style: AppTokens.typography.caption.copyWith(
-                        fontWeight: AppTokens.fontWeight.semiBold,
-                        color: foreground,
-                        letterSpacing: AppLetterSpacing.wider,
-                      ),
-                    ),
-                  ],
-                ),
+              HeroStatusBadge(
+                label: statusLabel,
+                isLive: isLive,
+                foreground: foreground,
               ),
               if (timeUntilText.isNotEmpty) ...[
                 SizedBox(width: spacing.sm + AppTokens.spacing.micro),
@@ -982,17 +789,9 @@ class _ScheduleHighlightHero extends StatelessWidget {
           // Time
           Row(
             children: [
-              Container(
-                padding: spacing.edgeInsetsAll(spacing.sm),
-                decoration: BoxDecoration(
-                  color: foreground.withValues(alpha: AppOpacity.medium),
-                  borderRadius: AppTokens.radius.sm,
-                ),
-                child: Icon(
-                  Icons.access_time_rounded,
-                  size: AppTokens.iconSize.sm,
-                  color: foreground,
-                ),
+              IconBox(
+                icon: Icons.access_time_rounded,
+                tint: foreground,
               ),
               SizedBox(width: spacing.md),
               Expanded(
@@ -1024,17 +823,9 @@ class _ScheduleHighlightHero extends StatelessWidget {
             SizedBox(height: spacing.md + AppTokens.spacing.micro),
             Row(
               children: [
-                Container(
-                  padding: spacing.edgeInsetsAll(spacing.sm),
-                  decoration: BoxDecoration(
-                    color: foreground.withValues(alpha: AppOpacity.medium),
-                    borderRadius: AppTokens.radius.sm,
-                  ),
-                  child: Icon(
-                    Icons.place_outlined,
-                    size: AppTokens.iconSize.sm,
-                    color: foreground,
-                  ),
+                IconBox(
+                  icon: Icons.place_outlined,
+                  tint: foreground,
                 ),
                 SizedBox(width: spacing.md),
                 Expanded(
@@ -1054,12 +845,10 @@ class _ScheduleHighlightHero extends StatelessWidget {
 
           if (hasInstructor) ...[
             SizedBox(height: spacing.lg),
-            Container(
+            ListItemCard(
+              backgroundColor: foreground.withValues(alpha: AppOpacity.overlay),
               padding: spacing.edgeInsetsAll(spacing.md),
-              decoration: BoxDecoration(
-                color: foreground.withValues(alpha: AppOpacity.overlay),
-                borderRadius: AppTokens.radius.md,
-              ),
+              showBorder: false,
               child: _ScheduleInstructorRow(
                 name: instructor,
                 avatarUrl: instructorAvatar.isEmpty ? null : instructorAvatar,
@@ -1091,32 +880,11 @@ class _ScheduleHeroChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      padding: AppTokens.spacing.edgeInsetsSymmetric(
-        horizontal: AppTokens.spacing.sm + AppTokens.spacing.micro,
-        vertical: AppTokens.spacing.xs + AppTokens.spacing.microHalf,
-      ),
-      decoration: BoxDecoration(
-        color: background,
-        borderRadius: AppTokens.radius.pill,
-        border: Border.all(
-            color: foreground.withValues(alpha: AppOpacity.borderEmphasis)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: AppTokens.iconSize.xs, color: foreground),
-          SizedBox(width: AppTokens.spacing.xs + AppTokens.spacing.micro),
-          Text(
-            label,
-            style: AppTokens.typography.caption.copyWith(
-              fontWeight: AppTokens.fontWeight.semiBold,
-              color: foreground,
-            ),
-          ),
-        ],
-      ),
+    return HeroChip(
+      icon: icon,
+      label: label,
+      background: background,
+      foreground: foreground,
     );
   }
 }
@@ -1263,30 +1031,7 @@ class ScheduleRow extends StatelessWidget {
             },
             backgroundColor: Colors.transparent,
             foregroundColor: colors.onError,
-            child: Container(
-              margin: EdgeInsets.only(left: AppTokens.spacing.sm),
-              decoration: BoxDecoration(
-                color: palette.danger,
-                borderRadius: AppTokens.radius.lg,
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(Icons.delete_outline_rounded, color: colors.onError),
-                  SizedBox(height: AppTokens.spacing.xs),
-                  Text(
-                    'Delete',
-                    textAlign: TextAlign.center,
-                    style: AppTokens.typography.label.copyWith(
-                      color: colors.onError,
-                      fontWeight: AppTokens.fontWeight.semiBold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
+            child: const SlideDeleteAction(),
           ),
         ],
       ),
@@ -1331,18 +1076,11 @@ class _ScheduleInstructorRow extends StatelessWidget {
     return Row(
       children: [
         if (hideAvatar)
-          Container(
-            width: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
-            height: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
-            decoration: BoxDecoration(
-              color: tint.withValues(alpha: inverse ? AppOpacity.border : AppOpacity.medium),
-              borderRadius: BorderRadius.circular(AppTokens.radius.sm.topLeft.x),
-            ),
-            child: Icon(
-              Icons.class_outlined,
-              size: (dense ? sizes.avatarXsDense : sizes.avatarSmDense) * 0.6,
-              color: tint,
-            ),
+          AvatarPlaceholder(
+            icon: Icons.class_outlined,
+            size: dense ? sizes.avatarXsDense : sizes.avatarSmDense,
+            tint: tint,
+            inverse: inverse,
           )
         else
           InstructorAvatar(

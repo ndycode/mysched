@@ -93,6 +93,15 @@ class AppTypography {
         letterSpacing: 0.1,
       );
 
+  /// 10px - Micro text for badges, tiny labels.
+  TextStyle get micro => const TextStyle(
+        fontFamily: primaryFont,
+        fontSize: 10,
+        fontWeight: FontWeight.w500,
+        height: 1.3,
+        letterSpacing: 0.2,
+      );
+
   /// 14px - Label text for form fields and buttons.
   TextStyle get label => const TextStyle(
         fontFamily: primaryFont,
@@ -138,6 +147,11 @@ extension ResponsiveTypography on AppTypography {
   /// Returns caption style with scaled font size.
   TextStyle captionScaled(double scale) => caption.copyWith(
         fontSize: (caption.fontSize ?? 12) * scale,
+      );
+
+  /// Returns micro style with scaled font size.
+  TextStyle microScaled(double scale) => micro.copyWith(
+        fontSize: (micro.fontSize ?? 10) * scale,
       );
 
   /// Returns bodySecondary style with scaled font size.

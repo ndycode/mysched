@@ -54,6 +54,16 @@ CREATE TABLE public.classes (
   CONSTRAINT classes_instructor_id_fkey FOREIGN KEY (instructor_id) REFERENCES public.instructors(id),
   CONSTRAINT classes_section_fk FOREIGN KEY (section_id) REFERENCES public.sections(id)
 );
+CREATE TABLE public.instructor_notes (
+  id integer NOT NULL DEFAULT nextval('instructor_notes_id_seq'::regclass),
+  instructor_id text NOT NULL,
+  user_id uuid NOT NULL,
+  content text NOT NULL,
+  created_at timestamp with time zone DEFAULT now(),
+  updated_at timestamp with time zone DEFAULT now(),
+  CONSTRAINT instructor_notes_pkey PRIMARY KEY (id),
+  CONSTRAINT instructor_notes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id)
+);
 CREATE TABLE public.instructors (
   id uuid NOT NULL DEFAULT gen_random_uuid(),
   full_name text NOT NULL,

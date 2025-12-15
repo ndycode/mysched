@@ -15,17 +15,28 @@ import '../../ui/kit/kit.dart';
 import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/app_log.dart';
+import '../../utils/conflict_dialog.dart';
 import '../../utils/nav.dart';
 import '../../utils/schedule_overlap.dart';
 
 const _scope = 'AddClass';
 
 /// Validates class time range. End time must be after start time.
+/// Also handles overnight classes (e.g., 11:10 PM to 12:10 AM).
 bool isValidClassTimeRange(TimeOfDay start, TimeOfDay end) {
   final startMinutes = start.hour * 60 + start.minute;
   final endMinutes = end.hour * 60 + end.minute;
-  // End time must be strictly after start time
-  return endMinutes > startMinutes;
+  
+  // Normal case: end time is after start time on the same day
+  if (endMinutes > startMinutes) return true;
+  
+  // Overnight case: start time is in evening (after 6 PM) and 
+  // end time is in early morning (before 6 AM)
+  final isStartEvening = start.hour >= 18; // 6 PM or later
+  final isEndMorning = end.hour < 6; // Before 6 AM
+  if (isStartEvening && isEndMorning) return true;
+  
+  return false;
 }
 
 class AddClassPage extends StatefulWidget {
@@ -762,32 +773,27 @@ class _AddClassFormState extends State<AddClassForm> {
     final room = trimmedRoom.isEmpty ? null : trimmedRoom;
 
     final cached = widget.api.getCachedClasses() ?? const <ClassItem>[];
-    final proposed = ClassItem(
-      id: widget.initialClass?.id ?? -1,
-      day: day,
-      start: start,
-      end: end,
-      title: trimmedTitle,
-      code: widget.initialClass?.code,
-      room: room,
-      instructor: sanitizedInstructor,
-      enabled: true,
-      isCustom: true,
+    
+    // Check for schedule conflicts
+    final conflicts = findScheduleConflicts(
+      proposedDay: day,
+      proposedStart: start,
+      proposedEnd: end,
+      existingClasses: cached,
+      excludeId: widget.initialClass?.id,
     );
-    for (final existing in cached) {
-      if (!existing.enabled) continue;
-      if (widget.initialClass != null &&
-          existing.id == widget.initialClass!.id) {
-        continue;
-      }
-      if (existing.day != day) continue;
-      if (classesOverlap(proposed, existing)) {
-        final conflictLabel =
-            existing.title ?? existing.code ?? 'another class';
-        setState(() => _formError =
-            'This class overlaps with $conflictLabel. Adjust the time or day.');
+
+    // If conflicts found, show warning dialog
+    if (conflicts.isNotEmpty && mounted) {
+      final proceed = await showConflictWarningDialog(
+        context: context,
+        conflicts: conflicts,
+      );
+      if (!proceed) {
+        // User cancelled, don't save
         return;
       }
+      // User chose to proceed anyway, continue with save
     }
 
     setState(() => _submitting = true);

@@ -806,7 +806,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           ),
           SizedBox(height: spacing.lg),
           NavigationRow(
-            icon: Icons.battery_alert_rounded,
+            icon: Icons.battery_saver_rounded,
             title: 'Battery optimization',
             description: 'Allow background delivery so alarms are not killed.',
             accentColor: colors.primary,

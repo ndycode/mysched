@@ -125,10 +125,12 @@ class AppModal {
   /// Shows a sheet sliding up from bottom.
   ///
   /// Use for: details views, forms, pickers, previews.
+  /// Set [enableDrag] to false to disable swipe-to-dismiss.
   static Future<T?> sheet<T>({
     required BuildContext context,
     required WidgetBuilder builder,
     bool dismissible = true,
+    bool enableDrag = true,
     Color? barrierColor,
     bool useRootNavigator = true,
   }) {
@@ -137,7 +139,10 @@ class AppModal {
         : Navigator.of(context);
     return navigator.push<T>(
       _AppModalRoute<T>(
-        builder: builder,
+        builder: (ctx) => _DraggableDismissSheet(
+          enableDrag: enableDrag && dismissible,
+          child: builder(ctx),
+        ),
         barrierDismissible: dismissible,
         barrierLabel: 'Dismiss',
         transition: _ModalTransition.slideUp,
@@ -643,4 +648,78 @@ Future<T?> showSmoothDialog<T>({
     dismissible: barrierDismissible,
     useRootNavigator: useRootNavigator,
   );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DRAGGABLE DISMISS SHEET - Swipe down to dismiss wrapper
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Wraps sheet content to allow drag-to-dismiss gesture.
+class _DraggableDismissSheet extends StatefulWidget {
+  const _DraggableDismissSheet({
+    required this.child,
+    this.enableDrag = true,
+  });
+
+  final Widget child;
+  final bool enableDrag;
+
+  @override
+  State<_DraggableDismissSheet> createState() => _DraggableDismissSheetState();
+}
+
+class _DraggableDismissSheetState extends State<_DraggableDismissSheet> {
+  double _dragOffset = 0;
+  bool _isDragging = false;
+
+  static const double _dismissThreshold = 100;
+  static const double _velocityThreshold = 500;
+
+  void _handleDragStart(DragStartDetails details) {
+    if (!widget.enableDrag) return;
+    setState(() {
+      _isDragging = true;
+      _dragOffset = 0;
+    });
+  }
+
+  void _handleDragUpdate(DragUpdateDetails details) {
+    if (!widget.enableDrag || !_isDragging) return;
+    setState(() {
+      // Only allow dragging down (positive offset)
+      _dragOffset = (_dragOffset + details.delta.dy).clamp(0, double.infinity);
+    });
+  }
+
+  void _handleDragEnd(DragEndDetails details) {
+    if (!widget.enableDrag || !_isDragging) return;
+
+    final velocity = details.velocity.pixelsPerSecond.dy;
+    final shouldDismiss =
+        _dragOffset > _dismissThreshold || velocity > _velocityThreshold;
+
+    if (shouldDismiss) {
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _dragOffset = 0;
+        _isDragging = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onVerticalDragStart: _handleDragStart,
+      onVerticalDragUpdate: _handleDragUpdate,
+      onVerticalDragEnd: _handleDragEnd,
+      child: AnimatedContainer(
+        duration: _isDragging ? Duration.zero : AppMotionSystem.quick,
+        curve: AppMotionSystem.easeOut,
+        transform: Matrix4.translationValues(0, _dragOffset, 0),
+        child: widget.child,
+      ),
+    );
+  }
 }

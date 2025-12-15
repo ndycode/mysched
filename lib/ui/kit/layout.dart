@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/analytics_service.dart';
 import '../theme/tokens.dart';
+import 'offline_banner.dart';
 import 'responsive_provider.dart';
 
 /// Shared scaffold that wires analytics and motion defaults for screens.
@@ -70,7 +71,23 @@ class _AppScaffoldState extends State<AppScaffold> {
       appBar: widget.appBar,
       floatingActionButton: widget.floatingActionButton,
       bottomNavigationBar: widget.bottomNavigationBar,
-      body: scaffoldBody,
+      body: scaffoldBody == null
+          ? null
+          : Stack(
+              children: [
+                scaffoldBody,
+                // Global offline indicator
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    bottom: false,
+                    child: GlobalOfflineBanner(),
+                  ),
+                ),
+              ],
+            ),
     );
   }
 }

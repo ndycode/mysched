@@ -33,6 +33,8 @@ import '../schedules/add_class_screen.dart';
 import '../reminders/add_reminder_screen.dart';
 import '../reminders_page.dart';
 import '../schedules_page.dart';
+import '../timer/study_timer_screen.dart';
+import '../stats/stats_screen.dart';
 
 part 'dashboard_models.dart';
 part 'dashboard_cards.dart';
@@ -664,6 +666,14 @@ class DashboardScreenState extends State<DashboardScreen>
     await _loadProfile(refresh: true);
   }
 
+  void _openStudyTimer() {
+    showStudyTimerSheet(context);
+  }
+
+  void _openStats() {
+    showStatsSheet(context);
+  }
+
   Future<void> _handleReminderToggle(
       ReminderEntry entry, bool completed) async {
     if (!mounted || _pendingReminderActions.contains(entry.id)) return;
@@ -962,6 +972,68 @@ class DashboardScreenState extends State<DashboardScreen>
         onToggleEnabled: _applyClassEnabled,
         onViewSchedule: _openSchedules,
         isInstructor: InstructorService.instance.isInstructor,
+      ),
+    );
+
+    // Quick Actions row
+    addSpacing(AppTokens.spacing.lg);
+    addSection(
+      (_) => Row(
+        children: [
+          Expanded(
+            child: PressableScale(
+              onTap: _openStudyTimer,
+              child: SurfaceCard(
+                padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.timer_outlined,
+                      size: AppTokens.iconSize.md,
+                      color: colors.primary,
+                    ),
+                    SizedBox(width: AppTokens.spacing.sm),
+                    Text(
+                      'Study Timer',
+                      style: AppTokens.typography.label.copyWith(
+                        color: colors.onSurface,
+                        fontWeight: AppTokens.fontWeight.semiBold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SizedBox(width: AppTokens.spacing.md),
+          Expanded(
+            child: PressableScale(
+              onTap: _openStats,
+              child: SurfaceCard(
+                padding: AppTokens.spacing.edgeInsetsAll(AppTokens.spacing.md),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bar_chart_rounded,
+                      size: AppTokens.iconSize.md,
+                      color: colors.tertiary,
+                    ),
+                    SizedBox(width: AppTokens.spacing.sm),
+                    Text(
+                      'Stats',
+                      style: AppTokens.typography.label.copyWith(
+                        color: colors.onSurface,
+                        fontWeight: AppTokens.fontWeight.semiBold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
 

@@ -69,3 +69,4 @@ export 'hero_status_badge.dart';
 export 'slide_delete_action.dart';
 export 'hero_chip.dart';
 export 'avatar_placeholder.dart';
+export 'offline_banner.dart';

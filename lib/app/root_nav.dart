@@ -12,6 +12,7 @@ import '../screens/scan/scan_options_screen.dart';
 import '../screens/scan/scan_preview_screen.dart';
 import '../screens/scan/schedule_import_screen.dart';
 import '../screens/settings_page.dart';
+import '../screens/timer/study_timer_screen.dart';
 import '../services/reminder_scope_store.dart';
 import '../services/reminders_repository.dart';
 import '../services/root_nav_controller.dart';
@@ -201,6 +202,14 @@ class _RootNavState extends State<RootNav>
     }
   }
 
+  Future<void> _openStudyTimer() async {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    _closeQuickActions();
+    await showStudyTimerSheet(context);
+    // If timer was used, we might want to refresh stats in dashboard
+    await _dashboardKey.currentState?.refreshOnTabVisit();
+  }
+
   Future<void> _openScanOptions() async {
     ScaffoldMessenger.of(context).hideCurrentSnackBar();
     _closeQuickActions();
@@ -317,6 +326,13 @@ class _RootNavState extends State<RootNav>
                 label: 'Add reminder',
                 description: 'Plan an assignment or task.',
                 onTap: _openAddReminder,
+              ),
+            SizedBox(height: spacing.md),
+              QuickActionTile(
+                icon: Icons.access_time_filled_rounded,
+                label: 'Start study timer',
+                description: 'Focus on your classes.',
+                onTap: _openStudyTimer,
               ),
             SizedBox(height: spacing.md),
               QuickActionTile(

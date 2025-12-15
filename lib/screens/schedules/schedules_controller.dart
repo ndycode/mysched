@@ -397,6 +397,14 @@ class SchedulesController extends ChangeNotifier {
 
     try {
       await _api.resetAllForCurrentUser();
+      
+      // Clear offline cache to prevent reloading old data
+      final uid = _activeUserId();
+      if (uid != null) {
+        final cache = await OfflineCacheService.instance();
+        await cache.clearSchedule(userId: uid);
+      }
+      
       _setClasses(const []);
       _loading = false;
       _offlineFallback = false;

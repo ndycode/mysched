@@ -676,7 +676,7 @@ class _AlarmPromptDialogState extends State<_AlarmPromptDialog> {
               ],
               SizedBox(height: spacing.md),
               StatusRow(
-                icon: Icons.battery_alert_rounded,
+                icon: Icons.battery_saver_rounded,
                 label: 'Battery optimization (recommended)',
                 description: 'Set MySched to Unrestricted so alarms are not killed.',
                 status: _readiness?.ignoringBatteryOptimizations,

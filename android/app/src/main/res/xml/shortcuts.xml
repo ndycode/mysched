@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Quick action: Add Reminder -->
+    <shortcut
+        android:shortcutId="add_reminder"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_reminder"
+        android:shortcutShortLabel="@string/shortcut_add_reminder_short"
+        android:shortcutLongLabel="@string/shortcut_add_reminder_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.ateneo.mysched"
+            android:targetClass="com.ateneo.mysched.MainActivity"
+            android:data="mysched://reminder/add" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <!-- Quick action: Today's Schedule -->
+    <shortcut
+        android:shortcutId="today_schedule"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_today"
+        android:shortcutShortLabel="@string/shortcut_today_short"
+        android:shortcutLongLabel="@string/shortcut_today_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.ateneo.mysched"
+            android:targetClass="com.ateneo.mysched.MainActivity"
+            android:data="mysched://schedule/today" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <!-- Quick action: Study Timer -->
+    <shortcut
+        android:shortcutId="study_timer"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_timer"
+        android:shortcutShortLabel="@string/shortcut_timer_short"
+        android:shortcutLongLabel="@string/shortcut_timer_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.ateneo.mysched"
+            android:targetClass="com.ateneo.mysched.MainActivity"
+            android:data="mysched://timer" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <!-- Quick action: Scan Schedule -->
+    <shortcut
+        android:shortcutId="scan_schedule"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_scan"
+        android:shortcutShortLabel="@string/shortcut_scan_short"
+        android:shortcutLongLabel="@string/shortcut_scan_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.ateneo.mysched"
+            android:targetClass="com.ateneo.mysched.MainActivity"
+            android:data="mysched://scan" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+</shortcuts>

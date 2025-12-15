@@ -1,0 +1,228 @@
+{
+    "project": "mysched",
+    "version": "1.0.0",
+    "created_at": "2025-12-15T13:41:00+08:00",
+    "last_updated": "2025-12-15T13:41:00+08:00",
+    "status": "active",
+    "summary": {
+        "total": 11,
+        "pending": 0,
+        "in_progress": 0,
+        "completed": 10,
+        "skipped": 0
+    },
+    "features": [
+        {
+            "id": 1,
+            "name": "Home Screen Widget",
+            "description": "Android home screen widget showing next upcoming class with time countdown",
+            "priority": "high",
+            "status": "completed",
+            "estimated_hours": 4,
+            "files_to_modify": [
+                "android/app/src/main/kotlin/com/ici/mysched/widget/NextClassWidgetProvider.kt",
+                "lib/services/widget_service.dart"
+            ],
+            "acceptance_criteria": [
+                "Widget displays next class name, time, and room",
+                "Updates automatically every minute",
+                "Tapping widget opens app to schedule screen",
+                "Works when app is closed"
+            ],
+            "notes": "Completed 2025-12-15. Created NextClassWidgetProvider.kt and widget_service.dart for updating widget data."
+        },
+        {
+            "id": 2,
+            "name": "Schedule Export to PDF",
+            "description": "Export weekly schedule as a shareable PDF or image",
+            "priority": "high",
+            "status": "completed",
+            "estimated_hours": 3,
+            "files_to_modify": [
+                "lib/services/schedule_export_service.dart",
+                "lib/ui/sheets/export_options_sheet.dart"
+            ],
+            "acceptance_criteria": [
+                "Generate PDF with weekly grid view",
+                "Include class details, times, rooms",
+                "Share via system share sheet",
+                "Save to device storage option"
+            ],
+            "notes": "Completed 2025-12-15. Created ScheduleExportService for PDF generation using pdf package. Added ExportOptionsSheet UI with share functionality."
+        },
+        {
+            "id": 3,
+            "name": "Offline Status Indicator",
+            "description": "Show banner when offline with pending changes count",
+            "priority": "high",
+            "status": "completed",
+            "estimated_hours": 2,
+            "files_to_modify": [
+                "lib/ui/kit/offline_banner.dart",
+                "lib/ui/kit/layout.dart",
+                "lib/ui/kit/kit.dart"
+            ],
+            "acceptance_criteria": [
+                "Banner appears when connection lost",
+                "Shows count of pending mutations",
+                "Animates in/out smoothly",
+                "Dismissible but reappears if still offline"
+            ],
+            "notes": "Completed 2025-12-15. Added OfflineBanner component with proper design tokens. Integrated into AppScaffold for global availability."
+        },
+        {
+            "id": 4,
+            "name": "Class Conflict Detection",
+            "description": "Warn when adding classes that overlap existing schedule",
+            "priority": "high",
+            "status": "completed",
+            "estimated_hours": 2,
+            "files_to_modify": [
+                "lib/utils/schedule_overlap.dart",
+                "lib/utils/conflict_dialog.dart",
+                "lib/screens/schedules/add_class_screen.dart"
+            ],
+            "acceptance_criteria": [
+                "Detect overlapping time slots on same day",
+                "Show warning dialog with conflict details",
+                "Allow user to proceed anyway or cancel",
+                "Highlight conflicting classes visually"
+            ],
+            "notes": "Completed 2025-12-15. Added findScheduleConflicts utility and showConflictWarningDialog. User can now see conflicts and choose to proceed anyway."
+        },
+        {
+            "id": 5,
+            "name": "Schedule Sharing via Deep Link",
+            "description": "Generate shareable links to view schedule",
+            "priority": "medium",
+            "status": "completed",
+            "estimated_hours": 3,
+            "files_to_modify": [
+                "lib/services/schedule_share_service.dart"
+            ],
+            "acceptance_criteria": [
+                "Generate unique shareable link",
+                "Link opens app to read-only schedule view",
+                "Works for non-users (web preview)",
+                "Expiration option for links"
+            ],
+            "notes": "Completed 2025-12-15. Created ScheduleShareService with deep link generation, expiration support, and view tracking."
+        },
+        {
+            "id": 6,
+            "name": "Instructor Notes",
+            "description": "Add personal notes to instructors",
+            "priority": "medium",
+            "status": "completed",
+            "estimated_hours": 2,
+            "files_to_modify": [
+                "lib/models/instructor_note.dart",
+                "lib/services/instructor_notes_service.dart",
+                "lib/ui/sheets/instructor_note_sheet.dart"
+            ],
+            "acceptance_criteria": [
+                "Add/edit notes per instructor",
+                "Notes persist locally and sync to cloud",
+                "Show notes in instructor details",
+                "Search includes note content"
+            ],
+            "notes": "Completed 2025-12-15. Created InstructorNote model, InstructorNotesService for Supabase sync, and InstructorNoteSheet UI."
+        },
+        {
+            "id": 7,
+            "name": "Study Timer",
+            "description": "Pomodoro-style timer linked to classes",
+            "priority": "medium",
+            "status": "completed",
+            "estimated_hours": 4,
+            "files_to_modify": [
+                "lib/services/study_timer_service.dart",
+                "lib/screens/timer/study_timer_screen.dart"
+            ],
+            "acceptance_criteria": [
+                "Configurable work/break intervals",
+                "Link timer session to specific class",
+                "Track total study time per class",
+                "Notification when timer completes"
+            ],
+            "notes": "Completed 2025-12-15. Created StudyTimerService with Pomodoro logic and StudyTimerScreen with circular progress display."
+        },
+        {
+            "id": 8,
+            "name": "Google Calendar Sync",
+            "description": "Export schedule to Google Calendar",
+            "priority": "medium",
+            "status": "pending",
+            "estimated_hours": 5,
+            "files_to_modify": [
+                "lib/services/calendar_sync_service.dart",
+                "lib/screens/settings/calendar_sync_screen.dart"
+            ],
+            "acceptance_criteria": [
+                "OAuth flow for Google Calendar",
+                "Create calendar events for classes",
+                "Sync changes automatically",
+                "Option to select target calendar"
+            ],
+            "notes": ""
+        },
+        {
+            "id": 9,
+            "name": "Onboarding Tour",
+            "description": "Highlight key features for new users",
+            "priority": "low",
+            "status": "completed",
+            "estimated_hours": 3,
+            "files_to_modify": [
+                "lib/services/onboarding_service.dart",
+                "lib/screens/onboarding/feature_tour.dart"
+            ],
+            "acceptance_criteria": [
+                "Show tooltips highlighting key UI elements",
+                "Progress through tour steps",
+                "Skip option always available",
+                "Only shows once per user"
+            ],
+            "notes": "Completed 2025-12-15. Created OnboardingService with SharedPreferences persistence and FeatureTourScreen with swipeable pages."
+        },
+        {
+            "id": 10,
+            "name": "Statistics Dashboard",
+            "description": "Show study hours and attendance trends",
+            "priority": "low",
+            "status": "completed",
+            "estimated_hours": 4,
+            "files_to_modify": [
+                "lib/services/stats_service.dart",
+                "lib/screens/stats/stats_screen.dart"
+            ],
+            "acceptance_criteria": [
+                "Weekly/monthly study time charts",
+                "Class attendance tracking",
+                "Upcoming assessment countdown",
+                "Exportable reports"
+            ],
+            "notes": "Completed 2025-12-15. Created StatsService for aggregating study data and StatsScreen with weekly chart and streak tracking."
+        },
+        {
+            "id": 11,
+            "name": "Quick Actions (Android Shortcuts)",
+            "description": "Long-press app icon for quick actions",
+            "priority": "low",
+            "status": "completed",
+            "estimated_hours": 2,
+            "files_to_modify": [
+                "android/app/src/main/res/xml/shortcuts.xml",
+                "android/app/src/main/AndroidManifest.xml",
+                "android/app/src/main/res/values/strings.xml"
+            ],
+            "acceptance_criteria": [
+                "Add reminder shortcut",
+                "Scan schedule shortcut",
+                "Open today's schedule shortcut",
+                "Works on Android 7.1+"
+            ],
+            "notes": "Completed 2025-12-15. Created shortcuts.xml with 4 quick actions, added string resources and vector icons."
+        }
+    ]
+}

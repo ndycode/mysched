@@ -94,7 +94,7 @@ flutter_native_splash:
   - Nursing → Pink (#E91E63)
   - Business → Cyan (#00BCD4)
 
-> ✅ Patches 7-8 deployed 2024-12-15 | ⏳ Patches 9-10 pending
+> ✅ Patches 7-9 deployed 2024-12-15 | ⏳ Patch 10 pending
 
 ---
 

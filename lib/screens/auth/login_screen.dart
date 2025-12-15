@@ -1,6 +1,7 @@
 // lib/screens/auth/login_screen.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/constants.dart';
 import '../../app/routes.dart';
@@ -10,6 +11,10 @@ import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/validation_utils.dart';
 import '../account/verify_email_screen.dart';
+
+/// Key for storing remembered email in SharedPreferences
+const _kRememberEmailKey = 'auth.remember_email';
+const _kRememberMeKey = 'auth.remember_me';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -25,8 +30,47 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _saving = false;
   bool _hidePassword = true;
+  bool _rememberMe = false;
   String? _globalError;
   String? _pendingVerificationEmail;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedCredentials();
+  }
+
+  Future<void> _loadSavedCredentials() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final savedEmail = prefs.getString(_kRememberEmailKey);
+      final rememberMe = prefs.getBool(_kRememberMeKey) ?? false;
+      if (!mounted) return;
+      setState(() {
+        _rememberMe = rememberMe;
+        if (savedEmail != null && savedEmail.isNotEmpty) {
+          _email.text = savedEmail;
+        }
+      });
+    } catch (_) {
+      // Ignore errors loading preferences
+    }
+  }
+
+  Future<void> _saveRememberMe() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberMe) {
+        await prefs.setString(_kRememberEmailKey, _email.text.trim().toLowerCase());
+        await prefs.setBool(_kRememberMeKey, true);
+      } else {
+        await prefs.remove(_kRememberEmailKey);
+        await prefs.setBool(_kRememberMeKey, false);
+      }
+    } catch (_) {
+      // Ignore errors saving preferences
+    }
+  }
 
   @override
   void dispose() {
@@ -68,6 +112,8 @@ class _LoginPageState extends State<LoginPage> {
         email: _email.text.trim().toLowerCase(),
         password: _password.text,
       );
+      // Save remember me preference on successful login
+      await _saveRememberMe();
       if (!mounted) return;
       final scope = ReminderScopeStore.instance.value;
       context.go(
@@ -116,6 +162,7 @@ class _LoginPageState extends State<LoginPage> {
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
+    final colors = theme.colorScheme;
 
     final form = AutofillGroup(
       child: Form(
@@ -158,14 +205,52 @@ class _LoginPageState extends State<LoginPage> {
               ),
               validator: _validatePassword,
             ),
-            SizedBox(height: spacing.sm),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'At least ${AppConstants.minPasswordLengthLogin} characters.',
-                style: AppTokens.typography.caption.copyWith(
-                  color: palette.muted,
-                ),
+            SizedBox(height: spacing.lg),
+            // Remember me - styled tappable row
+            GestureDetector(
+              onTap: _saving
+                  ? null
+                  : () => setState(() => _rememberMe = !_rememberMe),
+              behavior: HitTestBehavior.opaque,
+              child: Row(
+                children: [
+                  // Custom styled checkbox
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeInOut,
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: _rememberMe
+                          ? colors.primary
+                          : Colors.transparent,
+                      borderRadius: AppTokens.radius.xs,
+                      border: Border.all(
+                        color: _rememberMe
+                            ? colors.primary
+                            : palette.muted.withValues(alpha: AppOpacity.medium),
+                        width: 2,
+                      ),
+                    ),
+                    child: _rememberMe
+                        ? Icon(
+                            Icons.check_rounded,
+                            size: 16,
+                            color: colors.onPrimary,
+                          )
+                        : null,
+                  ),
+                  SizedBox(width: spacing.md),
+                  Text(
+                    'Remember me',
+                    style: AppTokens.typography.body.copyWith(
+                      color: _rememberMe ? colors.onSurface : palette.muted,
+                      fontWeight: _rememberMe
+                          ? AppTokens.fontWeight.medium
+                          : AppTokens.fontWeight.regular,
+                    ),
+                  ),
+                ],
               ),
             ),
             SizedBox(height: spacing.xxl),

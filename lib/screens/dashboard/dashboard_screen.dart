@@ -8,7 +8,11 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:shorebird_code_push/shorebird_code_push.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 import '../../app/routes.dart';
+import '../../services/admin_service.dart';
 import '../../models/reminder_scope.dart';
 import '../../services/auth_service.dart';
 import '../../services/instructor_service.dart';
@@ -96,6 +100,11 @@ class DashboardScreenState extends State<DashboardScreen>
   VoidCallback? _profileListener;
   PageRoute<dynamic>? _routeSubscription;
   VoidCallback? _reminderScopeListener;
+  // Admin version display
+  bool _isAdmin = false;
+  int? _currentPatchNumber;
+  String? _appVersion;
+  VoidCallback? _adminRoleListener;
   @override
   void initState() {
     super.initState();
@@ -132,6 +141,13 @@ class DashboardScreenState extends State<DashboardScreen>
     // ignore: discarded_futures
     InstructorService.instance.checkInstructorStatus();
 
+    // Admin version display
+    _adminRoleListener = _onAdminRoleChanged;
+    AdminService.instance.role.addListener(_adminRoleListener!);
+    _onAdminRoleChanged();
+    AdminService.instance.refreshRole();
+    _loadPatchInfo();
+
     if (widget.debugForceScheduleError) {
       _scheduleLoading = false;
       _scheduleError = 'Schedules not refreshed';
@@ -156,6 +172,9 @@ class DashboardScreenState extends State<DashboardScreen>
     }
     if (_reminderScopeListener != null) {
       ReminderScopeStore.instance.removeListener(_reminderScopeListener!);
+    }
+    if (_adminRoleListener != null) {
+      AdminService.instance.role.removeListener(_adminRoleListener!);
     }
     super.dispose();
   }
@@ -255,6 +274,37 @@ class DashboardScreenState extends State<DashboardScreen>
       _studentAvatar = nextAvatar;
       _profileHydrated = true;
     });
+  }
+
+  void _onAdminRoleChanged() {
+    final state = AdminService.instance.role.value;
+    final isAdmin = state == AdminRoleState.admin;
+    if (isAdmin != _isAdmin && mounted) {
+      setState(() => _isAdmin = isAdmin);
+    }
+  }
+
+  Future<void> _loadPatchInfo() async {
+    // Load app version from pubspec
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      if (mounted) {
+        setState(() => _appVersion = '${packageInfo.version}+${packageInfo.buildNumber}');
+      }
+    } catch (_) {
+      // Package info not available
+    }
+
+    // Load Shorebird patch number
+    try {
+      final updater = ShorebirdUpdater();
+      final patch = await updater.readCurrentPatch();
+      if (mounted) {
+        setState(() => _currentPatchNumber = patch?.number);
+      }
+    } catch (_) {
+      // Shorebird not available (debug build)
+    }
   }
 
   Future<void> _loadAll() async {
@@ -838,6 +888,7 @@ class DashboardScreenState extends State<DashboardScreen>
             onAccountTap: _openAccount,
             showChevron: false,
             loading: !_profileHydrated,
+            leading: _isAdmin ? _buildVersionBadge(colors) : null,
           ),
           sections: sections,
           padding: spacing.edgeInsetsOnly(
@@ -1171,4 +1222,32 @@ class DashboardScreenState extends State<DashboardScreen>
 
   bool _isSameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
+
+  /// Builds a compact version badge for admin users, shown in the header.
+  Widget _buildVersionBadge(ColorScheme colors) {
+    final spacing = AppTokens.spacing;
+    final baseVersion = _appVersion ?? 'ver';
+    final versionText = _currentPatchNumber != null
+        ? '$baseVersion P$_currentPatchNumber'
+        : baseVersion;
+
+    return Container(
+      padding: spacing.edgeInsetsSymmetric(
+        horizontal: spacing.sm,
+        vertical: spacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: colors.surfaceContainerHighest,
+        borderRadius: AppTokens.radius.sm,
+      ),
+      child: Text(
+        versionText,
+        style: AppTokens.typography.caption.copyWith(
+          fontWeight: AppTokens.fontWeight.semiBold,
+          color: colors.onSurfaceVariant,
+          fontSize: 10,
+        ),
+      ),
+    );
+  }
 }

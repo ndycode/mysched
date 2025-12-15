@@ -63,6 +63,39 @@ flutter_native_splash:
 #### Patch 6: Instructor Finder Time Format Fix
 - **Fixed reversed time order**: Schedule times in instructor finder now show start time first, then end time (was incorrectly showing end-start)
 
+#### Patch 7: Version Badge on Dashboard
+- **Moved version display**: Version text relocated from Settings admin card to Dashboard header
+- **Admin-only visibility**: Version badge only visible to users with admin role
+- **Dynamic versioning**: Now reads version from `package_info_plus` instead of hardcoded values
+- **Format**: Shows "X.Y.Z+BUILD P[patch]" (e.g., "2.0.2+11 P7")
+
+#### Patch 8: Auth Screen Keyboard Fix
+- **Fixed keyboard cropping**: Login/register screens no longer clip content at top when keyboard appears
+- **Adaptive layout**: Uses `MainAxisAlignment.start` when keyboard visible, `center` when hidden
+- **Keyboard detection**: Via `MediaQuery.viewInsets.bottom > 0`
+
+#### Patch 9: Remember Me on Login
+- **Remember Me checkbox**: Added below password field on login screen
+- **Email persistence**: Saves email to SharedPreferences when checked
+- **Auto-fill**: Pre-fills email on next login if previously saved
+- **Storage keys**: `auth.remember_email`, `auth.remember_me`
+
+#### Patch 10: Instructor Search UI Overhaul
+- **Alphabetical sorting**: Instructors sorted A-Z by last name (handles "Last, First" and "First Last" formats)
+- **A-Z section headers**: Letter headers group instructors for easy scanning
+- **Search highlighting**: Matching text highlighted in primary color with subtle background
+- **Quick scroll sidebar**: Alphabet strip on right side for fast navigation (appears when 4+ letters)
+- **Department colors**: Color-coded badges for visual distinction:
+  - CSIT → Blue (#2196F3)
+  - Accountancy → Green (#4CAF50)
+  - Criminology → Deep Orange (#FF5722)
+  - Education → Purple (#9C27B0)
+  - Engineering → Orange (#FF9800)
+  - Nursing → Pink (#E91E63)
+  - Business → Cyan (#00BCD4)
+
+> ✅ Patches 7-8 deployed 2024-12-15 | ⏳ Patches 9-10 pending
+
 ---
 
 

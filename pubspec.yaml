@@ -33,6 +33,7 @@ dependencies:
   flutter_native_splash: ^2.3.5
   sentry_flutter: ^8.4.0
   shorebird_code_push: ^2.0.5
+  package_info_plus: ^9.0.0
 
 dev_dependencies:
   supabase: ^2.10.0

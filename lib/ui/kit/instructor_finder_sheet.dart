@@ -23,11 +23,29 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
   List<_ScheduleItem>? _selectedSchedule;
   bool _loadingSchedule = false;
   String _searchQuery = '';
+  final ScrollController _listScrollController = ScrollController();
+
+  // Department colors for visual distinction
+  static const Map<String, Color> _departmentColors = {
+    'CSIT': Color(0xFF2196F3),      // Blue
+    'ACCOUNTANCY': Color(0xFF4CAF50), // Green
+    'CRIMINOLOGY': Color(0xFFFF5722), // Deep Orange
+    'EDUCATION': Color(0xFF9C27B0),   // Purple
+    'ENGINEERING': Color(0xFFFF9800), // Orange
+    'NURSING': Color(0xFFE91E63),     // Pink
+    'BUSINESS': Color(0xFF00BCD4),    // Cyan
+  };
 
   @override
   void initState() {
     super.initState();
     _instructorsFuture = _loadInstructors();
+  }
+
+  @override
+  void dispose() {
+    _listScrollController.dispose();
+    super.dispose();
   }
 
   Future<List<_InstructorInfo>> _loadInstructors() async {
@@ -50,8 +68,6 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
       if (sectionCodes.isEmpty) return [];
 
       // Map section codes to departments
-      // BSCS, BSIT, BSIS, ACT -> CSIT
-      // Add more mappings as needed
       final departments = <String>{};
       for (final code in sectionCodes) {
         final dept = _sectionToDepartment(code!);
@@ -90,11 +106,32 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
         code.startsWith('ACT')) {
       return 'CSIT';
     }
-    // Add more department mappings as needed
-    // Example:
-    // if (code.startsWith('BSA') || code.startsWith('BSMA')) return 'Accountancy';
-    // if (code.startsWith('BSCRIM')) return 'Criminology';
     return null;
+  }
+
+  /// Extract last name from full name (assumes "LastName, FirstName" or "FirstName LastName" format)
+  String _extractLastName(String fullName) {
+    final trimmed = fullName.trim();
+    if (trimmed.contains(',')) {
+      // Format: "LastName, FirstName"
+      return trimmed.split(',').first.trim().toUpperCase();
+    } else {
+      // Format: "FirstName LastName" - take last word
+      final parts = trimmed.split(' ');
+      return (parts.isNotEmpty ? parts.last : trimmed).toUpperCase();
+    }
+  }
+
+  /// Get the first letter of the last name for grouping
+  String _getLastNameInitial(String fullName) {
+    final lastName = _extractLastName(fullName);
+    return lastName.isNotEmpty ? lastName[0].toUpperCase() : '#';
+  }
+
+  /// Get color for a department
+  Color _getDepartmentColor(String? department) {
+    if (department == null) return Colors.grey;
+    return _departmentColors[department.toUpperCase()] ?? Colors.grey;
   }
 
   Future<void> _selectInstructor(_InstructorInfo instructor) async {
@@ -176,6 +213,29 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
       _selectedInstructor = null;
       _selectedSchedule = null;
     });
+  }
+
+  /// Scroll to a specific letter section
+  void _scrollToLetter(String letter, List<String> sortedLetters, Map<String, List<_InstructorInfo>> grouped) {
+    if (!sortedLetters.contains(letter)) return;
+    
+    // Calculate approximate position
+    int itemsBefore = 0;
+    for (final l in sortedLetters) {
+      if (l == letter) break;
+      itemsBefore += grouped[l]!.length + 1; // +1 for header
+    }
+    
+    // Estimate position (header height + item heights)
+    const headerHeight = 32.0;
+    const itemHeight = 72.0;
+    final position = itemsBefore * itemHeight + (sortedLetters.indexOf(letter)) * headerHeight;
+    
+    _listScrollController.animateTo(
+      position,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
   }
 
   @override
@@ -390,7 +450,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
         TextField(
           onChanged: (value) => setState(() => _searchQuery = value),
           decoration: InputDecoration(
-            hintText: 'Search instructors...',
+            hintText: 'Search by name...',
             prefixIcon: Icon(Icons.search, size: AppTokens.iconSize.md * scale),
             filled: true,
             fillColor: isDark 
@@ -408,7 +468,7 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
         ),
         SizedBox(height: spacing.lg * spacingScale),
         
-        // Instructor list
+        // Instructor list with alphabet sidebar
         Flexible(
           child: FutureBuilder<List<_InstructorInfo>>(
             future: _instructorsFuture,
@@ -426,13 +486,14 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                 );
               }
 
-              final instructors = snapshot.data!
+              // Filter by search query
+              final filtered = snapshot.data!
                   .where((i) => _searchQuery.isEmpty || 
                       i.fullName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
                       (i.department?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false))
                   .toList();
 
-              if (instructors.isEmpty) {
+              if (filtered.isEmpty) {
                 return Center(
                   child: Text(
                     'No matching instructors',
@@ -441,47 +502,98 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                 );
               }
 
-              // Group by department
-              final grouped = <String, List<_InstructorInfo>>{};
-              for (final instructor in instructors) {
-                final dept = instructor.department ?? 'Other';
-                grouped.putIfAbsent(dept, () => []).add(instructor);
-              }
-              final departments = grouped.keys.toList()..sort();
+              // Sort by last name alphabetically
+              filtered.sort((a, b) {
+                final lastNameA = _extractLastName(a.fullName);
+                final lastNameB = _extractLastName(b.fullName);
+                return lastNameA.compareTo(lastNameB);
+              });
 
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: departments.length,
-                itemBuilder: (context, deptIndex) {
-                  final dept = departments[deptIndex];
-                  final deptInstructors = grouped[dept]!;
-                  
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (deptIndex > 0) SizedBox(height: spacing.lg * spacingScale),
-                      // Department header
-                      Padding(
-                        padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
-                        child: Text(
-                          dept.toUpperCase(),
-                          style: AppTokens.typography.captionScaled(scale).copyWith(
-                            fontWeight: AppTokens.fontWeight.bold,
-                            color: palette.muted,
-                          ),
-                        ),
+              // Group by first letter of last name
+              final grouped = <String, List<_InstructorInfo>>{};
+              for (final instructor in filtered) {
+                final letter = _getLastNameInitial(instructor.fullName);
+                grouped.putIfAbsent(letter, () => []).add(instructor);
+              }
+              final sortedLetters = grouped.keys.toList()..sort();
+
+              // Build list with headers
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Main list
+                  Expanded(
+                    child: ListView.builder(
+                      controller: _listScrollController,
+                      shrinkWrap: true,
+                      itemCount: sortedLetters.length,
+                      itemBuilder: (context, letterIndex) {
+                        final letter = sortedLetters[letterIndex];
+                        final letterInstructors = grouped[letter]!;
+                        
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (letterIndex > 0) SizedBox(height: spacing.lg * spacingScale),
+                            // Letter header
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: spacing.sm * spacingScale,
+                                vertical: spacing.xs * spacingScale,
+                              ),
+                              decoration: BoxDecoration(
+                                color: colors.primary.withValues(alpha: AppOpacity.faint),
+                                borderRadius: AppTokens.radius.sm,
+                              ),
+                              child: Text(
+                                letter,
+                                style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                                  fontWeight: AppTokens.fontWeight.bold,
+                                  color: colors.primary,
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: spacing.sm * spacingScale),
+                            // Instructors in this letter group
+                            ...letterInstructors.map((instructor) => Padding(
+                              padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
+                              child: _InstructorTile(
+                                instructor: instructor,
+                                onTap: () => _selectInstructor(instructor),
+                                searchQuery: _searchQuery,
+                                departmentColor: _getDepartmentColor(instructor.department),
+                              ),
+                            )),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                  // Alphabet quick scroll sidebar
+                  if (sortedLetters.length > 3)
+                    Container(
+                      width: 24 * scale,
+                      margin: EdgeInsets.only(left: spacing.sm * spacingScale),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: sortedLetters.map((letter) {
+                          return GestureDetector(
+                            onTap: () => _scrollToLetter(letter, sortedLetters, grouped),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(vertical: 2 * spacingScale),
+                              child: Text(
+                                letter,
+                                style: AppTokens.typography.captionScaled(scale * 0.9).copyWith(
+                                  fontWeight: AppTokens.fontWeight.semiBold,
+                                  color: colors.primary,
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
                       ),
-                      // Instructors in department
-                      ...deptInstructors.map((instructor) => Padding(
-                        padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
-                        child: _InstructorTile(
-                          instructor: instructor,
-                          onTap: () => _selectInstructor(instructor),
-                        ),
-                      )),
-                    ],
-                  );
-                },
+                    ),
+                ],
               );
             },
           ),
@@ -563,10 +675,22 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   if (instructor.department != null)
-                    Text(
-                      instructor.department!,
-                      style: AppTokens.typography.captionScaled(scale).copyWith(
-                        color: palette.muted,
+                    Container(
+                      margin: EdgeInsets.only(top: spacing.xs * spacingScale),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: spacing.sm * spacingScale,
+                        vertical: 2 * spacingScale,
+                      ),
+                      decoration: BoxDecoration(
+                        color: _getDepartmentColor(instructor.department).withValues(alpha: AppOpacity.medium),
+                        borderRadius: AppTokens.radius.pill,
+                      ),
+                      child: Text(
+                        instructor.department!,
+                        style: AppTokens.typography.captionScaled(scale * 0.9).copyWith(
+                          fontWeight: AppTokens.fontWeight.semiBold,
+                          color: _getDepartmentColor(instructor.department),
+                        ),
                       ),
                     ),
                 ],
@@ -863,10 +987,83 @@ class _InstructorTile extends StatelessWidget {
   const _InstructorTile({
     required this.instructor,
     required this.onTap,
+    this.searchQuery = '',
+    this.departmentColor,
   });
 
   final _InstructorInfo instructor;
   final VoidCallback onTap;
+  final String searchQuery;
+  final Color? departmentColor;
+
+  /// Build highlighted text with matching portion in primary color
+  Widget _buildHighlightedName(BuildContext context, String name, String query) {
+    final colors = Theme.of(context).colorScheme;
+    final scale = ResponsiveProvider.scale(context);
+    
+    if (query.isEmpty) {
+      return Text(
+        name,
+        style: AppTokens.typography.subtitleScaled(scale).copyWith(
+          fontWeight: AppTokens.fontWeight.semiBold,
+          color: colors.onSurface,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    final lowerName = name.toLowerCase();
+    final lowerQuery = query.toLowerCase();
+    final matchIndex = lowerName.indexOf(lowerQuery);
+
+    if (matchIndex < 0) {
+      return Text(
+        name,
+        style: AppTokens.typography.subtitleScaled(scale).copyWith(
+          fontWeight: AppTokens.fontWeight.semiBold,
+          color: colors.onSurface,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      );
+    }
+
+    final before = name.substring(0, matchIndex);
+    final match = name.substring(matchIndex, matchIndex + query.length);
+    final after = name.substring(matchIndex + query.length);
+
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: before,
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: colors.onSurface,
+            ),
+          ),
+          TextSpan(
+            text: match,
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
+              fontWeight: AppTokens.fontWeight.bold,
+              color: colors.primary,
+              backgroundColor: colors.primary.withValues(alpha: AppOpacity.faint),
+            ),
+          ),
+          TextSpan(
+            text: after,
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: colors.onSurface,
+            ),
+          ),
+        ],
+      ),
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -877,6 +1074,7 @@ class _InstructorTile extends StatelessWidget {
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
+    final deptColor = departmentColor ?? colors.primary;
 
     return Material(
       color: isDark ? colors.surfaceContainerHigh : colors.surfaceContainerLow,
@@ -891,7 +1089,7 @@ class _InstructorTile extends StatelessWidget {
               InstructorAvatar(
                 name: instructor.fullName,
                 avatarUrl: instructor.avatarUrl,
-                tint: colors.primary,
+                tint: deptColor,
                 size: AppTokens.componentSize.avatarMd * scale,
               ),
               SizedBox(width: spacing.md * spacingScale),
@@ -899,23 +1097,25 @@ class _InstructorTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      instructor.fullName,
-                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
-                        fontWeight: AppTokens.fontWeight.semiBold,
-                        color: colors.onSurface,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    _buildHighlightedName(context, instructor.fullName, searchQuery),
+                    SizedBox(height: spacing.xs * spacingScale),
                     if (instructor.department != null)
-                      Text(
-                        instructor.department!,
-                        style: AppTokens.typography.captionScaled(scale).copyWith(
-                          color: palette.muted,
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spacing.sm * spacingScale,
+                          vertical: 2 * spacingScale,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        decoration: BoxDecoration(
+                          color: deptColor.withValues(alpha: AppOpacity.medium),
+                          borderRadius: AppTokens.radius.pill,
+                        ),
+                        child: Text(
+                          instructor.department!,
+                          style: AppTokens.typography.captionScaled(scale * 0.9).copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: deptColor,
+                          ),
+                        ),
                       ),
                   ],
                 ),
@@ -954,25 +1154,24 @@ class _ScheduleTile extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
+    final textOpacity = isPast ? AppOpacity.dim : 1.0;
+
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
       decoration: BoxDecoration(
         color: isCurrent
-            ? colors.primary.withValues(alpha: AppOpacity.dim)
+            ? colors.primary.withValues(alpha: AppOpacity.medium)
             : isDark
                 ? colors.surfaceContainerHigh
                 : colors.surfaceContainerLow,
         borderRadius: AppTokens.radius.md,
         border: isCurrent
-            ? Border.all(
-                color: colors.primary.withValues(alpha: AppOpacity.subtle),
-                width: AppTokens.componentSize.dividerThick,
-              )
+            ? Border.all(color: colors.primary, width: 2)
             : null,
       ),
       child: Row(
         children: [
-          // Status indicator
+          // Time indicator dot
           Container(
             width: AppTokens.componentSize.badgeSm * scale,
             height: AppTokens.componentSize.badgeSm * scale,
@@ -980,48 +1179,43 @@ class _ScheduleTile extends StatelessWidget {
               color: isCurrent
                   ? colors.primary
                   : isPast
-                      ? palette.positive
-                      : palette.muted.withValues(alpha: AppOpacity.subtle),
+                      ? palette.muted.withValues(alpha: AppOpacity.dim)
+                      : colors.primary.withValues(alpha: AppOpacity.medium),
               shape: BoxShape.circle,
             ),
+            child: isCurrent
+                ? Icon(
+                    Icons.play_arrow_rounded,
+                    size: AppTokens.iconSize.xs * scale,
+                    color: colors.onPrimary,
+                  )
+                : null,
           ),
           SizedBox(width: spacing.md * spacingScale),
-          // Time - vertical layout (start above end)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                item.startTimeFormatted,
-                style: AppTokens.typography.captionScaled(scale).copyWith(
-                  fontWeight: AppTokens.fontWeight.medium,
-                  color: isPast && !isCurrent ? palette.muted : colors.onSurface,
-                ),
+          // Time
+          SizedBox(
+            width: 80 * scale,
+            child: Text(
+              item.startTimeFormatted,
+              style: AppTokens.typography.captionScaled(scale).copyWith(
+                fontWeight: AppTokens.fontWeight.semiBold,
+                color: isCurrent
+                    ? colors.primary
+                    : palette.muted.withValues(alpha: textOpacity),
               ),
-              SizedBox(height: spacing.micro * spacingScale),
-              Text(
-                item.endTimeFormatted,
-                style: AppTokens.typography.captionScaled(scale).copyWith(
-                  fontWeight: AppTokens.fontWeight.medium,
-                  color: isPast && !isCurrent ? palette.muted : colors.onSurface,
-                ),
-              ),
-            ],
+            ),
           ),
-          SizedBox(width: spacing.xl * spacingScale),
-          // Subject and room
+          SizedBox(width: spacing.sm * spacingScale),
+          // Subject info
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.subject,
-                  style: AppTokens.typography.bodyScaled(scale).copyWith(
-                    fontWeight: AppTokens.fontWeight.medium,
-                    color: isPast && !isCurrent ? palette.muted : null,
-                    decoration: isPast && !isCurrent
-                        ? TextDecoration.lineThrough
-                        : null,
+                  style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                    fontWeight: AppTokens.fontWeight.semiBold,
+                    color: colors.onSurface.withValues(alpha: textOpacity),
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -1031,15 +1225,26 @@ class _ScheduleTile extends StatelessWidget {
                     Icon(
                       Icons.location_on_outlined,
                       size: AppTokens.iconSize.xs * scale,
-                      color: palette.muted,
+                      color: isCurrent
+                          ? colors.primary
+                          : palette.muted.withValues(alpha: textOpacity),
                     ),
                     SizedBox(width: spacing.xs * spacingScale),
                     Text(
                       item.room,
                       style: AppTokens.typography.captionScaled(scale).copyWith(
-                        color: palette.muted,
+                        color: palette.muted.withValues(alpha: textOpacity),
                       ),
                     ),
+                    if (item.section.isNotEmpty) ...[
+                      SizedBox(width: spacing.md * spacingScale),
+                      Text(
+                        item.section,
+                        style: AppTokens.typography.captionScaled(scale).copyWith(
+                          color: palette.muted.withValues(alpha: textOpacity),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ],

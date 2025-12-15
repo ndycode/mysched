@@ -145,20 +145,35 @@ class AuthShell extends StatelessWidget {
       body: AppBackground(
         child: LayoutBuilder(
           builder: (context, constraints) {
+            // When keyboard is visible, viewInsets.bottom > 0
+            final keyboardVisible = MediaQuery.of(context).viewInsets.bottom > 0;
+            
             return SingleChildScrollView(
               physics: physics,
+              // When keyboard is open, keep scroll position at top to prevent crop
+              reverse: false,
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: spacing.xl,
-                      vertical: spacing.xxxl,
-                    ),
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: maxWidth),
-                      child: card,
-                    ),
+                // Only enforce minHeight when keyboard is not visible
+                constraints: BoxConstraints(
+                  minHeight: keyboardVisible ? 0 : constraints.maxHeight,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisAlignment: keyboardVisible
+                        ? MainAxisAlignment.start
+                        : MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: spacing.xl,
+                          vertical: spacing.xxxl,
+                        ),
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: maxWidth),
+                          child: card,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

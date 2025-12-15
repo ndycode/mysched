@@ -239,8 +239,7 @@ class UserSettingsService {
   Future<void> _pushToCloud(UserSettings settings) async {
     final userId = UserScope.currentUserId();
     if (userId == null) {
-      // ignore: avoid_print
-      print('[UserSettingsService] No user logged in, skipping cloud sync');
+      AppLog.debug('UserSettingsService', 'No user logged in, skipping cloud sync');
       return;
     }
 
@@ -249,22 +248,15 @@ class UserSettingsService {
       data['user_id'] = userId;
       data['updated_at'] = DateTime.now().toIso8601String();
 
-      // ignore: avoid_print
-      print('[UserSettingsService] Pushing to cloud for user: $userId');
+      AppLog.debug('UserSettingsService', 'Pushing to cloud', data: {'userId': userId});
       
       await Env.supa
           .from(_tableName)
           .upsert(data, onConflict: 'user_id');
       
-      // ignore: avoid_print
-      print('[UserSettingsService] Push successful!');
-      AppLog.debug('UserSettingsService', 'Pushed to cloud');
+      AppLog.debug('UserSettingsService', 'Push successful');
     } catch (e, stack) {
-      // ignore: avoid_print
-      print('[UserSettingsService] Cloud push ERROR: $e');
-      // ignore: avoid_print
-      print('[UserSettingsService] Stack: $stack');
-      AppLog.warn('UserSettingsService', 'Cloud push error', data: {'error': e.toString()});
+      AppLog.error('UserSettingsService', 'Cloud push failed', error: e, stack: stack);
     }
   }
 

@@ -18,7 +18,6 @@ import '../../services/theme_controller.dart';
 import '../../services/data_sync.dart';
 import '../../services/offline_queue.dart';
 import '../../services/connection_monitor.dart';
-import 'package:shorebird_code_push/shorebird_code_push.dart';
 
 import 'package:intl/intl.dart';
 
@@ -39,7 +38,6 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
 
   final List<int> _leadOptions = const [5, 10, 15, 20, 30, 45, 60];
   final List<int> _snoozeOptions = const [5, 10, 15, 20];
-  int? _currentPatchNumber;
 
   @override
   void initState() {
@@ -50,7 +48,6 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     ConnectionMonitor.instance.startMonitoring();
     OfflineQueue.instance.init();
     _loadDeviceRingtones();
-    _loadPatchInfo();
   }
 
   Future<void> _loadDeviceRingtones() async {
@@ -66,17 +63,6 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
     });
   }
 
-  Future<void> _loadPatchInfo() async {
-    try {
-      final updater = ShorebirdUpdater();
-      final patch = await updater.readCurrentPatch();
-      if (mounted) {
-        setState(() => _currentPatchNumber = patch?.number);
-      }
-    } catch (_) {
-      // Shorebird not available (debug build)
-    }
-  }
 
   @override
   void dispose() {
@@ -880,34 +866,6 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             leading: const Icon(Icons.play_circle_outline_rounded),
             onPressed: () =>
                 _controller.triggerAlarmTest(_openExactAlarmSettings),
-          ),
-          SizedBox(height: spacing.xl),
-          // Patch version info
-          Container(
-            padding: spacing.edgeInsetsAll(spacing.md),
-            decoration: BoxDecoration(
-              color: colors.surfaceContainerHighest,
-              borderRadius: AppTokens.radius.md,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.system_update_rounded,
-                  size: AppTokens.iconSize.sm,
-                  color: colors.primary,
-                ),
-                SizedBox(width: spacing.sm),
-                Text(
-                  _currentPatchNumber != null
-                      ? 'current ver 2.0.4+14 Patch ($_currentPatchNumber)'
-                      : 'current ver 2.0.4+14',
-                  style: AppTokens.typography.caption.copyWith(
-                    fontWeight: AppTokens.fontWeight.semiBold,
-                    color: colors.onSurface,
-                  ),
-                ),
-              ],
-            ),
           ),
         ],
       ),

@@ -1,296 +1,567 @@
-// lib/screens/auth/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../app/constants.dart';
 import '../../app/routes.dart';
 import '../../services/auth_service.dart';
-import '../../services/reminder_scope_store.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
-import '../../utils/validation_utils.dart';
-import '../account/verify_email_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// Key for storing remembered email in SharedPreferences
-const _kRememberEmailKey = 'auth.remember_email';
-const _kRememberMeKey = 'auth.remember_me';
+enum AuthMode { login, register }
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+/// Unified authentication screen that mirrors the provided blueprint using
+/// global design tokens for spacing, typography, and colors.
+class AuthScreen extends StatefulWidget {
+  const AuthScreen({
+    super.key,
+    this.initialMode = AuthMode.login,
+  });
+
+  final AuthMode initialMode;
 
   @override
-  State<LoginPage> createState() => _LoginPageState();
+  State<AuthScreen> createState() => _AuthScreenState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _AuthScreenState extends State<AuthScreen>
+    with SingleTickerProviderStateMixin {
+  late AuthMode _mode;
   final _formKey = GlobalKey<FormState>();
-  final _email = TextEditingController();
-  final _password = TextEditingController();
 
-  bool _saving = false;
-  bool _hidePassword = true;
-  bool _rememberMe = false;
-  String? _globalError;
-  String? _pendingVerificationEmail;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _nameController = TextEditingController();
+  final _studentIdController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
+  bool _isLoading = false;
+  bool _isGoogleLoading = false;
+  bool _isReturningUser = false;
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _loadSavedCredentials();
-  }
-
-  Future<void> _loadSavedCredentials() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final savedEmail = prefs.getString(_kRememberEmailKey);
-      final rememberMe = prefs.getBool(_kRememberMeKey) ?? false;
-      if (!mounted) return;
-      setState(() {
-        _rememberMe = rememberMe;
-        if (savedEmail != null && savedEmail.isNotEmpty) {
-          _email.text = savedEmail;
-        }
-      });
-    } catch (_) {
-      // Ignore errors loading preferences
-    }
-  }
-
-  Future<void> _saveRememberMe() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      if (_rememberMe) {
-        await prefs.setString(_kRememberEmailKey, _email.text.trim().toLowerCase());
-        await prefs.setBool(_kRememberMeKey, true);
-      } else {
-        await prefs.remove(_kRememberEmailKey);
-        await prefs.setBool(_kRememberMeKey, false);
-      }
-    } catch (_) {
-      // Ignore errors saving preferences
-    }
+    _mode = widget.initialMode;
+    _tabController = TabController(
+      length: 2,
+      vsync: this,
+      initialIndex: _mode == AuthMode.login ? 0 : 1,
+    );
+    _checkReturningUser();
   }
 
   @override
   void dispose() {
-    _email.dispose();
-    _password.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _nameController.dispose();
+    _studentIdController.dispose();
+    _confirmPasswordController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
-  String? _validateEmail(String? value) {
-    if (value == null || value.trim().isEmpty) {
-      return 'Enter your email';
-    }
-    if (!ValidationUtils.looksLikeEmail(value)) {
-      return 'Enter a valid email address';
-    }
-    return null;
-  }
-
-  String? _validatePassword(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'Enter your password';
-    }
-    if (value.length < AppConstants.minPasswordLengthLogin) {
-      return 'Password must be at least ${AppConstants.minPasswordLengthLogin} characters';
-    }
-    return null;
-  }
-
-  Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
+  void _switchMode(AuthMode mode, {bool fromTab = false}) {
+    FocusScope.of(context).unfocus();
     setState(() {
-      _saving = true;
-      _globalError = null;
+      _mode = mode;
+      _formKey.currentState?.reset();
     });
+    if (!fromTab) {
+      final targetIndex = mode == AuthMode.login ? 0 : 1;
+      if (_tabController.index != targetIndex) {
+        _tabController.index = targetIndex;
+      }
+    }
+  }
+
+  Future<void> _checkReturningUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    final hasLoggedInBefore = prefs.getBool('auth.has_logged_in_before') ?? false;
+    if (mounted) {
+      setState(() => _isReturningUser = hasLoggedInBefore);
+    }
+  }
+
+  Future<void> _markAsReturningUser() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('auth.has_logged_in_before', true);
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
 
     try {
-      await AuthService.instance.login(
-        email: _email.text.trim().toLowerCase(),
-        password: _password.text,
-      );
-      // Save remember me preference on successful login
-      await _saveRememberMe();
-      if (!mounted) return;
-      final scope = ReminderScopeStore.instance.value;
-      context.go(
-        AppRoutes.app,
-        extra: {'reminderScope': scope.name},
-      );
-    } catch (error) {
-      if (!mounted) return;
-      final message = error.toString().toLowerCase();
-      if (message.contains('invalid')) {
-        _globalError = 'Invalid email or password.';
-        _pendingVerificationEmail = null;
-      } else if (message.contains('confirm')) {
-        _globalError = 'Please confirm your email to continue.';
-        _pendingVerificationEmail = _email.text.trim().toLowerCase();
-      } else if (message.contains('timeout')) {
-        _globalError = 'Network timeout. Try again.';
-        _pendingVerificationEmail = null;
+      if (_mode == AuthMode.login) {
+        await AuthService.instance.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        await _markAsReturningUser();
+        if (mounted) context.go(AppRoutes.app);
       } else {
-        _globalError = 'Something went wrong. Try again.';
-        _pendingVerificationEmail = null;
+        await AuthService.instance.register(
+          fullName: _nameController.text.trim(),
+          studentId: _studentIdController.text.trim().toUpperCase(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+        if (mounted) {
+          context.push(AppRoutes.verify,
+              extra: {'email': _emailController.text.trim()});
+        }
       }
-      setState(() {});
+    } catch (e) {
+      if (mounted) {
+        String message =
+            _mode == AuthMode.login ? 'Login failed' : 'Registration failed';
+        final errorMsg = e.toString().toLowerCase();
+        if (_mode == AuthMode.login) {
+          if (errorMsg.contains('invalid_credentials') ||
+              errorMsg.contains('wrong password')) {
+            message = 'Invalid email or password';
+          }
+        } else {
+          if (errorMsg.contains('email_in_use') ||
+              errorMsg.contains('already registered')) {
+            message = 'This email is already registered';
+          } else if (errorMsg.contains('student_id_in_use')) {
+            message = 'This student ID is already in use';
+          }
+        }
+        showAppSnackBar(context, message);
+      }
     } finally {
-      if (mounted) setState(() => _saving = false);
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
-  Future<void> _openVerificationFlow() async {
-    if (_saving) return;
-    final email =
-        (_pendingVerificationEmail ?? _email.text).trim().toLowerCase();
-    if (email.isEmpty) return;
-    await context.push(
-      AppRoutes.verify,
-      extra: VerifyEmailScreenArgs(
-        email: email,
-        fromLogin: true,
-      ),
-    );
+  void _handleGoogleSignIn() async {
+    if (_isGoogleLoading) return;
+    
+    setState(() => _isGoogleLoading = true);
+    
+    try {
+      await AuthService.instance.signInWithGoogle();
+      if (mounted) {
+        // Check if profile is complete (has student_id)
+        final isComplete = await AuthService.instance.isProfileComplete();
+        if (mounted) {
+          if (isComplete) {
+            context.go(AppRoutes.app);
+          } else {
+            // Go to app with flag to show profile completion modal
+            context.go(AppRoutes.app, extra: {'showProfilePrompt': true});
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        final msg = e.toString().toLowerCase();
+        String message = 'Google Sign In failed';
+        
+        if (msg.contains('cancelled') || msg.contains('canceled')) {
+          // User cancelled - don't show error
+          setState(() => _isGoogleLoading = false);
+          return;
+        } else if (msg.contains('network')) {
+          message = 'Network error. Please check your connection.';
+        } else if (msg.contains('email_exists')) {
+          message = 'An account with this email already exists.';
+        }
+        
+        showAppSnackBar(context, message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isGoogleLoading = false);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
-    final colors = theme.colorScheme;
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+    final canPop = Navigator.canPop(context);
+    final heroTitle =
+        _mode == AuthMode.login 
+            ? (_isReturningUser ? 'Welcome back!' : 'Welcome!')
+            : 'Create your account';
+    final heroSubtitle = _mode == AuthMode.login
+        ? "Let's stop pretending you'll remember."
+        : 'You vs. time — round two.';
 
-    final form = AutofillGroup(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_globalError != null) ...[
-              ErrorBanner(message: _globalError!),
-              SizedBox(height: spacing.xl),
-            ],
-            TextFormField(
-              controller: _email,
-              autofillHints: const [AutofillHints.email],
-              keyboardType: TextInputType.emailAddress,
-              textInputAction: TextInputAction.next,
-              decoration: const InputDecoration(
-                labelText: 'Email',
-                hintText: 'name@example.com',
-              ),
-              validator: _validateEmail,
-            ),
-            SizedBox(height: spacing.xl),
-            TextFormField(
-              controller: _password,
-              autofillHints: const [AutofillHints.password],
-              obscureText: _hidePassword,
-              textInputAction: TextInputAction.done,
-              onFieldSubmitted: (_) => _submit(),
-              decoration: InputDecoration(
-                labelText: 'Password',
-                suffixIcon: IconButton(
-                  onPressed: _saving
-                      ? null
-                      : () => setState(() => _hidePassword = !_hidePassword),
-                  icon: Icon(
-                    _hidePassword ? Icons.visibility_off : Icons.visibility,
+    return ScreenShell(
+      screenName: 'auth_${_mode.name}',
+      hero: ScreenBrandHeader(
+        showChevron: false,
+        height: AppTokens.componentSize.listItemLg,
+        textStyle: AppTokens.typography.title.copyWith(
+          fontWeight: AppTokens.fontWeight.bold,
+          letterSpacing: AppLetterSpacing.snug,
+          color: colors.primary,
+        ),
+        leading: canPop
+            ? IconButton(
+                onPressed: () => Navigator.of(context).maybePop(),
+                padding: EdgeInsets.zero,
+                splashRadius: AppInteraction.splashRadius,
+                icon: Icon(
+                  Icons.arrow_back_rounded,
+                  color: colors.primary,
+                  size: AppTokens.iconSize.lg,
+                ),
+              )
+            : null,
+      ),
+      sections: [
+        ScreenSection(
+          decorated: false,
+          child: Padding(
+            padding: spacing.edgeInsetsAll(spacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  heroTitle,
+                  style: AppTokens.typography.headline.copyWith(
+                    fontWeight: AppTokens.fontWeight.extraBold,
+                    letterSpacing: AppLetterSpacing.tight,
+                    color: colors.onSurface,
                   ),
                 ),
-              ),
-              validator: _validatePassword,
-            ),
-            SizedBox(height: spacing.lg),
-            // Remember me - styled tappable row
-            GestureDetector(
-              onTap: _saving
-                  ? null
-                  : () => setState(() => _rememberMe = !_rememberMe),
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                children: [
-                  // Custom styled checkbox
-                  AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeInOut,
-                    width: 22,
-                    height: 22,
-                    decoration: BoxDecoration(
-                      color: _rememberMe
-                          ? colors.primary
-                          : Colors.transparent,
-                      borderRadius: AppTokens.radius.xs,
-                      border: Border.all(
-                        color: _rememberMe
-                            ? colors.primary
-                            : palette.muted.withValues(alpha: AppOpacity.medium),
-                        width: 2,
-                      ),
-                    ),
-                    child: _rememberMe
-                        ? Icon(
-                            Icons.check_rounded,
-                            size: 16,
-                            color: colors.onPrimary,
-                          )
-                        : null,
+                SizedBox(height: spacing.sm),
+                Text(
+                  heroSubtitle,
+                  style: AppTokens.typography.bodySecondary.copyWith(
+                    color: palette.muted,
+                    height: AppLineHeight.relaxed,
                   ),
-                  SizedBox(width: spacing.md),
-                  Text(
-                    'Remember me',
-                    style: AppTokens.typography.body.copyWith(
-                      color: _rememberMe ? colors.onSurface : palette.muted,
-                      fontWeight: _rememberMe
-                          ? AppTokens.fontWeight.medium
-                          : AppTokens.fontWeight.regular,
+                ),
+                SizedBox(height: spacing.lg),
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.micro),
+                  decoration: BoxDecoration(
+                    color: palette.surfaceVariant,
+                    borderRadius: AppTokens.radius.sm,
+                  ),
+                  child: TabBar(
+                    controller: _tabController,
+                    onTap: (index) => _switchMode(
+                      index == 0 ? AuthMode.login : AuthMode.register,
+                      fromTab: true,
+                    ),
+                    indicator: BoxDecoration(
+                      color: palette.surface,
+                      borderRadius: AppTokens.radius.sm,
+                    ),
+                    indicatorSize: TabBarIndicatorSize.tab,
+                    labelColor: palette.onSurface,
+                    unselectedLabelColor: palette.muted,
+                    labelStyle: AppTokens.typography.bodySecondary.copyWith(
+                      fontWeight: AppTokens.fontWeight.semiBold,
+                    ),
+                    unselectedLabelStyle:
+                        AppTokens.typography.bodySecondary.copyWith(
+                      fontWeight: AppTokens.fontWeight.medium,
+                    ),
+                    labelPadding: EdgeInsets.zero,
+                    dividerHeight: 0,
+                    tabs: [
+                      Tab(
+                        height: AppTokens.componentSize.buttonSm,
+                        text: 'Log In',
+                      ),
+                      Tab(
+                        height: AppTokens.componentSize.buttonSm,
+                        text: 'Sign Up',
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: spacing.xl),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      if (_mode == AuthMode.register) ...[
+                        _buildTextField(
+                          controller: _nameController,
+                          labelText: 'Full Name',
+                          hint: 'Neil Daquioag',
+                          textInputAction: TextInputAction.next,
+                          validator: (v) => v!.isEmpty ? 'Full name is required' : null,
+                        ),
+                        SizedBox(height: spacing.lg),
+                        _buildTextField(
+                          controller: _studentIdController,
+                          labelText: 'Student ID',
+                          hint: '2022-6767-IC',
+                          textCapitalization: TextCapitalization.characters,
+                          textInputAction: TextInputAction.next,
+                          validator: (v) => v!.isEmpty ? 'Student ID is required' : null,
+                        ),
+                        SizedBox(height: spacing.lg),
+                      ],
+                      _buildTextField(
+                        controller: _emailController,
+                        labelText: 'Email',
+                        hint: 'severity@gmail.com',
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        validator: (v) =>
+                            v!.contains('@') ? null : 'Please enter a valid email address',
+                      ),
+                      SizedBox(height: spacing.lg),
+                      _buildTextField(
+                        controller: _passwordController,
+                        labelText: 'Password',
+                        hint: 'Min 6 characters',
+                        obscureText: _obscurePassword,
+                        onToggleVisibility: () => setState(
+                            () => _obscurePassword = !_obscurePassword),
+                        textInputAction: _mode == AuthMode.login
+                            ? TextInputAction.done
+                            : TextInputAction.next,
+                        validator: (v) =>
+                            v != null && v.length >= 6 ? null : 'Password must be at least 6 characters',
+                      ),
+                      if (_mode == AuthMode.register) ...[
+                        SizedBox(height: spacing.lg),
+                        _buildTextField(
+                          controller: _confirmPasswordController,
+                          labelText: 'Confirm Password',
+                          hint: 'Re-enter your password',
+                          obscureText: _obscureConfirmPassword,
+                          onToggleVisibility: () => setState(() =>
+                              _obscureConfirmPassword =
+                                  !_obscureConfirmPassword),
+                          textInputAction: TextInputAction.done,
+                          validator: (v) =>
+                              v != _passwordController.text ? 'Passwords do not match' : null,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                if (_mode == AuthMode.login) ...[
+                  SizedBox(height: spacing.md),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TertiaryButton(
+                      label: 'Forgot password?',
+                      onPressed: () {
+                        context.push(
+                          AppRoutes.forgotPassword,
+                          extra: {'email': _emailController.text},
+                        );
+                      },
+                      expanded: false,
+                      minHeight: AppTokens.componentSize.buttonSm,
                     ),
                   ),
                 ],
+                SizedBox(height: spacing.xxl * spacingScale),
+                PrimaryButton(
+                  label: _mode == AuthMode.login ? 'Log In' : 'Sign Up',
+                  onPressed: _isLoading ? null : _handleSubmit,
+                  loading: _isLoading,
+                  minHeight: AppTokens.componentSize.buttonLg,
+                  expanded: true,
+                ),
+                SizedBox(height: spacing.md * spacingScale),
+                _OrDivider(
+                  palette: palette,
+                  scale: scale,
+                  spacing: spacing,
+                ),
+                SizedBox(height: spacing.md * spacingScale),
+                SecondaryButton(
+                  label: AppConstants.continueWithGoogleLabel,
+                  leading: _isGoogleLoading
+                      ? SizedBox(
+                          width: AppTokens.iconSize.md * scale,
+                          height: AppTokens.iconSize.md * scale,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.primary,
+                          ),
+                        )
+                      : FaIcon(
+                          FontAwesomeIcons.google,
+                          size: AppTokens.iconSize.md * scale,
+                        ),
+                  onPressed: (_isLoading || _isGoogleLoading) ? null : _handleGoogleSignIn,
+                  minHeight: AppTokens.componentSize.buttonLg,
+                  expanded: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+      padding: spacing.edgeInsetsOnly(
+        left: spacing.xl,
+        right: spacing.xl,
+        top: MediaQuery.of(context).padding.top + spacing.xxxl,
+        bottom: spacing.quad,
+      ),
+      safeArea: false,
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String hint,
+    String? labelText,
+    bool obscureText = false,
+    VoidCallback? onToggleVisibility,
+    TextInputType? keyboardType,
+    TextCapitalization textCapitalization = TextCapitalization.none,
+    String? Function(String?)? validator,
+    TextInputAction? textInputAction,
+  }) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final colors = Theme.of(context).colorScheme;
+    final spacing = AppTokens.spacing;
+    final typography = AppTokens.typography;
+
+    return TextFormField(
+      controller: controller,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textCapitalization: textCapitalization,
+      textInputAction: textInputAction,
+      style: typography.body.copyWith(color: palette.onSurface),
+      decoration: InputDecoration(
+        labelText: labelText,
+        labelStyle: typography.body.copyWith(
+          color: palette.muted,
+        ),
+        floatingLabelStyle: typography.caption.copyWith(
+          color: colors.primary,
+          fontWeight: AppTokens.fontWeight.medium,
+        ),
+        hintText: hint,
+        hintStyle: typography.body.copyWith(
+          color: palette.mutedSecondary,
+        ),
+        filled: true,
+        fillColor: palette.surface,
+        contentPadding: spacing.edgeInsetsSymmetric(
+          horizontal: spacing.xl,
+          vertical: spacing.md,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppTokens.radius.popup,
+          borderSide: BorderSide(
+            color: colors.outline,
+            width: AppTokens.componentSize.divider,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppTokens.radius.popup,
+          borderSide: BorderSide(
+            color: colors.primary,
+            width: AppTokens.componentSize.dividerBold,
+          ),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppTokens.radius.popup,
+          borderSide: BorderSide(
+            color: palette.danger,
+            width: AppTokens.componentSize.divider,
+          ),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: AppTokens.radius.popup,
+          borderSide: BorderSide(
+            color: palette.danger,
+            width: AppTokens.componentSize.dividerBold,
+          ),
+        ),
+        suffixIcon: onToggleVisibility != null
+            ? IconButton(
+                onPressed: onToggleVisibility,
+                icon: Icon(
+                  obscureText
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined,
+                  size: AppTokens.iconSize.lg,
+                  color: palette.mutedSecondary,
+                ),
+              )
+            : null,
+      ),
+      validator: validator,
+    );
+  }
+}
+
+class _OrDivider extends StatelessWidget {
+  const _OrDivider({
+    required this.palette,
+    required this.scale,
+    required this.spacing,
+  });
+
+  final ColorPalette palette;
+  final double scale;
+  final AppSpacing spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  Colors.transparent,
+                  palette.outline.withValues(alpha: AppOpacity.medium),
+                ],
               ),
             ),
-            SizedBox(height: spacing.xxl),
-            PrimaryButton(
-              label: 'Sign in',
-              loading: _saving,
-              loadingLabel: 'Signing in...',
-              onPressed: _submit,
-              minHeight: AppTokens.componentSize.buttonLg,
-            ),
-          ],
-        ),
-      ),
-    );
-
-    final bottomActions = Column(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        TertiaryButton(
-          label: 'Don\'t have an account? Create one',
-          onPressed: _saving ? null : () => context.push(AppRoutes.register),
-          expanded: false,
-        ),
-        if (_pendingVerificationEmail != null) ...[
-          SizedBox(height: spacing.md),
-          SecondaryButton(
-            label: 'Enter verification code',
-            onPressed: _saving ? null : _openVerificationFlow,
-            minHeight: AppTokens.componentSize.buttonLg,
           ),
-        ],
+        ),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: spacing.md),
+          child: Text(
+            AppConstants.orDividerText,
+            style: AppTokens.typography.captionScaled(scale).copyWith(
+                  color: palette.muted,
+                ),
+          ),
+        ),
+        Expanded(
+          child: Container(
+            height: 1,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  palette.outline.withValues(alpha: AppOpacity.medium),
+                  Colors.transparent,
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
-    );
-
-    return AuthShell(
-      screenName: 'login',
-      title: 'Welcome back',
-      subtitle: 'Sign in to keep your reminders and schedules in sync.',
-      bottom: bottomActions,
-      child: form,
     );
   }
 }

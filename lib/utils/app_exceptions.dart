@@ -59,3 +59,34 @@ class ConflictException implements Exception {
   @override
   String toString() => 'ConflictException: $message';
 }
+
+/// Thrown when authentication credentials are invalid.
+class InvalidCredentialsException implements Exception {
+  const InvalidCredentialsException([this.message = 'Invalid email or password']);
+
+  final String message;
+
+  @override
+  String toString() => 'InvalidCredentialsException: $message';
+}
+
+/// Thrown when email verification is required before login.
+class EmailNotVerifiedException implements Exception {
+  const EmailNotVerifiedException(this.email, [this.message = 'Email not verified']);
+
+  final String email;
+  final String message;
+
+  @override
+  String toString() => 'EmailNotVerifiedException: $message';
+}
+
+/// Thrown when a network timeout occurs.
+class TimeoutException implements Exception {
+  const TimeoutException([this.message = 'Request timed out']);
+
+  final String message;
+
+  @override
+  String toString() => 'TimeoutException: $message';
+}

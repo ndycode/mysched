@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 
+import 'study_session_repository.dart';
+
 /// Timer states for the Pomodoro timer.
 enum TimerState {
   /// Timer is idle/stopped.
@@ -266,7 +268,8 @@ class StudyTimerService extends ChangeNotifier {
     final actualMinutes = endTime.difference(_sessionStartTime!).inMinutes;
 
     // Only record if we actually studied for at least 1 minute
-    if (!skipped && actualMinutes >= 1) {
+    final shouldRecord = actualMinutes >= 1;
+    if (shouldRecord) {
       _history.add(StudySession(
         startTime: _sessionStartTime!,
         endTime: endTime,
@@ -276,9 +279,25 @@ class StudyTimerService extends ChangeNotifier {
         classTitle: _linkedClassTitle,
       ));
 
-      if (_sessionType == SessionType.work) {
+      if (_sessionType == SessionType.work && !skipped) {
         _completedSessions++;
       }
+
+      // Persist to Supabase (fire-and-forget)
+      final typeString = switch (_sessionType) {
+        SessionType.work => 'work',
+        SessionType.shortBreak => 'short_break',
+        SessionType.longBreak => 'long_break',
+      };
+      StudySessionRepository.instance.saveSession(
+        sessionType: typeString,
+        durationMinutes: actualMinutes,
+        startedAt: _sessionStartTime!,
+        completedAt: endTime,
+        classId: _linkedClassId,
+        classTitle: _linkedClassTitle,
+        skipped: skipped,
+      );
     }
 
     _sessionStartTime = null;

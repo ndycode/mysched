@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../models/reminder_scope.dart';
+import '../services/auth_service.dart';
+import '../ui/sheets/student_id_prompt_sheet.dart';
 import '../ui/theme/motion.dart';
 import '../screens/schedules/add_class_screen.dart';
 import '../screens/reminders/add_reminder_screen.dart';
@@ -78,7 +80,11 @@ class _RootNavState extends State<RootNav>
     super.dispose();
   }
 
-  Future<void> _handleInitialArgs() async {
+Future<void> _handleInitialArgs() async {
+    // Check if profile is complete (has student_id)
+    // Show prompt for Google sign-in users who haven't set their student ID
+    await _checkProfileCompletion();
+
     final tab = widget.initialTab;
     if (tab != null) {
       final clamped = tab.clamp(0, 3);
@@ -95,6 +101,26 @@ class _RootNavState extends State<RootNav>
     }
   }
 
+  Future<void> _checkProfileCompletion() async {
+    try {
+      final isComplete = await AuthService.instance.isProfileComplete();
+      if (!isComplete && mounted) {
+        // Get current name from profile to pre-fill
+        final profile = await AuthService.instance.me();
+        final currentName = profile?['full_name'] as String?;
+
+        if (mounted) {
+          await StudentIdPromptSheet.show(
+            context,
+            currentName: currentName,
+          );
+        }
+      }
+    } catch (_) {
+      // Silently fail - user can complete profile later
+    }
+  }
+
   @override
   int get currentIndex => _idx;
 
@@ -105,6 +131,8 @@ class _RootNavState extends State<RootNav>
   bool get quickActionOpen => _quickActionOpen;
 
   Future<void> _switchTab(int index, {bool forceRefresh = false}) async {
+    // Auto-close quick actions when switching tabs
+    _closeQuickActions();
     if (_idx != index) {
       setState(() => _idx = index);
       await _refreshTab(index);
@@ -266,7 +294,15 @@ class _RootNavState extends State<RootNav>
     final colors = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
     final spacing = AppTokens.spacing;
-    return Padding(
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onVerticalDragUpdate: (details) {
+        // Close on swipe down (positive delta = downward)
+        if (details.primaryDelta != null && details.primaryDelta! > 15) {
+          _closeQuickActions();
+        }
+      },
+      child: Padding(
       padding: EdgeInsets.symmetric(horizontal: AppLayout.pagePaddingHorizontal),
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: AppLayout.sheetMaxWidth),
@@ -329,13 +365,6 @@ class _RootNavState extends State<RootNav>
               ),
             SizedBox(height: spacing.md),
               QuickActionTile(
-                icon: Icons.access_time_filled_rounded,
-                label: 'Start study timer',
-                description: 'Focus on your classes.',
-                onTap: _openStudyTimer,
-              ),
-            SizedBox(height: spacing.md),
-              QuickActionTile(
                 icon: Icons.camera_alt_outlined,
                 label: 'Scan schedule',
                 description: 'Import from your student card.',
@@ -344,6 +373,7 @@ class _RootNavState extends State<RootNav>
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -398,6 +428,12 @@ class _RootNavState extends State<RootNav>
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: _closeQuickActions,
+                        onVerticalDragUpdate: (details) {
+                          // Swipe down to close
+                          if (details.primaryDelta != null && details.primaryDelta! > 10) {
+                            _closeQuickActions();
+                          }
+                        },
                         child: Container(
                           color: scrimColor,
                         ),

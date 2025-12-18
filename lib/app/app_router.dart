@@ -7,10 +7,13 @@ import '../screens/account/change_email_screen.dart';
 import '../screens/account/change_password_screen.dart';
 import '../screens/account/delete_account_screen.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
+
+import '../screens/auth/welcome_screen.dart';
+import '../screens/auth/forgot_password_screen.dart';
 import '../screens/account/verify_email_screen.dart';
 import '../screens/reminders_page.dart';
 import '../screens/style_guide_page.dart';
+import '../ui/theme/tokens.dart';
 import '../utils/nav.dart';
 import '../utils/telemetry_navigator_observer.dart';
 import 'bootstrap_gate.dart';
@@ -32,10 +35,20 @@ final GoRouter appRouter = GoRouter(
       ),
     ),
     GoRoute(
+      path: AppRoutes.welcome,
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: const WelcomeScreen(),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+      ),
+    ),
+    GoRoute(
       path: AppRoutes.login,
       pageBuilder: (context, state) => CustomTransitionPage(
-        child: const LoginPage(),
-        transitionDuration: const Duration(milliseconds: 500),
+        child: const AuthScreen(initialMode: AuthMode.login),
+        transitionDuration: const Duration(milliseconds: 300),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(opacity: animation, child: child);
         },
@@ -43,26 +56,65 @@ final GoRouter appRouter = GoRouter(
     ),
     GoRoute(
       path: AppRoutes.register,
-      pageBuilder: (context, state) => const NoTransitionPage(
-        child: RegisterPage(),
+      pageBuilder: (context, state) => CustomTransitionPage(
+        child: const AuthScreen(initialMode: AuthMode.register),
+        transitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
       ),
     ),
     GoRoute(
+      path: AppRoutes.forgotPassword,
+      pageBuilder: (context, state) {
+        final extra = state.extra;
+        String? email;
+        if (extra is ForgotPasswordScreenArgs) {
+          email = extra.email;
+        } else {
+          email = state.uri.queryParameters['email'];
+        }
+        return CustomTransitionPage(
+          opaque: false,
+          barrierColor: AppBarrier.medium,
+          child: ForgotPasswordScreen(initialEmail: email),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;
+          },
+        );
+      },
+    ),
+    GoRoute(
       path: AppRoutes.verify,
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final extra = state.extra;
         if (extra is VerifyEmailScreenArgs) {
-          return VerifyEmailScreen(
-            email: extra.email,
-            intent: extra.intent,
-            fromLogin: extra.fromLogin,
-            onVerified: extra.onVerified,
+          return CustomTransitionPage(
+            opaque: false,
+            barrierColor: AppBarrier.medium,
+            child: VerifyEmailScreen(
+              email: extra.email,
+              intent: extra.intent,
+              fromLogin: extra.fromLogin,
+              onVerified: extra.onVerified,
+            ),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return child;
+            },
           );
         }
         final email = state.uri.queryParameters['email'] ?? '';
-        return VerifyEmailScreen(email: email);
+        return CustomTransitionPage(
+          opaque: false,
+          barrierColor: AppBarrier.medium,
+          child: VerifyEmailScreen(email: email),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;
+          },
+        );
       },
     ),
+
     GoRoute(
       path: AppRoutes.app,
       pageBuilder: (context, state) {

@@ -12,9 +12,9 @@ void main() {
       TelemetryService.reset();
     });
 
-    test('instance is constant', () {
-      const service1 = AnalyticsService.instance;
-      const service2 = AnalyticsService.instance;
+    test('instance is singleton', () {
+      final service1 = AnalyticsService.instance;
+      final service2 = AnalyticsService.instance;
       expect(identical(service1, service2), true);
     });
 

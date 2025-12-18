@@ -76,13 +76,13 @@ class _AppScaffoldState extends State<AppScaffold> {
           : Stack(
               children: [
                 scaffoldBody,
-                // Global offline indicator
+                // Global offline indicator - positioned at bottom
                 Positioned(
-                  top: 0,
+                  bottom: 0,
                   left: 0,
                   right: 0,
                   child: SafeArea(
-                    bottom: false,
+                    top: false,
                     child: GlobalOfflineBanner(),
                   ),
                 ),

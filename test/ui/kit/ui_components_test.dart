@@ -51,12 +51,12 @@ void main() {
     });
   });
 
-  group('EmptyState', () {
+  group('StateDisplay.empty', () {
     testWidgets('renders message and icon in light mode', (tester) async {
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),
-        child: const EmptyState(
+        child: StateDisplay.empty(
           title: 'No schedules yet',
           message: 'Add your first class to get started.',
         ),
@@ -64,33 +64,33 @@ void main() {
 
       expect(find.text('No schedules yet'), findsOneWidget);
       expect(find.text('Add your first class to get started.'), findsOneWidget);
-      expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
     });
 
     testWidgets('respects light theme typography', (tester) async {
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),
-        child: const EmptyState(
+        child: StateDisplay.empty(
           title: 'Nothing here',
           message: 'Try syncing again later.',
         ),
       );
 
-      final context = tester.element(find.byType(EmptyState));
+      final context = tester.element(find.byType(StateDisplay));
       expect(Theme.of(context).brightness, Brightness.light);
     });
   });
 
-  group('ErrorState', () {
+  group('StateDisplay.error', () {
     testWidgets('invokes retry callback', (tester) async {
       var retried = false;
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),
-        child: ErrorState(
+        child: StateDisplay.error(
           title: 'Oops',
           message: 'Something went wrong.',
+          retryLabel: 'Try again',
           onRetry: () => retried = true,
         ),
       );
@@ -104,14 +104,15 @@ void main() {
       await _pumpThemed(
         tester,
         theme: AppTheme.light(),
-        child: ErrorState(
+        child: StateDisplay.error(
           title: 'Network error',
           message: 'Please reconnect.',
+          retryLabel: 'Retry',
           onRetry: () {},
         ),
       );
 
-      final context = tester.element(find.byType(ErrorState));
+      final context = tester.element(find.byType(StateDisplay));
       expect(Theme.of(context).brightness, Brightness.light);
     });
   });

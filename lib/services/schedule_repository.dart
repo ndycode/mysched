@@ -1242,7 +1242,14 @@ instructors (id, full_name, email, avatar_url, title, department)
     await _s.from('user_sections').delete().eq('user_id', uid);
     await _s.from('user_custom_classes').delete().eq('user_id', uid);
     await _s.from('user_class_overrides').delete().eq('user_id', uid);
-    _invalidateCurrentUserCache();
+    
+    // Clear in-memory cache so next fetch returns empty
+    invalidateCache(userId: uid);
+    
+    // Also clear section cache to force fresh lookup
+    _cachedSectionId = null;
+    _cachedSectionUserId = null;
+    _sectionCacheFetchedAt = null;
   }
 
   @visibleForTesting

@@ -26,3 +26,26 @@ Write commits in the imperative mood with concise subjects (e.g., `Add schedule 
 
 ## Security & Configuration Tips
 Never commit real Supabase keys or secrets; keep `lib/env.dart` populated via local `.env` files or CI secrets. When sharing build artifacts, strip personal data captured during OCR testing. Recheck Android and iOS permission prompts after changes to camera, notifications, or storage flows to stay compliant with privacy policies.
+
+## Documentation Reference
+
+Before making changes, review relevant documentation in `docs/reference/`:
+
+| Document | When to Reference |
+|----------|-------------------|
+| [ARCHITECTURE.md](docs/reference/ARCHITECTURE.md) | Understanding system structure, services, data flow |
+| [API.md](docs/reference/API.md) | Database schema, RLS policies, query patterns |
+| [DESIGN_SYSTEM.md](docs/reference/DESIGN_SYSTEM.md) | UI tokens, components, motion, accessibility |
+| [ERROR_HANDLING.md](docs/reference/ERROR_HANDLING.md) | Error patterns, user messaging, telemetry |
+| [PERFORMANCE.md](docs/reference/PERFORMANCE.md) | Optimization guidelines, profiling |
+| [SECURITY.md](docs/reference/SECURITY.md) | Auth, authorization, data protection |
+
+**Quick context checklist:**
+- Adding a screen? → Check DESIGN_SYSTEM.md for tokens and ARCHITECTURE.md for routing
+- Working with data? → Check API.md for schema and ARCHITECTURE.md for repositories
+- Handling errors? → Check ERROR_HANDLING.md for patterns
+- Building/deploying? → Check [DEPLOYMENT.md](docs/reference/DEPLOYMENT.md)
+- New to the project? → Start with [ONBOARDING.md](docs/reference/ONBOARDING.md)
+
+Screen-level specifications are in `docs/audit/` organized by feature area.
+

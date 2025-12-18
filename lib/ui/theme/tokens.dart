@@ -103,6 +103,14 @@ class AppTokens {
     avatarGradientEnd: Color(0xFF6FB7FF),
   );
 
+  /// Ultra-dark "void" theme variant with near-black surfaces.
+  ///
+  /// This theme provides an AMOLED-friendly experience with true black (#000000)
+  /// backgrounds for maximum battery savings on OLED displays. Surface colors
+  /// are slightly elevated (#050505, #141414) to maintain visual hierarchy
+  /// while keeping the overall appearance extremely dark.
+  ///
+  /// Use this theme via [ThemeController] when user selects "Void" mode in settings.
   static const ColorPalette voidColors = ColorPalette(
     primary: Color(0xFF0066FF),
     onPrimary: Colors.white,
@@ -206,31 +214,46 @@ class ColorPalette {
     Color? onPrimary,
     Color? primaryContainer,
     Color? onPrimaryContainer,
-    Color? brand,
+    Color? surface,
+    Color? onSurface,
+    Color? surfaceVariant,
+    Color? onSurfaceVariant,
+    Color? background,
+    Color? onBackground,
+    Color? outline,
     Color? overlay,
+    Color? positive,
+    Color? warning,
+    Color? danger,
+    Color? info,
+    Color? brand,
+    Color? muted,
+    Color? mutedSecondary,
+    Color? avatarGradientStart,
+    Color? avatarGradientEnd,
   }) {
     return ColorPalette(
       primary: primary ?? this.primary,
       onPrimary: onPrimary ?? this.onPrimary,
       primaryContainer: primaryContainer ?? this.primaryContainer,
       onPrimaryContainer: onPrimaryContainer ?? this.onPrimaryContainer,
-      surface: surface,
-      onSurface: onSurface,
-      surfaceVariant: surfaceVariant,
-      onSurfaceVariant: onSurfaceVariant,
-      background: background,
-      onBackground: onBackground,
-      outline: outline,
+      surface: surface ?? this.surface,
+      onSurface: onSurface ?? this.onSurface,
+      surfaceVariant: surfaceVariant ?? this.surfaceVariant,
+      onSurfaceVariant: onSurfaceVariant ?? this.onSurfaceVariant,
+      background: background ?? this.background,
+      onBackground: onBackground ?? this.onBackground,
+      outline: outline ?? this.outline,
       overlay: overlay ?? this.overlay,
-      positive: positive,
-      warning: warning,
-      danger: danger,
-      info: info,
+      positive: positive ?? this.positive,
+      warning: warning ?? this.warning,
+      danger: danger ?? this.danger,
+      info: info ?? this.info,
       brand: brand ?? this.brand,
-      muted: muted,
-      mutedSecondary: mutedSecondary,
-      avatarGradientStart: avatarGradientStart,
-      avatarGradientEnd: avatarGradientEnd,
+      muted: muted ?? this.muted,
+      mutedSecondary: mutedSecondary ?? this.mutedSecondary,
+      avatarGradientStart: avatarGradientStart ?? this.avatarGradientStart,
+      avatarGradientEnd: avatarGradientEnd ?? this.avatarGradientEnd,
     );
   }
 }

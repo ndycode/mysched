@@ -59,14 +59,14 @@ class QuickActionTile extends StatelessWidget {
               height: AppTokens.componentSize.avatarLg * scale,
               decoration: BoxDecoration(
                 borderRadius: AppTokens.radius.md,
-                // Use withOpacity for better compatibility
-                color: accent.withOpacity(AppOpacity.statusBg),
+                // Use withValues for better precision
+                color: accent.withValues(alpha: AppOpacity.statusBg),
               ),
               alignment: Alignment.center,
               child: Icon(
                 icon,
                 // Ensure icon is fully opaque
-                color: accent.withOpacity(1.0),
+                color: accent.withValues(alpha: 1.0),
                 size: AppTokens.iconSize.md * scale,
               ),
             ),

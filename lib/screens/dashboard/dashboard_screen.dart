@@ -27,7 +27,6 @@ import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';
 import '../../utils/time_format.dart';
-import '../../widgets/instructor_avatar.dart';
 
 import '../schedules/add_class_screen.dart';
 import '../reminders/add_reminder_screen.dart';
@@ -975,8 +974,65 @@ class DashboardScreenState extends State<DashboardScreen>
       ),
     );
 
-    // Quick Actions row
-    addSpacing(AppTokens.spacing.lg);
+    if (_scheduleError != null) {
+      addSection(
+        (_) => MessageCard(
+          key: const ValueKey('dashboard-schedule-error'),
+          icon: Icons.error_outline,
+          title: 'Schedules not refreshed',
+          message: _scheduleError!,
+          primaryLabel: 'Retry',
+          onPrimary: _loadScheduleFromSupabase,
+          secondaryLabel: 'Open schedules',
+          onSecondary: _openSchedules,
+          tintColor: Theme.of(context).colorScheme.primary,
+        ),
+      );
+    }
+
+    addSection(
+      (_) => _DashboardSchedulePeek(
+        occurrences: scheduleOccurrences,
+        now: now,
+        scopeLabel: selectedScope,
+        onScopeChanged: onScopeChanged,
+        colors: colors,
+        theme: Theme.of(context),
+        selectedScope: selectedScope,
+        searchController: searchController,
+        onSearchChanged: onSearchChanged,
+        onOpenSchedules: _openSchedules,
+        onAddClass: _addCustomClass,
+        refreshing: _scheduleLoading || _remindersLoading,
+        searchFocusNode: _searchFocusNode,
+        searchActive: _searchActive,
+        onSearchTap: _handleSearchTapped,
+        onSearchClear: _handleSearchClear,
+        onRefresh: _loadAll,
+        onViewDetails: _openClassDetails,
+        isInstructor: InstructorService.instance.isInstructor,
+      ),
+    );
+
+    addSection(
+      (_) => _DashboardReminderCard(
+        reminders: _reminders,
+        loading: _remindersLoading,
+        pendingActions: _pendingReminderActions,
+        formatDue: _formatReminderDue,
+        onOpenReminders: _openReminders,
+        onAddReminder: _openAddReminder,
+        onToggle: _handleReminderToggle,
+        onSnooze: _handleReminderSnooze,
+        scope: _reminderScope,
+        onScopeChanged: (scope) {
+          if (_reminderScope == scope) return;
+          ReminderScopeStore.instance.update(scope);
+        },
+      ),
+    );
+
+    // Quick Actions row (Study Timer & Stats) - at the end
     addSection(
       (_) => Row(
         children: [
@@ -1034,64 +1090,6 @@ class DashboardScreenState extends State<DashboardScreen>
             ),
           ),
         ],
-      ),
-    );
-
-    if (_scheduleError != null) {
-      addSection(
-        (_) => MessageCard(
-          key: const ValueKey('dashboard-schedule-error'),
-          icon: Icons.error_outline,
-          title: 'Schedules not refreshed',
-          message: _scheduleError!,
-          primaryLabel: 'Retry',
-          onPrimary: _loadScheduleFromSupabase,
-          secondaryLabel: 'Open schedules',
-          onSecondary: _openSchedules,
-          tintColor: Theme.of(context).colorScheme.primary,
-        ),
-      );
-    }
-
-    addSection(
-      (_) => _DashboardSchedulePeek(
-        occurrences: scheduleOccurrences,
-        now: now,
-        scopeLabel: selectedScope,
-        onScopeChanged: onScopeChanged,
-        colors: colors,
-        theme: Theme.of(context),
-        selectedScope: selectedScope,
-        searchController: searchController,
-        onSearchChanged: onSearchChanged,
-        onOpenSchedules: _openSchedules,
-        onAddClass: _addCustomClass,
-        refreshing: _scheduleLoading || _remindersLoading,
-        searchFocusNode: _searchFocusNode,
-        searchActive: _searchActive,
-        onSearchTap: _handleSearchTapped,
-        onSearchClear: _handleSearchClear,
-        onRefresh: _loadAll,
-        onViewDetails: _openClassDetails,
-        isInstructor: InstructorService.instance.isInstructor,
-      ),
-    );
-
-    addSection(
-      (_) => _DashboardReminderCard(
-        reminders: _reminders,
-        loading: _remindersLoading,
-        pendingActions: _pendingReminderActions,
-        formatDue: _formatReminderDue,
-        onOpenReminders: _openReminders,
-        onAddReminder: _openAddReminder,
-        onToggle: _handleReminderToggle,
-        onSnooze: _handleReminderSnooze,
-        scope: _reminderScope,
-        onScopeChanged: (scope) {
-          if (_reminderScope == scope) return;
-          ReminderScopeStore.instance.update(scope);
-        },
       ),
     );
 
@@ -1300,7 +1298,7 @@ class DashboardScreenState extends State<DashboardScreen>
     final spacing = AppTokens.spacing;
     final baseVersion = _appVersion ?? 'ver';
     final versionText = _currentPatchNumber != null
-        ? '$baseVersion P$_currentPatchNumber'
+        ? '$baseVersion ($_currentPatchNumber)'
         : baseVersion;
 
     return Container(

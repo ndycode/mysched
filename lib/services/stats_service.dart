@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../utils/app_log.dart';
+import 'study_session_repository.dart';
 import 'study_timer_service.dart';
 
 const _scope = 'StatsService';
@@ -71,30 +72,52 @@ class StatsService extends ChangeNotifier {
 
   StudyStats? _cachedStats;
   DateTime? _lastCalculated;
+  bool _initialized = false;
 
   /// Get current study statistics.
   StudyStats get stats {
     final now = DateTime.now();
     
-    // Recalculate if cache is stale (older than 1 minute)
-    if (_cachedStats == null ||
-        _lastCalculated == null ||
-        now.difference(_lastCalculated!) > const Duration(minutes: 1)) {
-      _calculateStats();
+    // Return cached stats if fresh (1 minute)
+    if (_cachedStats != null &&
+        _lastCalculated != null &&
+        now.difference(_lastCalculated!) < const Duration(minutes: 1)) {
+      return _cachedStats!;
     }
     
+    // Calculate from available data
+    _calculateStats();
     return _cachedStats!;
   }
 
-  /// Force recalculation of stats.
-  void refresh() {
-    _calculateStats();
-    notifyListeners();
+  /// Initialize and fetch sessions from Supabase.
+  Future<void> init() async {
+    if (_initialized) return;
+    _initialized = true;
+    
+    try {
+      await StudySessionRepository.instance.fetchSessions();
+      _calculateStats();
+      notifyListeners();
+    } catch (e) {
+      AppLog.warn(_scope, 'Failed to fetch sessions on init: $e');
+    }
+  }
+
+  /// Force refresh from Supabase.
+  Future<void> refresh() async {
+    try {
+      await StudySessionRepository.instance.fetchSessions(forceRefresh: true);
+      _calculateStats();
+      notifyListeners();
+    } catch (e) {
+      AppLog.warn(_scope, 'Failed to refresh sessions: $e');
+    }
   }
 
   void _calculateStats() {
+    final repo = StudySessionRepository.instance;
     final timer = StudyTimerService.instance;
-    final sessions = timer.history;
     final now = DateTime.now();
     
     // Calculate time periods
@@ -102,15 +125,43 @@ class StatsService extends ChangeNotifier {
     final weekStart = todayStart.subtract(Duration(days: now.weekday - 1));
     final monthStart = DateTime(now.year, now.month, 1);
     
-    // Filter work sessions only
-    final workSessions = sessions.where((s) => s.sessionType == SessionType.work).toList();
+    // Use Supabase sessions if available, fallback to in-memory
+    final supabaseSessions = repo.sessions;
+    final inMemorySessions = timer.history;
     
-    // Calculate totals
+    // Calculate totals from Supabase sessions (work sessions only, not skipped)
     int todayMinutes = 0;
     int weekMinutes = 0;
     int monthMinutes = 0;
+    int totalSessions = 0;
     
-    for (final session in workSessions) {
+    for (final session in supabaseSessions) {
+      if (session.sessionType != 'work' || session.skipped) continue;
+      totalSessions++;
+      
+      if (session.completedAt.isAfter(todayStart)) {
+        todayMinutes += session.durationMinutes;
+      }
+      if (session.completedAt.isAfter(weekStart)) {
+        weekMinutes += session.durationMinutes;
+      }
+      if (session.completedAt.isAfter(monthStart)) {
+        monthMinutes += session.durationMinutes;
+      }
+    }
+    
+    // Also add in-memory sessions (may not be persisted yet)
+    for (final session in inMemorySessions) {
+      if (session.sessionType != SessionType.work) continue;
+      
+      // Check if already counted from Supabase
+      final alreadyCounted = supabaseSessions.any((s) =>
+        s.durationMinutes == session.durationMinutes &&
+        s.startedAt.difference(session.startTime).abs() < const Duration(seconds: 5)
+      );
+      if (alreadyCounted) continue;
+      
+      totalSessions++;
       if (session.startTime.isAfter(todayStart)) {
         todayMinutes += session.durationMinutes;
       }
@@ -128,15 +179,37 @@ class StatsService extends ChangeNotifier {
       final date = todayStart.subtract(Duration(days: i));
       final nextDay = date.add(const Duration(days: 1));
       
-      final daySessions = workSessions.where((s) =>
-          s.startTime.isAfter(date) && s.startTime.isBefore(nextDay));
+      int dayMinutes = 0;
+      int daySessionCount = 0;
       
-      final dayMinutes = daySessions.fold(0, (sum, s) => sum + s.durationMinutes);
+      // From Supabase
+      for (final s in supabaseSessions) {
+        if (s.sessionType != 'work' || s.skipped) continue;
+        if (s.completedAt.isAfter(date) && s.completedAt.isBefore(nextDay)) {
+          dayMinutes += s.durationMinutes;
+          daySessionCount++;
+        }
+      }
+      
+      // From in-memory (if not already counted)
+      for (final s in inMemorySessions) {
+        if (s.sessionType != SessionType.work) continue;
+        if (s.startTime.isAfter(date) && s.startTime.isBefore(nextDay)) {
+          final alreadyCounted = supabaseSessions.any((ss) =>
+            ss.durationMinutes == s.durationMinutes &&
+            ss.startedAt.difference(s.startTime).abs() < const Duration(seconds: 5)
+          );
+          if (!alreadyCounted) {
+            dayMinutes += s.durationMinutes;
+            daySessionCount++;
+          }
+        }
+      }
       
       dailyData.add(DailyStudyData(
         date: date,
         minutes: dayMinutes,
-        sessions: daySessions.length,
+        sessions: daySessionCount,
       ));
     }
     
@@ -145,12 +218,10 @@ class StatsService extends ChangeNotifier {
     int longestStreak = 0;
     int tempStreak = 0;
     
-    // Check from today backwards
     for (int i = dailyData.length - 1; i >= 0; i--) {
       if (dailyData[i].hasStudied) {
         tempStreak++;
         if (i == dailyData.length - 1 || i == dailyData.length - 2) {
-          // Include today or yesterday in current streak
           currentStreak = tempStreak;
         }
       } else {
@@ -164,7 +235,7 @@ class StatsService extends ChangeNotifier {
       todayMinutes: todayMinutes,
       weekMinutes: weekMinutes,
       monthMinutes: monthMinutes,
-      totalSessions: workSessions.length,
+      totalSessions: totalSessions,
       currentStreak: currentStreak,
       longestStreak: longestStreak,
       dailyData: dailyData,
@@ -174,7 +245,7 @@ class StatsService extends ChangeNotifier {
     AppLog.debug(_scope, 'Stats calculated', data: {
       'today': todayMinutes,
       'week': weekMinutes,
-      'sessions': workSessions.length,
+      'sessions': totalSessions,
     });
   }
 
@@ -182,5 +253,7 @@ class StatsService extends ChangeNotifier {
   void clear() {
     _cachedStats = null;
     _lastCalculated = null;
+    _initialized = false;
+    StudySessionRepository.instance.clear();
   }
 }

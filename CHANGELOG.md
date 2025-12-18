@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.0.5] - 2024-12-17
+
+> 📦 **Deployed to Play Store**
+
+### ✨ Features & Improvements
+
+- **Legal modal dialogs**: Added `AppModal.legal()` and `AppModal.legalWidget()` for beautifully formatted Terms & Conditions and Privacy Policy display
+- **About & Privacy refactor**: Settings About and Privacy Policy now use legal-style modal dialogs with matching dimensions and dark barrier
+- **Google Auth profile preservation**: Sign-in with Google no longer overwrites existing profile pictures
+- **Version badge format**: Dashboard now shows patch number in parentheses e.g., `2.0.5+15 (1)`
+- **Study Timer & Stats relocation**: Moved buttons from top of dashboard to between schedule cards and reminders section
+- **Fix permissions button**: Settings shows blue "Fix permissions" button when any Android permission is missing
+- **Code quality**: Replaced hardcoded dialog width with `AppLayout.dialogMaxWidth` token
+
+### 🛠️ Bug Fixes
+
+- **Dashboard spacing**: Fixed excessive spacing around Study Timer & Stats buttons
+- **Unused imports**: Removed deprecated AboutSheet and PrivacySheet imports
+
+---
+
 ## [2.0.4] - 2024-12-13
 
 > 📦 **Deployed to Play Store**
@@ -51,6 +72,66 @@ flutter_native_splash:
 
 ### 🔧 Patches (OTA via Shorebird)
 
+#### Patch 14: Legal Modals & Dashboard Improvements
+- **Legal modal dialogs**: Added `AppModal.legal()` and `AppModal.legalWidget()` for Terms & Conditions and Privacy Policy with formatted sections, styled headers, bullet points, and scrollable content
+- **About & Privacy refactor**: Settings About and Privacy Policy now use legal-style modal dialogs with matching dimensions and dark barrier
+- **Professional legal content**: Comprehensive Terms & Conditions and Privacy Policy text with thesis project details, RA 10173 compliance, and section formatting
+- **Google Auth profile preservation**: Sign-in with Google no longer overwrites existing profile pictures - only sets avatar if user doesn't have one
+- **Version badge format**: Dashboard now shows patch number in parentheses e.g., `2.0.4+14 (11)` instead of `P11`
+- **Auto-resync alarms**: Dashboard resyncs notification schedules once per app session (using static flag to avoid repeated syncs)
+- **Study Timer & Stats relocation**: Moved buttons from top of dashboard to between schedule cards and reminders section with proper spacing
+- **Fix permissions button**: Settings now shows blue "Fix permissions" button when any Android permission (exact alarms, notifications, battery) is missing
+- **Code quality**: Replaced hardcoded `maxWidth: 400` with `AppLayout.dialogMaxWidth` token in modals
+- **Dark mode avatar support**: Added constant for dark mode avatar asset path
+- **Effective date update**: Legal documents now show "December 01, 2025" effective date
+
+> ⏳ Pending deployment
+
+#### Patch 15: App Branding & Quick Actions Overhaul
+- **New app icon & splash screen**: Updated `flutter_launcher_icons` and `flutter_native_splash` config with new logo assets
+  - Uses `logo.png` for icons, `splash_light.png` and `splash_dark.png` for splash screens
+  - Light splash: `#FCFCFC` background with blue "Ms" logo
+  - Dark splash: `#000000` background with white "Ms" logo
+- **Quick Actions improvements**:
+  - Removed "Start study timer" option from modal
+  - Auto-closes modal when switching tabs
+  - Added swipe-down-to-close gesture
+- **Instructor Finder schedule view**:
+  - Time now shows start AND end time (e.g., "2:00 PM" on first line, "3:30 PM" below)
+  - Past classes now more readable (increased opacity from `dim` to `medium`)
+- **Crop profile photo dialog**: Fixed button layout (Primary + Cancel side-by-side in a Row)
+- **Auth screen copy refresh**:
+  - Login: Dynamic "Welcome!" (new users) vs "Welcome back!" (returning users)
+  - Sign Up: "You vs. time — round two."
+- **Legal links touch targets**: Increased tap area for Terms & Conditions / Privacy Policy links
+- **Complete profile flow**: Now shows as modal dialog over dashboard instead of separate screen
+
+> ✅ Deployed December 17, 2025 (Shorebird Patch 1 for 2.0.5+17)
+
+#### Patch 13: Google Sign-In Profile Completion
+- **Profile auto-creation for Google users**: Google sign-in now creates profile row with name, email, and avatar from Google account
+- **Student ID requirement**: Google users must complete their profile by entering student ID before using the app
+- **In-app prompt modal**: Existing users without student ID see a non-dismissible sheet (same style as change email modal)
+- **Two-button layout**: "Save changes" and "Sign out" buttons for clear user choice
+- **Bootstrap redirect**: New users without student ID redirected to complete-profile screen on app launch
+- **`isProfileComplete()` method**: New AuthService method to check if user has student_id set
+- **`_ensureProfileExists()` helper**: Creates/updates profile for OAuth users with error handling
+- **SQL migration**: Database trigger to auto-create profiles on user signup + backfill existing users
+
+> ⏳ Pending deployment
+
+#### Patch 12: Auth Screen Complete Redesign
+- **Unified AuthScreen**: Merged Login and Register into single screen with toggle switch
+- **New "Blue Header + White Sheet" design**: Matches new design reference exactly
+- **Toggle functionality**: Instant switch between Log In / Sign Up modes without page navigation
+- **Deleted `register_screen.dart`**: Redundant file removed, all logic consolidated in `login_screen.dart`
+- **Router updates**: Both `/login` and `/register` routes now use `AuthScreen` with `initialMode` parameter
+- **Pixel-perfect styling**: Exact hex colors (`#3B7DFF` blue, `#F2F2F7` toggle bg, `#E5E5EA` borders)
+- **Form field improvements**: Taller fields (56px), larger border radius (14px), proper hint colors
+- **Standardized transitions**: All auth screens use consistent 300ms FadeTransition
+
+> ⏳ Pending deployment
+
 #### Patch 1-3: Fullscreen Alarm Permission Fix (Android 14+)
 - **openFullScreenIntentSettings**: Added method to open Android 14+ fullscreen intent permission settings
 - **AlarmReadiness check**: Now includes `fullScreenIntentAllowed` in the permission readiness check
@@ -94,7 +175,20 @@ flutter_native_splash:
   - Nursing → Pink (#E91E63)
   - Business → Cyan (#00BCD4)
 
-> ✅ Patches 7-9 deployed 2024-12-15 | ⏳ Patch 10 pending
+#### Patch 11: Study Session Persistence & Cleanup ✅ Deployed 2024-12-16
+- **Fixed Quick Action icons**: Android App Shortcuts now display blue icons (was white due to theme tinting)
+- **Added Start Study Timer shortcut**: New quick action in launcher long-press menu
+- **Added deep link handler**: `mysched://` scheme now registered in AndroidManifest for shortcuts
+- **Removed Schedule Sharing**: Feature completely removed per user request
+- **Removed Instructor Notes**: Feature completely removed per user request
+- **Fixed Schedule Reset**: Now clears offline cache when resetting schedules
+- **Study sessions now persist to Supabase**: Timer sessions saved to cloud database
+- **Cross-device sync**: Stats visible on any device with same account
+- **New `study_sessions` table**: Stores session type, duration, timestamps, linked class
+- **StatsService refresh**: Stats now fetch from Supabase + in-memory data
+- **Model improvements**: Added `copyWith`/`==`/`hashCode` to `Semester` model
+
+> ✅ Patches 7-11 deployed 2024-12-16
 
 ---
 

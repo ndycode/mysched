@@ -93,6 +93,42 @@ class Semester {
     return null;
   }
 
+  /// Creates a copy with the given fields replaced.
+  Semester copyWith({
+    int? id,
+    String? code,
+    String? name,
+    String? academicYear,
+    int? term,
+    DateTime? startDate,
+    DateTime? endDate,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return Semester(
+      id: id ?? this.id,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      academicYear: academicYear ?? this.academicYear,
+      term: term ?? this.term,
+      startDate: startDate ?? this.startDate,
+      endDate: endDate ?? this.endDate,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
   @override
   String toString() => 'Semester($code: $name, active: $isActive)';
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Semester && other.id == id;
+  }
+
+  @override
+  int get hashCode => id.hashCode;
 }

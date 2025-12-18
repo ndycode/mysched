@@ -25,114 +25,120 @@ class BatteryOptimizationDialog extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.sheet),
-      backgroundColor: colors.surface,
-      surfaceTintColor: Colors.transparent,
-      insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.xxl * spacingScale),
-      contentPadding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Hero icon badge (matching _PermissionDialog)
-          Container(
-            height: AppTokens.componentSize.avatarXl * scale,
-            width: AppTokens.componentSize.avatarXl * scale,
-            decoration: BoxDecoration(
-              color: badgeColor,
-              borderRadius: AppTokens.radius.lg,
-            ),
-            child: Icon(
-              Icons.battery_saver_rounded,
-              color: accent,
-              size: AppTokens.iconSize.xl * scale,
-            ),
-          ),
-          SizedBox(height: spacing.xl * spacingScale),
-
-          // Title (matching _PermissionDialog)
-          Text(
-            'Allow background usage',
-            style: AppTokens.typography.titleScaled(scale).copyWith(
-              color: colors.onSurface,
-              fontWeight: AppTokens.fontWeight.bold,
-            ),
-          ),
-          SizedBox(height: spacing.sm * spacingScale),
-
-          // Subtitle
-          Text(
-            'Follow these steps to keep reminders running reliably.',
-            style: AppTokens.typography.bodySecondaryScaled(scale).copyWith(
-              color: palette.muted,
-            ),
-          ),
-          SizedBox(height: spacing.xl * spacingScale),
-
-          // Step 1
-          _buildStepCard(
-            context: context,
-            stepNumber: '1',
-            title: 'App battery usage',
-            description: 'Tap to open battery settings',
-            scale: scale,
-            spacingScale: spacingScale,
-            trailing: Icon(
-              Icons.chevron_right_rounded,
-              color: palette.muted,
-              size: AppTokens.iconSize.lg * scale,
-            ),
-          ),
-          SizedBox(height: spacing.md * spacingScale),
-
-          // Step 2
-          _buildStepCard(
-            context: context,
-            stepNumber: '2',
-            title: 'Allow background usage',
-            description: 'Enable for real-time updates',
-            scale: scale,
-            spacingScale: spacingScale,
-            trailing: _buildFakeToggle(context),
-          ),
-          SizedBox(height: spacing.md * spacingScale),
-
-          // Step 3
-          _buildStepCard(
-            context: context,
-            stepNumber: '3',
-            title: 'Unrestricted',
-            description: 'Choose if available',
-            scale: scale,
-            spacingScale: spacingScale,
-            leading: _buildFakeRadio(context),
-          ),
-          SizedBox(height: spacing.xxl * spacingScale),
-
-          // Buttons (matching _PermissionDialog layout)
-          Row(
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: AppTokens.radius.xl),
+      backgroundColor: isDark ? colors.surface : colors.surfaceContainerLowest,
+      insetPadding: spacing.edgeInsetsSymmetric(horizontal: spacing.lg),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: AppLayout.dialogMaxWidth,
+        ),
+        child: SingleChildScrollView(
+          padding: spacing.edgeInsetsAll(spacing.xxl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              TertiaryButton(
-                label: 'Skip',
-                onPressed: () => context.pop(),
-                expanded: false,
-              ),
-              SizedBox(width: spacing.md * spacingScale),
-              Expanded(
-                child: PrimaryButton(
-                  label: 'Open settings',
-                  expanded: false,
-                  minHeight: AppTokens.componentSize.buttonMd,
-                  onPressed: () {
-                    context.pop();
-                    LocalNotifs.openBatteryOptimizationSettings();
-                  },
+              // Hero icon badge (matching _PermissionDialog)
+              Container(
+                height: AppTokens.componentSize.avatarXl * scale,
+                width: AppTokens.componentSize.avatarXl * scale,
+                decoration: BoxDecoration(
+                  color: badgeColor,
+                  borderRadius: AppTokens.radius.lg,
                 ),
+                child: Icon(
+                  Icons.battery_saver_rounded,
+                  color: accent,
+                  size: AppTokens.iconSize.xl * scale,
+                ),
+              ),
+              SizedBox(height: spacing.xl * spacingScale),
+
+              // Title (matching _PermissionDialog)
+              Text(
+                'Allow background usage',
+                style: AppTokens.typography.titleScaled(scale).copyWith(
+                  color: colors.onSurface,
+                  fontWeight: AppTokens.fontWeight.bold,
+                ),
+              ),
+              SizedBox(height: spacing.sm * spacingScale),
+
+              // Subtitle
+              Text(
+                'Follow these steps to keep reminders running reliably.',
+                style: AppTokens.typography.bodySecondaryScaled(scale).copyWith(
+                  color: palette.muted,
+                ),
+              ),
+              SizedBox(height: spacing.xl * spacingScale),
+
+              // Step 1
+              _buildStepCard(
+                context: context,
+                stepNumber: '1',
+                title: 'App battery usage',
+                description: 'Tap to open battery settings',
+                scale: scale,
+                spacingScale: spacingScale,
+                trailing: Icon(
+                  Icons.chevron_right_rounded,
+                  color: palette.muted,
+                  size: AppTokens.iconSize.lg * scale,
+                ),
+              ),
+              SizedBox(height: spacing.md * spacingScale),
+
+              // Step 2
+              _buildStepCard(
+                context: context,
+                stepNumber: '2',
+                title: 'Allow background usage',
+                description: 'Enable for real-time updates',
+                scale: scale,
+                spacingScale: spacingScale,
+                trailing: _buildFakeToggle(context),
+              ),
+              SizedBox(height: spacing.md * spacingScale),
+
+              // Step 3
+              _buildStepCard(
+                context: context,
+                stepNumber: '3',
+                title: 'Unrestricted',
+                description: 'Choose if available',
+                scale: scale,
+                spacingScale: spacingScale,
+                leading: _buildFakeRadio(context),
+              ),
+              SizedBox(height: spacing.xxl * spacingScale),
+
+              // Buttons (matching _PermissionDialog layout)
+              Row(
+                children: [
+                  TertiaryButton(
+                    label: 'Skip',
+                    onPressed: () => context.pop(),
+                    expanded: false,
+                  ),
+                  SizedBox(width: spacing.md * spacingScale),
+                  Expanded(
+                    child: PrimaryButton(
+                      label: 'Open settings',
+                      expanded: false,
+                      minHeight: AppTokens.componentSize.buttonMd,
+                      onPressed: () {
+                        context.pop();
+                        LocalNotifs.openBatteryOptimizationSettings();
+                      },
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

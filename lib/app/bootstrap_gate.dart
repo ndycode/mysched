@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:go_router/go_router.dart';
 
 import '../env.dart';
+import '../services/auth_service.dart';
 import '../services/instructor_service.dart';
 import '../services/notification_scheduler.dart';
 import '../services/theme_controller.dart';
@@ -110,15 +111,37 @@ class _BootstrapGateState extends State<BootstrapGate> {
       }
     }
     
-    // Check instructor status for validated signed-in users
+// Check instructor status for validated signed-in users
     if (signedIn) {
       await InstructorService.instance.checkInstructorStatus();
+    }
+    
+    // Check if profile is complete (has student_id)
+    bool profileComplete = true;
+    if (signedIn) {
+      try {
+        profileComplete = await AuthService.instance.isProfileComplete();
+      } catch (e) {
+        AppLog.warn(
+          'BootstrapGate',
+          'Failed to check profile completion',
+          error: e,
+        );
+        // Continue to app on error - user can complete profile later
+      }
     }
     
     _navigated = true;
     if (!mounted) return;
     
-    context.pushReplacement(signedIn ? AppRoutes.app : AppRoutes.login);
+    if (!signedIn) {
+      context.pushReplacement(AppRoutes.welcome);
+    } else if (!profileComplete) {
+      // Go to app with flag to show profile completion modal
+      context.pushReplacement(AppRoutes.app, extra: {'showProfilePrompt': true});
+    } else {
+      context.pushReplacement(AppRoutes.app);
+    }
   }
 
   Future<void> _requestPermissionFlow() async {
@@ -339,15 +362,6 @@ class _SplashContentState extends State<_SplashContent>
                   style: AppTokens.typography.brand.copyWith(
                     color: accent,
                     letterSpacing: AppLetterSpacing.tight,
-                  ),
-                ),
-                SizedBox(height: spacing.sm),
-                // Clean Tagline
-                Text(
-                  'Your Schedule, Simplified',
-                  style: AppTokens.typography.body.copyWith(
-                    color: colors.muted,
-                    fontWeight: AppTokens.fontWeight.regular,
                   ),
                 ),
                 SizedBox(height: spacing.xxxl),

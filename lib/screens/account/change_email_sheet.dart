@@ -258,7 +258,7 @@ class _ChangeEmailSheetState extends State<ChangeEmailSheet> {
               if (value == null || value.trim().isEmpty) {
                 return 'Enter your new email';
               }
-              if (!ValidationUtils.looksLikeEmail(value)) {
+              if (!ValidationUtils.isValidEmail(value)) {
                 return 'Enter a valid email address';
               }
               return null;

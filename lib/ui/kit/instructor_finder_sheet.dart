@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../env.dart';
-import '../../widgets/instructor_avatar.dart';
+
 import '../kit/kit.dart';
 import '../theme/tokens.dart';
 
@@ -1154,7 +1154,7 @@ class _ScheduleTile extends StatelessWidget {
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    final textOpacity = isPast ? AppOpacity.dim : 1.0;
+    final textOpacity = isPast ? AppOpacity.medium : 1.0;
 
     return Container(
       padding: spacing.edgeInsetsAll(spacing.md * spacingScale),
@@ -1195,14 +1195,26 @@ class _ScheduleTile extends StatelessWidget {
           // Time
           SizedBox(
             width: 80 * scale,
-            child: Text(
-              item.startTimeFormatted,
-              style: AppTokens.typography.captionScaled(scale).copyWith(
-                fontWeight: AppTokens.fontWeight.semiBold,
-                color: isCurrent
-                    ? colors.primary
-                    : palette.muted.withValues(alpha: textOpacity),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  item.startTimeFormatted,
+                  style: AppTokens.typography.captionScaled(scale).copyWith(
+                    fontWeight: AppTokens.fontWeight.semiBold,
+                    color: isCurrent
+                        ? colors.primary
+                        : palette.muted.withValues(alpha: textOpacity),
+                  ),
+                ),
+                Text(
+                  item.endTimeFormatted,
+                  style: AppTokens.typography.captionScaled(scale * 0.9).copyWith(
+                    color: palette.muted.withValues(alpha: textOpacity * 0.8),
+                  ),
+                ),
+              ],
             ),
           ),
           SizedBox(width: spacing.sm * spacingScale),

@@ -445,6 +445,295 @@ class AppModal {
     );
   }
 
+  /// Shows a legal document dialog (Terms, Privacy Policy, etc.)
+  /// with scrollable content and dark barrier.
+  static Future<void> legal({
+    required BuildContext context,
+    required String title,
+    required String content,
+    String actionLabel = 'Close',
+    IconData? icon,
+  }) async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    return alert<void>(
+      context: context,
+      barrierColor: AppBarrier.heavy, // Dark barrier for emphasis
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: AppLayout.dialogMaxWidth,
+            maxHeight: MediaQuery.of(context).size.height * 0.75,
+          ),
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.xl,
+            border: Border.all(
+              color: isDark
+                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                  : colors.outline.withValues(alpha: AppOpacity.faint),
+              width: AppTokens.componentSize.dividerThin,
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.border),
+                    ),
+                  ],
+          ),
+          child: ClipRRect(
+            borderRadius: AppTokens.radius.xl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with icon
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.sm,
+                        ),
+                        child: Icon(
+                          icon ?? Icons.description_outlined,
+                          color: colors.primary,
+                          size: AppTokens.iconSize.md * scale,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md * spacingScale),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                      // Close X button
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: spacing.edgeInsetsAll(spacing.xs * spacingScale),
+                          decoration: BoxDecoration(
+                            color: palette.surfaceVariant,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            color: palette.muted,
+                            size: AppTokens.iconSize.sm * scale,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Scrollable content with formatted text
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+                    child: _LegalContentBuilder(
+                      content: content,
+                      scale: scale,
+                      spacingScale: spacingScale,
+                      palette: palette,
+                      colors: colors,
+                    ),
+                  ),
+                ),
+                // Footer with button
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      label: actionLabel,
+                      onPressed: () => Navigator.of(context).pop(),
+                      minHeight: AppTokens.componentSize.buttonSm,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Shows a legal-style dialog with custom widget content.
+  /// Same styling as [legal] but accepts a widget builder for rich layouts.
+  static Future<void> legalWidget({
+    required BuildContext context,
+    required String title,
+    required Widget Function(BuildContext) contentBuilder,
+    String actionLabel = 'Close',
+    IconData? icon,
+  }) async {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    final spacing = AppTokens.spacing;
+
+    final scale = ResponsiveProvider.scale(context);
+    final spacingScale = ResponsiveProvider.spacing(context);
+
+    return alert<void>(
+      context: context,
+      barrierColor: AppBarrier.heavy,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+        child: Container(
+          constraints: BoxConstraints(
+            maxWidth: AppLayout.dialogMaxWidth,
+            maxHeight: MediaQuery.of(context).size.height * 0.85,
+          ),
+          decoration: BoxDecoration(
+            color: isDark ? colors.surfaceContainerHigh : colors.surface,
+            borderRadius: AppTokens.radius.xl,
+            border: Border.all(
+              color: isDark
+                  ? colors.outline.withValues(alpha: AppOpacity.overlay)
+                  : colors.outline.withValues(alpha: AppOpacity.faint),
+              width: AppTokens.componentSize.dividerThin,
+            ),
+            boxShadow: isDark
+                ? null
+                : [
+                    AppTokens.shadow.modal(
+                      colors.shadow.withValues(alpha: AppOpacity.border),
+                    ),
+                  ],
+          ),
+          child: ClipRRect(
+            borderRadius: AppTokens.radius.xl,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header with icon
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: spacing.edgeInsetsAll(spacing.sm * spacingScale),
+                        decoration: BoxDecoration(
+                          color: colors.primary.withValues(alpha: AppOpacity.overlay),
+                          borderRadius: AppTokens.radius.sm,
+                        ),
+                        child: Icon(
+                          icon ?? Icons.description_outlined,
+                          color: colors.primary,
+                          size: AppTokens.iconSize.md * scale,
+                        ),
+                      ),
+                      SizedBox(width: spacing.md * spacingScale),
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                            fontWeight: AppTokens.fontWeight.semiBold,
+                            color: colors.onSurface,
+                          ),
+                        ),
+                      ),
+                      // Close X button
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: spacing.edgeInsetsAll(spacing.xs * spacingScale),
+                          decoration: BoxDecoration(
+                            color: palette.surfaceVariant,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            color: palette.muted,
+                            size: AppTokens.iconSize.sm * scale,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Scrollable custom widget content
+                Flexible(
+                  child: SingleChildScrollView(
+                    padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
+                    child: contentBuilder(context),
+                  ),
+                ),
+                // Footer with button
+                Container(
+                  padding: spacing.edgeInsetsAll(spacing.lg * spacingScale),
+                  decoration: BoxDecoration(
+                    border: Border(
+                      top: BorderSide(
+                        color: colors.outline.withValues(alpha: AppOpacity.faint),
+                        width: AppTokens.componentSize.dividerThin,
+                      ),
+                    ),
+                  ),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: PrimaryButton(
+                      label: actionLabel,
+                      onPressed: () => Navigator.of(context).pop(),
+                      minHeight: AppTokens.componentSize.buttonSm,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+
   /// Shows an input dialog.
   static Future<String?> input({
     required BuildContext context,
@@ -721,5 +1010,167 @@ class _DraggableDismissSheetState extends State<_DraggableDismissSheet> {
         child: widget.child,
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// LEGAL CONTENT BUILDER - Formatted legal text display
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Builds formatted legal content with styled headers and bullet points.
+class _LegalContentBuilder extends StatelessWidget {
+  const _LegalContentBuilder({
+    required this.content,
+    required this.scale,
+    required this.spacingScale,
+    required this.palette,
+    required this.colors,
+  });
+
+  final String content;
+  final double scale;
+  final double spacingScale;
+  final ColorPalette palette;
+  final ColorScheme colors;
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = AppTokens.spacing;
+    final lines = content.split('\n');
+    final widgets = <Widget>[];
+
+    for (final line in lines) {
+      if (line.trim().isEmpty) {
+        // Empty line - add small spacing
+        widgets.add(SizedBox(height: spacing.sm * spacingScale));
+      } else if (_isMainTitle(line)) {
+        // Main title (TERMS AND CONDITIONS, PRIVACY POLICY)
+        widgets.add(Padding(
+          padding: EdgeInsets.only(bottom: spacing.md * spacingScale),
+          child: Text(
+            line.trim(),
+            style: AppTokens.typography.titleScaled(scale).copyWith(
+              fontWeight: AppTokens.fontWeight.bold,
+              color: colors.onSurface,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ));
+      } else if (_isSectionHeader(line)) {
+        // Section header (SECTION 1:, 1.1, etc.)
+        widgets.add(Padding(
+          padding: EdgeInsets.only(
+            top: spacing.lg * spacingScale,
+            bottom: spacing.sm * spacingScale,
+          ),
+          child: Text(
+            line.trim(),
+            style: AppTokens.typography.subtitleScaled(scale).copyWith(
+              fontWeight: AppTokens.fontWeight.semiBold,
+              color: colors.primary,
+            ),
+          ),
+        ));
+      } else if (_isBulletPoint(line)) {
+        // Bullet point
+        widgets.add(Padding(
+          padding: EdgeInsets.only(
+            left: spacing.md * spacingScale,
+            bottom: spacing.xs * spacingScale,
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: EdgeInsets.only(top: 8 * scale),
+                width: 6 * scale,
+                height: 6 * scale,
+                decoration: BoxDecoration(
+                  color: colors.primary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+              SizedBox(width: spacing.sm * spacingScale),
+              Expanded(
+                child: Text(
+                  line.trim().substring(1).trim(), // Remove bullet character
+                  style: AppTokens.typography.bodyScaled(scale).copyWith(
+                    color: palette.muted,
+                    height: 1.5,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ));
+      } else if (_isSubTitle(line)) {
+        // Subtitle (Effective Date, Developed by, etc.)
+        widgets.add(Padding(
+          padding: EdgeInsets.only(bottom: spacing.xs * spacingScale),
+          child: Text(
+            line.trim(),
+            style: AppTokens.typography.captionScaled(scale).copyWith(
+              color: palette.muted,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ));
+      } else {
+        // Regular paragraph text
+        widgets.add(Padding(
+          padding: EdgeInsets.only(bottom: spacing.sm * spacingScale),
+          child: Text(
+            line.trim(),
+            style: AppTokens.typography.bodyScaled(scale).copyWith(
+              color: colors.onSurface.withValues(alpha: 0.85),
+              height: 1.6,
+            ),
+          ),
+        ));
+      }
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: widgets,
+    );
+  }
+
+  bool _isMainTitle(String line) {
+    final trimmed = line.trim().toUpperCase();
+    return trimmed == 'TERMS AND CONDITIONS OF USE' ||
+        trimmed == 'PRIVACY POLICY';
+  }
+
+  bool _isSectionHeader(String line) {
+    final trimmed = line.trim();
+    // Matches "SECTION X:", "X.X", or all-caps headers
+    return RegExp(r'^SECTION \d+:', caseSensitive: false).hasMatch(trimmed) ||
+        RegExp(r'^\d+\.\d+\s').hasMatch(trimmed) ||
+        (trimmed == trimmed.toUpperCase() && 
+         trimmed.length > 3 && 
+         !trimmed.startsWith('•') &&
+         !_isMainTitle(line) &&
+         !trimmed.startsWith('EFFECTIVE') &&
+         !trimmed.startsWith('DEVELOPED') &&
+         !trimmed.startsWith('BACHELOR') &&
+         !trimmed.startsWith('IMMACULATE') &&
+         !trimmed.startsWith('NOVEMBER') &&
+         !trimmed.startsWith('STA.'));
+  }
+
+  bool _isBulletPoint(String line) {
+    return line.trim().startsWith('•');
+  }
+
+  bool _isSubTitle(String line) {
+    final trimmed = line.trim();
+    return trimmed.startsWith('Effective Date:') ||
+        trimmed.startsWith('Developed by') ||
+        trimmed.startsWith('Developed at') ||
+        trimmed.startsWith('Bachelor of') ||
+        trimmed.startsWith('Immaculate Conception') ||
+        trimmed.startsWith('November ') ||
+        trimmed.startsWith('Sta. Maria');
   }
 }

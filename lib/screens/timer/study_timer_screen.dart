@@ -6,10 +6,8 @@ import '../../ui/theme/tokens.dart';
 
 /// Shows the study timer as a modal sheet.
 Future<void> showStudyTimerSheet(BuildContext context) {
-  return showModalBottomSheet(
+  return AppModal.sheet(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
     builder: (context) => const StudyTimerSheet(),
   );
 }

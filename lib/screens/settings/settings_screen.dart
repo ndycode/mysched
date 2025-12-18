@@ -10,9 +10,7 @@ import '../../services/auth_service.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/local_notifs.dart';
-import '../about_screen.dart';
 import '../admin/issue_reports_screen.dart';
-import '../privacy_screen.dart';
 import 'settings_controller.dart';
 import '../../services/theme_controller.dart';
 import '../../services/data_sync.dart';
@@ -62,7 +60,6 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
       _ringtonesLoading = false;
     });
   }
-
 
   @override
   void dispose() {
@@ -221,14 +218,20 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
   }
 
   Future<void> _openPrivacy() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PrivacySheet()),
+    await AppModal.legalWidget(
+      context: context,
+      title: 'Privacy Policy',
+      icon: Icons.shield_outlined,
+      contentBuilder: (_) => const _PrivacyModalContent(),
     );
   }
 
   Future<void> _openAbout() async {
-    await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const AboutSheet()),
+    await AppModal.legalWidget(
+      context: context,
+      title: 'About MySched',
+      icon: Icons.info_outline,
+      contentBuilder: (_) => const _AboutModalContent(),
     );
   }
 
@@ -497,49 +500,13 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           ],
           SizedBox(height: spacing.xl),
           // Reminder lead time
-          GestureDetector(
+          NavigationRow(
+            icon: Icons.timer_outlined,
+            title: 'Reminder lead time',
+            description: _controller.reminderLeadMinutes == 0
+                ? 'Alert at due time'
+                : '${_controller.reminderLeadMinutes} minutes before',
             onTap: _pickReminderLeadMinutes,
-            behavior: HitTestBehavior.opaque,
-            child: Padding(
-              padding: spacing.edgeInsetsSymmetric(vertical: spacing.sm),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.timer_outlined,
-                    size: AppTokens.iconSize.md,
-                    color: colors.primary,
-                  ),
-                  SizedBox(width: spacing.lg),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Reminder lead time',
-                          style: AppTokens.typography.subtitle.copyWith(
-                            color: colors.onSurface,
-                            fontWeight: AppTokens.fontWeight.semiBold,
-                          ),
-                        ),
-                        SizedBox(height: spacing.xs),
-                        Text(
-                          _controller.reminderLeadMinutes == 0
-                              ? 'Alert at due time'
-                              : '${_controller.reminderLeadMinutes} min before',
-                          style: AppTokens.typography.bodySecondary.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: palette.muted,
-                  ),
-                ],
-              ),
-            ),
           ),
           // ────────────────────────────────────────────────────────────────
           // Schedule Preferences Section
@@ -585,12 +552,21 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           // Volume slider
           Row(
             children: [
-              Icon(
-                Icons.volume_up_rounded,
-                size: AppTokens.iconSize.md,
-                color: colors.primary,
+              Container(
+                height: AppTokens.componentSize.avatarLg,
+                width: AppTokens.componentSize.avatarLg,
+                decoration: BoxDecoration(
+                  color: colors.primary.withValues(alpha: AppOpacity.medium),
+                  borderRadius: AppTokens.radius.md,
+                ),
+                alignment: Alignment.center,
+                child: Icon(
+                  Icons.volume_up_rounded,
+                  color: colors.primary,
+                  size: AppTokens.iconSize.lg,
+                ),
               ),
-              SizedBox(width: spacing.lg),
+              SizedBox(width: spacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -806,7 +782,7 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
           ),
           SizedBox(height: spacing.lg),
           NavigationRow(
-            icon: Icons.battery_saver_rounded,
+            icon: Icons.battery_alert_rounded,
             title: 'Battery optimization',
             description: 'Allow background delivery so alarms are not killed.',
             accentColor: colors.primary,
@@ -818,9 +794,40 @@ class _SettingsPageState extends State<SettingsPage> with WidgetsBindingObserver
             ),
             onTap: _openBatteryOptimizationSettings,
           ),
+          // Show "Fix permissions" button if any permission is missing
+          if (!_areAllPermissionsGranted()) ...[
+            SizedBox(height: spacing.xl),
+            SizedBox(
+              width: double.infinity,
+              child: PrimaryButton(
+                label: 'Fix permissions',
+                icon: Icons.settings_outlined,
+                onPressed: _openPermissionSettings,
+                minHeight: AppTokens.componentSize.buttonMd,
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  /// Check if all Android permissions are granted
+  bool _areAllPermissionsGranted() {
+    return (_controller.exactAlarmAllowed ?? false) &&
+           (_controller.notificationsAllowed ?? false) &&
+           (_controller.ignoringBatteryOptimizations ?? false);
+  }
+
+  /// Open the most critical missing permission setting
+  void _openPermissionSettings() {
+    if (_controller.exactAlarmAllowed != true) {
+      _openExactAlarmSettings();
+    } else if (_controller.notificationsAllowed != true) {
+      _openNotificationSettings();
+    } else if (_controller.ignoringBatteryOptimizations != true) {
+      _openBatteryOptimizationSettings();
+    }
   }
 
   Widget _buildAdminCard(ThemeData theme) {
@@ -1590,6 +1597,206 @@ class _AccentColorPicker extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+/// Compact About content for the legal-style modal dialog.
+class _AboutModalContent extends StatelessWidget {
+  const _AboutModalContent();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Hero section
+        Text(
+          'Built for ICI students',
+          style: AppTokens.typography.title.copyWith(
+            fontWeight: AppTokens.fontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          'MySched keeps your ICI class day organised. Scan your student card, confirm the timetable, and let the app handle reminders.',
+          style: AppTokens.typography.body.copyWith(color: palette.muted),
+        ),
+        SizedBox(height: spacing.xxl),
+        // Features
+        Text(
+          'FEATURES',
+          style: AppTokens.typography.caption.copyWith(
+            letterSpacing: AppLetterSpacing.sectionHeader,
+            fontWeight: AppTokens.fontWeight.semiBold,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        _FeatureRow(icon: Icons.document_scanner_outlined, title: 'OCR card scanning'),
+        _FeatureRow(icon: Icons.view_week_outlined, title: 'Daily schedule overview'),
+        _FeatureRow(icon: Icons.notifications_active_outlined, title: 'Smart class reminders'),
+        SizedBox(height: spacing.xxl),
+        // How it works
+        Text(
+          'HOW IT WORKS',
+          style: AppTokens.typography.caption.copyWith(
+            letterSpacing: AppLetterSpacing.sectionHeader,
+            fontWeight: AppTokens.fontWeight.semiBold,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          '• Supabase syncs schedules across devices\n'
+          '• Google ML Kit reads student cards\n'
+          '• Native alarms trigger even when app is closed',
+          style: AppTokens.typography.body.copyWith(
+            color: palette.muted,
+            height: 1.6,
+          ),
+        ),
+        SizedBox(height: spacing.xxl),
+        // Credits
+        Center(
+          child: Text(
+            'Developed at ICI, Sta. Maria, Bulacan\nDecember 2025',
+            textAlign: TextAlign.center,
+            style: AppTokens.typography.caption.copyWith(color: palette.muted),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _FeatureRow extends StatelessWidget {
+  const _FeatureRow({required this.icon, required this.title});
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final spacing = AppTokens.spacing;
+
+    return Padding(
+      padding: spacing.edgeInsetsOnly(bottom: spacing.sm),
+      child: Row(
+        children: [
+          Icon(icon, size: AppTokens.iconSize.md, color: colors.primary),
+          SizedBox(width: spacing.sm),
+          Text(
+            title,
+            style: AppTokens.typography.body.copyWith(color: colors.onSurface),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Compact Privacy content for the legal-style modal dialog.
+class _PrivacyModalContent extends StatelessWidget {
+  const _PrivacyModalContent();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final spacing = AppTokens.spacing;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Hero
+        Text(
+          'Your schedule stays yours',
+          style: AppTokens.typography.title.copyWith(
+            fontWeight: AppTokens.fontWeight.bold,
+            color: colors.onSurface,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          'MySched stores data in your Supabase account. We encrypt in transit, never sell your data, and follow RA 10173.',
+          style: AppTokens.typography.body.copyWith(color: palette.muted),
+        ),
+        SizedBox(height: spacing.xxl),
+        // Data practices
+        Text(
+          'DATA PRACTICES',
+          style: AppTokens.typography.caption.copyWith(
+            letterSpacing: AppLetterSpacing.sectionHeader,
+            fontWeight: AppTokens.fontWeight.semiBold,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          '• Schedules and reminders live in your authenticated project\n'
+          '• Anonymized analytics improve stability\n'
+          '• Request data export or removal via Settings → Support',
+          style: AppTokens.typography.body.copyWith(
+            color: palette.muted,
+            height: 1.6,
+          ),
+        ),
+        SizedBox(height: spacing.xxl),
+        // Permissions
+        Text(
+          'PERMISSIONS WE REQUEST',
+          style: AppTokens.typography.caption.copyWith(
+            letterSpacing: AppLetterSpacing.sectionHeader,
+            fontWeight: AppTokens.fontWeight.semiBold,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        _FeatureRow(icon: Icons.camera_alt_outlined, title: 'Camera for OCR scanning'),
+        _FeatureRow(icon: Icons.photo_library_outlined, title: 'Photos for card selection'),
+        _FeatureRow(icon: Icons.notifications_active_outlined, title: 'Notifications for reminders'),
+        SizedBox(height: spacing.xxl),
+        // Controls
+        Text(
+          'YOUR CONTROLS',
+          style: AppTokens.typography.caption.copyWith(
+            letterSpacing: AppLetterSpacing.sectionHeader,
+            fontWeight: AppTokens.fontWeight.semiBold,
+            color: palette.muted,
+          ),
+        ),
+        SizedBox(height: spacing.sm),
+        Text(
+          '• Delete schedules or reminders individually\n'
+          '• Sign out to clear local data\n'
+          '• Request full account deletion via feedback',
+          style: AppTokens.typography.body.copyWith(
+            color: palette.muted,
+            height: 1.6,
+          ),
+        ),
+        SizedBox(height: spacing.xxl),
+        Center(
+          child: Text(
+            'Effective Date: December 01, 2025',
+            style: AppTokens.typography.caption.copyWith(
+              fontStyle: FontStyle.italic,
+              color: palette.muted,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

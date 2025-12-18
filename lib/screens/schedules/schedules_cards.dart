@@ -9,7 +9,6 @@ import '../../ui/kit/kit.dart';
 import '../../ui/semester_badge.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/time_format.dart';
-import '../../widgets/instructor_avatar.dart';
 import 'schedules_data.dart';
 
 /// Unified card container for the class list - matches dashboard style.

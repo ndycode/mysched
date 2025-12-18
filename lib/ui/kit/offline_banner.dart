@@ -147,7 +147,12 @@ class _OfflineBannerContent extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: Container(
-        margin: spacing.edgeInsetsSymmetric(horizontal: spacing.md, vertical: spacing.sm),
+        margin: EdgeInsets.only(
+          left: spacing.md,
+          right: spacing.md,
+          top: spacing.xs,
+          bottom: spacing.sm,
+        ),
         decoration: BoxDecoration(
           color: colors.errorContainer,
           borderRadius: AppTokens.radius.md,
@@ -182,6 +187,8 @@ class _OfflineBannerContent extends StatelessWidget {
                           color: colors.onErrorContainer,
                           fontWeight: AppTokens.fontWeight.semiBold,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       ValueListenableBuilder<int>(
                         valueListenable: OfflineQueue.instance.pendingCount,
@@ -192,6 +199,8 @@ class _OfflineBannerContent extends StatelessWidget {
                               style: AppTokens.typography.caption.copyWith(
                                 color: colors.onErrorContainer.withValues(alpha: AppOpacity.secondary),
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             );
                           }
                           return Text(
@@ -199,6 +208,8 @@ class _OfflineBannerContent extends StatelessWidget {
                             style: AppTokens.typography.caption.copyWith(
                               color: colors.onErrorContainer.withValues(alpha: AppOpacity.secondary),
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           );
                         },
                       ),

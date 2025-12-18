@@ -72,12 +72,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final results = await requests.request();
     final granted = results.values.every((status) => status.isGranted);
 
+    if (!mounted) return;
     setState(() => _requesting = false);
 
     if (granted) {
       widget.onFinished?.call();
     } else {
-      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Please allow camera and notifications to continue.'),

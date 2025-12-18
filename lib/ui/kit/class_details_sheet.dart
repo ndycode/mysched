@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import '../../services/schedule_repository.dart' as sched;
 import '../../services/notification_scheduler.dart';
-import '../../widgets/instructor_avatar.dart';
 import '../../services/telemetry_service.dart';
 import '../kit/kit.dart';
 import '../theme/tokens.dart';

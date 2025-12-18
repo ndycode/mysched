@@ -1203,9 +1203,62 @@ class _SkeletonInfoTile extends StatelessWidget {
   }
 }
 
+/// Skeleton for a navigation row (icon badge + title + description + chevron).
+/// Matches NavigationRow from rows.dart.
+class _SkeletonNavigationRow extends StatelessWidget {
+  const _SkeletonNavigationRow();
+
+  @override
+  Widget build(BuildContext context) {
+    final spacing = AppTokens.spacing;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        // Icon container (avatarLg with radius.md like SettingsRow)
+        SkeletonBlock(
+          height: AppTokens.componentSize.avatarLg,
+          width: AppTokens.componentSize.avatarLg,
+          borderRadius: AppTokens.radius.md,
+        ),
+        SizedBox(width: spacing.md),
+        // Title and description
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Title (typography.subtitle = 16px)
+              SkeletonBlock(
+                height: AppTokens.componentSize.skeletonTextMd,
+                width: AppTokens.componentSize.skeletonWidthXl,
+                borderRadius: AppTokens.radius.sm,
+              ),
+              SizedBox(height: spacing.xs),
+              // Description (typography.bodySecondary = 14px)
+              SkeletonBlock(
+                height: AppTokens.componentSize.skeletonTextSm,
+                width: AppTokens.componentSize.skeletonWidthHero,
+                borderRadius: AppTokens.radius.sm,
+              ),
+            ],
+          ),
+        ),
+        SizedBox(width: spacing.md),
+        // Chevron placeholder
+        SkeletonBlock(
+          height: AppTokens.iconSize.lg,
+          width: AppTokens.iconSize.lg,
+          borderRadius: AppTokens.radius.sm,
+        ),
+      ],
+    );
+  }
+}
+
 /// Skeleton for the account overview screen content.
-/// Matches the structure: account summary card (title, subtitle, profile section
-/// with avatar + info), security card (title, subtitle, info tiles), sign out button.
+/// Matches the structure: profile section card (avatar + info),
+/// security card (navigation rows), sign out button.
+/// Note: Section titles/subtitles are in ScreenSection, not in the cards.
 class SkeletonAccountOverview extends StatelessWidget {
   const SkeletonAccountOverview({super.key});
 
@@ -1216,12 +1269,40 @@ class SkeletonAccountOverview extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Account summary card
-        _SkeletonAccountSummaryCard(),
-        SizedBox(height: spacing.lg),
+        // Profile section title skeleton
+        SkeletonBlock(
+          height: AppTokens.componentSize.skeletonTextMd,
+          width: AppTokens.componentSize.skeletonWidthSm,
+          borderRadius: AppTokens.radius.sm,
+        ),
+        SizedBox(height: spacing.xs),
+        // Profile section subtitle skeleton
+        SkeletonBlock(
+          height: AppTokens.componentSize.skeletonTextSm,
+          width: AppTokens.componentSize.skeletonWidthXl,
+          borderRadius: AppTokens.radius.sm,
+        ),
+        SizedBox(height: spacing.md),
+        // Profile card
+        const _SkeletonProfileCard(),
+        SizedBox(height: spacing.xl),
 
+        // Security section title skeleton
+        SkeletonBlock(
+          height: AppTokens.componentSize.skeletonTextMd,
+          width: AppTokens.componentSize.skeletonWidthLg,
+          borderRadius: AppTokens.radius.sm,
+        ),
+        SizedBox(height: spacing.xs),
+        // Security section subtitle skeleton
+        SkeletonBlock(
+          height: AppTokens.componentSize.skeletonTextSm,
+          width: AppTokens.componentSize.skeletonWidthXl,
+          borderRadius: AppTokens.radius.sm,
+        ),
+        SizedBox(height: spacing.md),
         // Security card
-        _SkeletonSecurityCard(),
+        const _SkeletonSecurityCard(),
         SizedBox(height: spacing.lg),
 
         // Sign out button skeleton
@@ -1234,10 +1315,12 @@ class SkeletonAccountOverview extends StatelessWidget {
   }
 }
 
-/// Skeleton for the account summary card.
-/// Structure: section header + subtitle, profile section header + subtitle,
-/// avatar + name/student ID/email column.
-class _SkeletonAccountSummaryCard extends StatelessWidget {
+/// Skeleton for the profile card.
+/// Structure: avatar with edit badge + name/student ID/email column.
+/// No title/subtitle - those are in ScreenSection.
+class _SkeletonProfileCard extends StatelessWidget {
+  const _SkeletonProfileCard();
+
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
@@ -1267,85 +1350,49 @@ class _SkeletonAccountSummaryCard extends StatelessWidget {
                 ),
               ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Section header: "Account overview" (typography.title = 20px)
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextXl,
-            width: AppTokens.componentSize.skeletonWidthMax,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          SizedBox(height: spacing.xs),
-          // Subtitle description (typography.body = 16px)
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextMd,
-            width: AppTokens.componentSize.skeletonWidthHero,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          SizedBox(height: spacing.xl),
-
-          // Profile section header (typography.subtitle = 16px)
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextMd,
-            width: AppTokens.componentSize.skeletonWidthSm,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          SizedBox(height: spacing.xs),
-          // Profile subtitle
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextSm,
-            width: AppTokens.componentSize.skeletonWidthXl,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          SizedBox(height: spacing.lg),
-
-          // Profile content row: avatar + info column
-          Row(
+          // Avatar with edit badge overlay
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              // Avatar with edit badge overlay
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  SkeletonCircle(size: AppTokens.componentSize.avatarXl * 2),
-                  Positioned(
-                    right: -spacing.xs,
-                    bottom: -spacing.xs,
-                    child: SkeletonCircle(
-                      size: AppTokens.componentSize.avatarSm,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(width: spacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Name
-                    SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextMd,
-                      width: AppTokens.componentSize.skeletonWidthLg,
-                      borderRadius: AppTokens.radius.sm,
-                    ),
-                    SizedBox(height: spacing.xs),
-                    // Student ID
-                    SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextSm,
-                      width: AppTokens.componentSize.skeletonWidthMd,
-                      borderRadius: AppTokens.radius.sm,
-                    ),
-                    SizedBox(height: spacing.xs),
-                    // Email
-                    SkeletonBlock(
-                      height: AppTokens.componentSize.skeletonTextSm,
-                      width: AppTokens.componentSize.skeletonWidthXl,
-                      borderRadius: AppTokens.radius.sm,
-                    ),
-                  ],
+              SkeletonCircle(size: AppTokens.componentSize.avatarXl * 2),
+              Positioned(
+                right: -spacing.xs,
+                bottom: -spacing.xs,
+                child: SkeletonCircle(
+                  size: AppTokens.componentSize.avatarSm,
                 ),
               ),
             ],
+          ),
+          SizedBox(width: spacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Name
+                SkeletonBlock(
+                  height: AppTokens.componentSize.skeletonTextMd,
+                  width: AppTokens.componentSize.skeletonWidthLg,
+                  borderRadius: AppTokens.radius.sm,
+                ),
+                SizedBox(height: spacing.xs),
+                // Student ID
+                SkeletonBlock(
+                  height: AppTokens.componentSize.skeletonTextSm,
+                  width: AppTokens.componentSize.skeletonWidthMd,
+                  borderRadius: AppTokens.radius.sm,
+                ),
+                SizedBox(height: spacing.xs),
+                // Email
+                SkeletonBlock(
+                  height: AppTokens.componentSize.skeletonTextSm,
+                  width: AppTokens.componentSize.skeletonWidthXl,
+                  borderRadius: AppTokens.radius.sm,
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -1354,9 +1401,11 @@ class _SkeletonAccountSummaryCard extends StatelessWidget {
 }
 
 /// Skeleton for the security actions card.
-/// Structure: section header + subtitle, 3 info tiles (change email,
-/// change password, delete account).
+/// Structure: 3 navigation rows (change email, change password, delete account).
+/// No title/subtitle - those are in ScreenSection.
 class _SkeletonSecurityCard extends StatelessWidget {
+  const _SkeletonSecurityCard();
+
   @override
   Widget build(BuildContext context) {
     final spacing = AppTokens.spacing;
@@ -1389,27 +1438,12 @@ class _SkeletonSecurityCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Section header: "Security actions"
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextMd,
-            width: AppTokens.componentSize.skeletonWidthLg,
-            borderRadius: AppTokens.radius.sm,
-          ),
-          SizedBox(height: spacing.xs),
-          // Subtitle description
-          SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextSm,
-            width: AppTokens.componentSize.skeletonWidthXl,
-            borderRadius: AppTokens.radius.sm,
-          ),
+          // Navigation rows (3 rows: change email, change password, delete account)
+          const _SkeletonNavigationRow(),
           SizedBox(height: spacing.lg),
-
-          // Info tiles (3 rows: change email, change password, delete account)
-          const _SkeletonInfoTile(),
-          SizedBox(height: spacing.md),
-          const _SkeletonInfoTile(),
-          SizedBox(height: spacing.md),
-          const _SkeletonInfoTile(),
+          const _SkeletonNavigationRow(),
+          SizedBox(height: spacing.lg),
+          const _SkeletonNavigationRow(),
         ],
       ),
     );

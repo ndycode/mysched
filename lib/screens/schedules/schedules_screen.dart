@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import '../../app/routes.dart';
 import '../../services/notification_scheduler.dart';
 import '../../services/schedule_repository.dart' as sched;
-import '../../ui/kit/instructor_finder_sheet.dart';
 import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/nav.dart';

@@ -1,8 +1,10 @@
 abstract class AppRoutes {
   static const splash = '/splash';
+  static const welcome = '/welcome';
   static const login = '/login';
   static const register = '/register';
-  static const verify = '/verify';
+static const verify = '/verify';
+  static const forgotPassword = '/forgot-password';
   static const app = '/app';
   static const reminders = '/reminders';
   static const account = '/account';

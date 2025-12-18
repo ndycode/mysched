@@ -7,10 +7,8 @@ import '../../ui/theme/tokens.dart';
 
 /// Shows the stats as a modal sheet.
 Future<void> showStatsSheet(BuildContext context) {
-  return showModalBottomSheet(
+  return AppModal.sheet(
     context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.transparent,
     builder: (context) => const StatsSheet(),
   );
 }

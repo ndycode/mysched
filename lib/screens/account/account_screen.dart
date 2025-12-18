@@ -170,9 +170,6 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colors = theme.colorScheme;
-    final isDark = theme.brightness == Brightness.dark;
-    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final media = MediaQuery.of(context);
 
@@ -214,12 +211,22 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
       hero: heroContent,
       sections: [
         ScreenSection(
+          title: 'Profile',
+          subtitle: 'Update your avatar, name, and student ID.',
           decorated: false,
-          child: _buildAccountSummaryCard(colors, isDark, palette),
+          child: _buildCardContainer(
+            theme: theme,
+            child: _buildProfileCard(theme),
+          ),
         ),
         ScreenSection(
+          title: 'Security actions',
+          subtitle: 'Keep your login details up to date.',
           decorated: false,
-          child: _buildSecurityCard(colors, isDark, palette),
+          child: _buildCardContainer(
+            theme: theme,
+            child: _buildSecurityCard(theme),
+          ),
         ),
         ScreenSection(
           decorated: false,
@@ -239,181 +246,137 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
     );
   }
 
-  Widget _buildAccountSummaryCard(
-      ColorScheme colors, bool isDark, ColorPalette palette) {
+  Widget _buildCardContainer({
+    required ThemeData theme,
+    required Widget child,
+  }) {
+    return SurfaceCard(
+      padding: EdgeInsets.zero,
+      child: child,
+    );
+  }
+
+  Widget _buildProfileCard(ThemeData theme) {
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    return CardX(
-      variant: CardVariant.elevated,
+    return Padding(
       padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          // Section header
-          Text(
-            'Account overview',
-            style: AppTokens.typography.titleScaled(scale).copyWith(
-              fontWeight: AppTokens.fontWeight.bold,
-              letterSpacing: AppLetterSpacing.snug,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            'Manage your profile and security preferences.',
-            style: AppTokens.typography.body.copyWith(
-              color: palette.muted,
-            ),
-          ),
-          SizedBox(height: spacing.xl * spacingScale),
-          // Profile section header
-          Text(
-            'Profile',
-            style: AppTokens.typography.subtitleScaled(scale).copyWith(
-              fontWeight: AppTokens.fontWeight.semiBold,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            'Update your avatar, name, and student ID.',
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color: palette.muted,
-            ),
-          ),
-          SizedBox(height: spacing.lg),
-          // Profile content
-          Row(
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  CircleAvatar(
-                    radius: AppTokens.componentSize.avatarXl * scale,
-                    backgroundColor:
-                        colors.primary.withValues(alpha: AppOpacity.overlay),
-                    backgroundImage:
-                        _avatar == null ? null : NetworkImage(_avatar!),
-                    child: _avatar == null
-                        ? Icon(
-                            Icons.person_rounded,
-                            size: AppTokens.iconSize.xl * scale,
-                            color: colors.onSurface
-                                .withValues(alpha: AppOpacity.subtle),
-                          )
-                        : null,
-                  ),
-                  Positioned(
-                    right: -spacing.xs,
-                    bottom: -spacing.xs,
-                    child: GestureDetector(
-                      onTap: _busy ? null : _pickAndUpload,
-                      child: Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
-                        decoration: BoxDecoration(
-                          color: colors.primary,
-                          borderRadius: AppTokens.radius.xxxl,
-                          border: Border.all(
-                            color: isDark
-                                ? colors.surfaceContainerHigh
-                                : colors.surface,
-                            width: AppTokens.componentSize.dividerThick,
-                          ),
-                        ),
-                        child: _busy
-                            ? SizedBox(
-                                width: AppTokens.iconSize.sm * scale,
-                                height: AppTokens.iconSize.sm * scale,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: AppTokens.spacing.micro,
-                                  color: colors.onPrimary,
-                                ),
-                              )
-                            : Icon(
-                                Icons.photo_camera_outlined,
-                                size: AppTokens.iconSize.sm * scale,
-                                color: colors.onPrimary,
-                              ),
-                      ),
-                    ),
-                  ),
-                ],
+              CircleAvatar(
+                radius: AppTokens.componentSize.avatarXl * scale,
+                backgroundColor:
+                    colors.primary.withValues(alpha: AppOpacity.overlay),
+                backgroundImage:
+                    _avatar == null ? null : NetworkImage(_avatar!),
+                child: _avatar == null
+                    ? Icon(
+                        Icons.person_rounded,
+                        size: AppTokens.iconSize.xl * scale,
+                        color: colors.onSurface
+                            .withValues(alpha: AppOpacity.subtle),
+                      )
+                    : null,
               ),
-              SizedBox(width: spacing.lg),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _name.isEmpty ? 'Student' : _name,
-                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
-                        fontWeight: AppTokens.fontWeight.bold,
-                        color: colors.onSurface,
+              Positioned(
+                right: -spacing.xs,
+                bottom: -spacing.xs,
+                child: GestureDetector(
+                  onTap: _busy ? null : _pickAndUpload,
+                  child: Container(
+                    padding: spacing.edgeInsetsAll(spacing.sm),
+                    decoration: BoxDecoration(
+                      color: colors.primary,
+                      borderRadius: AppTokens.radius.xxxl,
+                      border: Border.all(
+                        color: isDark
+                            ? colors.surfaceContainerHigh
+                            : colors.surface,
+                        width: AppTokens.componentSize.dividerThick,
                       ),
                     ),
-                    if (_sid.isNotEmpty || _email.isNotEmpty) ...[
-                      SizedBox(height: spacing.xs),
-                      if (_sid.isNotEmpty)
-                        Text(
-                          _sid,
-                          style: AppTokens.typography.bodySecondary.copyWith(
-                            color: palette.muted,
-                            fontWeight: AppTokens.fontWeight.medium,
+                    child: _busy
+                        ? SizedBox(
+                            width: AppTokens.iconSize.sm * scale,
+                            height: AppTokens.iconSize.sm * scale,
+                            child: CircularProgressIndicator(
+                              strokeWidth: AppTokens.spacing.micro,
+                              color: colors.onPrimary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.photo_camera_outlined,
+                            size: AppTokens.iconSize.sm * scale,
+                            color: colors.onPrimary,
                           ),
-                        ),
-                      if (_email.isNotEmpty)
-                        Text(
-                          _email,
-                          style: AppTokens.typography.bodySecondary.copyWith(
-                            color: palette.muted,
-                          ),
-                        ),
-                    ],
-                  ],
+                  ),
                 ),
               ),
             ],
+          ),
+          SizedBox(width: spacing.lg),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _name.isEmpty ? 'Student' : _name,
+                  style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                    fontWeight: AppTokens.fontWeight.bold,
+                    color: colors.onSurface,
+                  ),
+                ),
+                if (_sid.isNotEmpty || _email.isNotEmpty) ...[
+                  SizedBox(height: spacing.xs),
+                  if (_sid.isNotEmpty)
+                    Text(
+                      _sid,
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        color: palette.muted,
+                        fontWeight: AppTokens.fontWeight.medium,
+                      ),
+                    ),
+                  if (_email.isNotEmpty)
+                    Text(
+                      _email,
+                      style: AppTokens.typography.bodySecondary.copyWith(
+                        color: palette.muted,
+                      ),
+                    ),
+                ],
+              ],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSecurityCard(
-      ColorScheme colors, bool isDark, ColorPalette palette) {
+  Widget _buildSecurityCard(ThemeData theme) {
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
     final spacing = AppTokens.spacing;
-    final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    return CardX(
-      variant: CardVariant.elevated,
+    return Padding(
       padding: spacing.edgeInsetsAll(spacing.xxl * spacingScale),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Security actions',
-            style: AppTokens.typography.subtitleScaled(scale).copyWith(
-              fontWeight: AppTokens.fontWeight.semiBold,
-              color: colors.onSurface,
-            ),
-          ),
-          SizedBox(height: spacing.xs),
-          Text(
-            'Keep your login details up to date.',
-            style: AppTokens.typography.bodySecondary.copyWith(
-              color: palette.muted,
-            ),
-          ),
-          SizedBox(height: spacing.lg * spacingScale),
-          InfoTile(
+          NavigationRow(
             icon: Icons.mail_outline,
             title: 'Change email',
-            tint: colors.primary,
-            iconInContainer: true,
-            showChevron: true,
+            description: 'Update your email address.',
+            accentColor: colors.primary,
             onTap: () async {
               await ChangeEmailScreen.show(
                 context,
@@ -422,25 +385,23 @@ class _AccountOverviewPageState extends State<AccountOverviewPage>
               await _load();
             },
           ),
-          SizedBox(height: spacing.md),
-          InfoTile(
+          SizedBox(height: spacing.lg),
+          NavigationRow(
             icon: Icons.lock_outline,
             title: 'Change password',
-            tint: colors.primary,
-            iconInContainer: true,
-            showChevron: true,
+            description: 'Update your account password.',
+            accentColor: colors.primary,
             onTap: () async {
               await ChangePasswordScreen.show(context);
               await _load();
             },
           ),
-          SizedBox(height: spacing.md),
-          InfoTile(
+          SizedBox(height: spacing.lg),
+          NavigationRow(
             icon: Icons.delete_forever_outlined,
             title: 'Delete account',
-            tint: palette.danger,
-            iconInContainer: true,
-            showChevron: true,
+            description: 'Permanently remove your account.',
+            accentColor: palette.danger,
             onTap: () async {
               await DeleteAccountScreen.show(context);
               if (mounted) {
@@ -540,42 +501,48 @@ class _AvatarCropDialogState extends State<_AvatarCropDialog> {
             ),
             textAlign: TextAlign.center,
           ),
+          SizedBox(height: AppTokens.spacing.xl),
+          // Buttons row
+          Row(
+            children: [
+              Expanded(
+                child: _saving
+                    ? SizedBox(
+                        height: AppTokens.componentSize.buttonMd,
+                        child: Center(
+                          child: SizedBox(
+                            width: AppTokens.componentSize.badgeMd +
+                                AppTokens.spacing.micro,
+                            height: AppTokens.componentSize.badgeMd +
+                                AppTokens.spacing.micro,
+                            child: CircularProgressIndicator(
+                                strokeWidth: AppTokens.spacing.micro),
+                          ),
+                        ),
+                      )
+                    : PrimaryButton(
+                        label: 'Save',
+                        onPressed: () {
+                          setState(() {
+                            _saving = true;
+                          });
+                          _controller.crop();
+                        },
+                        minHeight: AppTokens.componentSize.buttonMd,
+                      ),
+              ),
+              SizedBox(width: AppTokens.spacing.md),
+              Expanded(
+                child: SecondaryButton(
+                  label: 'Cancel',
+                  onPressed: _saving ? null : () => Navigator.of(context).pop(),
+                  minHeight: AppTokens.componentSize.buttonMd,
+                ),
+              ),
+            ],
+          ),
         ],
       ),
-      actions: [
-        SecondaryButton(
-          label: 'Cancel',
-          onPressed: _saving ? null : () => Navigator.of(context).pop(),
-          minHeight: AppTokens.componentSize.buttonSm,
-          expanded: false,
-        ),
-        _saving
-            ? SizedBox(
-                width: AppTokens.componentSize.buttonLg + AppTokens.spacing.xxl,
-                height: AppTokens.componentSize.buttonSm,
-                child: Center(
-                  child: SizedBox(
-                    width: AppTokens.componentSize.badgeMd +
-                        AppTokens.spacing.micro,
-                    height: AppTokens.componentSize.badgeMd +
-                        AppTokens.spacing.micro,
-                    child: CircularProgressIndicator(
-                        strokeWidth: AppTokens.spacing.micro),
-                  ),
-                ),
-              )
-            : PrimaryButton(
-                label: 'Save',
-                onPressed: () {
-                  setState(() {
-                    _saving = true;
-                  });
-                  _controller.crop();
-                },
-                minHeight: AppTokens.componentSize.buttonSm,
-                expanded: false,
-              ),
-      ],
     );
   }
 }

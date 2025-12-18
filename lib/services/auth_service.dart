@@ -1,6 +1,7 @@
 // lib/services/auth_service.dart
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../env.dart';
@@ -494,7 +495,62 @@ class AuthService {
     );
   }
 
-  Future<Map<String, dynamic>?> me() async => _loadAndPersistProfile();
+Future<Map<String, dynamic>?> me() async => _loadAndPersistProfile();
+
+  /// Ensures a profile row exists for the given user.
+  /// Used for OAuth sign-ins (Google) where profile may not be auto-created.
+  /// Only sets avatar_url if the profile doesn't already have one.
+  Future<void> _ensureProfileExists({
+    required String userId,
+    String? email,
+    String? fullName,
+    String? avatarUrl,
+  }) async {
+    try {
+      // First, check if profile already exists with an avatar
+      final existing = await _sb
+          .from('profiles')
+          .select('avatar_url')
+          .eq('id', userId)
+          .maybeSingle();
+
+      final data = <String, dynamic>{'id': userId};
+      if (email != null && email.isNotEmpty) {
+        data['email'] = email;
+      }
+      if (fullName != null && fullName.isNotEmpty) {
+        data['full_name'] = fullName;
+      }
+      // Only set avatar_url if profile doesn't already have one
+      if (avatarUrl != null && avatarUrl.isNotEmpty) {
+        final existingAvatar = existing?['avatar_url'] as String?;
+        if (existingAvatar == null || existingAvatar.isEmpty) {
+          data['avatar_url'] = avatarUrl;
+        }
+      }
+
+      await _sb.from('profiles').upsert(data, onConflict: 'id');
+    } catch (e) {
+      // Log but don't fail sign-in if profile creation fails
+      TelemetryService.instance.logError(
+        'profile_ensure_failed',
+        error: e,
+        data: {'userId': userId},
+      );
+    }
+  }
+
+  /// Checks if the current user's profile is complete (has student_id).
+  /// Returns true if profile is complete, false if student_id is missing.
+  Future<bool> isProfileComplete() async {
+    final profile = await _loadAndPersistProfile();
+    if (profile == null) return false;
+
+    final studentId = profile['student_id'];
+    return studentId != null &&
+        studentId is String &&
+        studentId.trim().isNotEmpty;
+  }
 
   /// Email change with password check + Supabase OTP verification.
   Future<void> updateEmailWithPassword({
@@ -728,6 +784,86 @@ class AuthService {
     }
   }
 
+  /// Verify password reset OTP code only (without setting password).
+  /// Returns true if verification succeeded and user is now authenticated.
+  Future<void> verifyPasswordResetCode({
+    required String email,
+    required String token,
+  }) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    final code = token.trim();
+    if (normalizedEmail.isEmpty) {
+      throw Exception('verify_missing_email');
+    }
+    if (code.length != 6) {
+      throw Exception('verify_invalid_code');
+    }
+    try {
+      await _runWithAuthRetry<AuthResponse>(
+        operation: 'verify_password_reset',
+        shouldRetry: shouldRetryOtpError,
+        task: () => _sb.auth.verifyOTP(
+          email: normalizedEmail,
+          token: code,
+          type: OtpType.recovery,
+        ),
+      );
+    } catch (error) {
+      final message = error.toString().toLowerCase();
+      if (message.contains('expired')) {
+        throw Exception('verify_expired');
+      }
+      if (message.contains('invalid') ||
+          message.contains('otp') ||
+          message.contains('not found')) {
+        throw Exception('verify_invalid_code');
+      }
+      if (message.contains('block') || message.contains('rate')) {
+        throw Exception('verify_rate_limited');
+      }
+      rethrow;
+    }
+  }
+
+  /// Set new password after successful OTP verification.
+  /// Must be called after verifyPasswordResetCode succeeds.
+  Future<void> setNewPassword({required String newPassword}) async {
+    if (newPassword.length < 8) {
+      throw Exception('weak_password');
+    }
+    try {
+      await _sb.auth.updateUser(UserAttributes(password: newPassword));
+      await _sb.auth.refreshSession();
+    } catch (error) {
+      final message = error.toString().toLowerCase();
+      if (message.contains('weak') || message.contains('password')) {
+        throw Exception('weak_password');
+      }
+      rethrow;
+    }
+  }
+
+  /// Resend password reset OTP code.
+  Future<void> resendPasswordResetCode({required String email}) async {
+    final normalizedEmail = email.trim().toLowerCase();
+    if (normalizedEmail.isEmpty) {
+      throw Exception('verify_missing_email');
+    }
+    try {
+      await _runWithAuthRetry<void>(
+        operation: 'resend_password_reset',
+        shouldRetry: shouldRetryOtpError,
+        task: () => _backend.resetPassword(normalizedEmail),
+      );
+    } catch (error) {
+      final message = error.toString().toLowerCase();
+      if (message.contains('block') || message.contains('rate')) {
+        throw Exception('verify_rate_limited');
+      }
+      rethrow;
+    }
+  }
+
   Future<void> deleteAccount({required String password}) async {
     final u = _sb.auth.currentUser;
     if (u == null) throw Exception('Not signed in.');
@@ -836,6 +972,101 @@ class AuthService {
       await logout();
     } catch (_) {
       // Ignore errors during forced logout - session is already invalid
+    }
+  }
+
+  /// Sign in with Google using native Google Sign-In flow.
+  /// Requires Google OAuth to be configured in Supabase Dashboard.
+  /// 
+  /// Setup required:
+  /// 1. Enable Google provider in Supabase Dashboard > Authentication > Providers
+  /// 2. Add Web Client ID and Secret from Google Cloud Console
+  /// 3. For Android: Add SHA-1 fingerprint and create Android OAuth client
+  /// 4. For iOS: Add iOS OAuth client and configure URL schemes
+  Future<void> signInWithGoogle() async {
+    // Web client ID from Google Cloud Console (same one used in Supabase Dashboard)
+    const webClientId = '740244053742-ft4o4kgjp9apm9odqd00hpmpp5rrn8gt.apps.googleusercontent.com';
+    // iOS client ID - create separate iOS OAuth client in Google Cloud Console
+    // For now, using web client ID as placeholder (iOS setup required later)
+    const iosClientId = '740244053742-ft4o4kgjp9apm9odqd00hpmpp5rrn8gt.apps.googleusercontent.com';
+
+    final googleSignIn = GoogleSignIn(
+      clientId: iosClientId,
+      serverClientId: webClientId,
+    );
+
+    try {
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser == null) {
+        throw Exception('google_sign_in_cancelled');
+      }
+
+      final googleAuth = await googleUser.authentication;
+      final idToken = googleAuth.idToken;
+      final accessToken = googleAuth.accessToken;
+
+      if (idToken == null) {
+        throw Exception('google_sign_in_no_id_token');
+      }
+
+      // Sign in to Supabase using the Google ID token
+      final response = await _sb.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (response.session == null) {
+        throw Exception('google_sign_in_no_session');
+      }
+
+      // Create or update profile for Google sign-in users
+      final user = response.user;
+      if (user != null) {
+        await _ensureProfileExists(
+          userId: user.id,
+          email: user.email,
+          fullName: user.userMetadata?['full_name'] as String? ??
+              user.userMetadata?['name'] as String? ??
+              googleUser.displayName,
+          avatarUrl: user.userMetadata?['avatar_url'] as String? ??
+              user.userMetadata?['picture'] as String? ??
+              googleUser.photoUrl,
+        );
+      }
+
+      // Warm profile cache after successful sign-in
+      await _warmProfileCache();
+      
+      // Check if user is an instructor
+      await InstructorService.instance.checkInstructorStatus();
+
+      TelemetryService.instance.recordEvent('google_sign_in_success');
+    } on AuthException catch (e) {
+      TelemetryService.instance.recordEvent(
+        'google_sign_in_auth_error',
+        data: {'message': e.message, 'statusCode': e.statusCode ?? 'null'},
+      );
+      
+      final msg = e.message.toLowerCase();
+      if (msg.contains('user already registered') || msg.contains('already exists')) {
+        throw Exception('google_sign_in_email_exists');
+      }
+      throw Exception('google_sign_in_failed');
+    } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('cancelled') || msg.contains('canceled')) {
+        throw Exception('google_sign_in_cancelled');
+      }
+      if (msg.contains('network')) {
+        throw Exception('google_sign_in_network_error');
+      }
+      
+      TelemetryService.instance.recordEvent(
+        'google_sign_in_error',
+        data: {'error': e.toString()},
+      );
+      rethrow;
     }
   }
 }

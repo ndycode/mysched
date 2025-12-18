@@ -111,6 +111,7 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
             children: [
               // Header
               Container(
+                width: double.infinity,
                 padding: spacing.edgeInsetsAll(spacing.xl * spacingScale),
                 decoration: BoxDecoration(
                   border: Border(
@@ -120,30 +121,13 @@ class _AppOptionPickerState<T> extends State<_AppOptionPicker<T>> {
                     ),
                   ),
                 ),
-                child: Row(
-                  children: [
-                    if (widget.icon != null) ...[
-                      Container(
-                        padding: spacing.edgeInsetsAll(spacing.sm),
-                        decoration: BoxDecoration(
-                          color: colors.primary.withValues(alpha: AppOpacity.overlay),
-                          borderRadius: AppTokens.radius.sm,
-                        ),
-                        child: Icon(
-                          widget.icon,
-                          color: colors.primary,
-                          size: AppTokens.iconSize.md * scale,
-                        ),
-                      ),
-                      SizedBox(width: spacing.md * spacingScale),
-                    ],
-                    Text(
-                      widget.title,
-                      style: AppTokens.typography.subtitleScaled(scale).copyWith(
-                        fontWeight: AppTokens.fontWeight.semiBold,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  widget.title,
+                  style: AppTokens.typography.subtitleScaled(scale).copyWith(
+                    fontWeight: AppTokens.fontWeight.extraBold,
+                    letterSpacing: AppLetterSpacing.snug,
+                    color: colors.onSurface,
+                  ),
                 ),
               ),
               // Scroll wheel

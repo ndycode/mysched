@@ -28,9 +28,9 @@ class ScanErrorModal extends StatelessWidget {
     required String errorMessage,
     bool isLowLight = false,
   }) {
-    return showDialog<ScanErrorAction>(
+    return AppModal.alert<ScanErrorAction>(
       context: context,
-      barrierDismissible: false,
+      dismissible: false,
       builder: (_) => ScanErrorModal(
         errorMessage: errorMessage,
         isLowLight: isLowLight,

@@ -4,6 +4,7 @@ import '../../env.dart';
 import '../../models/schedule_class.dart';
 import '../../models/section.dart' as model;
 import '../../services/semester_service.dart';
+import '../../ui/kit/kit.dart';
 import '../../ui/theme/tokens.dart';
 import '../../utils/app_log.dart';
 
@@ -26,10 +27,8 @@ class ManualSectionEntrySheet extends StatefulWidget {
 
   /// Shows the sheet and returns the result, or null if cancelled.
   static Future<ManualEntryResult?> show(BuildContext context) {
-    return showModalBottomSheet<ManualEntryResult>(
+    return AppModal.sheet<ManualEntryResult>(
       context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
       builder: (_) => const ManualSectionEntrySheet(),
     );
   }

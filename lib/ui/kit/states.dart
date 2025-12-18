@@ -25,7 +25,7 @@ enum StateVariant {
 }
 
 /// Unified state display widget for empty, error, success, and warning states.
-class StateDisplay extends StatelessWidget {
+class StateDisplay extends StatefulWidget {
   const StateDisplay({
     super.key,
     required this.variant,
@@ -95,6 +95,26 @@ class StateDisplay extends StatelessWidget {
   final bool compact;
 
   @override
+  State<StateDisplay> createState() => _StateDisplayState();
+}
+
+class _StateDisplayState extends State<StateDisplay> {
+  bool _analyticsLogged = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Log analytics only once when first displayed, not on every rebuild
+    if (!_analyticsLogged) {
+      _analyticsLogged = true;
+      AnalyticsService.instance.logEvent(
+        'ui_state_${widget.variant.name}',
+        params: {'screen': ModalRoute.of(context)?.settings.name},
+      );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
@@ -105,81 +125,76 @@ class StateDisplay extends StatelessWidget {
     // Resolve colors based on variant
     final Color tintColor;
     final IconData displayIcon;
-    switch (variant) {
+    switch (widget.variant) {
       case StateVariant.empty:
         tintColor = colors.primary;
-        displayIcon = icon ?? Icons.inbox_outlined;
+        displayIcon = widget.icon ?? Icons.inbox_outlined;
         break;
       case StateVariant.error:
         tintColor = palette.danger;
-        displayIcon = icon ?? Icons.error_outline_rounded;
+        displayIcon = widget.icon ?? Icons.error_outline_rounded;
         break;
       case StateVariant.success:
         tintColor = colors.tertiary;
-        displayIcon = icon ?? Icons.check_circle_outline_rounded;
+        displayIcon = widget.icon ?? Icons.check_circle_outline_rounded;
         break;
       case StateVariant.warning:
         tintColor = colors.secondary;
-        displayIcon = icon ?? Icons.warning_amber_rounded;
+        displayIcon = widget.icon ?? Icons.warning_amber_rounded;
         break;
       case StateVariant.loading:
         tintColor = colors.primary;
-        displayIcon = icon ?? Icons.hourglass_empty_rounded;
+        displayIcon = widget.icon ?? Icons.hourglass_empty_rounded;
         break;
     }
-
-    AnalyticsService.instance.logEvent(
-      'ui_state_${variant.name}',
-      params: {'screen': ModalRoute.of(context)?.settings.name},
-    );
 
     // Get responsive scale factors (1.0 on standard ~390dp screens)
     final scale = ResponsiveProvider.scale(context);
     final spacingScale = ResponsiveProvider.spacing(context);
 
-    final iconSize = (compact
+    final iconSize = (widget.compact
             ? AppTokens.componentSize.stateIconCompact
             : AppTokens.componentSize.stateIconLarge) *
         scale;
-    final iconInnerSize = (compact
+    final iconInnerSize = (widget.compact
             ? AppTokens.componentSize.stateIconInnerCompact
             : AppTokens.componentSize.stateIconInnerLarge) *
         scale;
 
     Widget? primaryButton;
-    if (primaryActionLabel != null) {
-      primaryButton = variant == StateVariant.error
+    if (widget.primaryActionLabel != null) {
+      primaryButton = widget.variant == StateVariant.error
           ? SecondaryButton(
-              label: primaryActionLabel!,
-              onPressed: onPrimaryAction == null
+              label: widget.primaryActionLabel!,
+              onPressed: widget.onPrimaryAction == null
                   ? null
                   : () {
                       AnalyticsService.instance.logEvent(
                         'ui_tap_state_action',
                         params: {
-                          'variant': variant.name,
-                          'label': primaryActionLabel,
+                          'variant': widget.variant.name,
+                          'label': widget.primaryActionLabel,
                         },
                       );
-                      onPrimaryAction?.call();
+                      widget.onPrimaryAction?.call();
                     },
-              expanded: !compact,
+              expanded: !widget.compact,
             )
           : PrimaryButton(
-              label: primaryActionLabel!,
-              onPressed: onPrimaryAction == null
+              label: widget.primaryActionLabel!,
+              onPressed: widget.onPrimaryAction == null
                   ? null
                   : () {
                       AnalyticsService.instance.logEvent(
                         'ui_tap_state_action',
                         params: {
-                          'variant': variant.name,
-                          'label': primaryActionLabel,
+                          'variant': widget.variant.name,
+                          'label': widget.primaryActionLabel,
                         },
                       );
-                      onPrimaryAction?.call();
+                      widget.onPrimaryAction?.call();
                     },
-              expanded: !compact,
+              expanded: !widget.compact,
             );
     }
 
@@ -187,9 +202,9 @@ class StateDisplay extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxWidth:
-                compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
+                widget.compact ? AppLayout.dialogMaxWidth : AppLayout.contentMaxWidth),
         child: Padding(
-          padding: compact
+          padding: widget.compact
               ? spacing.edgeInsetsAll(spacing.lg * spacingScale)
               : spacing.edgeInsetsAll(spacing.xl * spacingScale),
           child: Column(
@@ -211,12 +226,12 @@ class StateDisplay extends StatelessWidget {
                 child: Icon(displayIcon, color: tintColor, size: iconInnerSize),
               ),
               SizedBox(
-                  height: compact
+                  height: widget.compact
                       ? spacing.lg * spacingScale
                       : spacing.xl * spacingScale),
               Text(
-                title,
-                style: compact
+                widget.title,
+                style: widget.compact
                     ? AppTokens.typography.titleScaled(scale).copyWith(
                           fontWeight: AppTokens.fontWeight.bold,
                         )
@@ -227,11 +242,11 @@ class StateDisplay extends StatelessWidget {
               ),
               SizedBox(height: spacing.md * spacingScale),
               Padding(
-                padding: compact
+                padding: widget.compact
                     ? EdgeInsets.zero
                     : spacing.edgeInsetsSymmetric(horizontal: spacing.xl),
                 child: Text(
-                  message,
+                  widget.message,
                   style: AppTokens.typography.bodyScaled(scale).copyWith(
                         color: palette.muted,
                       ),
@@ -240,16 +255,16 @@ class StateDisplay extends StatelessWidget {
               ),
               if (primaryButton != null) ...[
                 SizedBox(
-                    height: compact
+                    height: widget.compact
                         ? spacing.lg * spacingScale
                         : spacing.xl * spacingScale),
                 primaryButton,
               ],
-              if (secondaryActionLabel != null) ...[
+              if (widget.secondaryActionLabel != null) ...[
                 SizedBox(height: spacing.md * spacingScale),
                 TertiaryButton(
-                  label: secondaryActionLabel!,
-                  onPressed: onSecondaryAction,
+                  label: widget.secondaryActionLabel!,
+                  onPressed: widget.onSecondaryAction,
                   expanded: false,
                 ),
               ],
@@ -262,6 +277,7 @@ class StateDisplay extends StatelessWidget {
 }
 
 /// Legacy empty state widget - delegates to StateDisplay.
+@Deprecated('Use StateDisplay.empty() instead')
 class EmptyState extends StatelessWidget {
   const EmptyState({
     super.key,
@@ -291,6 +307,7 @@ class EmptyState extends StatelessWidget {
 }
 
 /// Legacy error state widget - delegates to StateDisplay.
+@Deprecated('Use StateDisplay.error() instead')
 class ErrorState extends StatelessWidget {
   const ErrorState({
     super.key,

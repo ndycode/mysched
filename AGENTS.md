@@ -29,23 +29,27 @@ Never commit real Supabase keys or secrets; keep `lib/env.dart` populated via lo
 
 ## Documentation Reference
 
-Before making changes, review relevant documentation in `docs/reference/`:
+Prefer the up-to-date, code-derived docs in `docs/latest/`. Legacy snapshots live under `docs/legacy/`.
 
 | Document | When to Reference |
 |----------|-------------------|
-| [ARCHITECTURE.md](docs/reference/ARCHITECTURE.md) | Understanding system structure, services, data flow |
-| [API.md](docs/reference/API.md) | Database schema, RLS policies, query patterns |
-| [DESIGN_SYSTEM.md](docs/reference/DESIGN_SYSTEM.md) | UI tokens, components, motion, accessibility |
-| [ERROR_HANDLING.md](docs/reference/ERROR_HANDLING.md) | Error patterns, user messaging, telemetry |
-| [PERFORMANCE.md](docs/reference/PERFORMANCE.md) | Optimization guidelines, profiling |
-| [SECURITY.md](docs/reference/SECURITY.md) | Auth, authorization, data protection |
+| [docs/latest/index.md](docs/latest/index.md) | Canonical entry point for current implementation docs |
+| [docs/latest/getting-started.md](docs/latest/getting-started.md) | Developer setup and first run |
+| [docs/latest/architecture.md](docs/latest/architecture.md) | Understanding system structure, services, data flow |
+| [docs/latest/backend.md](docs/latest/backend.md) | Database objects referenced by the app (code-confirmed) |
+| [docs/latest/configuration.md](docs/latest/configuration.md) | Env vars, secrets, and configuration loading |
+| [docs/latest/deployment.md](docs/latest/deployment.md) | Build and release procedures |
+| [docs/latest/security.md](docs/latest/security.md) | Auth, authorization, data protection |
+| [docs/legacy/reference/DESIGN_SYSTEM.md](docs/legacy/reference/DESIGN_SYSTEM.md) | UI tokens/components reference (legacy snapshot) |
+| [docs/legacy/reference/ERROR_HANDLING.md](docs/legacy/reference/ERROR_HANDLING.md) | Error handling patterns (legacy snapshot) |
+| [docs/legacy/reference/PERFORMANCE.md](docs/legacy/reference/PERFORMANCE.md) | Optimization guidelines (legacy snapshot) |
 
 **Quick context checklist:**
-- Adding a screen? → Check DESIGN_SYSTEM.md for tokens and ARCHITECTURE.md for routing
-- Working with data? → Check API.md for schema and ARCHITECTURE.md for repositories
-- Handling errors? → Check ERROR_HANDLING.md for patterns
-- Building/deploying? → Check [DEPLOYMENT.md](docs/reference/DEPLOYMENT.md)
-- New to the project? → Start with [ONBOARDING.md](docs/reference/ONBOARDING.md)
+- Adding a screen? → Check `docs/latest/screens/index.md` and `docs/legacy/reference/DESIGN_SYSTEM.md`
+- Working with data? → Check `docs/latest/backend.md` and `schema.sql`
+- Handling errors? → Check `docs/latest/architecture.md` and `docs/legacy/reference/ERROR_HANDLING.md`
+- Building/deploying? → Check `docs/latest/deployment.md`
+- New to the project? → Start with `docs/latest/getting-started.md`
 
-Screen-level specifications are in `docs/audit/` organized by feature area.
+Screen-level specs: `docs/latest/screens/` (canonical). Historical specs: `docs/legacy/audit/`.
 

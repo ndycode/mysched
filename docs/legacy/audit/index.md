@@ -1,10 +1,13 @@
 # Audit Documentation Index
+
+> NOTE: This `docs/legacy/audit/` folder is a historical snapshot. For documentation that matches the current codebase, use `docs/latest/` (especially `docs/latest/screens/index.md`).
+
 *Last Updated: 2025-12-06*
 
 ## Quick Reference
 
 ```
-docs/audit/
+docs/legacy/audit/
 ├── index.md                        # This file
 ├── screens/                        # Main app screens (6 files)
 │   ├── dashboard_screen_spec.md

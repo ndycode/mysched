@@ -1,57 +1,58 @@
 # MySched Documentation
 
-This directory contains all project documentation organized by category.
+This `docs/` folder contains documentation for the **MySched Flutter mobile app**.
 
-## Structure
+## Current docs (recommended)
+
+The up-to-date, code-derived documentation lives under `docs/latest/`.
+
+- Start here: [Latest docs index](latest/index.md)
+- Screen catalog: [Screens index](latest/screens/index.md)
+
+## Legacy docs (historical)
+
+These folders pre-date `docs/latest/` and may not reflect the current implementation.
+
+- `docs/legacy/reference/` — older reference docs (architecture/API/security/design)
+- `docs/legacy/audit/` — older screen/component specs
+- `docs/legacy/reports/` — point-in-time reports and reviews
+
+## Layout
 
 ```
 docs/
-├── index.md                 # This file - documentation home
-├── reference/               # Design and technical reference docs
-│   ├── DESIGN_SYSTEM.md     # UI/UX design system specification
-│   ├── ARCHITECTURE.md      # System architecture
-│   ├── API.md               # Database schema and data access
-│   ├── SECURITY.md          # Security guidelines
-│   ├── ONBOARDING.md        # Developer setup guide
-│   ├── DEPLOYMENT.md        # Build and release procedures
-│   ├── PERFORMANCE.md       # Performance optimization
-│   ├── ERROR_HANDLING.md    # Error handling patterns
-│   └── PRIVACY.md           # Privacy policy
-│
-├── audit/                   # Screen and component specifications
-│   ├── index.md             # Audit documentation index
-│   ├── screens/             # Screen-level specs
-│   ├── kit/                 # Component kit specs
-│   ├── forms/               # Form and account specs
-│   └── sheets/              # Bottom sheet specs
-│
-└── reports/                 # Code reviews and analysis
-    └── CODE_REVIEW_REPORT.md
+  index.md
+  latest/
+  legacy/
 ```
 
-## Quick Links
+## Quick links
 
-### Reference Documentation
+### Latest (source of truth)
 
 | Document | Description |
 |----------|-------------|
-| [Design System](reference/DESIGN_SYSTEM.md) | Visual tokens, components, motion, accessibility |
-| [Architecture](reference/ARCHITECTURE.md) | System overview, services, data flow |
-| [API](reference/API.md) | Database schema, RLS, query patterns |
-| [Security](reference/SECURITY.md) | Auth, authorization, data protection |
-| [Onboarding](reference/ONBOARDING.md) | Developer setup and workflow |
-| [Deployment](reference/DEPLOYMENT.md) | Build, release, OTA updates |
-| [Performance](reference/PERFORMANCE.md) | Optimization guidelines |
-| [Error Handling](reference/ERROR_HANDLING.md) | Error patterns and messaging |
-| [Privacy](reference/PRIVACY.md) | Privacy policy |
+| [Documentation home](latest/index.md) | Scope, entry points, and navigation |
+| [Getting started](latest/getting-started.md) | Prereqs, install, configure, run |
+| [Architecture](latest/architecture.md) | Bootstrap, navigation, services, data flow |
+| [Configuration](latest/configuration.md) | Env vars/secrets and how config loads |
+| [Backend](latest/backend.md) | Supabase objects referenced by the app |
+| [Notifications](latest/notifications.md) | Reminders/alarms, timezones, permissions |
+| [Testing](latest/testing.md) | Test commands and patterns |
+| [Deployment](latest/deployment.md) | Build/release notes (incl. Shorebird) |
+| [Security](latest/security.md) | Threat model + secure defaults |
+| [Privacy](latest/privacy.md) | Data handling notes (code-confirmed) |
+| [Contributing](latest/contributing.md) | Style + workflow + doc updates |
 
-### Audit Specifications
-- [Audit Index](audit/index.md) - All screen and component specs
+### Legacy (may be outdated)
 
-### Reports
-- [Code Review Report](reports/CODE_REVIEW_REPORT.md) - Latest code review findings
+| Location | Notes |
+|----------|-------|
+| [Reference docs](legacy/reference/ARCHITECTURE.md) | Older design/technical reference docs |
+| [Audit index](legacy/audit/index.md) | Older screen/component specs |
+| [Code review report](legacy/reports/CODE_REVIEW_REPORT.md) | Snapshot review notes (may be stale) |
 
-## Root-Level Documentation
+## Root-level documentation
 
 These files remain at the project root per convention:
 
@@ -59,5 +60,4 @@ These files remain at the project root per convention:
 |------|---------|
 | `README.md` | Project overview and quick start |
 | `CHANGELOG.md` | Version history and release notes |
-| `AGENTS.md` | AI assistant configuration |
-| `CLAUDE.md` | Claude-specific context |
+| `AGENTS.md` | Agent configuration |

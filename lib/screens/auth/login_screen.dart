@@ -1,5 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:go_router/go_router.dart';
 
 import '../../app/constants.dart';
@@ -40,6 +41,7 @@ class _AuthScreenState extends State<AuthScreen>
   bool _obscureConfirmPassword = true;
   bool _isLoading = false;
   bool _isGoogleLoading = false;
+  bool _isAppleLoading = false;
   bool _isReturningUser = false;
   late TabController _tabController;
 
@@ -181,6 +183,51 @@ class _AuthScreenState extends State<AuthScreen>
     } finally {
       if (mounted) {
         setState(() => _isGoogleLoading = false);
+      }
+    }
+  }
+
+  void _handleAppleSignIn() async {
+    if (_isAppleLoading) return;
+    
+    setState(() => _isAppleLoading = true);
+    
+    try {
+      await AuthService.instance.signInWithApple();
+      if (mounted) {
+        // Check if profile is complete (has student_id)
+        final isComplete = await AuthService.instance.isProfileComplete();
+        if (mounted) {
+          if (isComplete) {
+            context.go(AppRoutes.app);
+          } else {
+            // Go to app with flag to show profile completion modal
+            context.go(AppRoutes.app, extra: {'showProfilePrompt': true});
+          }
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        final msg = e.toString().toLowerCase();
+        String message = 'Apple Sign In failed';
+        
+        if (msg.contains('cancelled') || msg.contains('canceled')) {
+          // User cancelled - don't show error
+          setState(() => _isAppleLoading = false);
+          return;
+        } else if (msg.contains('not_available')) {
+          message = 'Apple Sign In is not available on this device.';
+        } else if (msg.contains('network')) {
+          message = 'Network error. Please check your connection.';
+        } else if (msg.contains('email_exists')) {
+          message = 'An account with this email already exists.';
+        }
+        
+        showAppSnackBar(context, message);
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isAppleLoading = false);
       }
     }
   }
@@ -399,14 +446,40 @@ class _AuthScreenState extends State<AuthScreen>
                             color: colors.primary,
                           ),
                         )
-                      : FaIcon(
-                          FontAwesomeIcons.google,
+                      : GoogleLogo(
                           size: AppTokens.iconSize.md * scale,
                         ),
-                  onPressed: (_isLoading || _isGoogleLoading) ? null : _handleGoogleSignIn,
+                  onPressed: (_isLoading || _isGoogleLoading || _isAppleLoading) 
+                      ? null 
+                      : _handleGoogleSignIn,
                   minHeight: AppTokens.componentSize.buttonLg,
                   expanded: true,
                 ),
+                // Apple Sign-In - only displayed on iOS
+                if (Platform.isIOS) ...[
+                  SizedBox(height: spacing.md * spacingScale),
+                  SecondaryButton(
+                    label: 'Continue with Apple',
+                    leading: _isAppleLoading
+                        ? SizedBox(
+                            width: AppTokens.iconSize.md * scale,
+                            height: AppTokens.iconSize.md * scale,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.primary,
+                            ),
+                          )
+                        : Icon(
+                            Icons.apple,
+                            size: AppTokens.iconSize.md * scale,
+                          ),
+                    onPressed: (_isLoading || _isGoogleLoading || _isAppleLoading) 
+                        ? null 
+                        : _handleAppleSignIn,
+                    minHeight: AppTokens.componentSize.buttonLg,
+                    expanded: true,
+                  ),
+                ],
               ],
             ),
           ),

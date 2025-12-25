@@ -1,7 +1,7 @@
 # Documentation Generation Report
 
 - Last generated: 2025-12-18
-- Commit: `21161727d2535f4a7d078612c9f2db3620162939`
+- Commit: `TODO`
 
 ## Sources consulted (primary)
 
@@ -91,72 +91,46 @@
 
 - `READ_CALENDAR` and `WRITE_CALENDAR` exist in AndroidManifest, but calendar sync usage is not confirmed in Dart code (`TODO:` confirm or remove).
 
-## README snapshot metrics (legacy)
+## Snapshot metrics (tooling-derived)
 
-Moved from `README.md` on 2025-12-18 to keep the root README lean. These values are not code-confirmed; treat as historical context.
+Snapshot date: 2025-12-18
 
-### Performance metrics (v2.3)
+Tooling:
+- Flutter 3.38.4 (Dart 3.10.3)
 
-- Cold start: splash to dashboard in ~0.84 s on Pixel 8 Pro (profile build).
-- Navigation: fade-through transitions sustain 120 fps with zero jank recorded in DevTools frame charts.
-- Telemetry: `ui_perf_bootstrap_ms` reports bootstrap duration after the first frame to flag regressions early.
-- Reminder sync: scheduler runs without frame drops; GC pauses stay <3 ms during profile sessions.
+### Tests + coverage
 
-### Testing & coverage snapshot
+Command: `flutter test --coverage -r json`
 
-- 65 Dart/widget tests cover parsing, scheduling flows, settings, and UI kit regressions (`flutter test --coverage`).
-- Latest coverage snapshot (`coverage/lcov.info`) reports 1,589 / 3,559 lines hit (44.6%).
-- Golden and render tests validate dashboards and settings screens at large text scales for accessibility parity.
-- Release pipeline: `flutter analyze`, `dart format`, `flutter test --coverage`, and `flutter run --profile` gate every build tagged for release.
+- Result: exit code 1 (success: false)
+- Test count: 637
+- Coverage (line): 8,224 / 20,736 (39.66%)
+- Note: The JSON reporter did not emit failing test names; coverage may be partial because the run exited non-zero. Re-run `flutter test` to inspect failures.
 
-### v2.4 coverage & reliability plan
+### Dependencies (flutter pub outdated --json)
 
-- Lift automated coverage to at least 60% with new specs spanning Supabase auth, export queue resilience, and calendar sync toggles.
-- Reinforce Supabase authentication by wrapping sign-in and recovery flows in exponential backoff with `auth_retry_success` / `auth_retry_failed` telemetry.
-- Replace transient snackbars in export/support flows with actionable `ErrorState` retries and track each surface via `ui_state_error`.
+- Direct packages with newer versions: 13/13
+  - animations 2.1.0 -> 2.1.1
+  - crop_your_image 0.7.5 -> 2.0.0
+  - fl_chart 0.66.2 -> 1.1.1
+  - flutter_dotenv 5.2.1 -> 6.0.0
+  - flutter_slidable 3.1.2 -> 4.0.3
+  - go_router 13.2.5 -> 17.0.1
+  - google_sign_in 6.3.0 -> 7.2.0
+  - image 4.5.4 -> 4.6.0
+  - image_picker 1.2.0 -> 1.2.1
+  - intl 0.19.0 -> 0.20.2
+  - sentry_flutter 8.14.2 -> 9.9.0
+  - shared_preferences 2.5.3 -> 2.5.4
+  - supabase_flutter 2.10.3 -> 2.12.0
+- Dev packages with newer versions: 2/2
+  - flutter_launcher_icons 0.13.1 -> 0.14.4
+  - supabase 2.10.0 -> 2.10.2
+- Transitive packages with newer versions: 38/45
 
-### Known issues (snapshot)
+### Performance metrics
 
-- None listed in README at the time of this snapshot.
-
-### Dependencies snapshot (observed)
-
-```
-Package Name                      Current    Upgradable  Resolvable  Latest
-
-direct dependencies:
-intl                              *0.19.0    *0.19.0     0.20.2      0.20.2
-
-dev_dependencies: all up-to-date.
-
-transitive dependencies:
-characters                        *1.4.0     *1.4.0      *1.4.0      1.4.1
-file_selector_macos               *0.9.4+4   0.9.4+5     0.9.4+5     0.9.4+5
-flutter_plugin_android_lifecycle  *2.0.31    2.0.32      2.0.32      2.0.32
-image_picker_android              *0.8.13+1  0.8.13+5    0.8.13+5    0.8.13+5
-image_picker_ios                  *0.8.13    0.8.13+1    0.8.13+1    0.8.13+1
-image_picker_macos                *0.2.2     0.2.2+1     0.2.2+1     0.2.2+1
-material_color_utilities          *0.11.1    *0.11.1     *0.11.1     0.13.0
-meta                              *1.16.0    *1.16.0     *1.16.0     1.17.0
-mime                              *1.0.6     2.0.0       2.0.0       2.0.0
-path_provider_android             *2.2.19    2.2.20      2.2.20      2.2.20
-path_provider_foundation          *2.4.2     2.4.3       2.4.3       2.4.3
-shared_preferences_android        *2.4.13    2.4.15      2.4.15      2.4.15
-shared_preferences_foundation     *2.5.4     2.5.5       2.5.5       2.5.5
-url_launcher_android              *6.3.20    6.3.24      6.3.24      6.3.24
-url_launcher_ios                  *6.3.4     6.3.5       6.3.5       6.3.5
-url_launcher_macos                *3.2.3     3.2.4       3.2.4       3.2.4
-
-transitive dev_dependencies:
-test_api                          *0.7.6     *0.7.6      *0.7.6      0.7.7
-vm_service                        *15.0.0    15.0.2      15.0.2      15.0.2
-
-14 upgradable dependencies are locked (in pubspec.lock) to older versions.
-To update these dependencies, use `flutter pub upgrade`.
-
-1 dependency is constrained to a version that is older than a resolvable version.
-To update it, edit pubspec.yaml, or run `flutter pub upgrade --major-versions`.
-```
+- TODO: No automated performance benchmarks run in this snapshot.
 
 ## Link integrity checklist
 

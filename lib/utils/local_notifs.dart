@@ -7,13 +7,17 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:timezone/timezone.dart' as tz;
+import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'app_log.dart';
 import '../services/user_scope.dart';
 import '../ui/kit/battery_optimization_sheet.dart';
 import '../ui/kit/modals.dart';
 import 'nav.dart';
 
-/// Android-only wrapper around `flutter_local_notifications`.
+/// Cross-platform notification wrapper.
+/// - Android: Uses native AlarmManager for exact-time fullscreen alarms.
+/// - iOS: Uses flutter_local_notifications for scheduled notifications.
 class LocalNotifs {
   LocalNotifs._();
 
@@ -71,22 +75,109 @@ class LocalNotifs {
     return id.trim();
   }
 
+  static bool _tzInitialized = false;
+
   static Future<void> _ensureInitialized() async {
     if (_initialized) return;
     if (debugForceAndroid) {
       _initialized = true;
       return;
     }
-    const initSettings = InitializationSettings(
+    
+    // Initialize timezone for iOS scheduling
+    if (!_tzInitialized) {
+      tz_data.initializeTimeZones();
+      tz.setLocalLocation(tz.getLocation('Asia/Manila'));
+      _tzInitialized = true;
+    }
+    
+    // iOS notification categories with action buttons
+    final darwinSettings = DarwinInitializationSettings(
+      requestAlertPermission: true,
+      requestBadgePermission: true,
+      requestSoundPermission: true,
+      // Request Critical Alert permission (only works with entitlement)
+      requestCriticalPermission: _criticalAlertsEnabled,
+      // Define notification categories with actions
+      notificationCategories: [
+        DarwinNotificationCategory(
+          'classReminder',
+          actions: [
+            DarwinNotificationAction.plain(
+              'snooze5',
+              'Snooze 5 min',
+              options: {DarwinNotificationActionOption.foreground},
+            ),
+            DarwinNotificationAction.plain(
+              'snooze10',
+              'Snooze 10 min',
+              options: {DarwinNotificationActionOption.foreground},
+            ),
+            DarwinNotificationAction.plain(
+              'dismiss',
+              'Dismiss',
+              options: {DarwinNotificationActionOption.destructive},
+            ),
+          ],
+          options: {
+            DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+          },
+        ),
+      ],
+    );
+    final initSettings = InitializationSettings(
       android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+      iOS: darwinSettings,
     );
     await _plugin.initialize(
       initSettings,
-      onDidReceiveNotificationResponse: (_) {
-        unawaited(openReminders());
-      },
+      onDidReceiveNotificationResponse: _handleNotificationResponse,
     );
     _initialized = true;
+  }
+
+  /// Handle notification action responses (iOS action buttons).
+  static Future<void> _handleNotificationResponse(
+    NotificationResponse response,
+  ) async {
+    final actionId = response.actionId;
+    final payload = response.payload;
+
+    // Parse class ID from payload
+    int? classId;
+    if (payload != null && payload.startsWith('class:')) {
+      final parts = payload.split(':');
+      if (parts.length >= 2) {
+        classId = int.tryParse(parts[1]);
+      }
+    }
+
+    // Handle snooze actions
+    if (actionId == 'snooze5' && classId != null) {
+      // Trigger 5-minute snooze
+      await _handleSnoozeAction(classId, 5);
+    } else if (actionId == 'snooze10' && classId != null) {
+      // Trigger 10-minute snooze
+      await _handleSnoozeAction(classId, 10);
+    } else if (actionId == 'dismiss') {
+      // Just dismiss, no action needed
+    } else {
+      // Default tap - open reminders screen
+      unawaited(openReminders());
+    }
+  }
+
+  /// Snooze action callback - set externally by NotifScheduler.
+  static Future<void> Function(int classId, int minutes)? onSnoozeAction;
+
+  /// Handle snooze action from iOS notification button.
+  static Future<void> _handleSnoozeAction(int classId, int minutes) async {
+    if (onSnoozeAction != null) {
+      await onSnoozeAction!(classId, minutes);
+    } else {
+      // Fallback: show feedback if scheduler not connected
+      await showSnoozeFeedback(minutes: minutes);
+    }
   }
 
   /// Schedule an exact alarm notification for the provided occurrence.
@@ -180,6 +271,189 @@ class LocalNotifs {
       return false;
     }
   }
+
+  /// Schedule a notification at the specified time (cross-platform).
+  /// Uses native alarms on Android, flutter_local_notifications on iOS.
+  static Future<bool> scheduleNotificationAt({
+    required int id,
+    required DateTime at,
+    required String title,
+    required String body,
+    required int classId,
+    required String occurrenceKey,
+    String? subject,
+    String? room,
+    String? startTime,
+    String? endTime,
+    String? userId,
+  }) async {
+    if (!isMobileContext) return false;
+    if (!at.isAfter(DateTime.now())) return false;
+
+    // On Android (or when debugging as Android), use native alarms for exact timing and fullscreen
+    if (Platform.isAndroid || debugForceAndroid) {
+      return scheduleNativeAlarmAt(
+        id: id,
+        at: at,
+        title: title,
+        body: body,
+        classId: classId,
+        occurrenceKey: occurrenceKey,
+        subject: subject,
+        room: room,
+        startTime: startTime,
+        endTime: endTime,
+        userId: userId,
+      );
+    }
+
+    // On iOS, use flutter_local_notifications
+    await _ensureInitialized();
+    
+    try {
+      // Use Critical Alerts for class reminders (requires Apple entitlement)
+      // Falls back to Time Sensitive if Critical Alerts not enabled
+      final iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+        // Custom alarm sound (must be added to iOS bundle)
+        // If file doesn't exist, falls back to default
+        sound: 'class_alarm.caf',
+        // Critical = bypasses DND & silent mode (needs Apple approval)
+        // Time Sensitive = bypasses Focus mode but respects silent
+        interruptionLevel: _criticalAlertsEnabled
+            ? InterruptionLevel.critical
+            : InterruptionLevel.timeSensitive,
+        // Category for actionable notifications
+        categoryIdentifier: 'classReminder',
+      );
+      final details = NotificationDetails(iOS: iosDetails);
+
+      await _plugin.zonedSchedule(
+        id,
+        title,
+        body,
+        _convertToTZDateTime(at),
+        details,
+        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+        matchDateTimeComponents: null,
+        payload: 'class:$classId:$occurrenceKey',
+      );
+
+      await _recordScheduledId(classId, id, userId: userId);
+      await _clearOccurrenceAck(
+        classId: classId,
+        occurrenceKey: occurrenceKey,
+        userId: userId,
+      );
+
+      if (debugLogExactAlarms) {
+        AppLog.debug(
+          'LocalNotifs',
+          'Scheduled iOS notification',
+          data: {
+            'id': id,
+            'at': at.toIso8601String(),
+            'critical': _criticalAlertsEnabled,
+          },
+        );
+      }
+
+      return true;
+    } catch (err, stack) {
+      _logScheduleError(id: id, error: err, stack: stack);
+      return false;
+    }
+  }
+
+  /// Whether Critical Alerts are enabled (requires Apple entitlement).
+  /// Set to true after receiving Apple approval.
+  static bool _criticalAlertsEnabled = false;
+
+  /// Enable Critical Alerts (only call after Apple approval is granted).
+  static void enableCriticalAlerts() {
+    _criticalAlertsEnabled = true;
+  }
+
+  /// Check if Critical Alerts are enabled.
+  static bool get criticalAlertsEnabled => _criticalAlertsEnabled;
+
+  /// Convert DateTime to TZDateTime for scheduling.
+  static tz.TZDateTime _convertToTZDateTime(DateTime dateTime) {
+    return tz.TZDateTime.from(dateTime, tz.local);
+  }
+
+  /// Cancel a scheduled notification (cross-platform).
+  static Future<void> cancelScheduledNotification(
+    int id, {
+    bool silent = false,
+    String? userId,
+  }) async {
+    if (!isMobileContext) return;
+
+    // Use Android path for Android or when debugging as Android
+    if (Platform.isAndroid || debugForceAndroid) {
+      await cancelNativeAlarm(id, silent: silent, userId: userId);
+      return;
+    }
+
+    // iOS: cancel via flutter_local_notifications
+    await _ensureInitialized();
+    try {
+      await _plugin.cancel(id);
+      if (debugLogExactAlarms && !silent) {
+        AppLog.debug(
+          'LocalNotifs',
+          'Cancelled iOS notification',
+          data: {'id': id},
+        );
+      }
+    } catch (err) {
+      if (debugLogExactAlarms) {
+        AppLog.warn(
+          'LocalNotifs',
+          'Failed to cancel iOS notification',
+          data: {'id': id},
+          error: err,
+        );
+      }
+    }
+    await _removeScheduledId(id, userId: userId);
+  }
+
+  /// Cancel multiple scheduled notifications (cross-platform).
+  static Future<void> cancelManyNotifications(
+    Set<int> ids, {
+    String? userId,
+  }) async {
+    for (final id in ids) {
+      await cancelScheduledNotification(id, silent: true, userId: userId);
+    }
+    if (ids.isNotEmpty && debugLogExactAlarms) {
+      final sample = ids.take(5).join(', ');
+      final suffix = ids.length > 5 ? '...' : '';
+      AppLog.debug(
+        'LocalNotifs',
+        'Cancelled ${ids.length} notifications',
+        data: {'ids': '$sample$suffix'},
+      );
+    }
+  }
+
+  /// Check if notifications can be scheduled on this platform.
+  static Future<bool> canScheduleNotifications() async {
+    if (Platform.isAndroid || debugForceAndroid) {
+      return canScheduleExactAlarms();
+    }
+    if (Platform.isIOS) {
+      // iOS always allows scheduling, but may need permission
+      await _ensureInitialized();
+      return true;
+    }
+    return false;
+  }
+
 
   /// Cancel a previously scheduled alarm and update stored metadata.
   static Future<void> cancelNativeAlarm(
@@ -842,6 +1116,10 @@ class LocalNotifs {
   }
 
   static bool get isAndroidContext => Platform.isAndroid || debugForceAndroid;
+
+  /// Returns true if running on a mobile platform that supports notifications.
+  static bool get isMobileContext =>
+      Platform.isAndroid || Platform.isIOS || debugForceAndroid;
 
   static Future<void> showSnoozeFeedback({required int minutes}) async {
     await _ensureInitialized();

@@ -1660,7 +1660,7 @@ class _AboutModalContent extends StatelessWidget {
           '• Native alarms trigger even when app is closed',
           style: AppTokens.typography.body.copyWith(
             color: palette.muted,
-            height: 1.6,
+            height: AppLineHeight.relaxed,
           ),
         ),
         SizedBox(height: spacing.xxl),
@@ -1749,7 +1749,7 @@ class _PrivacyModalContent extends StatelessWidget {
           '• Request data export or removal via Settings → Support',
           style: AppTokens.typography.body.copyWith(
             color: palette.muted,
-            height: 1.6,
+            height: AppLineHeight.relaxed,
           ),
         ),
         SizedBox(height: spacing.xxl),
@@ -1783,7 +1783,7 @@ class _PrivacyModalContent extends StatelessWidget {
           '• Request full account deletion via feedback',
           style: AppTokens.typography.body.copyWith(
             color: palette.muted,
-            height: 1.6,
+            height: AppLineHeight.relaxed,
           ),
         ),
         SizedBox(height: spacing.xxl),

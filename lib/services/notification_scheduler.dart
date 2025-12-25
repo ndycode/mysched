@@ -15,8 +15,16 @@ class NotifScheduler {
   static const _nativeIdsKey = 'scheduled_native_alarm_ids';
   static void Function(int classId, int minutes)? onSnoozed;
 
+  /// Initialize the scheduler and connect iOS notification action handlers.
+  static void init() {
+    // Connect iOS notification action buttons to snooze handler
+    LocalNotifs.onSnoozeAction = (classId, minutes) async {
+      await snooze(classId, minutes: minutes);
+    };
+  }
+
   static Future<void> resync({ScheduleApi? api, String? userId}) async {
-    if (!_isAndroid()) return;
+    if (!_isMobileContext()) return;
 
     final sp = await SharedPreferences.getInstance();
     await ensurePreferenceMigration(prefs: sp);
@@ -38,10 +46,10 @@ class NotifScheduler {
       return;
     }
 
-    if (!await LocalNotifs.canScheduleExactAlarms()) {
+    if (!await LocalNotifs.canScheduleNotifications()) {
       AppLog.warn(
         'NotifScheduler',
-        'Exact alarm permission missing; skipping resync',
+        'Notification permission missing; skipping resync',
       );
       await _cancelAllTracked(sp, uid);
       return;
@@ -80,12 +88,12 @@ class NotifScheduler {
       nextNotif: const <int>{},
     );
 
-    await LocalNotifs.cancelMany(diff.nativeToCancel, userId: uid);
+    await LocalNotifs.cancelManyNotifications(diff.nativeToCancel, userId: uid);
 
     final actualNative = <int>{};
     for (final req in plan.requests) {
       if (req.preNotifId != null && req.shouldScheduleHeadsUp(plan.now)) {
-        final scheduledHeadsUp = await LocalNotifs.scheduleNativeAlarmAt(
+        final scheduledHeadsUp = await LocalNotifs.scheduleNotificationAt(
           id: req.preNotifId!,
           at: req.preNotifAt!,
           title: req.title,
@@ -96,7 +104,6 @@ class NotifScheduler {
           room: req.room,
           startTime: req.startLabel,
           endTime: req.endLabel,
-          headsUpOnly: true,
           userId: uid,
         );
         if (scheduledHeadsUp) {
@@ -106,7 +113,7 @@ class NotifScheduler {
 
       if (!req.shouldScheduleAlarm(plan.now)) continue;
 
-      final scheduled = await LocalNotifs.scheduleNativeAlarmAt(
+      final scheduled = await LocalNotifs.scheduleNotificationAt(
         id: req.nativeId,
         at: req.alarmAt,
         title: req.title,
@@ -133,7 +140,7 @@ class NotifScheduler {
     ScheduleApi? api,
     String? userId,
   }) async {
-    if (!_isAndroid()) return;
+    if (!_isMobileContext()) return;
 
     final sp = await SharedPreferences.getInstance();
     await ensurePreferenceMigration(prefs: sp);
@@ -144,10 +151,10 @@ class NotifScheduler {
 
     final existing = await LocalNotifs.scheduledIdsForClass(classId);
     if (existing.isNotEmpty) {
-      await LocalNotifs.cancelMany(existing);
+      await LocalNotifs.cancelManyNotifications(existing);
     }
 
-    if (!await LocalNotifs.canScheduleExactAlarms()) {
+    if (!await LocalNotifs.canScheduleNotifications()) {
       await LocalNotifs.showSnoozeFeedback(minutes: appliedMinutes);
       onSnoozed?.call(classId, appliedMinutes);
       return;
@@ -180,7 +187,7 @@ class NotifScheduler {
       isHeadsUp: false,
     );
     final subject = _titleForClass(classItem);
-    final success = await LocalNotifs.scheduleNativeAlarmAt(
+    final success = await LocalNotifs.scheduleNotificationAt(
       id: id,
       at: target,
       title: subject,
@@ -535,7 +542,7 @@ class NotifScheduler {
     return result;
   }
 
-  static bool _isAndroid() => LocalNotifs.isAndroidContext;
+  static bool _isMobileContext() => LocalNotifs.isMobileContext;
 
   static Future<void> ensurePreferenceMigration(
       {SharedPreferences? prefs}) async {

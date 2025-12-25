@@ -847,98 +847,7 @@ class AppModal {
     return result;
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // LEGACY API - Deprecated, use new methods above
-  // ═══════════════════════════════════════════════════════════════════════════
-
-  /// @deprecated Use [AppModal.confirm] instead.
-  static Future<bool?> showConfirmDialog({
-    required BuildContext context,
-    required String title,
-    required String message,
-    String confirmLabel = 'Confirm',
-    String cancelLabel = 'Cancel',
-    bool isDanger = false,
-    VoidCallback? onConfirm,
-    VoidCallback? onCancel,
-  }) {
-    return confirm(
-      context: context,
-      title: title,
-      message: message,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
-      isDanger: isDanger,
-    );
-  }
-
-  /// @deprecated Use [AppModal.info] instead.
-  static Future<void> showAlertDialog({
-    required BuildContext context,
-    required String title,
-    required String message,
-    String actionLabel = 'OK',
-    IconData? icon,
-    Color? iconColor,
-  }) {
-    return info(
-      context: context,
-      title: title,
-      message: message,
-      actionLabel: actionLabel,
-      icon: icon,
-      iconColor: iconColor,
-    );
-  }
-
-  /// @deprecated Use [AppModal.input] instead.
-  static Future<String?> showInputDialog({
-    required BuildContext context,
-    required String title,
-    String? message,
-    String? initialValue,
-    String? hintText,
-    String confirmLabel = 'Save',
-    String cancelLabel = 'Cancel',
-    int maxLines = 1,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
-    return input(
-      context: context,
-      title: title,
-      message: message,
-      initialValue: initialValue,
-      hintText: hintText,
-      confirmLabel: confirmLabel,
-      cancelLabel: cancelLabel,
-      maxLines: maxLines,
-      keyboardType: keyboardType,
-    );
-  }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// LEGACY FUNCTIONS - Deprecated, use AppModal instead
-// ═══════════════════════════════════════════════════════════════════════════
-
-/// @deprecated Use [AppModal.alert] instead.
-Future<T?> showSmoothDialog<T>({
-  required BuildContext context,
-  required WidgetBuilder builder,
-  bool barrierDismissible = true,
-  String? barrierLabel = 'Dismiss',
-  Color? barrierColor,
-  Duration? transitionDuration,
-  bool useRootNavigator = true,
-}) {
-  return AppModal.alert<T>(
-    context: context,
-    builder: builder,
-    dismissible: barrierDismissible,
-    useRootNavigator: useRootNavigator,
-  );
-}
-
 // ═══════════════════════════════════════════════════════════════════════════
 // DRAGGABLE DISMISS SHEET - Swipe down to dismiss wrapper
 // ═══════════════════════════════════════════════════════════════════════════
@@ -1096,7 +1005,7 @@ class _LegalContentBuilder extends StatelessWidget {
                   line.trim().substring(1).trim(), // Remove bullet character
                   style: AppTokens.typography.bodyScaled(scale).copyWith(
                     color: palette.muted,
-                    height: 1.5,
+                    height: AppLineHeight.body,
                   ),
                 ),
               ),
@@ -1123,7 +1032,7 @@ class _LegalContentBuilder extends StatelessWidget {
             line.trim(),
             style: AppTokens.typography.bodyScaled(scale).copyWith(
               color: colors.onSurface.withValues(alpha: 0.85),
-              height: 1.6,
+              height: AppLineHeight.relaxed,
             ),
           ),
         ));

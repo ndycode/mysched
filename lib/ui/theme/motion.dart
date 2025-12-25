@@ -1,5 +1,6 @@
 import 'package:flutter/physics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 /// Custom page transitions builder optimized for 120Hz displays.
 /// Uses smooth fade-through animation with subtle scale.
@@ -598,4 +599,134 @@ class ModalAnimation {
   final Curve exitCurve;
   final Offset slideOffset;
   final double scaleStart;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UNIFIED ANIMATION EXTENSION
+// ═══════════════════════════════════════════════════════════════════════════
+
+/// Import this extension wherever you need unified animations.
+/// 
+/// Usage:
+/// ```dart
+/// import 'package:flutter_animate/flutter_animate.dart';
+/// 
+/// // Apply standard entrance animation:
+/// Container(...).appEntrance()
+/// 
+/// // Apply with index for stagger:
+/// ListView.builder(
+///   itemBuilder: (_, i) => ListTile(...).appEntrance(index: i),
+/// )
+/// ```
+extension AppEntranceAnimations on Widget {
+  /// Standard springy entrance animation used across ALL components.
+  /// 
+  /// Creates a consistent feel: fade-in + slight scale with snapBack curve.
+  /// 
+  /// [index] - For lists, pass the item index for staggered entrance
+  /// [skip] - Set to true to skip animation (e.g., for static items)
+  Widget appEntrance({int index = 0, bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(delay: AppMotionSystem.staggerDelay(index))
+        .fadeIn(
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.easeOut,
+        )
+        .scale(
+          begin: AppMotionSystem.scaleOffsetEntry,
+          end: AppMotionSystem.scaleOffsetFull,
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.snapBack,
+        );
+  }
+
+  /// Slide-up entrance for banners, toasts, and error messages.
+  Widget appSlideUp({int index = 0, bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(delay: AppMotionSystem.staggerDelay(index))
+        .fadeIn(
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.easeOut,
+        )
+        .slideY(
+          begin: AppMotionSystem.slideOffsetMicro,
+          end: 0,
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.snapBack,
+        );
+  }
+
+  /// Slide-down entrance for headers, dropdowns.
+  Widget appSlideDown({int index = 0, bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(delay: AppMotionSystem.staggerDelay(index))
+        .fadeIn(
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.easeOut,
+        )
+        .slideY(
+          begin: -AppMotionSystem.slideOffsetMicro,
+          end: 0,
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.snapBack,
+        );
+  }
+
+  /// Pop-in entrance with overshoot for hints, bubbles, tooltips.
+  Widget appPopIn({int index = 0, bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(delay: AppMotionSystem.staggerDelay(index))
+        .fadeIn(
+          duration: AppMotionSystem.standard,
+          curve: AppMotionSystem.easeOut,
+        )
+        .scale(
+          begin: AppMotionSystem.scaleOffsetEntry,
+          end: AppMotionSystem.scaleOffsetFull,
+          duration: AppMotionSystem.standard,
+          curve: AppMotionSystem.overshoot,
+        );
+  }
+
+  /// Breathing animation for pending/queued states.
+  Widget appBreathing({bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .fadeIn(duration: AppMotionSystem.quick)
+        .then()
+        .fade(
+          begin: AppMotionSystem.scaleNone,
+          end: AppMotionSystem.subtleFade,
+          duration: AppMotionSystem.prolonged,
+          curve: AppMotionSystem.easeInOut,
+        );
+  }
+
+  /// Shimmer effect for loading placeholders.
+  Widget appShimmer({bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(onPlay: (controller) => controller.repeat())
+        .shimmer(
+          duration: AppMotionSystem.extended,
+          curve: AppMotionSystem.easeInOut,
+        );
+  }
+
+  /// Card entrance with fade only (no scale to avoid jank in lists).
+  Widget appFadeIn({int index = 0, bool skip = false}) {
+    if (skip) return this;
+    
+    return animate(delay: AppMotionSystem.staggerDelay(index))
+        .fadeIn(
+          duration: AppMotionSystem.quick,
+          curve: AppMotionSystem.easeOut,
+        );
+  }
 }

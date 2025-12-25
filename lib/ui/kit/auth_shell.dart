@@ -377,7 +377,7 @@ class AuthSocialButton extends StatelessWidget {
                     ),
                   )
                 else
-                  SizedBox(width: 20 * scale, height: 20 * scale, child: icon),
+                  SizedBox(width: AppTokens.iconSize.md * scale, height: AppTokens.iconSize.md * scale, child: icon),
                 SizedBox(width: spacing.md),
                 Text(
                   label,

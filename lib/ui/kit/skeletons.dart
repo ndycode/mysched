@@ -1164,45 +1164,6 @@ class SkeletonClassDetailsContent extends StatelessWidget {
   }
 }
 
-/// Skeleton tile matching InfoTile with iconInContainer.
-/// Structure: icon container + title column (expanded) + chevron.
-class _SkeletonInfoTile extends StatelessWidget {
-  const _SkeletonInfoTile();
-
-  @override
-  Widget build(BuildContext context) {
-    final spacing = AppTokens.spacing;
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Icon container (matches InfoTile iconInContainer style)
-        SkeletonBlock(
-          height: AppTokens.componentSize.avatarLg,
-          width: AppTokens.componentSize.avatarLg,
-          borderRadius: AppTokens.radius.sm,
-        ),
-        SizedBox(width: spacing.md),
-        // Title (expanded to fill, matching InfoTile's Expanded Column)
-        Expanded(
-          child: SkeletonBlock(
-            height: AppTokens.componentSize.skeletonTextMd,
-            width: AppTokens.componentSize.skeletonWidthLg,
-            borderRadius: AppTokens.radius.sm,
-          ),
-        ),
-        SizedBox(width: spacing.sm),
-        // Chevron indicator (default Icon is 24px = iconSize.lg)
-        SkeletonBlock(
-          height: AppTokens.iconSize.lg,
-          width: AppTokens.iconSize.lg,
-          borderRadius: AppTokens.radius.sm,
-        ),
-      ],
-    );
-  }
-}
-
 /// Skeleton for a navigation row (icon badge + title + description + chevron).
 /// Matches NavigationRow from rows.dart.
 class _SkeletonNavigationRow extends StatelessWidget {

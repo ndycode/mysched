@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../env.dart';
 
 import '../kit/kit.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 /// A modal sheet for finding an instructor and viewing their current schedule.
@@ -130,8 +131,10 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
 
   /// Get color for a department
   Color _getDepartmentColor(String? department) {
-    if (department == null) return Colors.grey;
-    return _departmentColors[department.toUpperCase()] ?? Colors.grey;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final palette = isDark ? AppTokens.darkColors : AppTokens.lightColors;
+    if (department == null) return palette.muted;
+    return _departmentColors[department.toUpperCase()] ?? palette.muted;
   }
 
   Future<void> _selectInstructor(_InstructorInfo instructor) async {
@@ -233,8 +236,8 @@ class _InstructorFinderSheetState extends State<InstructorFinderSheet> {
     
     _listScrollController.animateTo(
       position,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
+      duration: AppMotionSystem.medium,
+      curve: AppMotionSystem.easeOut,
     );
   }
 

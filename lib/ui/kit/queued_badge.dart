@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'responsive_provider.dart';
 
 /// Small pill badge to indicate queued/offline items.
+/// Features subtle breathing animation to indicate pending state.
 /// Automatically adapts to screen size via [ResponsiveProvider].
 class QueuedBadge extends StatelessWidget {
   const QueuedBadge({super.key, this.label = 'Queued'});
@@ -34,7 +36,6 @@ class QueuedBadge extends StatelessWidget {
               fontWeight: AppTokens.fontWeight.bold,
             ),
       ),
-    );
+    ).appBreathing();
   }
 }
-

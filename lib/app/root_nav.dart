@@ -14,7 +14,6 @@ import '../screens/scan/scan_options_screen.dart';
 import '../screens/scan/scan_preview_screen.dart';
 import '../screens/scan/schedule_import_screen.dart';
 import '../screens/settings_page.dart';
-import '../screens/timer/study_timer_screen.dart';
 import '../services/reminder_scope_store.dart';
 import '../services/reminders_repository.dart';
 import '../services/root_nav_controller.dart';
@@ -228,14 +227,6 @@ Future<void> _handleInitialArgs() async {
       await _remindersKey.currentState?.refreshOnTabVisit();
       await _dashboardKey.currentState?.refreshOnTabVisit();
     }
-  }
-
-  Future<void> _openStudyTimer() async {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-    _closeQuickActions();
-    await showStudyTimerSheet(context);
-    // If timer was used, we might want to refresh stats in dashboard
-    await _dashboardKey.currentState?.refreshOnTabVisit();
   }
 
   Future<void> _openScanOptions() async {

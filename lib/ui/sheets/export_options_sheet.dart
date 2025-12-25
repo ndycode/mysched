@@ -164,7 +164,7 @@ class _ExportOptionsSheetState extends State<_ExportOptionsSheet> {
                 // Export option: PDF
                 _ExportOption(
                   icon: Icons.picture_as_pdf_rounded,
-                  iconColor: Colors.red,
+                  iconColor: palette.danger,
                   title: 'Export as PDF',
                   subtitle: 'Weekly schedule with all class details',
                   onTap: _exporting ? null : _exportPdf,

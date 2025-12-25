@@ -79,10 +79,7 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.google.android.material:material:1.12.0")
 
-    // ML Kit Text Recognition base and script-specific models to satisfy plugin references
+    // ML Kit Text Recognition - base Latin script only
     implementation("com.google.mlkit:text-recognition:16.0.0")
-    implementation("com.google.mlkit:text-recognition-chinese:16.0.0")
-    implementation("com.google.mlkit:text-recognition-devanagari:16.0.0")
-    implementation("com.google.mlkit:text-recognition-japanese:16.0.0")
-    implementation("com.google.mlkit:text-recognition-korean:16.0.0")
+    // Removed unused language packs (Chinese, Japanese, Korean, Devanagari) to reduce app size
 }

@@ -23,6 +23,7 @@ import 'services/data_sync.dart';
 import 'ui/kit/responsive_provider.dart';
 import 'ui/kit/theme_transition_host.dart';
 import 'ui/theme/app_theme.dart';
+import 'ui/theme/motion.dart';
 import 'ui/theme/tokens.dart';
 import 'utils/app_log.dart';
 import 'utils/time_format.dart';
@@ -255,8 +256,8 @@ class _ThemedApp extends StatelessWidget {
       theme: lightTheme,
       darkTheme: darkTheme,
       themeMode: themeMode,
-      themeAnimationDuration: AppTokens.motion.fast, // 150ms for snappy feel
-      themeAnimationCurve: Curves.easeOut, // Smooth deceleration
+      themeAnimationDuration: AppMotionSystem.micro, // 50ms instant feel
+      themeAnimationCurve: AppMotionSystem.decelerate, // Quick deceleration
       builder: (context, child) {
         final media = MediaQuery.of(context);
         final double scaleSample = media.textScaler.scale(10.0) / 10.0;
@@ -295,6 +296,43 @@ class _ThemedApp extends StatelessWidget {
         );
       },
       routerConfig: appRouter,
+      // Global scroll behavior: iOS-style bouncy physics, no Android glow
+      scrollBehavior: const _PremiumScrollBehavior(),
     );
   }
+}
+
+/// Premium scroll behavior for top-tier feel:
+/// - iOS-style bouncy physics on ALL platforms
+/// - No Android overscroll glow (cleaner look)
+/// - Smooth momentum scrolling
+class _PremiumScrollBehavior extends ScrollBehavior {
+  const _PremiumScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    // Use iOS-style bouncy physics everywhere for premium feel
+    return const BouncingScrollPhysics(
+      parent: AlwaysScrollableScrollPhysics(),
+      decelerationRate: ScrollDecelerationRate.fast,
+    );
+  }
+
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    // No glow effect - just return the child directly
+    return child;
+  }
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+    PointerDeviceKind.touch,
+    PointerDeviceKind.mouse,
+    PointerDeviceKind.stylus,
+    PointerDeviceKind.trackpad,
+  };
 }

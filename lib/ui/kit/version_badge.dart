@@ -61,10 +61,9 @@ class _VersionBadgeState extends State<VersionBadge> {
       ),
       child: Text(
         _versionText!,
-        style: AppTokens.typography.caption.copyWith(
+        style: AppTokens.typography.micro.copyWith(
           fontWeight: AppTokens.fontWeight.semiBold,
           color: colors.onSurfaceVariant,
-          fontSize: 10,
         ),
       ),
     );

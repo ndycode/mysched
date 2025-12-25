@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 
 /// Surface card variants controlling shadow intensity.
@@ -15,6 +16,7 @@ enum SurfaceCardVariant {
 ///
 /// This centralizes the repeated "surface + outline + subtle shadow" chrome
 /// so screens don't duplicate BoxDecoration and drift over time.
+/// Features smooth entrance animation.
 class SurfaceCard extends StatelessWidget {
   const SurfaceCard({
     super.key,
@@ -24,6 +26,7 @@ class SurfaceCard extends StatelessWidget {
     this.borderRadius,
     this.backgroundColor,
     this.variant = SurfaceCardVariant.standard,
+    this.animate = true,
   });
 
   final Widget child;
@@ -32,6 +35,8 @@ class SurfaceCard extends StatelessWidget {
   final BorderRadius? borderRadius;
   final Color? backgroundColor;
   final SurfaceCardVariant variant;
+  /// Whether to animate entrance. Set to false for lists to avoid stutter.
+  final bool animate;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +82,13 @@ class SurfaceCard extends StatelessWidget {
       child: child,
     );
 
-    if (margin == null) return card;
-    return Padding(padding: margin!, child: card);
+    Widget result = card;
+    if (margin != null) {
+      result = Padding(padding: margin!, child: card);
+    }
+
+    if (!animate) return result;
+
+    return result.appFadeIn();
   }
 }

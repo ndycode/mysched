@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/onboarding_service.dart';
 import '../../ui/kit/kit.dart';
+import '../../ui/theme/motion.dart';
 import '../../ui/theme/tokens.dart';
 
 /// Full-screen onboarding tour showing app features.
@@ -31,8 +32,8 @@ class _FeatureTourScreenState extends State<FeatureTourScreen> {
   void _nextPage() {
     if (_currentPage < TourSteps.mainTour.length - 1) {
       _pageController.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: AppMotionSystem.medium,
+        curve: AppMotionSystem.easeInOut,
       );
     } else {
       _completeTour();
@@ -42,8 +43,8 @@ class _FeatureTourScreenState extends State<FeatureTourScreen> {
   void _previousPage() {
     if (_currentPage > 0) {
       _pageController.previousPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
+        duration: AppMotionSystem.medium,
+        curve: AppMotionSystem.easeInOut,
       );
     }
   }
@@ -106,7 +107,7 @@ class _FeatureTourScreenState extends State<FeatureTourScreen> {
                       ),
                     )
                   else
-                    const SizedBox(width: 50),
+                    SizedBox(width: spacing.quad + spacing.sm),
                 ],
               ),
             ),
@@ -134,8 +135,8 @@ class _FeatureTourScreenState extends State<FeatureTourScreen> {
                 children: List.generate(steps.length, (index) {
                   final isActive = index == _currentPage;
                   return AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: EdgeInsets.symmetric(horizontal: 4 * spacingScale),
+                    duration: AppMotionSystem.standard,
+                    margin: EdgeInsets.symmetric(horizontal: spacing.xs * spacingScale),
                     width: isActive ? 24 * scale : 8 * scale,
                     height: 8 * scale,
                     decoration: BoxDecoration(
@@ -238,7 +239,7 @@ class _TourPage extends StatelessWidget {
             step.description,
             style: AppTokens.typography.bodyScaled(scale).copyWith(
               color: palette.muted,
-              height: 1.5,
+              height: AppLineHeight.body,
             ),
             textAlign: TextAlign.center,
           ),

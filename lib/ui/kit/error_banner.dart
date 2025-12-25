@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'responsive_provider.dart';
 
@@ -7,6 +8,7 @@ import 'responsive_provider.dart';
 ///
 /// Used across auth pages and forms for consistent error display.
 /// Automatically adapts to screen size via [ResponsiveProvider].
+/// Features smooth entrance animation.
 class ErrorBanner extends StatelessWidget {
   const ErrorBanner({
     super.key,
@@ -56,7 +58,6 @@ class ErrorBanner extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).appSlideDown();
   }
 }
-

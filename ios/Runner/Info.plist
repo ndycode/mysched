@@ -53,5 +53,11 @@
 		<string>MySched needs photo library access to choose schedule images.</string>
 		<key>NSCalendarsUsageDescription</key>
 		<string>MySched needs calendar access to save reminders for your classes.</string>
+		<!-- Background Modes for notifications -->
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>remote-notification</string>
+			<string>fetch</string>
+		</array>
 	</dict>
 </plist>

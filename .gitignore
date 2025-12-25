@@ -44,5 +44,33 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
-# Local environment configuration
+# ===== SECURITY - DO NOT COMMIT =====
+# Local environment files
 .env
+.env.local
+.env.*.local
+
+# Android signing keys
+/android/key.properties
+*.jks
+*.keystore
+
+# Shorebird config (contains app ID)
+shorebird.yaml
+
+# Supabase local config
+/supabase/.branches
+/supabase/.temp
+
+# Code analysis outputs (temporary)
+analysis_*.txt
+
+# Coverage
+/coverage/
+
+# OpenCode / AI tool configs
+.opencode.json
+.antigravityignore
+
+# Gemini brain artifacts
+.gemini/

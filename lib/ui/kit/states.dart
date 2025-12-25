@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../services/analytics_service.dart';
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'responsive_provider.dart';
@@ -272,7 +273,7 @@ class _StateDisplayState extends State<StateDisplay> {
           ),
         ),
       ),
-    );
+    ).appEntrance();
   }
 }
 

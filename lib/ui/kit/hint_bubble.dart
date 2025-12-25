@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'buttons.dart';
 import 'responsive_provider.dart';
 
 /// A dismissable hint bubble for onboarding tips and guidance.
 /// Automatically adapts to screen size via [ResponsiveProvider].
+/// Features smooth pop-in entrance animation.
 class HintBubble extends StatelessWidget {
   const HintBubble({
     super.key,
@@ -71,7 +73,6 @@ class HintBubble extends StatelessWidget {
           ),
         ),
       ),
-    );
+    ).appPopIn();
   }
 }
-

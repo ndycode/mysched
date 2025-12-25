@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/constants.dart';
@@ -28,6 +27,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     try {
       await AuthService.instance.signInWithGoogle();
       if (mounted) {
+        // ignore: use_build_context_synchronously - guarded by mounted check
         context.go(AppRoutes.app);
       }
     } catch (e) {
@@ -45,7 +45,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           message = 'An account with this email already exists.';
         }
         
-        showAppSnackBar(context, message);
+        // ignore: use_build_context_synchronously - guarded by mounted check
+        showAppSnackBar(context, message, type: AppSnackBarType.error);
       }
     } finally {
       if (mounted) {
@@ -190,8 +191,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                                           color: colors.primary,
                                         ),
                                       )
-                                    : FaIcon(
-                                        FontAwesomeIcons.google,
+                                    : GoogleLogo(
                                         size: AppTokens.iconSize.md * scale,
                                       ),
                                 onPressed: _isGoogleLoading

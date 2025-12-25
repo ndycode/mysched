@@ -4,7 +4,7 @@ This documentation bundle describes the **current state of the MySched Flutter m
 
 - App: **MySched** (`pubspec.yaml`: `name: mysched`)
 - Source of truth: **current source code in `lib/`, plus platform code in `android/`**
-- Commit: `21161727d2535f4a7d078612c9f2db3620162939`
+- Commit: `TODO`
 - Last generated: 2025-12-18
 
 ## What is MySched?

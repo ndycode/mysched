@@ -269,7 +269,7 @@ class SettingsController extends ChangeNotifier {
   }
 
   Future<void> _refreshAlarmReadiness() async {
-    if (!Platform.isAndroid) return;
+    if (!LocalNotifs.isMobileContext) return;
     _readinessLoading = true;
     notifyListeners();
     
@@ -285,8 +285,8 @@ class SettingsController extends ChangeNotifier {
   Future<void> refreshAlarmReadiness() => _refreshAlarmReadiness();
 
   Future<void> sendTestNotification() async {
-    if (!Platform.isAndroid) {
-      onSnack?.call('Heads-up notifications are Android only.');
+    if (!LocalNotifs.isMobileContext) {
+      onSnack?.call('Notifications require a mobile device.');
       return;
     }
     final success = await LocalNotifs.showHeadsUp(
@@ -306,7 +306,7 @@ class SettingsController extends ChangeNotifier {
 
   Future<void> triggerAlarmTest(VoidCallback openExactAlarmSettings) async {
     if (!Platform.isAndroid) {
-      onSnack?.call('Full-screen alarm preview is Android only.');
+      onSnack?.call('Alarm preview is only available on Android.');
       return;
     }
     final readiness = await LocalNotifs.alarmReadiness();

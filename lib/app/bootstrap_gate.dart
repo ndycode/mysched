@@ -70,6 +70,11 @@ class _BootstrapGateState extends State<BootstrapGate> {
         data: {'stack': stackTrace.toString()},
       );
     }
+    
+    // Initialize iOS notification action handlers
+    NotifScheduler.init();
+    
+    // Android-specific alarm permission prompt
     if (Platform.isAndroid &&
         mounted &&
         !BootstrapGate._alarmPromptCompleted) {

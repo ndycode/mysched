@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/motion.dart';
 import '../theme/tokens.dart';
 import 'responsive_provider.dart';
 
@@ -7,6 +8,7 @@ import 'responsive_provider.dart';
 ///
 /// Used across dashboard, schedules, and reminders for consistent "all caught up"
 /// or "no items" states within summary cards.
+/// Features smooth entrance animation.
 /// Automatically adapts to screen size via [ResponsiveProvider].
 class EmptyHeroPlaceholder extends StatelessWidget {
   const EmptyHeroPlaceholder({
@@ -98,7 +100,6 @@ class EmptyHeroPlaceholder extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ).appEntrance();
   }
 }
-

@@ -1,5 +1,115 @@
 # Changelog
 
+## [2.0.7+19] - 2024-12-25
+
+> 📦 **App Size Optimization Release**
+
+### 📉 Size Reduction
+
+- **AAB reduced by 40 MB** (131 MB → 91 MB)
+- **Fonts optimized**: Subset to Latin characters only (36 MB → 353 KB)
+- **ML Kit streamlined**: Removed unused language packs (Chinese, Japanese, Korean, Devanagari)
+- **Removed `font_awesome_flutter`**: Replaced with custom `GoogleLogo` painter
+
+### 🛠️ Technical Details
+
+| Component | Before | After |
+|-----------|--------|-------|
+| SF Pro Rounded fonts | 36 MB | 353 KB |
+| ML Kit scripts | 5 | 1 (Latin) |
+| font_awesome_flutter | ~2 MB | 0 (custom painter) |
+| Estimated install size | 75 MB | ~45 MB |
+
+---
+
+## [2.0.6+18] - 2024-12-25
+
+> 🧹 **Codebase Cleanup & Design System Polish**
+
+### 🎨 Design Token Compliance
+
+- **Tokenized 16 hardcoded values** across 7 files:
+  - `feature_tour.dart` - Replaced durations, spacing, line heights with tokens
+  - `auth_shell.dart` - Tokenized social icon sizing
+  - `export_options_sheet.dart` - Replaced `Colors.red` with `palette.danger`
+  - `instructor_finder_sheet.dart` - Tokenized colors and animation durations
+  - `version_badge.dart` - Replaced hardcoded font size with `AppTokens.typography.micro`
+  - `modals.dart` - Converted line-heights to `AppLineHeight` tokens
+  - `settings_screen.dart` - Converted line-heights to `AppLineHeight.relaxed`
+
+### 🗑️ Code Cleanup
+
+- **Removed 7 deprecated methods** (~200 lines):
+  - `modals.dart`: `showConfirmDialog`, `showAlertDialog`, `showInputDialog`, `showSmoothDialog`
+  - `overlay_sheet.dart`: `showOverlaySheet`, `showSmoothBottomSheet`, `_SmoothSheetRoute`
+- **Removed unused code**:
+  - `skeletons.dart`: `_SkeletonInfoTile` class
+  - `root_nav.dart`: `_openStudyTimer` method and unused import
+- **Fixed async context warnings** in `welcome_screen.dart`
+
+### 🔍 Analyzer Status
+
+- **0 issues** - Codebase is fully lint-clean
+- All deprecated APIs removed
+- No unused imports or declarations
+
+---
+
+## [2.0.6] - 2024-12-25
+
+> 🍎 **iOS Support Release**
+
+### 🆕 iOS Notification Support
+
+- **Cross-platform notifications**: Class reminders now work on iOS using `flutter_local_notifications`
+- **Time Sensitive interruptions**: iOS notifications bypass Focus mode for important class alerts
+- **Critical Alerts ready**: Code prepared for Apple-approved Critical Alerts (bypasses DND & silent mode)
+- **Custom alarm sound**: Support for `class_alarm.caf` custom notification sound
+- **Action buttons**: Snooze 5min, Snooze 10min, Dismiss buttons on iOS notifications
+- **Notification categories**: iOS notifications grouped under "classReminder" category
+
+### 📱 iOS Configuration
+
+- **Bundle ID updated**: Changed from `com.example.mysched` to `com.ici.mysched`
+- **Background modes**: Added `remote-notification` and `fetch` capabilities
+- **Timezone support**: Added `timezone` package for accurate scheduled notifications
+
+### 🔧 New APIs
+
+- `LocalNotifs.scheduleNotificationAt()` - Cross-platform notification scheduling
+- `LocalNotifs.cancelScheduledNotification()` - Cross-platform cancellation
+- `LocalNotifs.canScheduleNotifications()` - Platform-aware permission check
+- `LocalNotifs.isMobileContext` - True for Android OR iOS
+- `LocalNotifs.enableCriticalAlerts()` - Enable after Apple approval
+- `NotifScheduler.init()` - Initialize iOS action button handlers
+- `LiveActivitiesService` - Dart API for iOS 16.1+ Live Activities (widget extension required)
+
+### 📄 Documentation
+
+- `ios/IOS_SETUP_GUIDE.md` - Comprehensive iOS setup instructions
+  - Google Sign-In configuration
+  - Custom notification sound setup
+  - Critical Alerts entitlement request process
+  - Live Activities widget extension guide
+
+### 🍎 Apple Sign-In Support
+
+- **Sign in with Apple**: iOS users can now sign in with their Apple ID
+- **Platform-aware UI**: Apple button only displays on iOS devices
+- **Same profile flow**: Works identically to Google Sign-In with profile completion
+
+### 🛠️ Technical Details
+
+| Feature | Android | iOS |
+|---------|---------|-----|
+| Class reminders | ✅ Fullscreen alarm | ✅ Time Sensitive notification |
+| Snooze buttons | ✅ Native UI | ✅ Notification actions |
+| Bypass DND | ✅ AlarmManager | ⚠️ Requires Apple entitlement |
+| Lock screen widget | ❌ N/A | ⚠️ Requires Widget Extension |
+| Apple Sign-In | ❌ N/A | ✅ Implemented |
+
+---
+
 ## [2.0.5] - 2024-12-17
 
 > 📦 **Deployed to Play Store**

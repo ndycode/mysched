@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../env.dart';
@@ -1069,4 +1070,119 @@ Future<Map<String, dynamic>?> me() async => _loadAndPersistProfile();
       rethrow;
     }
   }
+
+  /// Sign in with Apple (iOS only).
+  /// Creates or links an account using Apple ID credentials.
+  Future<void> signInWithApple() async {
+    // Only available on iOS
+    if (!Platform.isIOS) {
+      throw Exception('apple_sign_in_not_available');
+    }
+
+    try {
+      // Import dynamically to avoid issues on Android
+      final signInWithApple = await _performAppleSignIn();
+      
+      if (signInWithApple == null) {
+        throw Exception('apple_sign_in_cancelled');
+      }
+
+      final idToken = signInWithApple['idToken'];
+      if (idToken == null) {
+        throw Exception('apple_sign_in_no_id_token');
+      }
+
+      // Sign in to Supabase using the Apple ID token
+      final response = await _sb.auth.signInWithIdToken(
+        provider: OAuthProvider.apple,
+        idToken: idToken,
+      );
+
+      if (response.session == null) {
+        throw Exception('apple_sign_in_no_session');
+      }
+
+      // Create or update profile for Apple sign-in users
+      final user = response.user;
+      if (user != null) {
+        // Apple may hide email, use what's available
+        final email = signInWithApple['email'] ?? user.email;
+        final fullName = signInWithApple['fullName'] ??
+            user.userMetadata?['full_name'] as String? ??
+            user.userMetadata?['name'] as String?;
+
+        await _ensureProfileExists(
+          userId: user.id,
+          email: email,
+          fullName: fullName,
+          avatarUrl: null, // Apple doesn't provide avatar
+        );
+      }
+
+      // Warm profile cache after successful sign-in
+      await _warmProfileCache();
+      
+      // Check if user is an instructor
+      await InstructorService.instance.checkInstructorStatus();
+
+      TelemetryService.instance.recordEvent('apple_sign_in_success');
+    } on AuthException catch (e) {
+      TelemetryService.instance.recordEvent(
+        'apple_sign_in_auth_error',
+        data: {'message': e.message, 'statusCode': e.statusCode ?? 'null'},
+      );
+      
+      final msg = e.message.toLowerCase();
+      if (msg.contains('user already registered') || msg.contains('already exists')) {
+        throw Exception('apple_sign_in_email_exists');
+      }
+      throw Exception('apple_sign_in_failed');
+    } catch (e) {
+      final msg = e.toString().toLowerCase();
+      if (msg.contains('cancelled') || msg.contains('canceled')) {
+        throw Exception('apple_sign_in_cancelled');
+      }
+      if (msg.contains('network')) {
+        throw Exception('apple_sign_in_network_error');
+      }
+      
+      TelemetryService.instance.recordEvent(
+        'apple_sign_in_error',
+        data: {'error': e.toString()},
+      );
+      rethrow;
+    }
+  }
+
+  /// Perform Apple Sign-In and return credentials.
+  Future<Map<String, String?>?> _performAppleSignIn() async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // Build full name from given and family name
+      final fullName = [
+        credential.givenName,
+        credential.familyName,
+      ].where((s) => s != null && s.isNotEmpty).join(' ');
+
+      return {
+        'idToken': credential.identityToken,
+        'email': credential.email,
+        'fullName': fullName.isNotEmpty ? fullName : null,
+      };
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return null;
+      }
+      rethrow;
+    }
+  }
+
+  /// Check if Apple Sign-In is available on this device.
+  static bool get isAppleSignInAvailable => Platform.isIOS;
 }

@@ -66,7 +66,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     final requests = <Permission>[
       Permission.camera,
-      if (Platform.isAndroid) Permission.notification,
+      // Request notification permission on both Android and iOS
+      if (Platform.isAndroid || Platform.isIOS) Permission.notification,
     ];
 
     final results = await requests.request();
